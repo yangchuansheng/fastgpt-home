@@ -36,6 +36,9 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           submodules: recursive # Fetch submodules
           fetch-depth: 0 # Fetch all history for .GitInfo and .Lastmod
+      - uses: actions/setup-node@v4
+        with:
+          node_version: 20
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
