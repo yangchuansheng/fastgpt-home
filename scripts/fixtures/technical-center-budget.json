@@ -1,0 +1,6 @@
+{
+  "route": "/tech-center",
+  "maxInitialEntries": 12,
+  "baselineGzipBytes": 1743254,
+  "maxIncreaseBytes": 30720
+}

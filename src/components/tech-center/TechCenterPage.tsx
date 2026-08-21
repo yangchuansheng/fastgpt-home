@@ -8,19 +8,17 @@ import { techPublishedLocaleCodes } from '@/lib/publishedLocales';
 import HomeThemeFix from '@/components/home/HomeThemeFix';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
-import { COMMON_TOPICS, PAGE_SIZE } from './constants';
+import { CATEGORY_DEFINITIONS, COMMON_TOPICS, PAGE_SIZE } from './constants';
 import {
   getTechEntryPath,
   type CategoryMeta,
   type TechCategoryKey,
   type TechEntry,
-  type TechSearchEntry,
-  type TechSource
+  type TechSearchEntry
 } from './types';
 import styles from './TechCenterPage.module.css';
 
-type SourceFilter = 'all' | TechSource;
-type SortMode = 'default' | 'title' | 'minutes';
+type SortMode = 'default' | 'title';
 
 const FLOW_NODES = [
   { number: '01', title: 'API 调用', kind: 'Request' },
@@ -29,26 +27,54 @@ const FLOW_NODES = [
   { number: '04', title: '流式响应', kind: 'SSE' }
 ];
 
-const SOURCE_OPTIONS: { value: SourceFilter; label: string }[] = [
-  { value: 'all', label: '全部来源' },
-  { value: '官方文档', label: '官方文档' },
-  { value: 'GitHub issue', label: 'GitHub Issue' },
-  { value: '深度场景内容', label: '深度场景内容' }
+const SEARCH_ENTRY_KEYS = [
+  'identity',
+  'title',
+  'description',
+  'category',
+  'locale',
+  'publicPath'
 ];
+const SEARCH_CATEGORIES: ReadonlySet<string> = new Set(
+  CATEGORY_DEFINITIONS.map(({ key }) => key)
+);
 
 function isTechSearchEntry(value: unknown): value is TechSearchEntry {
   if (!value || typeof value !== 'object') return false;
   const entry = value as Record<string, unknown>;
+  if (
+    Object.keys(entry).length !== SEARCH_ENTRY_KEYS.length ||
+    SEARCH_ENTRY_KEYS.some((key) => !Object.prototype.hasOwnProperty.call(entry, key))
+  ) {
+    return false;
+  }
+
   return (
+    typeof entry.identity === 'string' &&
     typeof entry.title === 'string' &&
-    typeof entry.slug === 'string' &&
+    typeof entry.description === 'string' &&
     typeof entry.category === 'string' &&
-    typeof entry.categoryLabel === 'string' &&
-    typeof entry.sourceType === 'string' &&
-    typeof entry.summary === 'string' &&
-    typeof entry.minutes === 'number' &&
-    Number.isInteger(entry.minutes)
+    typeof entry.locale === 'string' &&
+    typeof entry.publicPath === 'string' &&
+    entry.title.trim().length > 0 &&
+    entry.description.trim().length > 0 &&
+    SEARCH_CATEGORIES.has(entry.category) &&
+    entry.locale.trim().length > 0 &&
+    entry.publicPath.startsWith('/') &&
+    !entry.publicPath.startsWith('//') &&
+    !/[?#\\]/.test(entry.publicPath) &&
+    entry.identity === `${entry.locale}|${entry.publicPath}`
   );
+}
+
+function isTechSearchProjection(
+  value: unknown,
+  expectedLength: number
+): value is TechSearchEntry[] {
+  if (!Array.isArray(value) || value.length !== expectedLength || !value.every(isTechSearchEntry)) {
+    return false;
+  }
+  return new Set(value.map((entry) => (entry as TechSearchEntry).identity)).size === value.length;
 }
 
 function getCategoryLabel(category: TechCategoryKey, categoryMeta: CategoryMeta[]) {
@@ -83,7 +109,7 @@ export default function TechCenterPage({
   links: NavLink[];
   navCta: NavCta;
   footer: HomeFooter;
-  initialEntries: TechEntry[];
+  initialEntries: TechSearchEntry[];
   featuredEntry: TechEntry;
   categoryMeta: CategoryMeta[];
   totalEntries: number;
@@ -92,7 +118,6 @@ export default function TechCenterPage({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<TechCategoryKey>('all');
-  const [source, setSource] = useState<SourceFilter>('all');
   const [sort, setSort] = useState<SortMode>('default');
   const [page, setPage] = useState(1);
   const [urlStateReady, setUrlStateReady] = useState(false);
@@ -111,30 +136,30 @@ export default function TechCenterPage({
         return response.json() as Promise<unknown>;
       })
       .then((value) => {
-        if (!Array.isArray(value) || !value.every(isTechSearchEntry)) {
+        if (!isTechSearchProjection(value, totalEntries)) {
           throw new Error('Technical search projection schema drift');
         }
         if (active) setEntries(value);
       })
-      .catch(() => {});
+      .catch(() => {
+        // The server-rendered entries remain the accessible fallback for projection failures.
+      });
 
     return () => {
       active = false;
     };
-  }, []);
+  }, [totalEntries]);
 
   const filteredEntries = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('zh-CN');
     const result = entries.filter((entry) => {
       const categoryMatch = category === 'all' || entry.category === category;
-      const sourceMatch = source === 'all' || entry.sourceType === source;
-      const haystack = [entry.title, entry.summary, entry.categoryLabel, entry.sourceType]
+      const categoryLabel = getCategoryLabel(entry.category, categoryMeta);
+      const haystack = [entry.title, entry.description, categoryLabel]
         .join(' ')
         .toLocaleLowerCase('zh-CN');
 
-      return (
-        categoryMatch && sourceMatch && (!normalizedQuery || haystack.includes(normalizedQuery))
-      );
+      return categoryMatch && (!normalizedQuery || haystack.includes(normalizedQuery));
     });
 
     if (sort === 'title') {
@@ -142,16 +167,8 @@ export default function TechCenterPage({
         .slice()
         .sort((first, second) => first.title.localeCompare(second.title, 'zh-CN'));
     }
-    if (sort === 'minutes') {
-      return result
-        .slice()
-        .sort(
-          (first, second) =>
-            first.minutes - second.minutes || first.title.localeCompare(second.title, 'zh-CN')
-        );
-    }
     return result;
-  }, [category, entries, query, sort, source]);
+  }, [category, categoryMeta, entries, query, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filteredEntries.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -165,7 +182,6 @@ export default function TechCenterPage({
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlCategory = params.get('category') as TechCategoryKey | null;
-    const urlSource = params.get('source') as SourceFilter | null;
     const urlSort = params.get('sort') as SortMode | null;
 
     queueMicrotask(() => {
@@ -175,10 +191,7 @@ export default function TechCenterPage({
       ) {
         setCategory(urlCategory);
       }
-      if (urlSource && SOURCE_OPTIONS.some((item) => item.value === urlSource)) {
-        setSource(urlSource);
-      }
-      if (urlSort === 'default' || urlSort === 'title' || urlSort === 'minutes') {
+      if (urlSort === 'default' || urlSort === 'title') {
         setSort(urlSort);
       }
       setQuery(params.get('q') || '');
@@ -194,7 +207,6 @@ export default function TechCenterPage({
     const values: Record<string, string> = {
       category,
       q: query.trim(),
-      source,
       sort,
       page: String(currentPage)
     };
@@ -206,8 +218,9 @@ export default function TechCenterPage({
         url.searchParams.set(key, value);
       }
     });
+    url.searchParams.delete('source');
     window.history.replaceState(null, '', url);
-  }, [category, currentPage, query, sort, source, urlStateReady]);
+  }, [category, currentPage, query, sort, urlStateReady]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -242,7 +255,6 @@ export default function TechCenterPage({
   const clearFilters = () => {
     setCategory('all');
     setQuery('');
-    setSource('all');
     setSort('default');
     setPage(1);
   };
@@ -411,26 +423,6 @@ export default function TechCenterPage({
                   </button>
                 ))}
               </div>
-              <div className={styles.mobileFilterRow}>
-                <label className={styles.srOnly} htmlFor="mobile-source-filter">
-                  来源类型
-                </label>
-                <select
-                  className={styles.sourceSelect}
-                  id="mobile-source-filter"
-                  value={source}
-                  onChange={(event) => {
-                    setSource(event.target.value as SourceFilter);
-                    setPage(1);
-                  }}
-                >
-                  {SOURCE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
 
             <div className={styles.filterGroup}>
@@ -452,26 +444,6 @@ export default function TechCenterPage({
               </div>
             </div>
 
-            <div className={styles.filterGroup}>
-              <label className={styles.filterHeading} htmlFor="source-filter">
-                内容来源
-              </label>
-              <select
-                className={styles.sourceSelect}
-                id="source-filter"
-                value={source}
-                onChange={(event) => {
-                  setSource(event.target.value as SourceFilter);
-                  setPage(1);
-                }}
-              >
-                {SOURCE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
           </aside>
 
           <div className={styles.results}>
@@ -498,7 +470,6 @@ export default function TechCenterPage({
               >
                 <option value="default">默认排序</option>
                 <option value="title">按标题</option>
-                <option value="minutes">阅读时间</option>
               </select>
             </div>
 
@@ -506,19 +477,20 @@ export default function TechCenterPage({
               <>
                 <div className={styles.cardGrid}>
                   {pageEntries.map((entry) => (
-                    <article className={styles.articleCard} key={entry.slug}>
+                    <article className={styles.articleCard} key={entry.identity}>
                       <div className={styles.cardTop}>
-                        <span className={styles.badge}>{entry.categoryLabel}</span>
-                        <span className={styles.cardSource}>{entry.sourceType}</span>
+                        <span className={styles.badge}>
+                          {getCategoryLabel(entry.category, categoryMeta)}
+                        </span>
                       </div>
                       <h3 className={styles.cardTitle}>
-                        <a href={getDefaultLocalePath(locale, getTechEntryPath(entry))}>
+                        <a href={getDefaultLocalePath(entry.locale, entry.publicPath)}>
                           {entry.title}
                         </a>
                       </h3>
-                      <p className={styles.cardSummary}>{entry.summary}</p>
+                      <p className={styles.cardSummary}>{entry.description}</p>
                       <div className={styles.cardFooter}>
-                        <span>{entry.minutes} 分钟阅读</span>
+                        <span>阅读技术内容</span>
                         <span className={styles.cardArrow} aria-hidden="true">
                           <ArrowRight size={16} strokeWidth={1.8} />
                         </span>

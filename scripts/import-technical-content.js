@@ -788,11 +788,18 @@ function buildImportPlan({ repoRoot = REPOSITORY_ROOT, sourcePath }) {
 
 function mergeProjectionEntries(existingEntries, pages) {
   const entries = existingEntries.map((entry) => ({ ...entry }));
-  const indexes = new Map(entries.map((entry, index) => [entry.slug, index]));
+  const indexes = new Map(
+    entries.map((entry, index) => [
+      foldIdentity(parseIdentityFromSlug(entry.slug, 'technical content registry')),
+      index
+    ])
+  );
   for (const page of pages) {
-    const existingIndex = indexes.get(page.projection.slug);
+    const identity = parseIdentityFromSlug(page.projection.slug, 'technical content projection');
+    const identityKey = foldIdentity(identity);
+    const existingIndex = indexes.get(identityKey);
     if (existingIndex === undefined) {
-      indexes.set(page.projection.slug, entries.length);
+      indexes.set(identityKey, entries.length);
       entries.push(page.projection);
     } else {
       entries[existingIndex] = page.projection;
@@ -802,15 +809,21 @@ function mergeProjectionEntries(existingEntries, pages) {
 }
 
 function buildSearchProjection(entries) {
-  return entries.map(({ title, slug, category, categoryLabel, sourceType, summary, minutes }) => ({
-    title,
-    slug,
-    category,
-    categoryLabel,
-    sourceType,
-    summary,
-    minutes
-  }));
+  const identities = entries.map((entry) =>
+    parseIdentityFromSlug(entry.slug, 'technical content registry')
+  );
+  validateIdentitySet(identities);
+  return entries.map((entry, index) => {
+    const identity = identities[index];
+    return {
+      identity: foldIdentity(identity),
+      title: entry.title,
+      description: entry.summary,
+      category: entry.category,
+      locale: identity.locale,
+      publicPath: identity.canonicalPath
+    };
+  });
 }
 
 function writeFileAtomic(filePath, content) {
@@ -827,8 +840,12 @@ function writeImportPlan(plan, repoRoot = REPOSITORY_ROOT) {
   const manifestPath = path.join(authorityRoot, 'import-manifest.json');
   const ledgerPath = path.join(authorityRoot, 'decision-ledger.json');
   const entries = mergeProjectionEntries(plan.existingEntries, plan.pages);
+  entries.forEach((entry, index) =>
+    validateAuthorityProjection(entry, `technical content registry[${index}]`)
+  );
+  const searchProjection = buildSearchProjection(entries);
   writeFileAtomic(entryPath, stableJson(entries));
-  writeFileAtomic(searchPath, stableJson(buildSearchProjection(entries)));
+  writeFileAtomic(searchPath, stableJson(searchProjection));
   for (const page of plan.pages) {
     writeFileAtomic(path.join(repoRoot, page.normalizedBodyPath), page.normalizedDocument);
   }
@@ -873,6 +890,29 @@ function validateAuthorityProjection(projection, label) {
   if (projection.minutes < 1)
     throw new Error(`Schema drift in ${label}.minutes: expected at least 1`);
   if (projection.source !== undefined) requireText(projection.source, `${label}.source`);
+}
+
+function validateSearchProjectionEntry(entry, label) {
+  assertExactKeys(
+    entry,
+    ['identity', 'title', 'description', 'category', 'locale', 'publicPath'],
+    label
+  );
+  requireText(entry.identity, `${label}.identity`);
+  requireText(entry.title, `${label}.title`);
+  requireText(entry.description, `${label}.description`);
+  requireText(entry.category, `${label}.category`);
+  if (!Object.prototype.hasOwnProperty.call(CATEGORY_LABELS, entry.category)) {
+    throw new Error(`Schema drift in ${label}.category: unknown category ${entry.category}`);
+  }
+  const locale = requireText(entry.locale, `${label}.locale`);
+  const publicPath = normalizeCanonicalPath(entry.publicPath, `${label}.publicPath`);
+  if (locale !== fold(locale) || publicPath !== entry.publicPath) {
+    throw new Error(`Schema drift in ${label}: public identity fields must be normalized`);
+  }
+  if (entry.identity !== `${locale}|${publicPath}`) {
+    throw new Error(`Schema drift in ${label}.identity: identity does not match locale and path`);
+  }
 }
 
 function validateManifestPage(page, index) {
@@ -993,9 +1033,21 @@ function verifyCommittedAuthority(repoRoot = REPOSITORY_ROOT) {
     fs.readFileSync(path.join(repoRoot, 'src/components/tech-center/entries.json'), 'utf8')
   );
   if (!Array.isArray(entries)) throw new Error('Technical content registry must be an array');
+  entries.forEach((entry, index) =>
+    validateAuthorityProjection(entry, `technical content registry[${index}]`)
+  );
   const searchPath = path.join(repoRoot, 'public/tech-center/search-index.json');
   if (!fs.existsSync(searchPath)) throw new Error('Technical content search projection is missing');
   const searchProjection = JSON.parse(fs.readFileSync(searchPath, 'utf8'));
+  if (!Array.isArray(searchProjection)) {
+    throw new Error('Technical content search projection must be an array');
+  }
+  searchProjection.forEach((entry, index) =>
+    validateSearchProjectionEntry(entry, `technical search projection[${index}]`)
+  );
+  validateIdentitySet(
+    searchProjection.map((entry) => ({ locale: entry.locale, canonicalPath: entry.publicPath }))
+  );
   const expectedSearchProjection = buildSearchProjection(entries);
   if (JSON.stringify(searchProjection) !== JSON.stringify(expectedSearchProjection)) {
     throw new Error('Technical content search projection drift');
@@ -1094,6 +1146,7 @@ if (require.main === module) {
 
 module.exports = {
   buildImportPlan,
+  buildSearchProjection,
   foldIdentity,
   main,
   validateIdentitySet,

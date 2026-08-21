@@ -7,6 +7,7 @@ const test = require('node:test');
 
 const {
   buildImportPlan,
+  buildSearchProjection,
   foldIdentity,
   validateIdentitySet
 } = require('./import-technical-content');
@@ -84,6 +85,14 @@ test('identity folding rejects full-identity collisions and permits repeated fin
       ]),
     /identity collision/i
   );
+  assert.throws(
+    () =>
+      buildSearchProjection([
+        { slug: '/zh/reference/example', title: 'One', summary: 'One', category: 'reference' },
+        { slug: '/ZH/REFERENCE/example', title: 'Two', summary: 'Two', category: 'reference' }
+      ]),
+    /identity collision/i
+  );
 });
 
 test('schema drift fails with an actionable error', () => {
@@ -123,4 +132,38 @@ test('check mode leaves committed projections byte-for-byte unchanged', () => {
   outputs.forEach((relativePath, index) => {
     assert.deepEqual(fs.readFileSync(path.join(root, relativePath)), before[index], relativePath);
   });
+});
+
+test('public search projection contains only discovery fields and matches the registry', () => {
+  const entries = JSON.parse(
+    fs.readFileSync(path.join(root, 'src/components/tech-center/entries.json'), 'utf8')
+  );
+  const projection = buildSearchProjection(entries);
+  const firstEntry = entries[0];
+
+  assert.deepEqual(Object.keys(projection[0]), [
+    'identity',
+    'title',
+    'description',
+    'category',
+    'locale',
+    'publicPath'
+  ]);
+  assert.deepEqual(projection[0], {
+    identity: 'zh|/tutorial/private-deployment-topology',
+    title: firstEntry.title,
+    description: firstEntry.summary,
+    category: firstEntry.category,
+    locale: 'zh',
+    publicPath: '/tutorial/private-deployment-topology'
+  });
+  assert.equal(new Set(projection.map((entry) => entry.identity)).size, entries.length);
+  assert.deepEqual(
+    [...new Set(projection.flatMap((entry) => Object.keys(entry)))].sort(),
+    ['category', 'description', 'identity', 'locale', 'publicPath', 'title']
+  );
+  assert.deepEqual(
+    JSON.parse(fs.readFileSync(path.join(root, 'public/tech-center/search-index.json'), 'utf8')),
+    projection
+  );
 });

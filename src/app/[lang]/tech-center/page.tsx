@@ -6,6 +6,7 @@ import { defaultLocale, getDictionary } from '@/lib/i18n';
 import { localeMap } from '@/lib/seo';
 import { getOwnedLocaleUrl } from '@/lib/siteRouting';
 import { normalizeLocale } from '@/lib/locales';
+import { toTechSearchEntry } from '@/components/tech-center/types';
 import { Metadata } from 'next';
 
 const titleMap: Record<string, string> = {
@@ -49,7 +50,7 @@ export default async function TechCenterRoute({ params }: { params: Promise<{ la
         links={dict.links}
         navCta={dict.Home.navCta}
         footer={dict.Home.footer}
-        initialEntries={TECH_ENTRIES.slice(0, PAGE_SIZE)}
+        initialEntries={TECH_ENTRIES.slice(0, PAGE_SIZE).map(toTechSearchEntry)}
         featuredEntry={FEATURED_ENTRY}
         categoryMeta={CATEGORY_META}
         totalEntries={TECH_ENTRIES.length}
