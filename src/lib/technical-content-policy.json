@@ -1,0 +1,19 @@
+{
+  "categories": {
+    "api": "API",
+    "dataset": "知识库",
+    "deploy": "部署与升级",
+    "integration": "集成",
+    "node": "工作流节点",
+    "reference": "技术速查",
+    "troubleshoot": "故障排查",
+    "tutorial": "教程"
+  },
+  "sourceTypes": {
+    "官方文档": "官方文档",
+    "官方文档小节": "官方文档",
+    "GitHub issue": "GitHub issue",
+    "GitHub Issue": "GitHub issue",
+    "深度场景内容": "深度场景内容"
+  }
+}

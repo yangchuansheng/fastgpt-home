@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "node scripts/verify-content-hygiene.js --mode source && node scripts/generate-robots.js && node scripts/generate-llms.js",
+    "prebuild": "node scripts/verify-content-hygiene.js --mode source && node scripts/verify-technical-content.js && node scripts/generate-robots.js && node scripts/generate-llms.js",
     "build": "next build && node scripts/clean-locale-output.js && node scripts/clean-faq-rsc.js && node scripts/fix-html-lang.js && node scripts/verify-content-hygiene.js --mode html --root out",
     "start": "npx serve@latest out",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -29,6 +29,9 @@
     "verify:content-hygiene": "node scripts/verify-content-hygiene.js --mode source",
     "verify:content-hygiene-html": "node scripts/verify-content-hygiene.js --mode html --root out",
     "verify:content-hygiene-regression": "node --test scripts/verify-content-hygiene.test.js",
+    "verify:technical-content": "node scripts/verify-technical-content.js",
+    "verify:technical-content-regression": "node --test scripts/verify-technical-content.test.js",
+    "import:technical-content": "node scripts/import-technical-content.js",
     "verify:seo-basics": "node --test scripts/verify-seo-basics.test.js",
     "verify:guide-export": "node scripts/verify-guide-export.js",
     "verify:guide-export-regression": "node --test scripts/verify-guide-export.test.js",

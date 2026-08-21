@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "file": "delivery.json",
+    "format": "json",
+    "sha256": "21453bb39fe1ee5f8da67c696167e2db799a556692fc0b43718d78be5055d76c",
+    "acceptedCount": 3,
+    "deniedCount": 1
+  },
+  "pages": [
+    {
+      "identity": {
+        "locale": "zh",
+        "canonicalPath": "/deploy/fastgpt-opensandbox-env-config"
+      },
+      "operation": "add",
+      "provenance": {
+        "deliveryFile": "delivery.json",
+        "deliveryRow": 2,
+        "sourceFile": "deploy/fastgpt-opensandbox-env-config.md",
+        "rawSlug": "deploy/fastgpt-opensandbox-env-config",
+        "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host/config/sandbox/opensandbox",
+        "wordCount": 642,
+        "sourceCount": 1
+      },
+      "sourceHash": "97a2c8a79e220872e87d6ad2fe5699c1ea0309ba957182fab32709588141d962",
+      "normalizedBody": {
+        "path": "src/content/tech-center/deploy/fastgpt-opensandbox-env-config.md",
+        "sha256": "e5951a3bf581417e4e3227c23b7d82dd6d97aef2fe2e4a5c261c0fa3e17535b9"
+      },
+      "projection": {
+        "title": "配置fastgpt-app与fastgpt-pro共用OpenSandbox服务环境变量",
+        "slug": "/zh/deploy/fastgpt-opensandbox-env-config",
+        "category": "deploy",
+        "categoryLabel": "部署与升级",
+        "source": "https://doc.fastgpt.cn/zh-CN/self-host/config/sandbox/opensandbox",
+        "sourceType": "官方文档",
+        "summary": "配置fastgpt-app与fastgpt-pro共用OpenSandbox服务环境变量 配置步骤 在 fastgpt-app 与 fastgpt-pro 中启用 OpenSandbox，配置服务地址、API Key 和运行时镜像。两套服务使用同一组认证参数，部署后需要从 FastGPT 网络内验证服务连通…",
+        "minutes": 1
+      }
+    },
+    {
+      "identity": {
+        "locale": "zh",
+        "canonicalPath": "/reference/fastgpt-chatglm2-m3e-api-test"
+      },
+      "operation": "add",
+      "provenance": {
+        "deliveryFile": "delivery.json",
+        "deliveryRow": 4,
+        "sourceFile": "reference/fastgpt-chatglm2-m3e-api-test.md",
+        "rawSlug": "reference/fastgpt-chatglm2-m3e-api-test",
+        "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host/custom-models/chatglm2-m3e",
+        "wordCount": 521,
+        "sourceCount": 2
+      },
+      "sourceHash": "b495d78889b9206abafa091d391767a55238212505c4be334af75ec1fef8f911",
+      "normalizedBody": {
+        "path": "src/content/tech-center/reference/fastgpt-chatglm2-m3e-api-test.md",
+        "sha256": "3829488d1c4546515ee08130d2cbd6a00a2c1b253a20d1f4fa83063f2776ecff"
+      },
+      "projection": {
+        "title": "FastGPT中调用ChatGLM2与M3E自定义模型的API测试方法",
+        "slug": "/zh/reference/fastgpt-chatglm2-m3e-api-test",
+        "category": "reference",
+        "categoryLabel": "技术速查",
+        "source": "https://doc.fastgpt.cn/zh-CN/self-host/custom-models/chatglm2-m3e",
+        "sourceType": "官方文档",
+        "summary": "FastGPT中调用ChatGLM2与M3E自定义模型的API测试方法 请求鉴权 请求头需要包含 Authorization: Bearer YOURAPIKEY 与 Content-Type: application/json。发布页面使用占位符承载示例密钥，调用时替换为自己的 API Key。 测试接口…",
+        "minutes": 1
+      }
+    },
+    {
+      "identity": {
+        "locale": "zh",
+        "canonicalPath": "/reference/fastgpt-opensandbox-env-config"
+      },
+      "operation": "add",
+      "provenance": {
+        "deliveryFile": "delivery.json",
+        "deliveryRow": 3,
+        "sourceFile": "reference/fastgpt-opensandbox-env-config.md",
+        "rawSlug": "deploy/fastgpt-opensandbox-env-config",
+        "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host/config/sandbox/opensandbox",
+        "wordCount": 438,
+        "sourceCount": 1
+      },
+      "sourceHash": "9625bac60e3cdfe88f674e3d334f7641afd0778738fe745496c80e6e56ae6107",
+      "normalizedBody": {
+        "path": "src/content/tech-center/reference/fastgpt-opensandbox-env-config.md",
+        "sha256": "4dcbaba71a3b2d42c151fa25052cd2d48f07ec43442709c53941c9938aa59343"
+      },
+      "projection": {
+        "title": "配置FastGPT自部署场景下OpenSandbox服务的环境变量",
+        "slug": "/zh/reference/fastgpt-opensandbox-env-config",
+        "category": "reference",
+        "categoryLabel": "技术速查",
+        "source": "https://doc.fastgpt.cn/zh-CN/self-host/config/sandbox/opensandbox",
+        "sourceType": "官方文档",
+        "summary": "配置FastGPT自部署场景下OpenSandbox服务的环境变量 具体配置 检查 Compose 文件中的 x-volume-manager-auth-token、[server].apikey 和 [docker].hostip，并将它们与 FastGPT 的 OpenSandbox 环境变量保持一致。…",
+        "minutes": 1
+      }
+    }
+  ]
+}

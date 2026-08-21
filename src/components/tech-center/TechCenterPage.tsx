@@ -8,16 +8,15 @@ import { techPublishedLocaleCodes } from '@/lib/publishedLocales';
 import HomeThemeFix from '@/components/home/HomeThemeFix';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
+import { COMMON_TOPICS, PAGE_SIZE } from './constants';
 import {
-  CATEGORY_META,
-  COMMON_TOPICS,
-  FEATURED_ENTRY,
   getTechEntryPath,
-  PAGE_SIZE,
-  TECH_ENTRIES,
+  type CategoryMeta,
   type TechCategoryKey,
+  type TechEntry,
+  type TechSearchEntry,
   type TechSource
-} from './data';
+} from './types';
 import styles from './TechCenterPage.module.css';
 
 type SourceFilter = 'all' | TechSource;
@@ -37,14 +36,24 @@ const SOURCE_OPTIONS: { value: SourceFilter; label: string }[] = [
   { value: '深度场景内容', label: '深度场景内容' }
 ];
 
-const CATEGORY_ITEMS = [
-  { key: 'all' as const, label: '全部内容', icon: '◫', count: TECH_ENTRIES.length },
-  ...CATEGORY_META
-];
+function isTechSearchEntry(value: unknown): value is TechSearchEntry {
+  if (!value || typeof value !== 'object') return false;
+  const entry = value as Record<string, unknown>;
+  return (
+    typeof entry.title === 'string' &&
+    typeof entry.slug === 'string' &&
+    typeof entry.category === 'string' &&
+    typeof entry.categoryLabel === 'string' &&
+    typeof entry.sourceType === 'string' &&
+    typeof entry.summary === 'string' &&
+    typeof entry.minutes === 'number' &&
+    Number.isInteger(entry.minutes)
+  );
+}
 
-function getCategoryLabel(category: TechCategoryKey) {
+function getCategoryLabel(category: TechCategoryKey, categoryMeta: CategoryMeta[]) {
   if (category === 'all') return '按任务找到答案';
-  return CATEGORY_META.find((item) => item.key === category)?.label || category;
+  return categoryMeta.find((item) => item.key === category)?.label || category;
 }
 
 function visiblePageNumbers(current: number, total: number) {
@@ -64,12 +73,20 @@ export default function TechCenterPage({
   locale,
   links,
   navCta,
-  footer
+  footer,
+  initialEntries,
+  featuredEntry,
+  categoryMeta,
+  totalEntries
 }: {
   locale: string;
   links: NavLink[];
   navCta: NavCta;
   footer: HomeFooter;
+  initialEntries: TechEntry[];
+  featuredEntry: TechEntry;
+  categoryMeta: CategoryMeta[];
+  totalEntries: number;
 }) {
   const resultsTitleRef = useRef<HTMLHeadingElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -79,10 +96,36 @@ export default function TechCenterPage({
   const [sort, setSort] = useState<SortMode>('default');
   const [page, setPage] = useState(1);
   const [urlStateReady, setUrlStateReady] = useState(false);
+  const [entries, setEntries] = useState<TechSearchEntry[]>(initialEntries);
+
+  const categoryItems = [
+    { key: 'all' as const, label: '全部内容', icon: '◫', count: totalEntries },
+    ...categoryMeta
+  ];
+
+  useEffect(() => {
+    let active = true;
+    fetch('/tech-center/search-index.json')
+      .then((response) => {
+        if (!response.ok) throw new Error('Technical search projection request failed');
+        return response.json() as Promise<unknown>;
+      })
+      .then((value) => {
+        if (!Array.isArray(value) || !value.every(isTechSearchEntry)) {
+          throw new Error('Technical search projection schema drift');
+        }
+        if (active) setEntries(value);
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const filteredEntries = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('zh-CN');
-    const result = TECH_ENTRIES.filter((entry) => {
+    const result = entries.filter((entry) => {
       const categoryMatch = category === 'all' || entry.category === category;
       const sourceMatch = source === 'all' || entry.sourceType === source;
       const haystack = [entry.title, entry.summary, entry.categoryLabel, entry.sourceType]
@@ -108,13 +151,13 @@ export default function TechCenterPage({
         );
     }
     return result;
-  }, [category, query, sort, source]);
+  }, [category, entries, query, sort, source]);
 
   const totalPages = Math.max(1, Math.ceil(filteredEntries.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageEntries = filteredEntries.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const pageNumbers = visiblePageNumbers(currentPage, totalPages);
-  const resultsTitle = query ? '搜索结果' : getCategoryLabel(category);
+  const resultsTitle = query ? '搜索结果' : getCategoryLabel(category, categoryMeta);
   const resultsCount = `共 ${filteredEntries.length} 篇${query ? `，关键词“${query}”` : ''}`;
   const homeHref = getDefaultLocalePath(locale);
   const hubHref = getDefaultLocalePath(locale, '/tech-center');
@@ -128,7 +171,7 @@ export default function TechCenterPage({
     queueMicrotask(() => {
       if (
         urlCategory &&
-        (urlCategory === 'all' || CATEGORY_META.some((item) => item.key === urlCategory))
+        (urlCategory === 'all' || categoryMeta.some((item) => item.key === urlCategory))
       ) {
         setCategory(urlCategory);
       }
@@ -142,7 +185,7 @@ export default function TechCenterPage({
       setPage(Math.max(1, Number(params.get('page')) || 1));
       setUrlStateReady(true);
     });
-  }, []);
+  }, [categoryMeta]);
 
   useEffect(() => {
     if (!urlStateReady) return;
@@ -232,8 +275,8 @@ export default function TechCenterPage({
             直接找到可执行答案。
           </h1>
           <p className={styles.introCopy}>
-            面向开发与部署人员，按任务搜索 668 篇技术内容，覆盖部署升级、知识库、工作流、集成与
-            API。
+            面向开发与部署人员，按任务搜索 {totalEntries}{' '}
+            篇技术内容，覆盖部署升级、知识库、工作流、集成与 API。
           </p>
           <form
             className={styles.searchPanel}
@@ -279,8 +322,8 @@ export default function TechCenterPage({
             </button>
           </form>
           <div className={styles.trustBar} aria-label="技术内容概览">
-            <span>668 篇内容</span>
-            <span>7 个主题</span>
+            <span>{totalEntries} 篇内容</span>
+            <span>{categoryMeta.length} 个主题</span>
             <span>官方文档与公开 Issue</span>
           </div>
         </section>
@@ -311,26 +354,26 @@ export default function TechCenterPage({
           <div className={styles.featuredCopy}>
             <div className={styles.featuredEyebrow}>推荐入口</div>
             <div className={styles.metaRow}>
-              <span className={styles.badge}>{FEATURED_ENTRY.categoryLabel}</span>
+              <span className={styles.badge}>{featuredEntry.categoryLabel}</span>
               <span className={`${styles.badge} ${styles.sourceBadge}`}>
-                {FEATURED_ENTRY.sourceType}
+                {featuredEntry.sourceType}
               </span>
-              <span>{FEATURED_ENTRY.minutes} 分钟阅读</span>
+              <span>{featuredEntry.minutes} 分钟阅读</span>
             </div>
             <h2 className={styles.featuredTitle} id="featured-title">
-              {FEATURED_ENTRY.title}
+              {featuredEntry.title}
             </h2>
-            <p className={styles.featuredSummary}>{FEATURED_ENTRY.summary}</p>
+            <p className={styles.featuredSummary}>{featuredEntry.summary}</p>
             <div className={styles.featuredActions}>
               <a
                 className={styles.primaryLink}
-                href={getDefaultLocalePath(locale, getTechEntryPath(FEATURED_ENTRY))}
+                href={getDefaultLocalePath(locale, getTechEntryPath(featuredEntry))}
               >
                 阅读 API 指南 <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
               </a>
               <a
                 className={styles.textLink}
-                href={FEATURED_ENTRY.source}
+                href={featuredEntry.source}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -349,7 +392,7 @@ export default function TechCenterPage({
             <div className={styles.filterGroup}>
               <h2 className={styles.filterHeading}>按主题</h2>
               <div className={styles.categoryList}>
-                {CATEGORY_ITEMS.map((item) => (
+                {categoryItems.map((item) => (
                   <button
                     className={styles.categoryButton}
                     type="button"

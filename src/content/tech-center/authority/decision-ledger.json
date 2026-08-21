@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "corrections": [
+    {
+      "identity": {
+        "locale": "zh",
+        "canonicalPath": "/reference/fastgpt-chatglm2-m3e-api-test"
+      },
+      "field": "body",
+      "from": "synthetic secret-shaped value",
+      "to": "YOUR_API_KEY",
+      "reason": "Replace 1 synthetic secret-shaped example value(s) before publication."
+    },
+    {
+      "identity": {
+        "locale": "zh",
+        "canonicalPath": "/reference/fastgpt-opensandbox-env-config"
+      },
+      "field": "canonicalPath",
+      "from": "/deploy/fastgpt-opensandbox-env-config",
+      "to": "/reference/fastgpt-opensandbox-env-config",
+      "reason": "Use the owner-relative source file path as the canonical path when the delivery slug prefix disagrees."
+    },
+    {
+      "identity": {
+        "locale": "zh",
+        "canonicalPath": "/reference/fastgpt-opensandbox-env-config"
+      },
+      "field": "pageType",
+      "from": "部署场景",
+      "to": "技术速查",
+      "reason": "Use the page type declared by the normalized Markdown front matter and retain the delivery value as provenance."
+    }
+  ],
+  "denials": [
+    {
+      "identity": {
+        "locale": "zh",
+        "canonicalPath": "/reference/fastgpt-chatglm2-custom-model-test"
+      },
+      "rawSlug": "reference/fastgpt-chatglm2-custom-model-test",
+      "title": "在FastGPT中测试ChatGLM2自定义模型的接口方法",
+      "reason": "内容已并入保留页，合并后的页面承担同一搜索意图。",
+      "row": 2
+    }
+  ],
+  "approvedExceptions": []
+}

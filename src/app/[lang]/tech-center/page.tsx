@@ -1,5 +1,7 @@
 import TechCenterPage from '@/components/tech-center/TechCenterPage';
 import { TechCenterHubJsonLd } from '@/components/tech-center/TechCenterJsonLd';
+import { CATEGORY_META, FEATURED_ENTRY, TECH_ENTRIES } from '@/components/tech-center/data';
+import { PAGE_SIZE } from '@/components/tech-center/constants';
 import { defaultLocale, getDictionary } from '@/lib/i18n';
 import { localeMap } from '@/lib/seo';
 import { getOwnedLocaleUrl } from '@/lib/siteRouting';
@@ -19,7 +21,7 @@ const titleMap: Record<string, string> = {
 };
 
 const descriptionMap: Record<string, string> = {
-  zh: '面向开发与部署人员的 FastGPT 技术中心，按任务搜索 668 篇部署升级、知识库、工作流、集成与 API 内容。',
+  zh: `面向开发与部署人员的 FastGPT 技术中心，按任务搜索 ${TECH_ENTRIES.length} 篇部署升级、知识库、工作流、集成与 API 内容。`,
   'zh-hant': '瀏覽 FastGPT 部署升級、故障排查、知識庫、工作流節點、第三方整合與 API 技術指南。',
   en: 'Browse FastGPT guides for deployment, troubleshooting, knowledge bases, workflow nodes, integrations, and APIs.',
   ja: 'FastGPT のデプロイ、トラブルシューティング、RAG、ワークフロー、連携、API ガイドを閲覧できます。',
@@ -47,6 +49,10 @@ export default async function TechCenterRoute({ params }: { params: Promise<{ la
         links={dict.links}
         navCta={dict.Home.navCta}
         footer={dict.Home.footer}
+        initialEntries={TECH_ENTRIES.slice(0, PAGE_SIZE)}
+        featuredEntry={FEATURED_ENTRY}
+        categoryMeta={CATEGORY_META}
+        totalEntries={TECH_ENTRIES.length}
       />
     </>
   );

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "accepted": [
+    {
+      "file": "deploy/fastgpt-opensandbox-env-config.md",
+      "prefix": "deploy",
+      "slug": "deploy/fastgpt-opensandbox-env-config",
+      "title": "配置fastgpt-app与fastgpt-pro共用OpenSandbox服务环境变量",
+      "pageType": "部署场景",
+      "wordCount": 642,
+      "sourceCount": 1,
+      "source": "https://doc.fastgpt.cn/zh-CN/self-host/config/sandbox/opensandbox"
+    },
+    {
+      "file": "reference/fastgpt-opensandbox-env-config.md",
+      "prefix": "reference",
+      "slug": "deploy/fastgpt-opensandbox-env-config",
+      "title": "配置FastGPT自部署场景下OpenSandbox服务的环境变量",
+      "pageType": "部署场景",
+      "wordCount": 438,
+      "sourceCount": 1,
+      "source": "https://doc.fastgpt.cn/zh-CN/self-host/config/sandbox/opensandbox"
+    },
+    {
+      "file": "reference/fastgpt-chatglm2-m3e-api-test.md",
+      "prefix": "reference",
+      "slug": "reference/fastgpt-chatglm2-m3e-api-test",
+      "title": "FastGPT中调用ChatGLM2与M3E自定义模型的API测试方法",
+      "pageType": "技术速查",
+      "wordCount": 521,
+      "sourceCount": 2,
+      "source": "https://doc.fastgpt.cn/zh-CN/self-host/custom-models/chatglm2-m3e"
+    }
+  ],
+  "denied": [
+    {
+      "slug": "reference/fastgpt-chatglm2-custom-model-test",
+      "title": "在FastGPT中测试ChatGLM2自定义模型的接口方法",
+      "reason": "内容已并入保留页，合并后的页面承担同一搜索意图。"
+    }
+  ]
+}
