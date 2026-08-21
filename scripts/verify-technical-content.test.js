@@ -6,10 +6,13 @@ const { spawnSync } = require('node:child_process');
 const test = require('node:test');
 
 const {
+  assertDeniedIdentitiesAbsent,
   buildImportPlan,
   buildSearchProjection,
   foldIdentity,
-  validateIdentitySet
+  validateIdentitySet,
+  verifyImportPlanNoDrift,
+  writeImportPlan
 } = require('./import-technical-content');
 
 const root = path.resolve(__dirname, '..');
@@ -58,6 +61,58 @@ test('representative delivery normalizes the canonical path and body', () => {
   );
 });
 
+test('previously imported add remains net-new when a later delivery changes its body', () => {
+  const tempSource = fs.mkdtempSync(path.join(os.tmpdir(), 'technical-content-delivery-'));
+  fs.cpSync(fixture, tempSource, { recursive: true });
+  const sourceFile = path.join(tempSource, 'reference/fastgpt-chatglm2-m3e-api-test.md');
+  fs.appendFileSync(sourceFile, '\n追加的交付说明。\n');
+
+  const plan = buildImportPlan({ repoRoot: root, sourcePath: tempSource });
+  const changedPage = plan.pages.find(
+    (page) => page.identity.canonicalPath === '/reference/fastgpt-chatglm2-m3e-api-test'
+  );
+
+  assert.equal(changedPage.operation, 'add');
+});
+
+test('normalizes bare source citations into descriptive Markdown links', () => {
+  const tempSource = fs.mkdtempSync(path.join(os.tmpdir(), 'technical-content-delivery-'));
+  fs.cpSync(fixture, tempSource, { recursive: true });
+  const sourceFile = path.join(tempSource, 'reference/fastgpt-opensandbox-env-config.md');
+  const source = fs.readFileSync(sourceFile, 'utf8');
+  fs.writeFileSync(
+    sourceFile,
+    source.replace(/> 来源：\[[^\]]+\]\((https:\/\/[^)]+)\)/, '> 来源：$1')
+  );
+
+  const plan = buildImportPlan({ repoRoot: root, sourcePath: tempSource });
+  const page = plan.pages.find(
+    (candidate) => candidate.identity.canonicalPath === '/reference/fastgpt-opensandbox-env-config'
+  );
+
+  assert.match(page.normalizedDocument, /> 来源：\[FastGPT 官方文档\]\(https:\/\/doc\.fastgpt\.cn/);
+  assert.ok(page.corrections.some((correction) => correction.field === 'citations'));
+});
+
+test('normalizes structural escaped line endings', () => {
+  const tempSource = fs.mkdtempSync(path.join(os.tmpdir(), 'technical-content-delivery-'));
+  fs.cpSync(fixture, tempSource, { recursive: true });
+  const sourceFile = path.join(tempSource, 'reference/fastgpt-opensandbox-env-config.md');
+  const source = fs.readFileSync(sourceFile, 'utf8');
+  fs.writeFileSync(
+    sourceFile,
+    source.replace('## 具体配置\n\n', '## 环境变量配置\\n\\n## 具体配置\n\n')
+  );
+
+  const plan = buildImportPlan({ repoRoot: root, sourcePath: tempSource });
+  const page = plan.pages.find(
+    (candidate) => candidate.identity.canonicalPath === '/reference/fastgpt-opensandbox-env-config'
+  );
+
+  assert.match(page.normalizedDocument, /## 环境变量配置\n\n## 具体配置/);
+  assert.ok(page.corrections.some((correction) => correction.field === 'lineEndings'));
+});
+
 test('identity folding rejects full-identity collisions and permits repeated final slugs', () => {
   assert.equal(
     foldIdentity({ locale: 'ZH', canonicalPath: '/Reference/Example' }),
@@ -95,6 +150,31 @@ test('identity folding rejects full-identity collisions and permits repeated fin
   );
 });
 
+test('materialized plans pass the zero-drift check and denied identities stay out of projections', () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'technical-content-authority-'));
+  fs.mkdirSync(path.join(tempRoot, 'src/components/tech-center'), { recursive: true });
+  fs.writeFileSync(path.join(tempRoot, 'src/components/tech-center/entries.json'), '[\n]\n');
+  const plan = buildImportPlan({ repoRoot: tempRoot, sourcePath: fixture });
+
+  writeImportPlan(plan, tempRoot);
+  assert.doesNotThrow(() => verifyImportPlanNoDrift(plan, tempRoot));
+
+  const denied = { locale: 'zh', canonicalPath: '/reference/blocked-page' };
+  const projection = {
+    title: 'Blocked page',
+    slug: '/zh/reference/blocked-page',
+    category: 'reference',
+    categoryLabel: 'Reference',
+    sourceType: 'Official docs',
+    summary: 'Blocked page',
+    minutes: 1
+  };
+  assert.throws(
+    () => assertDeniedIdentitiesAbsent([{ identity: denied }], [projection], []),
+    /Denied technical content identity/
+  );
+});
+
 test('schema drift fails with an actionable error', () => {
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'technical-content-'));
   fs.cpSync(fixture, tempRoot, { recursive: true });
@@ -128,7 +208,8 @@ test('check mode leaves committed projections byte-for-byte unchanged', () => {
     { cwd: root, encoding: 'utf8' }
   );
 
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Technical content drift/);
   outputs.forEach((relativePath, index) => {
     assert.deepEqual(fs.readFileSync(path.join(root, relativePath)), before[index], relativePath);
   });

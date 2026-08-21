@@ -583,12 +583,32 @@ function labelledCitationEntries(value) {
 
 function markdownCitationEntries(value) {
   const pattern = new RegExp(CITATION_LABEL_TEXT.source, 'giu');
-  const matches = [...value.matchAll(pattern)];
+  const codeSpans = markdownCodeSpans(value, new Uint8Array(value.length));
+  const matches = [...value.matchAll(pattern)].filter(
+    (match) =>
+      !codeSpans.some(
+        (span) =>
+          match.index >= span.fullStart &&
+          match.index < span.fullEnd &&
+          span.contentStart - span.fullStart >= 3
+      )
+  );
   return matches.map((match, index) => ({
     index: match.index,
     labelEnd: match.index + match[0].length,
     value: value.slice(match.index + match[0].length, matches[index + 1]?.index).trim()
   }));
+}
+
+function markdownCitationLabelCrossesCode(block, startOffset, endOffset) {
+  const localStart = block.offsets.indexOf(startOffset);
+  const localEnd = block.offsets.indexOf(endOffset);
+  if (localStart < 0 || localEnd < 0) return false;
+  const spans = markdownCodeSpans(block.text, new Uint8Array(block.text.length));
+  return spans.some(
+    (span) =>
+      localStart >= span.contentStart && localStart < span.contentEnd && localEnd >= span.contentEnd
+  );
 }
 
 function atxHeading(line, baseColumn = 0) {
@@ -701,6 +721,29 @@ function markdownCodeSpans(value, hidden) {
     index = closingIndex + 1;
   }
   return spans;
+}
+
+function markdownFencedCodeMask(value) {
+  const hidden = new Uint8Array(value.length);
+  let fence;
+  let lineStart = 0;
+  while (lineStart < value.length) {
+    const lineEnd = value.indexOf('\n', lineStart);
+    const line = value.slice(lineStart, lineEnd < 0 ? value.length : lineEnd);
+    const opening = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+    if (fence) {
+      hidden.fill(1, lineStart, lineEnd < 0 ? value.length : lineEnd + 1);
+      if (opening && opening[1][0] === fence.character && opening[1].length >= fence.length) {
+        fence = undefined;
+      }
+    } else if (opening) {
+      hidden.fill(1, lineStart, lineEnd < 0 ? value.length : lineEnd + 1);
+      fence = { character: opening[1][0], length: opening[1].length };
+    }
+    if (lineEnd < 0) break;
+    lineStart = lineEnd + 1;
+  }
+  return hidden;
 }
 
 function markdownDelimiterRuns(value, codeSpans) {
@@ -1730,6 +1773,8 @@ function inspectMarkdown(relativePath, source) {
   const body = publishableBody(source);
   const lines = body.split('\n');
   const bodyStartLine = normalized.slice(0, normalized.indexOf(body)).split('\n').length;
+  const fencedCode = markdownFencedCodeMask(body);
+  const isFencedCodeOffset = (offset) => offset !== undefined && fencedCode[offset] === 1;
 
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
@@ -1815,7 +1860,11 @@ function inspectMarkdown(relativePath, source) {
         const start = projection.offsets[firstVisible];
         const end = projection.offsets.at(-1) ?? start;
         const range = `${start}:${end}`;
-        if (!seenCitationRanges.has(range) && !validPublicCitationValue(projection.text)) {
+        if (
+          !isFencedCodeOffset(start) &&
+          !seenCitationRanges.has(range) &&
+          !validPublicCitationValue(projection.text)
+        ) {
           seenCitationRanges.add(range);
           findings.push(
             finding(
@@ -1830,6 +1879,7 @@ function inspectMarkdown(relativePath, source) {
       }
       for (const match of projection.text.matchAll(new RegExp(EDITORIAL_MATCHER.source, 'giu'))) {
         const start = projection.offsets[match.index];
+        if (isFencedCodeOffset(start)) continue;
         const end = projection.offsets[match.index + match[0].length - 1];
         const range = `${start}:${end}`;
         if (seenEditorialRanges.has(range)) continue;
@@ -1847,7 +1897,9 @@ function inspectMarkdown(relativePath, source) {
       for (const citation of markdownCitationEntries(projection.text)) {
         if (citationHeading) continue;
         const start = projection.offsets[citation.index];
+        if (isFencedCodeOffset(start)) continue;
         const end = projection.offsets[citation.labelEnd - 1] ?? start;
+        if (markdownCitationLabelCrossesCode(block, start, end)) continue;
         const range = `${start}:${end}`;
         if (seenCitationRanges.has(range) || validPublicCitationValue(citation.value)) continue;
         seenCitationRanges.add(range);
@@ -2000,7 +2052,7 @@ function formatHtmlFinding(entry) {
 function splitHtmlProjections(html) {
   const payloads = [];
   const visible = html.replace(
-    /<(script|style|template)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,
+    /<(script|style|template|pre)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,
     (block, tagName, offset) => {
       if (['script', 'template'].includes(tagName.toLowerCase())) {
         const openingEnd = htmlTagEnd(block, 0);
@@ -2165,6 +2217,8 @@ function projectVisibleHtml(visible) {
     const name = match[2].toLowerCase();
     if (name === 'br' && !closing) {
       appendSyntheticHtml(projection, ' ', tagStart);
+    } else if (name === 'code') {
+      appendSyntheticHtml(projection, '`', tagStart);
     } else if (name === 'a') {
       if (closing) {
         const anchor = anchors.pop();

@@ -203,6 +203,50 @@ function sanitizeBody(body) {
   return { body: normalized, replacements };
 }
 
+function normalizeCitations(body) {
+  let replacements = 0;
+  const labelForUrl = (url) =>
+    url.includes('github.com/') ? 'FastGPT GitHub issue' : 'FastGPT 官方文档';
+  let normalized = body.replace(
+    /^([ \t]*>[ \t]*来源：[ \t]*)(https:\/\/[^\s)]+)[ \t]*$/gmu,
+    (_, prefix, url) => {
+      replacements += 1;
+      return `${prefix}[${labelForUrl(url)}](${url})`;
+    }
+  );
+  normalized = normalized.replace(
+    /^([ \t]*)`(> 来源：[ \t]*)(https:\/\/[^\s)`]+)`[ \t]*$/gmu,
+    (_, indentation, prefix, url) => {
+      replacements += 1;
+      return `${indentation}${prefix}[${labelForUrl(url)}](${url})`;
+    }
+  );
+  normalized = normalized.replace(
+    /(\\n)([ \t]*> 来源：[ \t]*)(https:\/\/[^\s)\\]+)(?=\\n|$)/g,
+    (_, separator, prefix, url) => {
+      replacements += 1;
+      return `${separator}${prefix}[${labelForUrl(url)}](${url})`;
+    }
+  );
+  return { body: normalized, replacements };
+}
+
+function normalizeStructuralEscapedLineEndings(body) {
+  let replacements = 0;
+  let normalized = body.replace(
+    /\\n\\n(?=#{1,6}[ \t]|>[ \t])|\\n(?=#{1,6}[ \t]|>[ \t])/g,
+    (match) => {
+      replacements += 1;
+      return match === '\\n\\n' ? '\n\n' : '\n';
+    }
+  );
+  normalized = normalized.replace(/(^|\n)([ \t]{0,3}#{1,6}[ \t].*?)\\n/g, (_, prefix, heading) => {
+    replacements += 1;
+    return `${prefix}${heading}\n`;
+  });
+  return { body: normalized, replacements };
+}
+
 function normalizeDocument(metadata, locale, canonicalPath, body) {
   const normalizedBody = body.trim();
   const normalizedMetadata = {
@@ -590,11 +634,13 @@ function buildImportPlan({ repoRoot = REPOSITORY_ROOT, sourcePath }) {
     const identity = { locale: routeIdentity.locale, canonicalPath };
     sourceIdentities.push(identity);
     const sanitized = sanitizeBody(parsed.body);
+    const citations = normalizeCitations(sanitized.body);
+    const lineEndings = normalizeStructuralEscapedLineEndings(citations.body);
     const normalized = normalizeDocument(
       metadata,
       identity.locale,
       identity.canonicalPath,
-      sanitized.body
+      lineEndings.body
     );
     const normalizedBodySha256 = sha256(normalized.body);
     const sourceHash = sha256(Buffer.from(rawSource));
@@ -618,7 +664,8 @@ function buildImportPlan({ repoRoot = REPOSITORY_ROOT, sourcePath }) {
     const existing = existingByIdentity.get(key);
     const unchanged =
       prior?.sourceHash === sourceHash && prior?.normalizedBody?.sha256 === normalizedBodySha256;
-    const operation = unchanged ? prior.operation : existing ? 'update' : 'add';
+    const wasBaselineIdentity = existing && (!prior || prior.operation === 'update');
+    const operation = unchanged ? prior.operation : wasBaselineIdentity ? 'update' : 'add';
     const rawPath = normalizeCanonicalPath(record.slug, `${record.file} delivery slug`);
     const corrections = [];
     if (parsed.generatedFrontMatter) {
@@ -667,6 +714,24 @@ function buildImportPlan({ repoRoot = REPOSITORY_ROOT, sourcePath }) {
         from: 'synthetic secret-shaped value',
         to: 'YOUR_API_KEY',
         reason: `Replace ${sanitized.replacements} synthetic secret-shaped example value(s) before publication.`
+      });
+    }
+    if (citations.replacements) {
+      corrections.push({
+        identity,
+        field: 'citations',
+        from: 'bare HTTPS citation URL(s)',
+        to: 'descriptive Markdown link(s)',
+        reason: `Normalize ${citations.replacements} source citation URL(s) into reader-facing Markdown links.`
+      });
+    }
+    if (lineEndings.replacements) {
+      corrections.push({
+        identity,
+        field: 'lineEndings',
+        from: 'escaped structural Markdown line ending(s)',
+        to: 'literal Markdown line ending(s)',
+        reason: `Decode ${lineEndings.replacements} structural Markdown line ending escape(s) before publication.`
       });
     }
     return {
@@ -826,6 +891,23 @@ function buildSearchProjection(entries) {
   });
 }
 
+function assertDeniedIdentitiesAbsent(denials, entries, searchProjection) {
+  const deniedIdentities = new Set(denials.map((denial) => foldIdentity(denial.identity)));
+  const assertAbsent = (identity, surface) => {
+    if (deniedIdentities.has(foldIdentity(identity))) {
+      throw new Error(
+        `Denied technical content identity is present in ${surface}: ${identity.locale}${identity.canonicalPath}`
+      );
+    }
+  };
+  entries.forEach((entry) =>
+    assertAbsent(parseIdentityFromSlug(entry.slug, 'technical content registry'), 'registry')
+  );
+  searchProjection.forEach((entry) =>
+    assertAbsent({ locale: entry.locale, canonicalPath: entry.publicPath }, 'search projection')
+  );
+}
+
 function writeFileAtomic(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   const temporaryPath = `${filePath}.tmp-${process.pid}`;
@@ -844,6 +926,7 @@ function writeImportPlan(plan, repoRoot = REPOSITORY_ROOT) {
     validateAuthorityProjection(entry, `technical content registry[${index}]`)
   );
   const searchProjection = buildSearchProjection(entries);
+  assertDeniedIdentitiesAbsent(plan.ledger.denials, entries, searchProjection);
   writeFileAtomic(entryPath, stableJson(entries));
   writeFileAtomic(searchPath, stableJson(searchProjection));
   for (const page of plan.pages) {
@@ -851,6 +934,48 @@ function writeImportPlan(plan, repoRoot = REPOSITORY_ROOT) {
   }
   writeFileAtomic(manifestPath, stableJson(plan.manifest));
   writeFileAtomic(ledgerPath, stableJson(plan.ledger));
+}
+
+function assertFileContent(filePath, expected, label) {
+  if (!fs.existsSync(filePath)) throw new Error(`Technical content drift: missing ${label}`);
+  const actual = fs.readFileSync(filePath, 'utf8');
+  if (actual !== expected) throw new Error(`Technical content drift: ${label}`);
+}
+
+function verifyImportPlanNoDrift(plan, repoRoot = REPOSITORY_ROOT) {
+  const entries = mergeProjectionEntries(plan.existingEntries, plan.pages);
+  entries.forEach((entry, index) =>
+    validateAuthorityProjection(entry, `technical content registry[${index}]`)
+  );
+  const searchProjection = buildSearchProjection(entries);
+  assertDeniedIdentitiesAbsent(plan.ledger.denials, entries, searchProjection);
+  assertFileContent(
+    path.join(repoRoot, 'src/components/tech-center/entries.json'),
+    stableJson(entries),
+    'registry projection'
+  );
+  assertFileContent(
+    path.join(repoRoot, 'public/tech-center/search-index.json'),
+    stableJson(searchProjection),
+    'search projection'
+  );
+  assertFileContent(
+    path.join(repoRoot, 'src/content/tech-center/authority/import-manifest.json'),
+    stableJson(plan.manifest),
+    'import manifest'
+  );
+  assertFileContent(
+    path.join(repoRoot, 'src/content/tech-center/authority/decision-ledger.json'),
+    stableJson(plan.ledger),
+    'decision ledger'
+  );
+  for (const page of plan.pages) {
+    assertFileContent(
+      path.join(repoRoot, page.normalizedBodyPath),
+      page.normalizedDocument,
+      `body projection ${page.identity.locale}${page.identity.canonicalPath}`
+    );
+  }
 }
 
 function assertHash(value, label) {
@@ -1052,6 +1177,7 @@ function verifyCommittedAuthority(repoRoot = REPOSITORY_ROOT) {
   if (JSON.stringify(searchProjection) !== JSON.stringify(expectedSearchProjection)) {
     throw new Error('Technical content search projection drift');
   }
+  assertDeniedIdentitiesAbsent(ledger.denials, entries, searchProjection);
   const entriesBySlug = new Map(entries.map((entry) => [entry.slug, entry]));
   for (const page of manifest.pages) {
     const slug = `/${page.identity.locale}${page.identity.canonicalPath}`;
@@ -1128,6 +1254,7 @@ function main(argv = process.argv.slice(2)) {
   const options = parseArgs(argv);
   const plan = buildImportPlan({ repoRoot: REPOSITORY_ROOT, sourcePath: options.sourcePath });
   if (options.mode === 'check') {
+    verifyImportPlanNoDrift(plan);
     printCheck(plan);
     return;
   }
@@ -1149,6 +1276,9 @@ module.exports = {
   buildSearchProjection,
   foldIdentity,
   main,
+  assertDeniedIdentitiesAbsent,
+  verifyImportPlanNoDrift,
+  writeImportPlan,
   validateIdentitySet,
   verifyCommittedAuthority
 };

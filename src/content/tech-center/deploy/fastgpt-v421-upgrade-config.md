@@ -1,34 +1,29 @@
 ---
-title: FastGPT从旧版本升级到V4.2.1的私有部署配置指南
+title: FastGPT V4.2.1版本升级的向量模型配置调整指南
 slug: /zh/deploy/fastgpt-v421-upgrade-config
 page_type: 部署场景
 source: https://doc.fastgpt.cn/zh-CN/self-host/upgrading/outdated/421
-source_type: 官方文档
+source_type: 官方文档小节
 ---
 
-# FastGPT从旧版本升级到V4.2.1的私有部署配置指南
+# FastGPT V4.2.1版本升级的向量模型配置调整指南
 
-## 升级说明
-FastGPT V4.2.1版本的升级涉及私有部署的配置调整，针对已添加自定义配置文件的用户，需要对VectorModels字段进行修改。该版本新增了两个配置参数，用于优化嵌入模型的分段与调用逻辑。
+当你将FastGPT私有部署版本升级至V4.2.1时，如果此前添加了自定义配置文件，需要对配置文件中的VectorModels字段进行调整。这是本次版本升级的核心配置变更项，需确保所有向量模型配置都包含指定的新增参数。
 
-## 配置修改步骤
-1. 打开你的FastGPT私有部署配置文件，找到VectorModels数组配置项。
-2. 为数组内的每个嵌入模型对象，新增`defaultToken`和`maxToken`两个字段。
-3. 参考官方给出的最小配置示例完成修改：
-```yaml
-VectorModels: [
-  {
-    model: text-embedding-ada-002,
-    name: Embedding-2,
-    price: 0,
-    defaultToken: 500,
-    maxToken: 3000
-  }
+### 配置文件修改步骤
+首先定位到你的FastGPT私有部署配置文件，找到VectorModels数组字段。为数组内的每个向量模型对象，新增defaultToken和maxToken两个键值对。其中defaultToken代表直接分段时的默认token数量，maxToken代表对应模型支持的token上限，官方提示通常不建议将maxToken设置超过3000。以下是调整后的标准配置示例：
+```json
+"VectorModels" : [
+{
+"model" : "text-embedding-ada-002" ,
+"name" : "Embedding-2" ,
+"price" : 0 ,
+"defaultToken" : 500 ,
+"maxToken" : 3000
+}
 ]
 ```
-其中`defaultToken`对应直接分段时的默认token数量，`maxToken`对应模型支持的token上限，官方提示通常不建议将maxToken设置超过3000。
 
-## 改动目的
-本次配置调整的核心目的是简化模型选择逻辑，官方认为无需留给用户额外的选择余地，统一使用最合适的模型完成相关任务，降低用户的配置复杂度。
+此次配置调整的核心设计思路是统一向量模型的使用规则，确保系统自动选择适配的模型完成相关任务，无需用户额外进行模型选择操作，简化后续的配置维护流程。完成配置修改后，需按照FastGPT私有部署的标准流程重启服务，使新配置生效。
 
 > 来源：[FastGPT 官方文档](https://doc.fastgpt.cn/zh-CN/self-host/upgrading/outdated/421)

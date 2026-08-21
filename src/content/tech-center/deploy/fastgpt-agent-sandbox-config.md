@@ -1,0 +1,23 @@
+---
+title: FastGPT Agent沙箱环境变量的配置与使用说明
+slug: /zh/deploy/fastgpt-agent-sandbox-config
+page_type: 部署场景
+source: https://doc.fastgpt.cn/zh-CN/self-host/config/env
+source_type: 官方文档小节
+---
+
+# FastGPT Agent沙箱环境变量的配置与使用说明
+
+## 功能概述
+Agent沙箱用于隔离FastGPT中Agent的运行环境，支持sealosdevbox、opensandbox两种提供方。未配置AGENT_SANDBOX_PROVIDER时，沙箱功能不会启用。配置提供方后，需同时填写对应提供方的必填环境变量，其中fastgpt-app部署需额外配置三项Proxy相关变量，fastgpt-pro部署仅需配置沙箱文件预览的代理地址。
+
+## 配置步骤
+1. 确定沙箱提供方，将AGENT_SANDBOX_PROVIDER设置为sealosdevbox或opensandbox。
+2. 若选择sealosdevbox，需填写AGENT_SANDBOX_SEALOS_BASEURL（服务地址）、AGENT_SANDBOX_SEALOS_TOKEN（访问Token）、AGENT_SANDBOX_SEALOS_IMAGE（运行态镜像），这三项为必填。默认沙箱内工作目录为/home/devbox/workspace，可按需修改AGENT_SANDBOX_SEALOS_WORK_DIRECTORY。
+3. 若选择opensandbox，需填写AGENT_SANDBOX_OPENSANDBOX_BASEURL（服务地址）、AGENT_SANDBOX_OPENSANDBOX_API_KEY（与服务端一致的API Key）、AGENT_SANDBOX_OPENSANDBOX_IMAGE（完整运行态镜像）、AGENT_SANDBOX_OPENSANDBOX_VOLUME_MANAGER_URL、AGENT_SANDBOX_OPENSANDBOX_VOLUME_MANAGER_TOKEN，这五项为必填。默认运行时为docker，可通过AGENT_SANDBOX_OPENSANDBOX_RUNTIME切换为kubernetes。
+4. 两类部署均需配置AGENT_SANDBOX_PREVIEW_PROXY_URL，建议使用与FastGPT主站不同的origin。fastgpt-app部署还需配置AGENT_SANDBOX_PROXY_SECRET（至少32字节的HMAC密钥）和AGENT_SANDBOX_PROXY_URL（以ws://或wss://开头的WebSocket地址），这两项为fastgpt-app的必填项。
+
+## 可选配置参数
+可根据需求调整以下环境变量：AGENT_SANDBOX_STORAGE_SIZE_GI用于设置沙箱存储容量，默认值为1Gi；AGENT_SANDBOX_SUSPEND_MINUTES设置未活跃沙箱的自动暂停时长，默认60分钟；AGENT_SANDBOX_ARCHIVE_INACTIVE_DAYS设置已暂停沙箱的自动归档天数，默认7天。还可配置AGENT_SANDBOX_NPM_REGISTRY指定沙箱内npm等包管理器的源，以及AGENT_SANDBOX_PYPI_INDEX_URL指定pip等工具的PyPI源。另外，可通过AGENT_SANDBOX_FREE_TIP控制是否展示前端免费提示，默认不展示；AGENT_SANDBOX_MAX_EDIT_DEBUG限制编辑/调试沙箱的数量，默认值为100。对于opensandbox部署，可通过AGENT_SANDBOX_OPENSANDBOX_USE_SERVER_PROXY设置是否通过服务端代理访问，默认值为true，还可通过AGENT_SANDBOX_OPENSANDBOX_VOLUME_NAME_PREFIX设置持久卷前缀，默认值为fastgpt-session，升级时需沿用旧值。
+
+> 来源：[FastGPT 官方文档](https://doc.fastgpt.cn/zh-CN/self-host/config/env)

@@ -193,8 +193,8 @@
   },
   {
     "identity": "zh|/tutorial/fastgpt-cloud-privacy-policy",
-    "title": "FastGPT云服务用户个人信息收集与保护说明",
-    "description": "FastGPT云服务隐私政策最后更新时间为2024年3月3日。在注册或使用本服务时，我们可能收集两类信息：一是注册环节的个人信息，包括姓名、电话号码、电子邮件地址、联系地址；二是使用过程中产生的信息，如操作日志、访问IP地址…",
+    "title": "FastGPT云服务隐私政策条款与用户操作指引",
+    "description": "FastGPT云服务隐私政策条款与用户操作指引 本隐私政策最后更新时间为2024年3月3日，适用于所有使用FastGPT云服务的用户。 信息收集与使用规则 FastGPT云服务在注册或使用过程中，可能收集两类信息。第一类是用户主动提供的个人信息，包括姓名、电话号码、电子邮件地址、地址等。第二类是使用服务时产…",
     "category": "tutorial",
     "locale": "zh",
     "publicPath": "/tutorial/fastgpt-cloud-privacy-policy"
@@ -233,8 +233,8 @@
   },
   {
     "identity": "zh|/tutorial/fastgpt-cloud-service-terms",
-    "title": "FastGPT云服务服务协议条款与使用规范说明",
-    "description": "FastGPT云服务为用户提供存储、计算、网络传输等基于互联网的信息技术服务，平台承诺每月服务可用性不低于99%。平台将通过站内信、电子邮件或短信等形式不定期推送最新动态，并提供相关技术支持与客户服务。 用户需注册真实、准确…",
+    "title": "详细说明FastGPT云服务使用协议的关键条款与合规要求",
+    "description": "详细说明FastGPT云服务使用协议的关键条款与合规要求 协议基础与服务内容 本协议为您与广州环际云计算有限公司就FastGPT云服务使用订立的正式协议，最后更新时间为2026年5月28日。我们将为您提供存储、计算、网络传输等基于互联网的信息技术服务，保证每月服务可用性不低于99%，同时提供相关技术支持与客…",
     "category": "tutorial",
     "locale": "zh",
     "publicPath": "/tutorial/fastgpt-cloud-service-terms"
@@ -2273,8 +2273,8 @@
   },
   {
     "identity": "zh|/deploy/fastgpt-v42-upgrade-guide",
-    "title": "FastGPT从旧版本升级至V4.2版本操作指南",
-    "description": "本次V4.2版本升级对99.9%的用户无额外影响，仅修改了配置文件中QAModel的配置格式，无需执行额外的迁移脚本或复杂操作。 原配置中QAModel为数组格式，升级后需调整为对象格式，需包含四个固定字段： model…",
+    "title": "FastGPT从旧版本升级到V4.2的配置修改指南",
+    "description": "FastGPT从旧版本升级到V4.2的配置修改指南 升级概况 FastGPT V4.2版本的升级操作属于轻量化配置调整，对99.9%的用户不会产生额外影响。本次升级仅涉及配置文件中QAModel字段的格式修改，无需调整其他部署相关的代码、环境变量或服务配置，整体操作难度极低。 配置修改步骤 1. 打开Fas…",
     "category": "deploy",
     "locale": "zh",
     "publicPath": "/deploy/fastgpt-v42-upgrade-guide"
@@ -2289,8 +2289,8 @@
   },
   {
     "identity": "zh|/deploy/fastgpt-v421-upgrade-config",
-    "title": "FastGPT从旧版本升级到V4.2.1的私有部署配置指南",
-    "description": "FastGPT V4.2.1版本的升级涉及私有部署的配置调整，针对已添加自定义配置文件的用户，需要对VectorModels字段进行修改。该版本新增了两个配置参数，用于优化嵌入模型的分段与调用逻辑。 打开你的FastGPT私…",
+    "title": "FastGPT V4.2.1版本升级的向量模型配置调整指南",
+    "description": "FastGPT V4.2.1版本升级的向量模型配置调整指南 当你将FastGPT私有部署版本升级至V4.2.1时，如果此前添加了自定义配置文件，需要对配置文件中的VectorModels字段进行调整。这是本次版本升级的核心配置变更项，需确保所有向量模型配置都包含指定的新增参数。 配置文件修改步骤 首先定位到…",
     "category": "deploy",
     "locale": "zh",
     "publicPath": "/deploy/fastgpt-v421-upgrade-config"
@@ -5378,7 +5378,7 @@
   {
     "identity": "zh|/deploy/fastgpt-opensandbox-env-config",
     "title": "配置fastgpt-app与fastgpt-pro共用OpenSandbox服务环境变量",
-    "description": "配置fastgpt-app与fastgpt-pro共用OpenSandbox服务环境变量 配置步骤 在 fastgpt-app 与 fastgpt-pro 中启用 OpenSandbox，配置服务地址、API Key 和运行时镜像。两套服务使用同一组认证参数，部署后需要从 FastGPT 网络内验证服务连通…",
+    "description": "配置fastgpt-app与fastgpt-pro共用OpenSandbox服务环境变量 配置说明 此配置用于让fastgpt-app和fastgpt-pro共用同一套OpenSandbox服务配置，需在Compose文件的x-agent-sandbox-config字段下添加相关环境变量。配置时需遵循三个…",
     "category": "deploy",
     "locale": "zh",
     "publicPath": "/deploy/fastgpt-opensandbox-env-config"
@@ -5386,7 +5386,7 @@
   {
     "identity": "zh|/reference/fastgpt-chatglm2-m3e-api-test",
     "title": "FastGPT中调用ChatGLM2与M3E自定义模型的API测试方法",
-    "description": "FastGPT中调用ChatGLM2与M3E自定义模型的API测试方法 请求鉴权 请求头需要包含 Authorization: Bearer YOURAPIKEY 与 Content-Type: application/json。发布页面使用占位符承载示例密钥，调用时替换为自己的 API Key。 测试接口…",
+    "description": "FastGPT中调用ChatGLM2与M3E自定义模型的API测试方法 FastGPT中调用ChatGLM2与M3E自定义模型的API测试方法 结论 可通过标准curl命令测试FastGPT对接的ChatGLM2对话模型与M3E向量模型。测试时需使用正确的授权密钥与模型名称，即可完成两类模型的接口调用验证。…",
     "category": "reference",
     "locale": "zh",
     "publicPath": "/reference/fastgpt-chatglm2-m3e-api-test"
@@ -5394,9 +5394,3585 @@
   {
     "identity": "zh|/reference/fastgpt-opensandbox-env-config",
     "title": "配置FastGPT自部署场景下OpenSandbox服务的环境变量",
-    "description": "配置FastGPT自部署场景下OpenSandbox服务的环境变量 具体配置 检查 Compose 文件中的 x-volume-manager-auth-token、[server].apikey 和 [docker].hostip，并将它们与 FastGPT 的 OpenSandbox 环境变量保持一致。…",
+    "description": "配置FastGPT自部署场景下OpenSandbox服务的环境变量 结论 部署FastGPT的OpenSandbox服务时，需通过Compose文件配置对应环境变量，保证各组件认证匹配且网络访问合规。正确配置后可保障沙盒服务与FastGPT内部组件正常通信。 具体怎么做 检查Compose文件中的以下配置项…",
     "category": "reference",
     "locale": "zh",
     "publicPath": "/reference/fastgpt-opensandbox-env-config"
+  },
+  {
+    "identity": "zh|/api/fastgpt-api-dataset-collection-create",
+    "title": "通过API创建FastGPT数据集集合并分割文件内容",
+    "description": "通过API创建FastGPT数据集集合并分割文件内容 该API用于通过接口创建FastGPT数据集集合，系统会读取指定文件的内容并自动分割，目前支持pdf、docx、md、txt、html、csv六种格式的文件。使用代码上传时，需注意中文文件名需要进行encode处理，否则容易出现乱码问题。 接口调用配置步…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fastgpt-api-dataset-collection-create"
+  },
+  {
+    "identity": "zh|/api/fastgpt-app-log-chart-api",
+    "title": "使用API获取FastGPT应用日志图表数据的调用指南",
+    "description": "使用API获取FastGPT应用日志图表数据的调用指南 该接口用于获取指定FastGPT应用的用户活跃、对话统计、应用反馈等维度的日志图表数据，支持按不同时间跨度聚合统计结果。请求需通过POST方式发起，需携带Bearer类型的API密钥作为Authorization请求头，请求体格式为JSON。 完整请求…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fastgpt-app-log-chart-api"
+  },
+  {
+    "identity": "zh|/api/fastgpt-chat-api-request-usage",
+    "title": "FastGPT 发起会话API请求的参数说明与使用示例",
+    "description": "FastGPT 发起会话API请求的参数说明与使用示例 接口基本信息 FastGPT 发起会话的API接口地址为http://localhost:3000/api/v1/chat/completions，请求方式为POST，需携带两个请求头：Authorization: Bearer [apikey]和Co…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fastgpt-chat-api-request-usage"
+  },
+  {
+    "identity": "zh|/api/fastgpt-chat-response-format",
+    "title": "FastGPT 发起会话接口的四种响应格式与参数说明",
+    "description": "FastGPT 发起会话接口的四种响应格式与参数说明 四种响应参数组合场景 FastGPT 发起会话接口通过detail和stream两个布尔参数的组合，提供四种适配不同业务的响应形态： 1. detail=false, stream=false：非流式完整响应，一次性返回全部对话结果与基础统计数据 2.…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fastgpt-chat-response-format"
+  },
+  {
+    "identity": "zh|/api/fastgpt-dataset-collection-update",
+    "title": "使用FastGPT OpenAPI更新数据集集合的信息",
+    "description": "使用FastGPT OpenAPI更新数据集集合的信息 接口概述 该接口用于通过HTTP POST请求更新FastGPT的数据集集合信息，支持两种更新场景。第一种是通过集合ID直接修改目标集合的配置，第二种是通过数据集ID和外部文件ID定位目标集合进行修改。请求的基础地址为http://localhost:…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fastgpt-dataset-collection-update"
+  },
+  {
+    "identity": "zh|/api/fastgpt-dataset-data-list-api",
+    "title": "获取FastGPT数据集集合数据列表的API调用指南",
+    "description": "获取FastGPT数据集集合数据列表的API调用指南 本文档针对FastGPT的数据集集合数据列表获取API展开说明，该API用于查询指定数据集集合下的知识库分片数据条目，支持分页查询与模糊搜索功能。调用该API需使用POST请求方法，并携带合法的认证令牌与必要的请求参数。 调用配置与参数说明 1. 配置请…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fastgpt-dataset-data-list-api"
+  },
+  {
+    "identity": "zh|/api/fastgpt-dataset-search-test",
+    "title": "通过FastGPT OpenAPI调用知识库搜索测试接口",
+    "description": "通过FastGPT OpenAPI调用知识库搜索测试接口 接口功能说明 该接口为FastGPT OpenAPI的知识库搜索测试接口，用于传入指定测试文本，检索匹配当前知识库内的相关条目，可用于验证知识库检索配置是否符合预期。支持配置检索模式、相关度阈值、结果数量限制等参数，灵活调整检索逻辑，适配不同的检索需…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fastgpt-dataset-search-test"
+  },
+  {
+    "identity": "zh|/api/fastgpt-dataset-single-data-detail",
+    "title": "获取FastGPT数据集单条数据详情的接口使用说明",
+    "description": "获取FastGPT数据集单条数据详情的接口使用说明 接口概述 该接口属于FastGPT开放API的数据集查询模块，用于精准获取数据集中单条数据的完整元信息。调用时需通过GET请求携带目标数据的ID参数，支持获取数据的问题文本、所属数据集信息、原始文件信息等详细内容，适用于知识库数据校验、单条数据详情查看等开…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fastgpt-dataset-single-data-detail"
+  },
+  {
+    "identity": "zh|/api/fastgpt-interactive-chat-api",
+    "title": "详细说明调用包含交互节点的FastGPT会话API接口方法",
+    "description": "详细说明调用包含交互节点的FastGPT会话API接口方法 交互节点调用基础规则 当工作流中包含交互节点时，调用FastGPT会话API需遵循特定配置规则。需将detail参数设置为true，并根据流模式获取交互节点信息。流式模式（stream=true）下，可从event=interactive的data…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fastgpt-interactive-chat-api"
+  },
+  {
+    "identity": "zh|/api/fastgpt-openapi-push-training-data",
+    "title": "使用FastGPT OpenAPI推送训练数据至训练队列",
+    "description": "使用FastGPT OpenAPI推送训练数据至训练队列 接口概述 该接口用于将自定义训练数据提交至FastGPT的训练队列，用于后续模型训练。单次请求最多可推送200组数据，需通过POST方式发起请求，请求地址为http://localhost:3000/api/core/dataset/data/pus…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fastgpt-openapi-push-training-data"
+  },
+  {
+    "identity": "zh|/api/fastgpt-plugin-response-fetch",
+    "title": "获取FastGPT插件请求的非流式与流式响应数据",
+    "description": "获取FastGPT插件请求的非流式与流式响应数据 非流式插件响应获取方式 当请求参数配置为detail=true且stream=false时，完整响应会返回包含所有流程节点数据的responseData数组。插件的输出结果可通过遍历该数组，查找moduleType为pluginOutput的元素，其内置的p…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fastgpt-plugin-response-fetch"
+  },
+  {
+    "identity": "zh|/api/fetch-fastgpt-dataset-detail",
+    "title": "获取FastGPT知识库详情的API接口使用说明",
+    "description": "获取FastGPT知识库详情的API接口使用说明 该接口属于FastGPT开放API中的知识库管理类接口，为GET请求方式，用于获取单个指定FastGPT知识库的完整详细信息，包括基础配置、绑定的嵌入模型与对话模型参数、权限设置等内容，适用于开发知识库管理相关功能的场景。 调用配置与操作步骤 首先需构造符合…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/fetch-fastgpt-dataset-detail"
+  },
+  {
+    "identity": "zh|/api/get-fastgpt-chat-session-info",
+    "title": "使用FastGPT官方API获取对话会话的基本信息",
+    "description": "使用FastGPT官方API获取对话会话的基本信息 接口说明 该接口用于获取FastGPT对话会话的基本信息，包含会话标识、关联应用配置、变量配置等核心数据。请求方式为GET，请求地址为http://localhost:3000/api/core/chat/init，需携带两个查询参数：appId（应用ID…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/get-fastgpt-chat-session-info"
+  },
+  {
+    "identity": "zh|/api/get-fastgpt-collection-detail-api",
+    "title": "获取FastGPT知识库集合详情的OpenAPI调用指南",
+    "description": "获取FastGPT知识库集合详情的OpenAPI调用指南 接口概述 该OpenAPI属于FastGPT知识库管理模块，用于查询单个已创建的知识库集合的详细元数据，可获取集合归属、训练配置、文本统计等核心信息，帮助开发者快速获取集合的完整配置详情。请求方式为GET，请求路径为/api/core/dataset…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/get-fastgpt-collection-detail-api"
+  },
+  {
+    "identity": "zh|/api/get-fastgpt-dataset-collection-list",
+    "title": "获取FastGPT指定知识库集合列表的API调用方法",
+    "description": "获取FastGPT指定知识库集合列表的API调用方法 该接口用于查询指定FastGPT知识库下的集合列表，请求方式为POST，接口地址为http://localhost:3000/api/core/dataset/collection/listV2。调用时需携带两个请求头：Authorization为Bea…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/get-fastgpt-dataset-collection-list"
+  },
+  {
+    "identity": "zh|/api/get-fastgpt-single-chat-run-detail",
+    "title": "获取FastGPT单个对话运行详情的API调用方法",
+    "description": "获取FastGPT单个对话运行详情的API调用方法 接口功能说明 该API用于获取FastGPT平台内单个对话的完整运行节点详情，可查询每个执行模块的运行时长、使用模型、消耗点数、对话历史预览等信息，帮助开发者排查对话流程异常，确认模块执行结果。 调用步骤与参数说明 1. 构造请求URL，格式为http:/…",
+    "category": "api",
+    "locale": "zh",
+    "publicPath": "/api/get-fastgpt-single-chat-run-detail"
+  },
+  {
+    "identity": "zh|/dataset/fastgpt-knowledgebase-rag-optimization",
+    "title": "FastGPT知识库数据采集与构建的优化方法与实践",
+    "description": "FastGPT知识库数据采集与构建的优化方法与实践 RAG模型的核心效果依赖FastGPT知识库的数据质量与覆盖广度，知识库作为“外部记忆”，需涵盖多领域权威内容，保障来源可靠、内容及时更新。实际构建知识库时，常面临数据源覆盖不足、质量参差不齐、缺乏更新机制、处理流程低效及隐私风险等问题。 知识库构建的典型…",
+    "category": "dataset",
+    "locale": "zh",
+    "publicPath": "/dataset/fastgpt-knowledgebase-rag-optimization"
+  },
+  {
+    "identity": "zh|/dataset/fastgpt-rag-answer-generation-optimization",
+    "title": "优化FastGPT中RAG模型的回答生成与输出效果",
+    "description": "优化FastGPT中RAG模型的回答生成与输出效果 RAG回答生成的常见问题 在FastGPT的RAG模型中，生成器基于检索模块的上下文生成自然语言答案，其准确性与逻辑性直接影响用户体验。当前回答生成过程存在四类典型不足：一是上下文不充分导致逻辑不连贯，当上下文缺失或信息不完整时，生成内容易出现逻辑断裂，尤…",
+    "category": "dataset",
+    "locale": "zh",
+    "publicPath": "/dataset/fastgpt-rag-answer-generation-optimization"
+  },
+  {
+    "identity": "zh|/dataset/fastgpt-rag-data-chunking-management",
+    "title": "解决FastGPT中RAG数据分块与内容管理的常见问题",
+    "description": "解决FastGPT中RAG数据分块与内容管理的常见问题 RAG数据分块与内容管理的核心价值与常见问题 RAG模型的数据分块与内容管理是优化FastGPT检索与生成流程的关键。合理的分块策略能帮助模型高效定位目标信息，为回答生成提供清晰的上下文支持。实际操作中，该环节常出现四类典型问题：一是分块不合理导致信息…",
+    "category": "dataset",
+    "locale": "zh",
+    "publicPath": "/dataset/fastgpt-rag-data-chunking-management"
+  },
+  {
+    "identity": "zh|/dataset/fastgpt-rag-limitations-optimization",
+    "title": "FastGPT中RAG模型的局限性及优化方案说明",
+    "description": "FastGPT中RAG模型的局限性及优化方案说明 RAG模型的核心局限性 RAG模型结合检索器与生成器实现知识密集型内容生成，但实际应用中存在多类局限。一是检索器依赖性与质量问题，模型性能依赖检索结果质量，模糊查询或跨领域场景下易返回不相关内容，传统关键词匹配方法存在局限。二是生成器计算复杂度与性能瓶颈，大…",
+    "category": "dataset",
+    "locale": "zh",
+    "publicPath": "/dataset/fastgpt-rag-limitations-optimization"
+  },
+  {
+    "identity": "zh|/dataset/fastgpt-rag-retrieval-optimization",
+    "title": "FastGPT数据集RAG检索模块的优化策略与落地方法",
+    "description": "FastGPT数据集RAG检索模块的优化策略与落地方法 检索优化的核心挑战 在FastGPT的RAG模型中，检索模块决定生成答案的相关性和准确性。检索优化过程中存在四类典型不足。单一检索策略会导致回答偏差，BM25适合具象关键字匹配，难以处理复杂语义查询；DPR擅长深度语义匹配，对高频关键词匹配敏感度弱，单…",
+    "category": "dataset",
+    "locale": "zh",
+    "publicPath": "/dataset/fastgpt-rag-retrieval-optimization"
+  },
+  {
+    "identity": "zh|/deploy/add-openai-o1-models-fastgpt",
+    "title": "为FastGPT添加OpenAI o1系列模型的详细配置操作指南",
+    "description": "为FastGPT添加OpenAI o1系列模型的详细配置操作指南 在FastGPT的自建部署场景中，若需调用OpenAI o1-mini和o1-preview模型，无法直接通过平台默认配置完成适配，需手动修改平台的模型配置文件，补充对应模型的参数配置。这一操作可让平台识别并支持这两款模型，满足不同的对话与功…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/add-openai-o1-models-fastgpt"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-4-15-env-vars-changes",
+    "title": "FastGPT 4.15.0版本各服务环境变量变更配置说明",
+    "description": "FastGPT 4.15.0版本各服务环境变量变更配置说明 通用服务环境变量变更 FastGPT 4.15.0版本对fastgpt-app和fastgpt-pro服务增加了严格的环境变量检查，升级后需确保必填变量配置正确。必填变量包括AES256SECRETKEY、FILETOKENKEY、INVOKETO…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-4-15-env-vars-changes"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-41506-skill-debug-migration",
+    "title": "FastGPT 4.15.06 Skill Debug迁移清理指南",
+    "description": "FastGPT 4.15.06 Skill Debug迁移清理指南 本版本将Skill Edit对话迁移到标准Chat存储模型。历史Skill Debug数据曾将skillId写入Chat三表的物理appId字段，且未携带sourceType；历史sandbox实例也需要补齐sourceType/sourc…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-41506-skill-debug-migration"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-416-agent-sandbox-migration",
+    "title": "完成FastGPT 4.16版本Agent Sandbox数据迁移工作",
+    "description": "完成FastGPT 4.16版本Agent Sandbox数据迁移工作 变更说明与迁移前提 本版本将 App Chat 的 Agent Sandbox 从“每个对话一个实例”调整为“同一 App、同一用户共享一个实例”。不同对话的文件仍分别保存在 sessions/&lt;chatId&gt; 目录中，已发…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-416-agent-sandbox-migration"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-agent-sandbox-config",
+    "title": "FastGPT Agent沙箱环境变量的配置与使用说明",
+    "description": "FastGPT Agent沙箱环境变量的配置与使用说明 功能概述 Agent沙箱用于隔离FastGPT中Agent的运行环境，支持sealosdevbox、opensandbox两种提供方。未配置AGENTSANDBOXPROVIDER时，沙箱功能不会启用。配置提供方后，需同时填写对应提供方的必填环境变量，…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-agent-sandbox-config"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-aiproxy-replace-oneapi",
+    "title": "FastGPT使用AI Proxy替换OneAPI的配置与迁移指南",
+    "description": "FastGPT使用AI Proxy替换OneAPI的配置与迁移指南 本操作仅适用于需要将FastGPT原有的OneAPI替换为AI Proxy的用户，可完成服务替换、配置迁移与旧服务清理的全流程。 配置与迁移步骤 1. 修改docker-compose.yml文件：参考最新的官方yml文件，将AI Prox…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-aiproxy-replace-oneapi"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-app-admin-object-storage-config",
+    "title": "配置FastGPT应用与管理端共享的对象存储环境变量",
+    "description": "配置FastGPT应用与管理端共享的对象存储环境变量 对象存储环境变量总览 这部分内容用于配置FastGPT应用与管理端共享的对象存储相关环境变量，统一管理文件存储的基础参数。通用基础参数包括：STORAGEVENDOR，定义对象存储类型，可选minio、aws-s3、r2、cos、oss，默认值为mini…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-app-admin-object-storage-config"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-docker-mongo-migration",
+    "title": "FastGPT基于Docker的MongoDB数据迁移备份恢复操作",
+    "description": "FastGPT基于Docker的MongoDB数据迁移备份恢复操作 前置准备 需提前在源环境A、目标环境B和中转环境C创建对应备份目录。在源环境A的FastGPT容器内执行mkdir -p /data/backup，宿主机对应创建/fastgpt/data/backup目录用于数据同步；在目标环境B的宿主机…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-docker-mongo-migration"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-model-availability-check",
+    "title": "检查FastGPT中各类模型可用性的具体步骤",
+    "description": "检查FastGPT中各类模型可用性的具体步骤 当FastGPT出现模型调用相关报错时，首先需要排查模型本身的可用性。排查流程分为三个核心阶段，先验证上游模型自身运行状态，再通过OneAPI测试中转调用链路，最后在FastGPT平台内完成最终验证。 模型可用性测试步骤 可以通过CURL命令直接测试各类模型的接…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-model-availability-check"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-open-source-env-pdf-config",
+    "title": "配置FastGPT开源版的App额外变量与PDF增强解析服务",
+    "description": "配置FastGPT开源版的App额外变量与PDF增强解析服务 从4.15.0版本起，FastGPT开源版不再读取config.json配置文件。从旧版本升级的用户，需删除该文件的volume挂载，并将原config.json中的配置转换为环境变量。未使用过可选配置的用户无需额外操作。以下是原config.j…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-open-source-env-pdf-config"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-reverse-proxy-ip-protection",
+    "title": "解决FastGPT反向代理场景下的客户端IP伪造防护问题",
+    "description": "解决FastGPT反向代理场景下的客户端IP伪造防护问题 场景说明 FastGPT 会在 IP 限流、分享链接 IP 白名单、对话日志 IP 记录、IP 属地展示等场景读取客户端 IP。自部署时如果 FastGPT 前面有 Nginx、负载均衡、Ingress 或 CDN，需要避免客户端伪造 X-Forwa…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-reverse-proxy-ip-protection"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-selfhost-upgrade-migration",
+    "title": "FastGPT v4.15.0自托管升级的迁移脚本执行指南",
+    "description": "FastGPT v4.15.0自托管升级的迁移脚本执行指南 前置准备与注意事项 执行迁移脚本前需完成三项核心准备：备份MongoDB、对象存储与当前部署配置；将fastgpt-app或fastgpt-pro升级至包含Root管理员接口的镜像版本；准备可访问FastGPT的{{host}}与{{rootkey…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-selfhost-upgrade-migration"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-v4-8-11-release-notes",
+    "title": "FastGPT V4.8.11版本新增功能优化与修复说明",
+    "description": "FastGPT V4.8.11版本新增功能优化与修复说明 核心新增功能 本次更新新增多项实用功能：新增表单输入节点，支持在工作流中收集用户输入信息；新增循环运行节点，可传入数组批量调用，单次最多支持50长度数组串行执行；支持工作流节点折叠；简易模式新增本地变更记录的历史记录模式；聊天记录支持滚动加载，不再限…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-v4-8-11-release-notes"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-v45-db-upgrade",
+    "title": "FastGPT V4.5版本升级操作与数据库配置说明",
+    "description": "FastGPT V4.5版本升级操作与数据库配置说明 FastGPT V4.5版本属于需要进行复杂更新的版本，该版本引入PgVector0.5版本的HNSW索引，可大幅提升知识库检索速度，能够实现百万数据毫秒级搜索。该索引的缺点是构建索引的速度较慢，使用4核16G服务器处理500万组数据，采用并行构建方式大…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-v45-db-upgrade"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-v4810-update-notes",
+    "title": "FastGPT V4.8.10版本更新功能与修复优化说明",
+    "description": "FastGPT V4.8.10版本更新功能与修复优化说明 版本新增功能 通用功能新增包括模板市场、工作流节点拖动自动对齐吸附、用户选择节点（Debug模式暂未支持）、工作流uid全局变量、撤销重做功能、本次编辑记录取代自动保存、工作流版本重命名、应用调用节点迁移为单独插件式节点（支持传递全局变量与用户上传文…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-v4810-update-notes"
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-workflow-dirty-data-clean",
+    "title": "修复FastGPT工作流枚举与结构脏数据的操作指南",
+    "description": "修复FastGPT工作流枚举与结构脏数据的操作指南 问题背景 部分历史工作流节点会将TypeScript枚举表达式字符串直接写入MongoDB，错误格式示例为{\"renderTypeList\": [\"FlowNodeInputTypeEnum.hidden\"], \"valueType\": \"Workflow…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-workflow-dirty-data-clean"
+  },
+  {
+    "identity": "zh|/deploy/test-fastgpt-model-tool-call-support",
+    "title": "测试FastGPT所使用模型的工具调用支持能力",
+    "description": "测试FastGPT所使用模型的工具调用支持能力 前提条件 工具调用功能需要模型提供商与oneapi同时支持工具调用能力，才能在FastGPT中正常启用该功能。 测试步骤 1. 发起第一轮工具调用测试请求 使用curl命令向oneapi的chat/completions接口发起stream模式请求，示例命令如…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/test-fastgpt-model-tool-call-support"
+  },
+  {
+    "identity": "zh|/integration/fastgpt-share-auth-config",
+    "title": "配置FastGPT分享链接的身份验证与上报接口",
+    "description": "配置FastGPT分享链接的身份验证与上报接口 FastGPT的分享链接支持身份验证配置，可在每次分享链接使用时发起校验和上报请求。配置时仅需填写校验根地址，无需指定完整请求路径。使用分享链接时，需额外添加authToken参数，该参数通常为业务系统生成的用户唯一凭证，FastGPT会在鉴权接口的请求体中携…",
+    "category": "integration",
+    "locale": "zh",
+    "publicPath": "/integration/fastgpt-share-auth-config"
+  },
+  {
+    "identity": "zh|/integration/fastgpt-share-auth-practice",
+    "title": "配置FastGPT分享链接身份验证及实践案例",
+    "description": "配置FastGPT分享链接身份验证及实践案例 身份验证接口实现 我们实现三个核心接口：/shareAuth/init、/shareAuth/start、/shareAuth/finish。第一个接口仅校验请求携带的token，当token等于fastgpt时，返回{ \"success\": true, \"da…",
+    "category": "integration",
+    "locale": "zh",
+    "publicPath": "/integration/fastgpt-share-auth-practice"
+  },
+  {
+    "identity": "zh|/node/fastgpt-http-return-value-extract",
+    "title": "配置FastGPT HTTP节点的接口返回值提取规则与方法",
+    "description": "配置FastGPT HTTP节点的接口返回值提取规则与方法 FastGPT的HTTP节点支持配置多组返回值提取规则，用于解析调用外部接口后得到的响应内容。用户可以通过这些规则提取接口响应中的指定字段，供后续工作流节点使用。提取规则基于JSONPath语法实现，完整语法可参考JSONPath-Plus官方文档…",
+    "category": "node",
+    "locale": "zh",
+    "publicPath": "/node/fastgpt-http-return-value-extract"
+  },
+  {
+    "identity": "zh|/node/fastgpt-long-text-translation-nodes",
+    "title": "使用FastGPT工作流节点处理长文本翻译的分段与质量保障问题",
+    "description": "使用FastGPT工作流节点处理长文本翻译的分段与质量保障问题 处理长文本翻译时，常遇到LLM token长度超限、翻译风格难以保持一致、上下文连贯性难维护、翻译质量需多轮优化等挑战。FastGPT的【批量运行】节点可针对性解决这些问题，配合【代码运行】节点完成文本预处理，实现合规的长文本拆分与翻译流程。…",
+    "category": "node",
+    "locale": "zh",
+    "publicPath": "/node/fastgpt-long-text-translation-nodes"
+  },
+  {
+    "identity": "zh|/node/fastgpt-sandbox-python-examples",
+    "title": "FastGPT沙盒v2节点的Python代码使用配置与示例",
+    "description": "FastGPT沙盒v2节点的Python代码使用配置与示例 支持的业务场景 FastGPT沙盒v2节点允许编写自定义Python代码处理业务数据，官方提供了五类常用场景的参考实现。包括数据统计类，可计算输入数字列表的均值、方差、标准差与最值；日期处理类，可解析YYYY-MM-DD格式的日期字符串，计算一周后…",
+    "category": "node",
+    "locale": "zh",
+    "publicPath": "/node/fastgpt-sandbox-python-examples"
+  },
+  {
+    "identity": "zh|/reference/add-aiproxy-channel-fastgpt",
+    "title": "在FastGPT中为AIProxy协议新增模型渠道的配置方法",
+    "description": "在FastGPT中为AIProxy协议新增模型渠道的配置方法 结论 完成AIProxy协议的模型渠道新增，需先确认协议已在AIProxy中支持，再在FastGPT代码中完成渠道声明与头像配置。FastGPT插件侧仅负责渠道展示信息的声明，不实现协议适配逻辑。 具体怎么做 1. 确认目标AIProxy协议已被…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/add-aiproxy-channel-fastgpt"
+  },
+  {
+    "identity": "zh|/reference/add-custom-model-provider-directory",
+    "title": "FastGPT新增自定义模型供应商目录的配置方法",
+    "description": "FastGPT新增自定义模型供应商目录的配置方法 结论 完成FastGPT自定义模型供应商的新增，需按规范创建目录与配置文件。系统初始化静态资源时会自动上传供应商头像，并通过指定接口暴露相关信息。 具体怎么做 1. 在packages/infrastructure/src/static-data/model…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/add-custom-model-provider-directory"
+  },
+  {
+    "identity": "zh|/reference/add-local-qwen-model-fastgpt",
+    "title": "将本地Qwen模型接入FastGPT的完整配置操作步骤",
+    "description": "将本地Qwen模型接入FastGPT的完整配置操作步骤 结论 通过修改FastGPT的config.json配置文件添加Qwen模型配置，重启服务后即可在应用中使用该模型。完成配置后，可在FastGPT应用配置界面选择Qwen模型发起对话。 具体怎么做 1. 打开FastGPT的config.json配置文…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/add-local-qwen-model-fastgpt"
+  },
+  {
+    "identity": "zh|/reference/create-fastgpt-dataset-training-order",
+    "title": "创建FastGPT知识库训练订单的API使用方法",
+    "description": "创建FastGPT知识库训练订单的API使用方法 结论 该接口用于创建FastGPT知识库的训练订单。调用成功后将返回唯一订单ID，可用于后续知识库数据添加时的账单聚合。 具体怎么做 1. 构造POST请求，请求地址为http://localhost:3000/api/support/wallet/usag…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/create-fastgpt-dataset-training-order"
+  },
+  {
+    "identity": "zh|/reference/deploy-xinference-server-fastgpt",
+    "title": "在Linux或Windows服务器部署Xinference以支持FastGPT自定义模型调用",
+    "description": "在Linux或Windows服务器部署Xinference以支持FastGPT自定义模型调用 结论 可通过Docker或本地直接部署两种方式在Linux/Windows服务器搭建Xinference服务。部署完成后可通过服务器IP的9997端口对外提供服务，适配FastGPT自定义模型调用。 具体怎么做 1…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/deploy-xinference-server-fastgpt"
+  },
+  {
+    "identity": "zh|/reference/docker-compose-fastgpt-pgvector-upgrade",
+    "title": "Docker-compose部署FastGPT的PgVector版本升级操作步骤",
+    "description": "Docker-compose部署FastGPT的PgVector版本升级操作步骤 结论 本文档提供Docker-compose部署的FastGPT PgVector升级到v0.5.0的标准操作流程。按照步骤执行后可完成插件升级、索引重构与验证，确保数据库兼容新版配置。 具体怎么做 1. 修改docker-c…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/docker-compose-fastgpt-pgvector-upgrade"
+  },
+  {
+    "identity": "zh|/reference/docker-deploy-bge-rerank-fastgpt",
+    "title": "使用Docker部署适配FastGPT所需的BGE重排序模型服务",
+    "description": "使用Docker部署适配FastGPT所需的BGE重排序模型服务 结论 可通过Docker快速部署适配FastGPT的BGE重排序模型服务，官方提供多个规格的镜像与标准部署配置。部署后可通过指定端口与安全凭证调用该服务。 具体怎么做 1. 选择对应镜像： - base版：registry.cn-hangzh…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/docker-deploy-bge-rerank-fastgpt"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-4-14-28-upgrade-guide",
+    "title": "FastGPT V4.14.28版本升级操作与配置说明",
+    "description": "FastGPT V4.14.28版本升级操作与配置说明 结论 V4.14.28是FastGPT 4.14.x系列的正式更新版本，面向自部署用户提供版本迭代支持。完成该版本升级需遵循官方指定的流程与配置要求，确保系统运行稳定。 具体怎么做 1. 确认当前FastGPT版本属于4.14.x系列，避免跨大版本升级…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-4-14-28-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-4-14-7-log-env-update",
+    "title": "FastGPT 4.14.7版本日志系统环境变量更新指南",
+    "description": "FastGPT 4.14.7版本日志系统环境变量更新指南 结论 FastGPT 4.14.7版本更新了日志系统，包含日志打印、采集与分析相关功能。本次更新需移除旧版日志相关环境变量，并配置6个新的日志环境变量，完成配置后即可正常使用新版日志功能。 具体怎么做 1. 移除以下旧环境变量：LOGLEVEL、ST…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-4-14-7-log-env-update"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-4-16-0-new-features",
+    "title": "FastGPT 4.16.0版本新增功能技术速查",
+    "description": "FastGPT 4.16.0版本新增功能技术速查 结论 本页整理FastGPT 4.16.0版本的官方新增功能，覆盖Sandbox、工作流、知识库、上传等多个模块，可直接参考对应说明完成配置与使用。 具体怎么做 1. 知识库数据导入：使用包含q、a、metadata、index表头的CSV或XLSX文件，q…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-4-16-0-new-features"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-413-env-config",
+    "title": "FastGPT 4.13版本升级的环境变量更新配置指南",
+    "description": "FastGPT 4.13版本升级的环境变量更新配置指南 结论 本页针对FastGPT 4.13版本升级场景，说明需更新的环境变量配置内容。需同步调整fastgpt-plugin的环境变量命名，新增指定的S3、MongoDB、Redis相关环境参数。 具体怎么做 1. 找到FastGPT部署的环境变量配置文件…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-413-env-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-4145-storage-env-update",
+    "title": "FastGPT 4.14.5版本存储桶环境变量更新配置方法",
+    "description": "FastGPT 4.14.5版本存储桶环境变量更新配置方法 结论 FastGPT 4.14.5版本新增了原生OSS和COS存储支持，需调整存储桶相关环境变量的命名格式。需移除旧版以S3为前缀的环境变量，替换为新增的STORAGE系列标准变量。 具体怎么做 1. 移除所有旧版S3开头的环境变量，包括S3EXT…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-4145-storage-env-update"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-415-env-vars-changes",
+    "title": "FastGPT 4.15版本升级的环境变量变更配置方法",
+    "description": "FastGPT 4.15版本升级的环境变量变更配置方法 结论 FastGPT 4.15版本升级后存在环境变量变更，需按新规范调整配置。本次变更覆盖文件解析、数据库索引、反向代理校验三类相关参数。 具体怎么做 可通过配置以下可选环境变量完成适配： 1. 文件解析类参数 - PARSEFILEWORKERS =…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-415-env-vars-changes"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-415-new-features",
+    "title": "FastGPT 4.15版本新增功能技术速查",
+    "description": "FastGPT 4.15版本新增功能技术速查 结论 本页整理FastGPT 4.15版本的全部新增技术功能，覆盖Agent、沙盒、插件、UI、知识库等多个核心模块。开发者可通过本页快速查阅更新细节，完成对应功能的配置与使用。 具体怎么做 1. 为Agent V2绑定静态Skill，使用重写后的loop逻辑运…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-415-new-features"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-415-optimization-quickref",
+    "title": "FastGPT 4.15版本官方优化功能技术速查",
+    "description": "FastGPT 4.15版本官方优化功能技术速查 结论 本页整理了FastGPT 4.15版本的官方优化项，覆盖插件、工作流、知识库、安全防护等多个模块，可提升系统运行效率、交互体验与安全性。 具体怎么做 1. 配置图片处理线程：通过设置环境变量MULTIPLEDATATOBASE64=true，控制是否将…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-415-optimization-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-415-optimization-reference",
+    "title": "FastGPT 4.15版本优化功能的技术速查参考",
+    "description": "FastGPT 4.15版本优化功能的技术速查参考 结论 本页整理FastGPT 4.15版本的官方优化细节，覆盖日志采集、工作流、知识库、会话管理等多个模块的功能与体验改进。这些优化均为版本内置更新，可供技术人员快速查阅验证。 具体怎么做 1. 优化OTEL日志采集格式 2. 禁用工作流无效连接模式 3.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-415-optimization-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-415-sandbox-env-vars",
+    "title": "FastGPT 4.15版本沙箱环境变量变更配置速查",
+    "description": "FastGPT 4.15版本沙箱环境变量变更配置速查 结论 FastGPT 4.15版本升级后，沙箱环境新增多项安全相关环境变量，同时支持按queueId分组排队。本文整理了所有新增变量的默认值与配置说明，帮助用户快速完成沙箱环境适配。 具体怎么做 以下是所有新增沙箱环境变量的默认值与说明： | 环境变量名…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-415-sandbox-env-vars"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-415-upgrade-changes",
+    "title": "FastGPT 4.15版本升级相关API与LLM追踪变更速查",
+    "description": "FastGPT 4.15版本升级相关API与LLM追踪变更速查 结论 FastGPT 4.15版本存在三项核心系统变更，包括ApiKey功能调整、API格式校验升级及LLM请求追踪的团队隔离优化。升级前需提前导出旧追踪日志，自托管环境需执行对应索引同步操作以兼容变更。 具体怎么做 1. ApiKey适配：仅…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-415-upgrade-changes"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-4150-bug-fixes",
+    "title": "FastGPT 4.15.0版本修复的多项功能异常问题",
+    "description": "FastGPT 4.15.0版本修复的多项功能异常问题 结论 这一页汇总了FastGPT 4.15.0版本的官方修复内容，覆盖多个功能模块的异常问题。升级至该版本可解决这些已记录的功能异常。 具体怎么做 1. 升级FastGPT至4.15.0版本以应用所有修复项 2. 该版本修复的具体异常场景包括： - A…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-4150-bug-fixes"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-4154-mongo-index-sync",
+    "title": "FastGPT V4.15.4版本MongoDB索引同步调整操作说明",
+    "description": "FastGPT V4.15.4版本MongoDB索引同步调整操作说明 结论 V4.15.4版本中SYNCINDEX环境变量已弃用，新增MONGODEPRECATEINDEX环境变量，默认值为true，用于控制是否清理Schema显式标记的废弃索引。FastGPT启动时会自动执行安全的索引同步，仅创建当前Sc…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-4154-mongo-index-sync"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-4156-upgrade-reference",
+    "title": "FastGPT V4.15.6版本升级操作参考指南",
+    "description": "FastGPT V4.15.6版本升级操作参考指南 结论 本文档为FastGPT V4.15.6版本升级提供官方参考。该版本属于4.15.x系列升级分支，需遵循官方指定流程完成操作，部分前置版本存在环境变量变更或需执行升级脚本。 具体怎么做 1. 确认当前FastGPT版本属于4.15.x系列，优先从同系列…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-4156-upgrade-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-415x-env-upgrade",
+    "title": "FastGPT 4.15.x版本环境变量变更升级说明",
+    "description": "FastGPT 4.15.x版本环境变量变更升级说明 结论 FastGPT 4.15.0-beta1及后续4.15.x版本存在环境变量变更。该系列版本从首个测试版开始陆续推出相关更新，升级时需根据对应版本要求调整环境变量配置，部分版本附带专属升级脚本。 具体怎么做 1. 确认升级目标为FastGPT 4.1…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-415x-env-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-4815-upgrade-scripts",
+    "title": "运行FastGPT 4815版本升级后的两项初始化脚本",
+    "description": "运行FastGPT 4815版本升级后的两项初始化脚本 结论 此页用于运行FastGPT 4815版本升级后的两项初始化脚本，分别清理应用定时执行字段空值、重新计算免费用户时长。执行对应脚本可解决升级后索引偏大、免费用户时长误发通知的问题。 具体怎么做 1. 执行清理应用定时执行字段的脚本： 打开任意终端，…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-4815-upgrade-scripts"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-485-upgrade-init",
+    "title": "FastGPT 4.8.5版本升级后的系统初始化操作步骤",
+    "description": "FastGPT 4.8.5版本升级后的系统初始化操作步骤 结论 FastGPT 4.8.5版本升级后，需通过终端发起指定HTTP请求完成系统初始化。普通用户与商业版用户需分别调用对应接口，完成插件数据合并或知识库权限重置。 具体怎么做 1. 替换参数：将请求中的{{rootkey}}替换为环境变量中的roo…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-485-upgrade-init"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-admin-extra-env-vars",
+    "title": "FastGPT 自托管场景Admin额外环境变量配置参考",
+    "description": "FastGPT 自托管场景Admin额外环境变量配置参考 结论 这些环境变量主要供FastGPT的pro/admin模块读取使用，同时会复用App/Admin共享变量。正确配置这些变量可实现自定义评估任务、爬虫规则、工单系统等功能的适配。 具体怎么做 以下为官方指定的Admin额外环境变量配置参数表： |…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-admin-extra-env-vars"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-agent-loop-reconstruction",
+    "title": "FastGPT V4.15.2 Agent Loop重构配置与使用说明",
+    "description": "FastGPT V4.15.2 Agent Loop重构配置与使用说明 结论 本次FastGPT V4.15.2的Agent Loop重构，统一了Workflow Agent与ToolCall的共享执行内核，整合了fastAgent和piAgent的Provider接口，同时统一了多类工具的事件生命周期、响…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-agent-loop-reconstruction"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-agent-sandbox-proxy-config",
+    "title": "配置 FastGPT Agent Sandbox Proxy 服务的环境变量与端口",
+    "description": "配置 FastGPT Agent Sandbox Proxy 服务的环境变量与端口 结论 本文整理了 FastGPT Agent Sandbox Proxy 服务的环境变量配置与端口设置方法。按照规范操作可快速完成该代理服务的基础部署与参数调整。 具体怎么做 可通过配置以下环境变量完成服务配置： | 变量名…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-agent-sandbox-proxy-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-agent-v2-data-analysis-scenario",
+    "title": "FastGPT Agent V2智能数据分析Agent的适用场景与操作方法讲解",
+    "description": "FastGPT Agent V2智能数据分析Agent的适用场景与操作方法讲解 结论 Agent V2 适用于开放式、多步骤且需动态规划的任务，数据分析场景是体验该Agent的典型选择。工作流需要提前定义每一步执行路径，Agent V2可根据数据结构和问题复杂度自主规划执行步骤，无需提前预设流程，仅需提供任…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-agent-v2-data-analysis-scenario"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-agent-vm-script-lifecycle",
+    "title": "FastGPT Agent虚拟机生命周期脚本配置与执行方法",
+    "description": "FastGPT Agent虚拟机生命周期脚本配置与执行方法 结论 在FastGPT的Agent配置面板中，可通过「虚拟机配置」模块编写启动脚本。新会话启动或虚拟机重新拉起时，系统会按固定顺序执行自定义脚本与技能初始化脚本，完成应用运行环境的准备。 具体怎么做 1. 打开Agent配置面板的「虚拟机配置」模块…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-agent-vm-script-lifecycle"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-agentv2-general-debug",
+    "title": "FastGPT AgentV2通用调试功能的使用说明",
+    "description": "FastGPT AgentV2通用调试功能的使用说明 结论 FastGPT AgentV2的通用调试功能无需启用虚拟机即可使用，涵盖清空对话、查看运行详情等多种调试操作。这些功能可帮助开发者快速排查AI回复问题、审计交互成本与性能。 具体怎么做 1. 重开对话：点击调试窗口右上角的「重开对话」按钮，一键清空…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-agentv2-general-debug"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-agentv2-vm-execution-rules",
+    "title": "FastGPT AgentV2虚拟机脚本执行限制与容错机制说明",
+    "description": "FastGPT AgentV2虚拟机脚本执行限制与容错机制说明 结论 FastGPT AgentV2虚拟机启动脚本运行受系统规则约束，包含字符长度、超时等多项执行限制。系统容错机制不会阻断主对话流程，AI仍会继续执行后续工作流，但脚本异常可能因缺少依赖抛出异常。 具体怎么做 1. 字符长度限制：启动脚本最大…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-agentv2-vm-execution-rules"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-agentv2-vm-guide",
+    "title": "FastGPT Agent V2虚拟机的核心概念与使用说明",
+    "description": "FastGPT Agent V2虚拟机的核心概念与使用说明 结论 FastGPT Agent V2虚拟机是专为每个会话分配的物理隔离轻量Linux运行沙盒环境。它可为Agent提供真实的计算、代码执行与文件读写操作能力，支持AI通过实际运行代码解决复杂任务。可通过官方联调指南深入了解其运行设计细节。 具体怎…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-agentv2-vm-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-ai-node-document-parsing",
+    "title": "FastGPT AI节点中文档解析的使用方法与适配要点",
+    "description": "FastGPT AI节点中文档解析的使用方法与适配要点 结论 在FastGPT的AI节点中，可通过文档链接输入直接引用文档内容完成解析。4.8.13版本对文件解析逻辑进行了更新，需尽快按新版本规则调整工作流。 具体怎么做 1. 进入目标AI节点（AI对话/工具调用）的配置界面。 2. 配置文档链接输入项，输…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-ai-node-document-parsing"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-aliyun-oss-config-guide",
+    "title": "FastGPT 阿里云OSS对象存储配置方法速查",
+    "description": "FastGPT 阿里云OSS对象存储配置方法速查 结论 本文整理了FastGPT对接阿里云OSS存储的标准配置方案，按照给定参数与步骤操作即可完成配置。公有与私有存储桶可共用同一套访问密钥，但需使用不同名称。 具体怎么做 1. 配置基础存储参数： - 设置STORAGEVENDOR = oss - 配置ST…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-aliyun-oss-config-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-api-get-file-content",
+    "title": "获取FastGPT第三方API数据集的单个文件内容",
+    "description": "获取FastGPT第三方API数据集的单个文件内容 结论 该接口用于获取FastGPT第三方API数据集的单个文件内容，可返回文件文本或访问链接。调用时需携带正确的认证信息与文件ID参数。 具体怎么做 1. 构造GET请求，请求地址格式为{{baseURL}}/v1/file/content?id=xx，其…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-api-get-file-content"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-api-key-usage-call-parameters",
+    "title": "说明FastGPT应用API访问的APIKey配置与调用参数使用方法",
+    "description": "说明FastGPT应用API访问的APIKey配置与调用参数使用方法 结论 FastGPT API访问的调用凭证为团队成员的APIKey。调用目标应用的chat/completions接口时，推荐在请求体传入appId参数，也支持apiKey-appId兼容格式。 具体怎么做 1. 登录FastGPT，进入…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-api-key-usage-call-parameters"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-app-admin-env-security-config",
+    "title": "FastGPT App/Admin共享变量与安全配置速查",
+    "description": "FastGPT App/Admin共享变量与安全配置速查 结论 本页整理FastGPT部署所需的App/Admin共享环境变量与安全配置参数，可直接用于快速配置系统运行规则。所有参数均为官方标准配置项，可根据实际部署场景调整。 具体怎么做 整理官方标准参数表如下： | 变量名 | 默认值 | 说明 | |…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-app-admin-env-security-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-app-admin-env-vars",
+    "title": "FastGPT App与Admin共享变量配置参数速查",
+    "description": "FastGPT App与Admin共享变量配置参数速查 结论 本文整理了FastGPT App与Admin共享变量的官方配置参数，可直接用于自部署FastGPT的环境变量配置。所有参数均来自官方文档，可直接参考使用。 具体怎么做 可通过配置以下环境变量调整相关功能参数，参数详情如下： | 参数名 | 默认值…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-app-admin-env-vars"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-app-admin-shared-env-config",
+    "title": "FastGPT App与Admin共享变量的服务地址与集成配置速查",
+    "description": "FastGPT App与Admin共享变量的服务地址与集成配置速查 结论 本文整理了FastGPT部署时App与Admin共享变量的服务地址与集成相关配置项。通过这些参数可完成插件、代码沙箱、第三方平台等服务的集成配置。 具体怎么做 可通过配置以下环境变量完成对应服务的集成： | 变量名 | 默认值 | 说…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-app-admin-shared-env-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-app-admin-shared-env-vars",
+    "title": "FastGPT App与Admin共享环境变量配置参数速查",
+    "description": "FastGPT App与Admin共享环境变量配置参数速查 结论 这些参数是FastGPT自部署时App与Admin服务共享的核心环境变量，覆盖数据库连接、加密密钥、系统权限等关键配置场景。需按文档要求填写必填参数后，才能正常启动相关服务。 具体怎么做 可通过以下参数表配置相关环境变量： | 变量名 | 默…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-app-admin-shared-env-vars"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-app-ai-settings",
+    "title": "FastGPT应用与工作流的AI配置项含义与操作说明",
+    "description": "FastGPT应用与工作流的AI配置项含义与操作说明 结论 AI配置用于调整FastGPT应用或工作流中AI对话节点的模型、回复长度、多模态识别、回复格式和思考展示等行为。其中模型参数可选择适配的AI模型，回复长度用于控制单次回复的字符上限，多模态识别支持处理非文本输入，回复格式可规范输出结构，思考展示可控…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-app-ai-settings"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-app-evaluation-beta",
+    "title": "说明FastGPT应用评测（Beta）功能的支持版本与可用指标",
+    "description": "说明FastGPT应用评测（Beta）功能的支持版本与可用指标 结论 FastGPT v4.11.0版本及以上支持应用评测（Beta）功能。该功能可通过传入多组问答对，自动对应用执行结果进行打分，实现应用运行效果的定量评估。 具体怎么做 1. 确认当前使用的FastGPT版本为v4.11.0及以上 2. 准…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-app-evaluation-beta"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-app-total-stats-api",
+    "title": "获取FastGPT应用总体数据统计的日志接口使用参考",
+    "description": "获取FastGPT应用总体数据统计的日志接口使用参考 结论 该日志接口用于获取FastGPT应用的累积使用用户、对话及积分消耗的总体统计数据。调用该接口可直接获取目标应用的三项核心统计指标。 具体怎么做 1. 构造GET请求，请求地址为https://cloud.fastgpt.cn/api/proApi/…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-app-total-stats-api"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-batch-run-workflow-node",
+    "title": "讲解FastGPT工作流批量运行节点的配置与使用方法",
+    "description": "讲解FastGPT工作流批量运行节点的配置与使用方法 结论 批量运行节点是FastGPT工作流中的专用执行节点，用于批量处理多组输入的流程任务。使用该节点可简化重复执行相同工作流的操作步骤。 具体怎么做 1. 进入FastGPT的应用构建模块，打开目标工作流的编辑页面。 2. 在左侧节点列表中找到批量运行节…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-batch-run-workflow-node"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-beta3-env-upgrade",
+    "title": "FastGPT V4.15.0-beta3版本环境变量变更升级指引",
+    "description": "FastGPT V4.15.0-beta3版本环境变量变更升级指引 结论 FastGPT V4.15.0-beta3版本存在环境变量变更，属于4.15.x系列升级版本。升级该版本需调整对应环境变量配置，配合官方提供的升级脚本可顺利完成升级流程。 具体怎么做 1. 备份当前FastGPT系统的运行数据，避免升…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-beta3-env-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-beta5-mirror-update-guide",
+    "title": "FastGPT 4.15.0-beta5版本镜像更新与配置操作指南",
+    "description": "FastGPT 4.15.0-beta5版本镜像更新与配置操作指南 结论 本次升级需更新FastGPT主服务、商业版、插件、aiproxy等核心镜像的指定tag。启用Agent Sandbox时，还需新增并配置代理镜像，同步修改docker-compose.yml完成服务配置。 具体怎么做 1. 更新核心镜…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-beta5-mirror-update-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-chatglm2-m3e-config",
+    "title": "在FastGPT中配置接入ChatGLM2与M3E模型的操作方法",
+    "description": "在FastGPT中配置接入ChatGLM2与M3E模型的操作方法 结论 本页讲解在FastGPT中配置接入ChatGLM2与M3E模型的具体操作。通过修改项目的config.json配置文件，在对应数组中添加对应模型的配置项，即可完成两类模型的接入。 具体怎么做 1. 打开FastGPT项目的config.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-chatglm2-m3e-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-chatglm2-m3e-integration",
+    "title": "为FastGPT配置接入ChatGLM2与m3e-large私有化模型的详细操作步骤",
+    "description": "为FastGPT配置接入ChatGLM2与m3e-large私有化模型的详细操作步骤 结论 本页提供将FastGPT接入ChatGLM2和m3e-large私有化模型的详细操作步骤，属于FastGPT本地模型使用的配置范畴，适用于Docker Compose部署、Sealos部署及本地开发等自部署场景。完成…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-chatglm2-m3e-integration"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-clean-duplicate-chat-headers",
+    "title": "FastGPT升级后清理重复Chat会话头的操作方法",
+    "description": "FastGPT升级后清理重复Chat会话头的操作方法 结论 该脚本用于解决FastGPT升级后，因appId+chatId重复的Chat会话头导致唯一索引创建失败的问题。清理逻辑为按appId+chatId分组，保留每组中updateTime最新的会话头；若updateTime相同，则保留id最大的一条记录…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-clean-duplicate-chat-headers"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-cloudflare-r2-storage-config",
+    "title": "配置FastGPT对接Cloudflare R2对象存储的参数与步骤",
+    "description": "配置FastGPT对接Cloudflare R2对象存储的参数与步骤 结论 FastGPT支持通过S3兼容API对接Cloudflare R2对象存储。完成对应环境变量配置后，即可正常使用R2存储与访问文件。 具体怎么做 1. 将STORAGEVENDOR设置为r2 2. 配置以下必填环境变量： | 环境变…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-cloudflare-r2-storage-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-code-sandbox-env-config",
+    "title": "FastGPT Code Sandbox 自建部署环境变量配置速查",
+    "description": "FastGPT Code Sandbox 自建部署环境变量配置速查 结论 FastGPT Code Sandbox 的环境变量用于配置沙箱服务的运行参数，由 projects/code-sandbox/src/env.ts 加载和校验。App调用沙箱时，CODESANDBOXTOKEN需与这里的SANDBO…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-code-sandbox-env-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-code-structure-ddd",
+    "title": "FastGPT代码结构与DDD领域划分规则说明",
+    "description": "FastGPT代码结构与DDD领域划分规则说明 结论 FastGPT 采用DDD思想划分代码模块，核心分为core、support、common三个领域。整体项目具备标准化的目录结构，开发者可通过目录层级快速定位对应功能的代码。 具体怎么做 1. 领域模块划分： - core：承载知识库、工作流、应用、对话…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-code-structure-ddd"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-commercial-dingtalk-access",
+    "title": "FastGPT商业版4.8.16+版本接入钉钉机器人的操作方法",
+    "description": "FastGPT商业版4.8.16+版本接入钉钉机器人的操作方法 结论 FastGPT商业版4.8.16及以上版本支持直接接入钉钉机器人，无需额外调用第三方API。该接入流程简单便捷，无需复杂的开发环节。 具体怎么做 1. 确认当前部署的FastGPT商业版版本不低于4.8.16。 2. 登录FastGPT商…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-commercial-dingtalk-access"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-commercial-pricing-deployment",
+    "title": "FastGPT商业版各部署方式的收费与服务说明",
+    "description": "FastGPT商业版各部署方式的收费与服务说明 结论 FastGPT商业版按部署方式分为三类收费模式，配套通用服务与专属服务。各模式的资源配置、价格、上线时长存在明确差异。 具体怎么做 通用服务 所有商业版均包含以下服务： 1. SaaS商业授权许可，有效期内可提供任意形式商业服务 2. 首次免费帮助部署…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-commercial-pricing-deployment"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-community-edition-intro",
+    "title": "介绍FastGPT社区版的适用对象与包含的核心功能",
+    "description": "介绍FastGPT社区版的适用对象与包含的核心功能 结论 FastGPT社区版是FastGPT的免费版本，适合个人开发者或小型交付团队使用。它包含FastGPT的全部核心功能，涵盖Agent构建、工作流与知识库模块，使用时需严格遵守FastGPT开源协议。 具体怎么做 1. 访问GitHub仓库获取Fast…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-community-edition-intro"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-community-license-terms",
+    "title": "FastGPT社区版开源协议的使用要求与限制说明",
+    "description": "FastGPT社区版开源协议的使用要求与限制说明 结论 FastGPT社区版基于Apache License 2.0开源，支持常规商业化使用，包括作为后端即服务或应用开发平台。存在两项附加使用限制，需按要求联系官方获取额外许可。 具体怎么做 1. 常规商业化使用场景下，直接遵循Apache License…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-community-license-terms"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-conditional-loop-polish-text",
+    "title": "使用FastGPT条件循环实现AI文案润色至达标输出",
+    "description": "使用FastGPT条件循环实现AI文案润色至达标输出 结论 本方案通过FastGPT条件循环节点，实现AI多轮迭代润色文案，自动评估每轮优化结果，直到评分达标后输出最终文案。该流程可自动完成迭代优化，无需手动触发多轮调整，适配需要反复修正的文案优化场景。 具体怎么做 1. 设置循环类型：选择条件循环作为循环…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-conditional-loop-polish-text"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-connect-bge-rerank",
+    "title": "FastGPT接入bge-rerank重排模型的配置操作指南",
+    "description": "FastGPT接入bge-rerank重排模型的配置操作指南 结论 完成配置后可将bge-rerank重排模型接入FastGPT系统，用于优化搜索结果的重排序环节。该配置可提升搜索结果的相关性排序效果，属于FastGPT本地模型使用的标准流程。 具体怎么做 1. 进入FastGPT的本地模型使用配置页面 2…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-connect-bge-rerank"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-connect-chatglm2-6b",
+    "title": "FastGPT接入ChatGLM2-6B私有化模型的操作指南",
+    "description": "FastGPT接入ChatGLM2-6B私有化模型的操作指南 结论 FastGPT支持接入私有化部署的ChatGLM2-6B模型。该接入方式属于本地模型使用的范畴，完成配置后可正常使用该模型开展对话任务。 具体怎么做 1. 进入FastGPT后台的配置说明菜单，找到模型配置方案页面 2. 在本地模型使用分类…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-connect-chatglm2-6b"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-connection-gateway-deploy",
+    "title": "FastGPT Connection Gateway的部署配置与参数说明",
+    "description": "FastGPT Connection Gateway的部署配置与参数说明 结论 Connection Gateway 由 fastgpt-plugin 仓库维护，需根据国内或海外网络环境选择对应镜像完成部署。按照官方提供的最小配置即可完成基础接入。 具体怎么做 1. 选择对应镜像：国内版使用 registr…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-connection-gateway-deploy"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-core-capabilities-access",
+    "title": "快速了解FastGPT的核心能力与官方访问渠道介绍",
+    "description": "快速了解FastGPT的核心能力与官方访问渠道介绍 结论 FastGPT是基于大语言模型的AI Agent应用开发平台，集知识库问答、可视化工作流、Agent编排、工具调用和技能扩展于一体，可让开发者和业务人员快速构建专属AI应用。用户可通过官方提供的渠道体验该平台的基础功能。 具体怎么做 1. 访问国际版…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-core-capabilities-access"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-create-collection-or-directory",
+    "title": "FastGPT通过OpenAPI创建空集合或目录的操作指引",
+    "description": "FastGPT通过OpenAPI创建空集合或目录的操作指引 结论 通过指定的OpenAPI接口，可以创建FastGPT的空集合或目录。调用成功后会返回新建集合的唯一ID。 具体怎么做 1. 准备有效的API访问令牌，替换请求头中的{{authorization}}为实际令牌。 2. 构造POST请求，目标地…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-create-collection-or-directory"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-create-external-file-collection",
+    "title": "使用FastGPT商业版API创建外部文件库集合的方法",
+    "description": "使用FastGPT商业版API创建外部文件库集合的方法 结论 这是FastGPT商业版专属API接口，用于通过外部文件链接创建文件库集合。调用该接口成功后，将返回新创建的集合ID与成功插入的文件数量。 具体怎么做 1. 配置请求基础信息：请求方法为POST，接口地址为http://localhost:300…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-create-external-file-collection"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-create-link-collection",
+    "title": "使用FastGPT OpenAPI创建网络链接类型的知识库集合",
+    "description": "使用FastGPT OpenAPI创建网络链接类型的知识库集合 结论 调用FastGPT指定的OpenAPI接口，可传入网络链接创建知识库集合。接口会自动抓取目标网页内容并进行文本分割，成功后返回集合相关信息。 具体怎么做 1. 构造POST请求，接口地址为http://localhost:3000/api…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-create-link-collection"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-csv-dataset-template",
+    "title": "FastGPT知识库CSV导入模板的使用规范与操作步骤",
+    "description": "FastGPT知识库CSV导入模板的使用规范与操作步骤 结论 FastGPT知识库支持使用CSV模板导入批量数据。使用官方标准的CSV模板可完成规范的数据导入流程。 具体怎么做 1. 按照官方指定的表头格式创建CSV文件，表头依次为q、a、index、index、metadata。 2. 按字段填写内容：q…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-csv-dataset-template"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-custom-feedback-node",
+    "title": "介绍FastGPT工作流节点中自定义反馈模块的使用方法",
+    "description": "介绍FastGPT工作流节点中自定义反馈模块的使用方法 结论 自定义反馈是FastGPT工作流节点体系中的专用模块，归属于工作流&插件节点分类下，用于配置自定义回复相关的逻辑。该模块目前处于临时状态，官方后续会针对其进行更全面的设计优化。 具体怎么做 1. 进入FastGPT的应用构建页面，按照导航路径应用…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-custom-feedback-node"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-dataset-collection-create-params",
+    "title": "FastGPT知识库集合创建的通用入参与出参说明",
+    "description": "FastGPT知识库集合创建的通用入参与出参说明 结论 本文档说明FastGPT知识库集合创建接口的通用入参、出参规则。调用该接口可新建知识库集合，需遵循参数填写要求。 具体怎么做 调用FastGPT知识库集合创建接口时，需按以下规则填写参数： | 参数 | 说明 | 必填 | | --- | --- |…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-dataset-collection-create-params"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-dataset-collection-filter",
+    "title": "FastGPT知识库搜索时集合过滤参数的配置方法",
+    "description": "FastGPT知识库搜索时集合过滤参数的配置方法 结论 通过在FastGPT知识库搜索的「集合过滤」栏配置指定参数，可以实现更精确的搜索结果筛选。支持按标签和集合创建时间两个维度进行过滤，参数需遵循固定的JSON格式要求。 具体怎么做 1. 打开知识库搜索页面，找到「集合过滤」输入框。 2. 填写符合格式的…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-dataset-collection-filter"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-dataset-data-structure",
+    "title": "FastGPT OpenAPI知识库数据结构与索引参数说明",
+    "description": "FastGPT OpenAPI知识库数据结构与索引参数说明 结论 本文整理FastGPT OpenAPI知识库数据与索引的标准结构，明确各字段的必填项与含义。开发者可直接参照本文参数完成知识库数据的提交与更新操作。 具体怎么做 1. 提交知识库数据需遵循Data结构，必填字段包括teamId、tmbId、d…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-dataset-data-structure"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-dataset-search-params-tuning",
+    "title": "FastGPT知识库搜索结果不符合预期的参数调参方法",
+    "description": "FastGPT知识库搜索结果不符合预期的参数调参方法 结论 当FastGPT知识库搜索结果不符合预期时，可根据具体现象针对性调整搜索参数，无需一次性修改所有参数。先定位异常现象，再对应调整相关配置项即可优化搜索效果。 具体怎么做 1. 搜不到内容：确认数据已完成训练，适当降低最低相关度，提高引用上限，检查问…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-dataset-search-params-tuning"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-dataset-single-data-update",
+    "title": "FastGPT 数据集单条数据修改API的使用说明",
+    "description": "FastGPT 数据集单条数据修改API的使用说明 结论 使用FastGPT的数据集单条数据修改API，可以更新指定数据集数据的问题、回答与自定义索引。调用成功后将返回code为200的响应结果。 具体怎么做 首先发起PUT请求，请求地址为http://localhost:3000/api/core/dat…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-dataset-single-data-update"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-delete-collection-api",
+    "title": "FastGPT 集合删除接口的调用方法与参数说明",
+    "description": "FastGPT 集合删除接口的调用方法与参数说明 结论 通过FastGPT的集合删除接口，可以删除指定的数据集集合。调用该接口后将返回标准的操作响应结果，用于确认删除状态。 具体怎么做 1. 构造DELETE请求，请求地址为http://localhost:3000/api/core/dataset/col…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-delete-collection-api"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-deploy-docker-compose-env",
+    "title": "快速准备FastGPT自部署所需的Docker和Docker-compose运行环境",
+    "description": "快速准备FastGPT自部署所需的Docker和Docker-compose运行环境 快速准备FastGPT自部署所需的Docker和Docker-compose运行环境 结论 完成Docker和Docker-compose的正确安装配置，是FastGPT自部署的前置基础步骤。部署FastGPT前需完成该环…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-deploy-docker-compose-env"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-deploy-env-config",
+    "title": "FastGPT部署时修改环境变量的配置要求与操作步骤",
+    "description": "FastGPT部署时修改环境变量的配置要求与操作步骤 FastGPT部署时修改环境变量的配置要求与操作步骤 结论 部署FastGPT时需按要求配置指定环境变量，正确配置可保障服务正常访问与沙盒功能生效。FastGPT自部署需配置指定的环境变量才能正常运行，根据部署场景不同，需配置的环境变量存在差异，部分场景…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-deploy-env-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-dingtalk-dataset-params",
+    "title": "获取FastGPT对接钉钉知识库所需的三个配置参数",
+    "description": "获取FastGPT对接钉钉知识库所需的三个配置参数 结论 可从钉钉平台获取三个核心参数，用于配置FastGPT对接钉钉知识库。这三个参数分别为App Key、App Secret与User ID。 具体怎么做 1. 获取App Key与App Secret：进入钉钉应用详情页左侧的「凭证与基础信息」页面，复…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-dingtalk-dataset-params"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-dingtalk-knowledgebase-usage",
+    "title": "FastGPT接入钉钉第三方知识库的配置与使用方法",
+    "description": "FastGPT接入钉钉第三方知识库的配置与使用方法 结论 FastGPT可通过钉钉企业内部应用接入第三方钉钉知识库。完成配置后即可导入钉钉在线文档文本至FastGPT知识库。 具体怎么做 1. 创建知识库时，填写App Key、App Secret、User ID三个接入参数。 2. 知识库创建完成后，进入…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-dingtalk-knowledgebase-usage"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-dingtalk-sso-quick-ref",
+    "title": "FastGPT 钉钉内置通用SSO协议的配置步骤速查",
+    "description": "FastGPT 钉钉内置通用SSO协议的配置步骤速查 结论 完成FastGPT与钉钉的SSO集成，需依次完成钉钉应用参数获取、权限配置、重定向URL设置，再通过指定docker-compose yml配置部署SSO服务即可完成对接。 具体怎么做 1. 参数获取：进入钉钉开放平台，点击应用开发进入目标应用，在…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-dingtalk-sso-quick-ref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-docker-compose-add-agent-sandbox-config",
+    "title": "FastGPT docker compose部署新增agent-sandbox配置指南",
+    "description": "FastGPT docker compose部署新增agent-sandbox配置指南 结论 本页针对docker compose部署的FastGPT，提供新增agent-sandbox配置的操作方法。sealos商业版用户请联系官方支持人员获取专属沙盒服务方案。 具体怎么做 1. 参考官方最新yml部署文…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-docker-compose-add-agent-sandbox-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-docker-deploy-common-issues",
+    "title": "FastGPT Docker部署场景下常见问题的排查与解决指南",
+    "description": "FastGPT Docker部署场景下常见问题的排查与解决指南 结论 本文整理FastGPT Docker部署场景下的官方常见问题及对应解决方法，涵盖版本匹配、连接报错、端口冲突等高频场景。所有内容均来自官方文档FAQ小节，可根据具体报错文本或需求，对照步骤完成排查与修复。 具体怎么做 1. 版本匹配：核对…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-docker-deploy-common-issues"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-docker-mongo-manual-update",
+    "title": "完成Docker部署FastGPT的Mongo数据库手动更新",
+    "description": "完成Docker部署FastGPT的Mongo数据库手动更新 结论 修改Docker部署的FastGPT对应的Mongo服务配置并重启容器，即可完成Mongo数据库的手动更新。操作需保证Mongo的根用户密码与原有配置保持一致。 具体怎么做 1. 编辑docker-compose.yml文件，修改mongo…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-docker-mongo-manual-update"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-docker-mongo-restore-migration",
+    "title": "FastGPT Docker环境MongoDB数据恢复与迁移操作",
+    "description": "FastGPT Docker环境MongoDB数据恢复与迁移操作 结论 本页针对FastGPT Docker部署场景下的MongoDB数据恢复与迁移提供操作方案。完成操作后可通过FastGPT Web页面验证数据库内容是否完整导入。 具体怎么做 1. 初始化Mongo数据目录：进入FastGPT安装目录下的…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-docker-mongo-restore-migration"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-domain-runtime-env-config",
+    "title": "FastGPT部署的域名与运行时环境变量配置说明",
+    "description": "FastGPT部署的域名与运行时环境变量配置说明 结论 这些环境变量用于配置FastGPT的访问域名、前端部署路径与运行时参数。正确配置后可补全资源路径、正常启动服务并隔离文件访问风险。 具体怎么做 可通过配置以下环境变量完成相关设置： | 变量名 | 默认值 | 说明 | | --- | --- | --…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-domain-runtime-env-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-feishu-bot-integration",
+    "title": "FastGPT商业版4.8.10及以上版本接入飞书机器人的操作方法",
+    "description": "FastGPT商业版4.8.10及以上版本接入飞书机器人的操作方法 结论 FastGPT商业版4.8.10及以上版本支持直接接入飞书机器人，无需额外调用第三方API。该功能属于FastGPT应用发布模块下的专属配置项，无需开发者进行额外的接口开发或部署第三方服务，可快速完成飞书机器人的接入配置。 具体怎么做…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-feishu-bot-integration"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-file-input-config",
+    "title": "FastGPT 4.8.9及以上版本文件输入功能配置使用说明",
+    "description": "FastGPT 4.8.9及以上版本文件输入功能配置使用说明 结论 FastGPT 4.8.9及以上版本支持在简易模式与工作流中配置用户上传文件功能。该功能可实现应用内的用户文件上传交互与后续处理，本文将介绍其使用方式与文档解析、多模态文件处理的差异。 具体怎么做 1. 进入FastGPT的应用构建模块，打…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-file-input-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-fix-missing-collection-fields",
+    "title": "为FastGPT的三个集合补全缺失字段的初始化操作",
+    "description": "为FastGPT的三个集合补全缺失字段的初始化操作 结论 该操作用于补全FastGPT的chats、collections、outlinks三个集合的缺失字段。执行提供的命令即可完成初始化，执行失败可重复执行命令。 具体怎么做 依次执行以下三条命令，命令会自动跳过已完成初始化的数据： 1. 补全chats集…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-fix-missing-collection-fields"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-four-app-type-selection",
+    "title": "FastGPT四种应用类型的选型判断与使用参考",
+    "description": "FastGPT四种应用类型的选型判断与使用参考 结论 FastGPT的四类应用类型按能力递进划分，可根据任务复杂度单独选择，也可组合使用。不同类型对应明确的适合场景与核心能力，能匹配不同的业务需求。 具体怎么做 首先按任务复杂度判断选型方向： 1. 轻量问答、文案生成、标准化输出：选择对话 Agent 2.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-four-app-type-selection"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-four-apps-quick-guide",
+    "title": "快速搭建FastGPT四类核心基础应用的操作速查指南",
+    "description": "快速搭建FastGPT四类核心基础应用的操作速查指南 结论 本文可帮助你快速完成FastGPT四类核心基础应用的搭建，覆盖对话助手、知识库问答、工作流编排与智能数据分析场景。完成搭建后可通过对应测试资源验证应用运行效果。 具体怎么做 1. 提前准备所需资源：可用AI模型（如GLM-5.1）、知识库测试文件（…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-four-apps-quick-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-get-chat-list-api",
+    "title": "使用FastGPT OpenAPI获取对话列表的操作方法",
+    "description": "使用FastGPT OpenAPI获取对话列表的操作方法 结论 该接口用于获取FastGPT的对话历史分页列表。通过传入指定参数，可自定义查询范围与是否加载自定义反馈数据。 具体怎么做 1. 构造POST请求，接口地址为http://localhost:3000/api/core/chat/record/g…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-get-chat-list-api"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-get-dataset-list",
+    "title": "使用FastGPT OpenAPI获取知识库列表的详细操作指南",
+    "description": "使用FastGPT OpenAPI获取知识库列表的详细操作指南 结论 通过FastGPT提供的OpenAPI可以获取指定目录下的知识库列表。传入空字符串或null作为parentId时，将返回根目录下的知识库数据。 具体怎么做 1. 构造POST请求，接口地址为http://localhost:3000/a…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-get-dataset-list"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-get-org-list-api",
+    "title": "FastGPT获取组织列表的标准接口使用说明",
+    "description": "FastGPT获取组织列表的标准接口使用说明 结论 本文介绍FastGPT获取组织列表的标准接口调用方式。通过该接口可获取系统内的部门层级数据，返回格式符合预定义的响应规范。 具体怎么做 1. 参考以下curl命令构造GET请求： 2. 将请求中的yourtokenhere替换为实际的访问令牌。 3. 发送…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-get-org-list-api"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-get-sso-redirect-url",
+    "title": "获取FastGPT SSO登录重定向地址的技术速查",
+    "description": "获取FastGPT SSO登录重定向地址的技术速查 结论 调用指定接口可获取FastGPT SSO登录重定向地址，系统会自动将请求中的redirecturi拼接至该地址的查询参数中。发起请求需携带合法的Bearer令牌完成身份验证。 具体怎么做 1. 构造GET请求URL，格式为https://redict…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-get-sso-redirect-url"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-html-rendering-tech-implementation",
+    "title": "FastGPT平台的HTML渲染与互动功能的详细具体技术实现细节和使用方式速查",
+    "description": "FastGPT平台的HTML渲染与互动功能的详细具体技术实现细节和使用方式速查 结论 FastGPT的HTML渲染与互动功能通过iframe技术实现。该功能结合自定义组件与安全机制，保障嵌入内容的安全性并支持灵活的展示模式切换。 具体怎么做 1. 使用自定义的IframeBlock组件渲染HTML内容，通过…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-html-rendering-tech-implementation"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-html-rendering-usage",
+    "title": "FastGPT聊天场景HTML渲染功能的使用方法",
+    "description": "FastGPT聊天场景HTML渲染功能的使用方法 结论 FastGPT的聊天场景支持HTML渲染功能，通过指定格式即可实现自定义内容展示。使用该功能需遵循固定的代码书写规则。 具体怎么做 1. 将需要渲染的HTML内容放入Markdown代码块中； 2. 为该代码块添加html作为语言标记，格式为html。…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-html-rendering-usage"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-http-body-var-config",
+    "title": "FastGPT工作流HTTP节点Body参数配置与变量引用方法",
+    "description": "FastGPT工作流HTTP节点Body参数配置与变量引用方法 结论 FastGPT工作流的HTTP节点Body参数仅在特定请求类型下生效。该参数支持编写自定义JSON格式内容，可通过{{key}}语法引入工作流变量，变量会在请求发送前被自动替换为对应值。 具体怎么做 1. 打开HTTP节点的配置面板，编写…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-http-body-var-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-interactive-session-continue",
+    "title": "FastGPT交互节点后发起会话继续工作流的操作方法",
+    "description": "FastGPT交互节点后发起会话继续工作流的操作方法 结论 当你接收到FastGPT的交互节点信息后，可通过调用指定API再次发起会话以继续工作流。需根据用户选择、表单输入两种场景，按规则构造请求体中的messages参数。 具体怎么做 1. 调用固定API地址：\"http://localhost:3000…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-interactive-session-continue"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-knowledge-base-search-merge-node",
+    "title": "介绍FastGPT工作流内知识库搜索引用合并节点的使用方法",
+    "description": "介绍FastGPT工作流内知识库搜索引用合并节点的使用方法 结论 知识库搜索引用合并是FastGPT工作流中的内置节点，用于整合多来源的知识库搜索结果。该节点可标准化整理检索到的知识库内容，为后续流程提供统一格式的引用数据。 具体怎么做 1. 进入FastGPT的应用构建模块，打开目标工作流。 2. 在工作…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-knowledge-base-search-merge-node"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-knowledgebase-image-retrieval",
+    "title": "FastGPT知识库图片检索功能的配置与使用方法",
+    "description": "FastGPT知识库图片检索功能的配置与使用方法 结论 FastGPT的图片检索能力依托原有知识库搜索链路，仅增加了图片输入的处理路径，支持文搜图、图搜图、图文混合搜索三种使用场景。其检索效果与模型配置、入库索引生成情况直接相关。 具体怎么做 首先明确两种核心图片处理路径：1. 图片描述检索：配置可用视觉模…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-knowledgebase-image-retrieval"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-knowledgebase-rag-guide",
+    "title": "FastGPT知识库RAG搜索参数与存储格式使用说明",
+    "description": "FastGPT知识库RAG搜索参数与存储格式使用说明 结论 本节内容聚焦FastGPT知识库RAG的实用操作。它涵盖知识库结构设计、QA存储格式与多向量映射规则，同时介绍FastGPT分块阅读器功能与各搜索参数的使用。所有内容以实用为主，不展开详细原理，帮助用户快速完成知识库构建与检索配置。 具体怎么做 1…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-knowledgebase-rag-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-knowledgebase-search-modes",
+    "title": "FastGPT知识库搜索模式的选型与使用说明",
+    "description": "FastGPT知识库搜索模式的选型与使用说明 结论 FastGPT提供语义检索、全文检索、混合检索三种知识库搜索模式。混合检索结合向量与全文检索能力，搭配重排模型可进一步提升搜索结果准确性，FastGPT会通过RRF公式合并最终搜索结果。 具体怎么做 1. 选择适配的搜索模式： - 语义检索：基于向量距离计…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-knowledgebase-search-modes"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-lark-dataset-import",
+    "title": "FastGPT商业版飞书知识库导入配置及使用方法",
+    "description": "FastGPT商业版飞书知识库导入配置及使用方法 结论 FastGPT v4.8.16及以上版本的商业版用户，可配置飞书应用的appId与appSecret导入飞书知识库。该功能目前处于测试阶段，仅支持共享空间下的云文档导入。 具体怎么做 1. 准备飞书应用的appId与appSecret。 2. 在Fas…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-lark-dataset-import"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-legal-rag-guide",
+    "title": "FastGPT中RAG法律领域检索增强生成的操作说明",
+    "description": "FastGPT中RAG法律领域检索增强生成的操作说明 结论 FastGPT的RAG功能可基于检索到的文档生成总结、报告等内容。在法律领域，可通过LegalBench-RAG基准优化检索与生成效果，提升内容准确性与严谨性。 具体怎么做 1. 输入查询问题，可附带参考问答对（格式：Q: ?, A: ?） 2.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-legal-rag-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-local-dev-init-config",
+    "title": "FastGPT本地开发项目的初始配置操作说明",
+    "description": "FastGPT本地开发项目的初始配置操作说明 结论 本节介绍FastGPT本地开发项目的初始配置流程，涵盖环境变量与配置文件的生成方法，以及关键参数的调整规则。完成该配置后即可推进本地开发，多数场景无需修改默认参数。 具体怎么做 1. 确认当前工作路径：执行pwd命令，输出需包含FastGPT/projec…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-local-dev-init-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-local-file-dataset-collection-create",
+    "title": "FastGPT通过本地文件调用API创建知识库文件集合",
+    "description": "FastGPT通过本地文件调用API创建知识库文件集合 结论 通过FastGPT的官方API，可以传入本地文件创建知识库集合，支持pdf、docx、md、txt、html、csv格式的文件。调用成功后会返回创建的集合ID与插入的文档数量。 具体怎么做 1. 添加请求头：Authorization: Bear…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-local-file-dataset-collection-create"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-log-metrics-tracing-config",
+    "title": "FastGPT应用与管理后台日志指标追踪环境变量配置速查",
+    "description": "FastGPT应用与管理后台日志指标追踪环境变量配置速查 结论 本页整理了FastGPT日志、指标与追踪相关的所有环境变量配置项。通过修改这些变量可自定义日志输出、OpenTelemetry上报及对话日志推送等功能。 具体怎么做 可通过配置以下环境变量调整对应功能，参数详情如下： | 变量名 | 默认值 |…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-log-metrics-tracing-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-loop-batch-array-processing",
+    "title": "FastGPT工作流循环节点批量处理数组的操作方法",
+    "description": "FastGPT工作流循环节点批量处理数组的操作方法 结论 使用FastGPT工作流的循环节点，可以实现数组元素的批量AI处理。该场景是批量运行节点的典型应用，可快速完成多文本的统一处理任务。 具体怎么做 1. 准备输入数组：使用【代码运行】节点生成测试数组，代码为： 2. 配置批量运行节点： - 数组输入：…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-loop-batch-array-processing"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-manual-http-tool-schema-migration",
+    "title": "FastGPT手动模式HTTP工具数组参数数据迁移操作指南",
+    "description": "FastGPT手动模式HTTP工具数组参数数据迁移操作指南 结论 本操作用于将FastGPT手动模式HTTP工具的数组参数升级为标准JSON Schema。仅升级前创建过手动HTTP工具的环境需要执行此迁移，OpenAPI模式的HTTP工具无需处理。 具体怎么做 1. 执行dry-run查看待处理数据，该操…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-manual-http-tool-schema-migration"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-marker-pdf-integration",
+    "title": "FastGPT自部署环境接入Marker PDF文档解析的方法",
+    "description": "FastGPT自部署环境接入Marker PDF文档解析的方法 结论 Marker是FastGPT支持的PDF文档解析工具，可实现图片提取与布局识别。完成配置后，即可在FastGPT中使用该工具解析PDF文件。 具体怎么做 1. 进入FastGPT自部署环境的模型配置方案页面。 2. 找到接入Marker…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-marker-pdf-integration"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-mcp-server-usage",
+    "title": "获取并配置FastGPT的MCP服务器调用地址",
+    "description": "获取并配置FastGPT的MCP服务器调用地址 结论 创建FastGPT的MCP服务器后，点击「开始使用」即可获取访问地址。通过配置支持MCP协议的客户端，即可调用该服务器运行FastGPT应用处理问题。 具体怎么做 1. 获取MCP服务器地址：创建完成MCP server后，点击「开始使用」即可获取对应的…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-mcp-server-usage"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-mineru-pdf-parsing",
+    "title": "为FastGPT自部署环境接入MinerU以实现PDF文档解析功能",
+    "description": "为FastGPT自部署环境接入MinerU以实现PDF文档解析功能 结论 在FastGPT自部署环境中接入MinerU后，可实现PDF文档的图片提取、布局识别、表格识别与公式识别功能。该功能属于FastGPT本地模型使用的扩展能力，能够满足复杂PDF文件的内容解析需求。 具体怎么做 1. 进入FastGPT…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-mineru-pdf-parsing"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-minimax-api-access",
+    "title": "FastGPT环境下MiniMax大模型API的接入配置方法",
+    "description": "FastGPT环境下MiniMax大模型API的接入配置方法 结论 MiniMax是一家通用人工智能科技公司，提供高性能的大语言模型API服务。其API兼容OpenAI格式，可以便捷接入FastGPT平台。在开展MiniMax的接入配置前，请务必先阅读FastGPT官方的模型配置说明文档，确保掌握基础的配置…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-minimax-api-access"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-minio-storage-config",
+    "title": "FastGPT MinIO对象存储配置参数与操作说明",
+    "description": "FastGPT MinIO对象存储配置参数与操作说明 结论 FastGPT可通过配置环境变量接入MinIO作为对象存储服务，其他兼容AWS S3协议的对象存储服务也可参照该配置方式设置。完成基础配置后即可正常使用文件存储功能，支持使用公有与私有两类存储桶。 具体怎么做 需配置以下必填与可选环境变量，不同场景…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-minio-storage-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-model-channel-setup",
+    "title": "在FastGPT中配置新增模型渠道的完整详细操作方法",
+    "description": "在FastGPT中配置新增模型渠道的完整详细操作方法 结论 完成FastGPT新增模型渠道，可让系统支持接入自定义模型。需先在模型配置中添加所需未内置模型，再通过模型渠道页面完成配置。 具体怎么做 1. 切换到「模型渠道」标签页。若需使用未内置的模型，先在「模型配置」中添加所需模型。 2. 点击页面右上角的…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-model-channel-setup"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-model-config-provider-update",
+    "title": "FastGPT 配置文件中模型配置新增provider字段的更新指南",
+    "description": "FastGPT 配置文件中模型配置新增provider字段的更新指南 结论 本次FastGPT更新需为LLMModel与VectorModel的配置新增provider字段，用于模型分类。旧版config.json配置说明已不再维护，需参考官方最新模型配置方案完成更新。 具体怎么做 1. 打开目标配置文件，…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-model-config-provider-update"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-model-response-empty-errors",
+    "title": "解决FastGPT使用中模型响应为空与模型报错问题",
+    "description": "解决FastGPT使用中模型响应为空与模型报错问题 结论 该错误通常由stream模式下oneapi提前结束流请求且无返回内容导致。FastGPT 4.8.10及以上版本会在报错时打印实际发送的Body参数，可通过该参数排查问题。 具体怎么做 1. 查看FastGPT日志，复制报错时打印的Body参数。 2…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-model-response-empty-errors"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-mongo-replica-init-fail",
+    "title": "解决FastGPT自托管部署Mongo副本集自动初始化失败问题",
+    "description": "解决FastGPT自托管部署Mongo副本集自动初始化失败问题 结论 FastGPT部署中Mongo副本集自动初始化失败，多数情况是CPU不支持AVX指令集，可切换Mongo4.x版本解决。若自动初始化仍失败，可通过手动步骤初始化副本集。 具体怎么做 1. 创建并配置Mongo密钥： bash openss…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-mongo-replica-init-fail"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-mongo-replica-init-fix",
+    "title": "解决FastGPT自部署时Mongo副本集自动初始化失败问题",
+    "description": "解决FastGPT自部署时Mongo副本集自动初始化失败问题 结论 FastGPT部署时Mongo副本集自动初始化失败，常见原因是CPU不支持AVX指令集，可切换Mongo4.x版本解决。也可通过手动流程完成副本集初始化，适配多数部署环境。 具体怎么做 1. 创建Mongo密钥并调整权限： bash ope…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-mongo-replica-init-fix"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-multimodal-recognition-setup",
+    "title": "FastGPT多模态识别功能的配置与使用注意事项",
+    "description": "FastGPT多模态识别功能的配置与使用注意事项 结论 FastGPT的多模态识别功能可控制AI读取用户输入中的图片、音频或视频内容。可选择的识别类型取决于模型本身的能力，开启后AI对话节点会将用户上传的对应媒体文件或问题中的媒体链接转换为模型可识别的输入。 具体怎么做 1. 确认当前模型已配置多模态能力；…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-multimodal-recognition-setup"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-new-question-guide-api",
+    "title": "FastGPT 4.8.16后新版猜你想问OpenAPI接口调用指南",
+    "description": "FastGPT 4.8.16后新版猜你想问OpenAPI接口调用指南 结论 FastGPT 4.8.16及之后版本的猜你想问接口，需携带appId和chatId参数调用。该接口会基于最近6轮对话上下文生成推荐问题，支持自定义生成规则。 具体怎么做 调用方式 POST请求，接口地址为http://localh…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-new-question-guide-api"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-no-login-link-auth",
+    "title": "配置FastGPT免登录链接的身份验证接口与响应规则",
+    "description": "配置FastGPT免登录链接的身份验证接口与响应规则 结论 配置FastGPT免登录链接的身份验证根地址后，平台会在分享链接初始化、开始对话和结束对话时，向该地址发起POST请求。服务器只需按指定格式返回校验结果，即可控制用户是否可继续操作。 具体怎么做 1. 在FastGPT免登录链接配置页的身份验证栏，…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-no-login-link-auth"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-official-mirror-addresses",
+    "title": "查询FastGPT各组件及部署源的官方标准镜像地址",
+    "description": "查询FastGPT各组件及部署源的官方标准镜像地址 结论 FastGPT的官方镜像分为Git版和阿里云镜像源两类，覆盖主程序、插件、代码沙箱、MCP服务器及商业版等组件。所有镜像地址均来自官方标准配置，可直接用于部署或升级操作。 具体怎么做 1. 镜像命名格式：镜像地址 + 冒号 + 版本Tag，例如 re…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-official-mirror-addresses"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-ollama-host-install-config",
+    "title": "FastGPT使用Ollama的主机安装与监听配置方法",
+    "description": "FastGPT使用Ollama的主机安装与监听配置方法 结论 本文提供非Docker方式的Ollama主机安装流程，以及适配FastGPT的监听配置方法。完成安装后可通过http://localhost:11434验证Ollama是否正常运行。 具体怎么做 主机安装步骤 1. MacOS：已安装Homebr…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-ollama-host-install-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-ollama-local-model-access",
+    "title": "在FastGPT中配置Ollama接入本地大模型的操作步骤",
+    "description": "在FastGPT中配置Ollama接入本地大模型的操作步骤 结论 FastGPT支持通过Ollama接入本地部署的大模型。Ollama是一款专注于简化大语言模型部署与使用的开源工具，可一键下载和运行各类大语言模型，降低本地大模型的使用门槛。 具体怎么做 1. 部署Ollama服务，按照Ollama的官方指引…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-ollama-local-model-access"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-ollama-proxy-configuration",
+    "title": "FastGPT通过AI Proxy接入Ollama模型的配置步骤",
+    "description": "FastGPT通过AI Proxy接入Ollama模型的配置步骤 结论 本文介绍FastGPT默认AI Proxy部署场景下，接入Ollama模型的完整配置流程。完成全部配置后，可在FastGPT工作台调用已添加的Ollama大模型。 具体怎么做 1. 确认FastGPT以默认配置（AI Proxy）启动。…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-ollama-proxy-configuration"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-oneapi-local-model-config",
+    "title": "通过One API将本地模型接入FastGPT自定义模型的配置步骤",
+    "description": "通过One API将本地模型接入FastGPT自定义模型的配置步骤 结论 通过配置One API的自定义渠道，可以将Xinference部署的本地模型接入FastGPT使用。本文将给出具体的配置参数、操作步骤与测试命令。 具体怎么做 1. 参考One API官方部署接入文档完成One API的基础部署。 2…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-oneapi-local-model-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-open-source-config-migration",
+    "title": "FastGPT开源版config.json配置迁移为环境变量的操作指南",
+    "description": "FastGPT开源版config.json配置迁移为环境变量的操作指南 结论 FastGPT 4.15版本开源版已移除config.json配置文件，所有原配置项需通过环境变量进行配置。本次变更覆盖MCP代理、PDF解析、向量检索及知识库并发处理等多个核心配置模块。 具体怎么做 1. 删除项目中原有的con…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-open-source-config-migration"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-openapi-create-dataset",
+    "title": "FastGPT 调用官方OpenAPI创建知识库的完整方法速查",
+    "description": "FastGPT 调用官方OpenAPI创建知识库的完整方法速查 结论 使用FastGPT的官方OpenAPI可完成知识库或文件夹的创建操作。调用指定接口并传入符合要求的参数后，将返回新建资源的唯一标识ID。 具体怎么做 1. 请求地址：http://localhost:3000/api/core/datas…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-openapi-create-dataset"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-openapi-create-text-collection",
+    "title": "使用FastGPT OpenAPI创建纯文本知识库集合",
+    "description": "使用FastGPT OpenAPI创建纯文本知识库集合 结论 通过指定接口可快速创建纯文本知识库集合。调用该接口后将返回新集合的ID与插入文本的分段数量。 具体怎么做 1. 构造POST请求，目标地址为http://localhost:3000/api/core/dataset/collection/cre…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-openapi-create-text-collection"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-openapi-get-session-list",
+    "title": "FastGPT通过OpenAPI获取会话列表的操作方法",
+    "description": "FastGPT通过OpenAPI获取会话列表的操作方法 结论 你可以通过FastGPT的OpenAPI接口获取指定应用的会话列表。该接口支持分页查询，可筛选API渠道创建的会话数据。 具体怎么做 完整请求示例 请求参数说明 | 参数名 | 说明 | | ---- | ---- | | appId | 应用I…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-openapi-get-session-list"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-openapi-update-chat-feedback",
+    "title": "FastGPT OpenAPI更新对话点赞与点踩反馈的操作方法",
+    "description": "FastGPT OpenAPI更新对话点赞与点踩反馈的操作方法 结论 该OpenAPI用于更新FastGPT对话的用户点赞或点踩反馈。成功调用后将返回code为200的标准响应。 具体怎么做 1. 整理必填与可选参数： | 参数名 | 说明 | | ------ | ---- | | appId | 应用I…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-openapi-update-chat-feedback"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-opensandbox-config-guide",
+    "title": "FastGPT OpenSandbox 沙盒运行环境的配置与使用说明",
+    "description": "FastGPT OpenSandbox 沙盒运行环境的配置与使用说明 结论 OpenSandbox 是 FastGPT 专为自托管 Agent/Skill 沙盒运行环境设计的配置方案，适用于需要独立托管智能体或技能沙盒的业务场景。FastGPT 通过 OpenSandbox Server 完成沙盒的创建工作…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-opensandbox-config-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-parallel-translate-text-array",
+    "title": "使用FastGPT并行执行节点实现文本数组并行翻译",
+    "description": "使用FastGPT并行执行节点实现文本数组并行翻译 结论 通过FastGPT的并行执行节点，可以批量并行处理文本数组的翻译任务，自动管理并发数量与失败重试，最终输出标准化的翻译结果数组。 具体怎么做 1. 构造测试输入数组：使用【代码运行】节点，代码如下： 2. 配置并行执行节点： - 数组输入：选择上一步…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-parallel-translate-text-array"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-permission-storage-design",
+    "title": "FastGPT权限系统的存储结构与设计规则速查",
+    "description": "FastGPT权限系统的存储结构与设计规则速查 结论 FastGPT权限系统参考Linux权限设计，采用二进制方式存储权限位，1表示拥有对应权限，0表示无权限，Owner权限特殊标记为全1。权限相关信息存储在MongoDB的resourcepermissions集合中，通过指定数据结构实现灵活精确的权限控制…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-permission-storage-design"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-plugin-agent-development",
+    "title": "使用Agent工具开发FastGPT官方插件的完整操作流程",
+    "description": "使用Agent工具开发FastGPT官方插件的完整操作流程 结论 使用Agent工具可快速完成FastGPT官方插件开发，需遵循官方Skill文档的标准流程。开发完成后需按要求完成验证与打包，输出符合规范的插件相关文件。 具体怎么做 1. 复制官方提供的Agent开发提示词，读取并理解指定的Skill文档（…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-plugin-agent-development"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-plugin-build-check-pack",
+    "title": "FastGPT插件的构建、检查与打包操作速查",
+    "description": "FastGPT插件的构建、检查与打包操作速查 结论 使用FastGPT官方提供的CLI工具，可以完成插件的构建、代码检查与打包流程。本地开发时可直接在插件根目录执行预设命令快速完成全流程操作，最终生成可用的打包产物。 具体怎么做 默认插件目录操作 1. 运行测试：pnpm run test 2. 执行构建：…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-plugin-build-check-pack"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-plugin-debug-gateway-config",
+    "title": "配置FastGPT Plugin Server的远程调试网关环境变量",
+    "description": "配置FastGPT Plugin Server的远程调试网关环境变量 结论 配置FastGPT Plugin Server的远程调试网关环境变量后，需重启服务使配置生效。未配置CONNECTIONGATEWAYBASEURL时，Plugin Server将关闭远程调试能力。 具体怎么做 在fastgpt-p…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-plugin-debug-gateway-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-plugin-local-debug",
+    "title": "FastGPT系统插件本地调试的操作方法与边界规则",
+    "description": "FastGPT系统插件本地调试的操作方法与边界规则 结论 FastGPT插件本地调试可快速验证插件逻辑与配置schema，需通过官方CLI工具完成操作。本地调试无法完全模拟生产环境，上架官方插件前需完成端到端测试。 具体怎么做 1. 进入插件目录安装依赖： 2. 查看插件和可调试工具信息： 3. 执行单工具…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-plugin-local-debug"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-plugin-local-pool-runtime",
+    "title": "FastGPT插件local-pool运行时的参数配置与调用流程说明",
+    "description": "FastGPT插件local-pool运行时的参数配置与调用流程说明 结论 FastGPT默认采用local-pool作为插件运行时，按单插件service维度管理Pod与请求队列。插件调用会按优先复用已有Pod、按需扩容Pod、队列等待的流程处理。 具体怎么做 1. 插件调用调度流程： 1. 优先选择已有…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-plugin-local-pool-runtime"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-plugin-local-remote-debug",
+    "title": "启动FastGPT插件本地远程调试会话的具体操作步骤",
+    "description": "启动FastGPT插件本地远程调试会话的具体操作步骤 结论 可以通过fastgpt-plugin dev命令启动FastGPT插件本地远程调试会话。支持交互模式与非交互模式，非交互模式适用于脚本或Agent场景，连接成功后可复用本地配置。 具体怎么做 1. 交互模式：在插件目录或包含多个插件目录的工作区中运…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-plugin-local-remote-debug"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-plugin-repo-structure",
+    "title": "FastGPT插件项目的仓库结构与分层设计说明",
+    "description": "FastGPT插件项目的仓库结构与分层设计说明 结论 fastgpt-plugin 采用 pnpm workspace 组织 Monorepo，参考 Clean Architecture 和 DDD 分层设计。项目通过明确的层级划分目录，各层级依赖关系清晰，便于维护和扩展。 具体怎么做 1. 项目根目录按以…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-plugin-repo-structure"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-pre-v490-marker-setup",
+    "title": "FastGPT V4.9.0前旧版Marker解析服务的部署与配置方法",
+    "description": "FastGPT V4.9.0前旧版Marker解析服务的部署与配置方法 结论 FastGPT V4.9.0版本之前，可通过部署Marker解析服务并配置对应环境变量，实现自定义文件解析功能。完成配置后即可调用该服务完成文件解析工作。 具体怎么做 1. 拉取Marker服务镜像： 2. 运行Marker服务容…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-pre-v490-marker-setup"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-pro-env-config",
+    "title": "FastGPT v4.15.1及以上Pro版环境变量配置要求",
+    "description": "FastGPT v4.15.1及以上Pro版环境变量配置要求 结论 FastGPT v4.15.1版本起，Pro/Admin服务的内部接口鉴权方式更新，需配置PROTOKEN和必填的FEDOMAIN环境变量。社区版无需进行此项配置。 具体怎么做 1. 配置必填环境变量： - FEDOMAIN：设置为Fast…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-pro-env-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-pro-sso-member-sync",
+    "title": "配置FastGPT商业版的单点登录及成员同步功能",
+    "description": "配置FastGPT商业版的单点登录及成员同步功能 结论 完成FastGPT商业版单点登录系统的配置，可实现外部系统单点登录FastGPT。按需开启成员同步功能，可同步外部系统的成员数据至平台。 具体怎么做 1. 配置基础环境变量：添加以下两个环境变量： - EXTERNALUSERSYSTEMBASEURL…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-pro-sso-member-sync"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-question-classify-function-config",
+    "title": "配置FastGPT问题分类节点的自定义调用函数参数",
+    "description": "配置FastGPT问题分类节点的自定义调用函数参数 结论 本页讲解FastGPT问题分类节点的自定义调用函数配置方法。通过定义符合规范的agentFunction，可实现对用户问题的分类，并返回预设的枚举值，完成分类判断。 具体怎么做 1. 定义agentFunction对象，配置name为自定义函数名，d…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-question-classify-function-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-quick-overview-access",
+    "title": "介绍FastGPT的基础能力与官方体验入口",
+    "description": "介绍FastGPT的基础能力与官方体验入口 结论 FastGPT是基于大语言模型的AI Agent应用开发平台，集知识库问答、可视化工作流、Agent编排、工具调用和技能扩展于一体，可帮助开发者和业务人员快速构建专属AI应用。平台提供国际版与中国大陆版官方体验入口。 具体怎么做 1. 根据所在区域选择官方体…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-quick-overview-access"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-quote-block-reader-guide",
+    "title": "FastGPT知识库引用分块阅读器的功能与使用说明",
+    "description": "FastGPT知识库引用分块阅读器的功能与使用说明 结论 FastGPT 4.9.1版本推出知识库引用分块阅读器功能。该功能可让用户在对话中查看AI引用内容的完整文档，并精确定位引用位置。它解决了传统对话中仅能看到引用片段、无法获取完整语境的痛点，让AI引用不再是\"黑盒\"，提升了引用内容的可解释性。 具体怎…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-quote-block-reader-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-rag-principles-scenarios",
+    "title": "FastGPT中RAG模型的核心机制与应用场景说明",
+    "description": "FastGPT中RAG模型的核心机制与应用场景说明 结论 RAG模型结合生成与检索模型的优势，可解决纯生成模型的事实错误与检索模型的回答不连贯问题。其生成的文本兼具上下文连贯性与准确的知识支撑，适配智能问答、信息检索推理等场景。 具体怎么做 1. 启动检索环节，从外部知识库中匹配与用户问题相关的信息 2.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-rag-principles-scenarios"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-rag-qa-workflow",
+    "title": "FastGPT智能问答系统RAG应用的操作流程与注意事项",
+    "description": "FastGPT智能问答系统RAG应用的操作流程与注意事项 结论 RAG通过实时检索外部知识库生成准确详细的答案，可避免传统生成模型产生的错误信息。本文将介绍FastGPT中智能问答系统RAG应用的完整操作流程。 具体怎么做 1. 用户通过Web应用发起查询请求，进入后端系统启动数据处理流程。 2. 系统通过…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-rag-qa-workflow"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-rag-question-optimization",
+    "title": "解决FastGPT RAG连续对话中知识库搜索匹配失效的问题",
+    "description": "解决FastGPT RAG连续对话中知识库搜索匹配失效的问题 结论 FastGPT的问题优化模块可补全连续对话中的用户问题，帮助知识库搜索匹配到更相关的内容。该模块通过模型调用完成指代消除与问题扩展，提升连续对话的检索效果。 具体怎么做 1. 在正式执行知识库数据检索前，触发FastGPT的问题优化流程 2…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-rag-question-optimization"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-rag-workflow-steps",
+    "title": "FastGPT RAG流程的完整操作步骤说明",
+    "description": "FastGPT RAG流程的完整操作步骤说明 结论 FastGPT的RAG流程包含五个核心执行环节，可基于知识库生成符合需求的自然语言回答。该流程覆盖从查询输入到结果反馈优化的完整链路。 具体怎么做 1. 数据加载与查询输入：用户通过界面或API提交自然语言查询，系统接收后将查询传递至向量化器，利用BERT…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-rag-workflow-steps"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-remote-debug-component-flow",
+    "title": "FastGPT远程调试链路的组件组成及标准调用流程说明",
+    "description": "FastGPT远程调试链路的组件组成及标准调用流程说明 结论 远程调试链路包含FastGPT主服务、Plugin Server、Connection Gateway、Redis、fastgpt-plugin dev五类组件。完整调用流程围绕调试通道创建、CLI连接、调试请求转发与结果返回展开。 具体怎么做…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-remote-debug-component-flow"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-rerank-upgrade-config",
+    "title": "FastGPT中ReRank模型的配置与版本升级方法",
+    "description": "FastGPT中ReRank模型的配置与版本升级方法 结论 FastGPT 4.7版本对ReRank模型格式作出调整，兼容Cohere格式的API接口。本地部署ReRank模型需更换指定镜像，也可通过配置文件接入对应重排服务。 具体怎么做 1. 本地ReRank模型适配：更换部署镜像为 registry.c…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-rerank-upgrade-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-sandbox-env-update",
+    "title": "FastGPT启用沙盒功能的环境变量更新配置指南",
+    "description": "FastGPT启用沙盒功能的环境变量更新配置指南 结论 本次更新针对FastGPT启用沙盒功能的场景，需同步更新fastgpt-app与fastgpt-pro的环境变量，替换弃用配置并按需新增可选参数。 具体怎么做 1. 同时为fastgpt-app和fastgpt-pro新增以下必填环境变量： - AGE…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-sandbox-env-update"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-sandbox-http-request",
+    "title": "在FastGPT沙盒中使用httpRequest发起外部HTTP请求",
+    "description": "在FastGPT沙盒中使用httpRequest发起外部HTTP请求 结论 在FastGPT的沙盒节点中，可通过内置的httpRequest函数发起外部HTTP请求。该函数自带SSRF防护机制，会自动拦截内网地址的请求，支持JavaScript与Python两种代码编写形式。 具体怎么做 1. 在沙盒节点的…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-sandbox-http-request"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-sandbox-v2-js-examples",
+    "title": "FastGPT沙盒v2节点的JavaScript代码示例使用指南",
+    "description": "FastGPT沙盒v2节点的JavaScript代码示例使用指南 结论 本页整理了FastGPT沙盒v2节点的4类JavaScript常用代码示例，覆盖数据格式转换、日期计算、HTTP请求、数据加密四类常见需求。示例可直接复制到沙盒节点中使用，部分依赖官方内置模块或可通过require引入第三方库。 具体怎…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-sandbox-v2-js-examples"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-sandbox-v2-node-guide",
+    "title": "FastGPT 4.14.8及以上版本代码运行节点使用速查",
+    "description": "FastGPT 4.14.8及以上版本代码运行节点使用速查 结论 代码运行节点（sandbox v2）适配FastGPT 4.14.8及以上版本，可用于在工作流中执行自定义代码逻辑。该节点为工作流扩展提供灵活的自定义处理能力。 具体怎么做 1. 确保使用FastGPT 4.14.8及以上版本。 2. 进入应…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-sandbox-v2-node-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-sandbox-v2-python-whitelist-modules",
+    "title": "FastGPT沙盒V2节点可直接使用的Python白名单模块速查",
+    "description": "FastGPT沙盒V2节点可直接使用的Python白名单模块速查 结论 FastGPT沙盒V2节点支持直接导入指定Python标准库与第三方库，可用于编写自定义代码逻辑。使用时需严格遵循白名单与禁用模块规则。 具体怎么做 1. 打开FastGPT沙盒V2节点的代码编辑区域 2. 使用import语句直接导入…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-sandbox-v2-python-whitelist-modules"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-sealos-4100-upgrade",
+    "title": "Sealos环境下FastGPT 4.10.0版本更新操作指南",
+    "description": "Sealos环境下FastGPT 4.10.0版本更新操作指南 结论 本操作指南用于Sealos环境下FastGPT 4.10.0版本的更新，需完成对象存储配置、plugin服务部署及核心容器更新三步。操作完成后即可完成版本升级适配。 具体怎么做 1. 在Sealos桌面的对象存储中新建存储桶，设置publ…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-sealos-4100-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-sealos-devbox-env-config",
+    "title": "配置FastGPT使用Sealos Devbox作为Agent沙盒的相关环境变量",
+    "description": "配置FastGPT使用Sealos Devbox作为Agent沙盒的相关环境变量 结论 启用Sealos Devbox作为FastGPT的Agent沙盒，需在fastgpt-app与fastgpt-pro服务中配置指定环境变量。完成配置后，FastGPT即可调用该沙盒服务。 具体怎么做 在fastgpt-a…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-sealos-devbox-env-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-self-deploy-env-vars",
+    "title": "FastGPT自部署时常用服务及配置的环境变量说明",
+    "description": "FastGPT自部署时常用服务及配置的环境变量说明 结论 本文说明FastGPT自部署场景下常用服务的环境变量配置规则。数据库、密钥等通用配置变量由多个服务复用，统一合并说明；专属配置变量单独列出。 具体怎么做 1. 通用环境变量配置：数据库、密钥、对象存储、向量库等变量，由projects/app与pro…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-self-deploy-env-vars"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-self-hosted-app-env-vars",
+    "title": "FastGPT 自托管部署的App额外环境变量配置速查",
+    "description": "FastGPT 自托管部署的App额外环境变量配置速查 结论 这些环境变量主要由FastGPT的App层读取，部分变量会在packages/service/env.ts中做统一校验。配置这些变量可修改系统基础信息、密码规则、API密钥限制等核心部署配置。 具体怎么做 在FastGPT自托管部署时，可通过配置…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-self-hosted-app-env-vars"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-self-hosted-faq-check",
+    "title": "FastGPT自托管部署与运行常见问题排查速查",
+    "description": "FastGPT自托管部署与运行常见问题排查速查 结论 本文整理了FastGPT自托管部署与运行的常见问题排查方案。涵盖版本匹配、服务连接、启动异常、登录报错等多类场景的实操指引。 具体怎么做 1. 版本匹配：确认FastGPT与FastGPT-plugin版本对应关系 2. 环境变量配置： - 按需自定义环…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-self-hosted-faq-check"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-shared-env-db-cache-vector",
+    "title": "这一页提供FastGPT App/Admin共享变量与数据库缓存向量库配置参考",
+    "description": "这一页提供FastGPT App/Admin共享变量与数据库缓存向量库配置参考 结论 本页整理了FastGPT自部署时的App/Admin共享环境变量，涵盖缓存、数据库与向量库的连接参数及流式恢复相关配置。通过配置这些环境变量，可完成FastGPT的基础依赖服务适配。 具体怎么做 1. 编辑FastGPT的…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-shared-env-db-cache-vector"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-siliconcloud-model-config",
+    "title": "FastGPT硅基流动平台模型接入配置操作说明",
+    "description": "FastGPT硅基流动平台模型接入配置操作说明 结论 硅基流动是可接入FastGPT的开源模型调用平台，拥有自主加速引擎，可提供低成本、快速的开源模型调用服务，覆盖的模型类型可满足FastGPT的各类模型需求。完成对应配置后，即可在FastGPT中使用该平台的各类模型。 具体怎么做 1. 确保已阅读Fast…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-siliconcloud-model-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-skill-initialization-script",
+    "title": "FastGPT技能初始化脚本的配置与使用方法",
+    "description": "FastGPT技能初始化脚本的配置与使用方法 结论 FastGPT技能初始化脚本是技能运行前的前置脚本。系统会在技能部署解压后、AI任务执行前，在独立虚拟机环境自动运行该脚本，用于安装技能特有依赖或完成配置预处理。 具体怎么做 1. 开发技能时编写初始化脚本，实现技能特有依赖安装或配置预处理。 2. 将初始…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-skill-initialization-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-sso-external-member-sync",
+    "title": "FastGPT管理员后台SSO与外部成员同步功能的配置方法",
+    "description": "FastGPT管理员后台SSO与外部成员同步功能的配置方法 结论 本页面围绕FastGPT外部成员系统接入设计与配置展开说明，介绍SSO与外部成员同步功能的相关内容。该功能适用于需要接入自有成员系统或主流办公IM的用户，无需该功能或仅使用内置快速登录的用户可跳过本章节。 具体怎么做 1. 登录FastGPT…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-sso-external-member-sync"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-sso-get-user-info",
+    "title": "FastGPT SSO标准接口获取用户信息的具体操作方法",
+    "description": "FastGPT SSO标准接口获取用户信息的具体操作方法 结论 该接口通过传入code参数完成鉴权，用于获取FastGPT系统内的用户信息。请求需携带指定请求头，成功与失败将返回对应格式的JSON数据。 具体怎么做 1. 构造GET请求，URL为\"https://oauth.example/login/oa…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-sso-get-user-info"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-system-plugin-prep",
+    "title": "FastGPT系统插件开发前需明确的核心准备事项",
+    "description": "FastGPT系统插件开发前需明确的核心准备事项 结论 FastGPT系统插件开发前，需先明确指定的核心配置信息。提前梳理相关参数与要求，可有效降低后续开发与发布的风险。 具体怎么做 1. 确认基础标识：插件类型为tool或tool-suite，配置全局唯一且发布后不变的pluginId；工具集插件需额外确…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-system-plugin-prep"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-team-invitation-link",
+    "title": "FastGPT团队邀请链接的使用方法与升级说明",
+    "description": "FastGPT团队邀请链接的使用方法与升级说明 结论 FastGPT从v4.9.1版本起，团队邀请成员改用邀请链接模式，不再支持通过输入用户名添加成员。版本升级后，所有未完成加入的旧团队邀请会被自动清除，需重新生成邀请链接邀请成员。 具体怎么做 1. 登录FastGPT工作区，进入团队管理模块。 2. 创建…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-team-invitation-link"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-team-member-api",
+    "title": "FastGPT获取团队成员列表的标准接口使用说明",
+    "description": "FastGPT获取团队成员列表的标准接口使用说明 结论 FastGPT提供标准接口用于获取团队成员列表，适配SSO集成场景。调用该接口可同步获取团队成员的账号、显示名、联系方式等结构化信息。 具体怎么做 1. 构造GET请求，目标地址为https://example.com/user/list。 2. 添加…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-team-member-api"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-tencent-cos-storage-config",
+    "title": "FastGPT腾讯云COS对象存储的配置参数与操作步骤",
+    "description": "FastGPT腾讯云COS对象存储的配置参数与操作步骤 结论 本文整理了FastGPT对接腾讯云COS对象存储的官方配置参数与步骤。可直接参考本文完成FastGPT的腾讯云COS存储配置。 具体怎么做 1. 设置全局存储厂商变量：STORAGEVENDOR = cos 2. 配置基础必填参数： - STOR…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-tencent-cos-storage-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-text-content-extract-node",
+    "title": "FastGPT工作流中文本内容提取节点的使用方法",
+    "description": "FastGPT工作流中文本内容提取节点的使用方法 结论 文本内容提取节点是FastGPT工作流中的内置处理节点，属于FastGPT内容提取模块，用于从指定文本中提取目标结构化内容，是工作流中的文本处理工具。 具体怎么做 1. 进入FastGPT应用构建页面，打开工作流编辑器。 2. 在工作流&插件分类下的节…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-text-content-extract-node"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-third-party-api-file-detail",
+    "title": "使用FastGPT第三方API获取指定文件的详情信息",
+    "description": "使用FastGPT第三方API获取指定文件的详情信息 结论 本页介绍FastGPT第三方API获取文件详情的标准调用方式。通过该接口可获取指定文件的ID、名称、父级目录等基础信息。 具体怎么做 1. 构造GET请求： 请求地址：{{baseURL}}/v1/file/detail?id=xx，其中xx替换为…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-third-party-api-file-detail"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-third-party-api-file-tree",
+    "title": "FastGPT第三方API数据集获取文件树的操作方法",
+    "description": "FastGPT第三方API数据集获取文件树的操作方法 结论 本接口用于获取FastGPT第三方API数据集的文件树，通过合法的POST请求即可获取指定目录下的文件与文件夹列表。响应结果包含文件或文件夹的详细元数据信息。 具体怎么做 1. 构造POST请求，请求地址为{{baseURL}}/v1/file/l…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-third-party-api-file-tree"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-third-party-dataset-frontend",
+    "title": "为FastGPT添加第三方知识库的前端配置与展示",
+    "description": "为FastGPT添加第三方知识库的前端配置与展示 结论 为FastGPT配置第三方知识库的前端功能，需完成多文件的翻译、图标、类型注册及页面配置，即可实现该知识库的创建、展示与多语言支持。完成全部配置后，用户可在知识库列表页创建并使用该第三方知识库。 具体怎么做 1. 多语言配置：在FastGPT/pack…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-third-party-dataset-frontend"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-third-party-knowledgebase-access",
+    "title": "说明在FastGPT中自定义接入第三方知识库的方法",
+    "description": "说明在FastGPT中自定义接入第三方知识库的方法 结论 当前互联网存在多种类型的文档库，不同用户的对接需求存在差异。FastGPT内置飞书、语雀两类文档库，可适配多数用户的基础文档对接需求。若需接入FastGPT未覆盖的其他第三方文档库，可参考本节内容完成自定义开发。 具体怎么做 1. 明确需对接的第三方…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-third-party-knowledgebase-access"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-tool-call-terminate",
+    "title": "FastGPT 工作流工具调用与终止节点的使用方法",
+    "description": "FastGPT 工作流工具调用与终止节点的使用方法 结论 工具调用&终止节点是FastGPT工作流的内置工具类节点，用于实现外部工具的调用与执行终止管理。该节点可集成到工作流中，完成工具相关的自动化流程配置，是工作流中工具集成的核心配置项。 具体怎么做 1. 打开FastGPT的应用构建页面，进入工作流编辑…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-tool-call-terminate"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-upgrade-493",
+    "title": "FastGPT自部署版本从低于4.12.0升级到4.9.3的操作参考",
+    "description": "FastGPT自部署版本从低于4.12.0升级到4.9.3的操作参考 结论 本文针对FastGPT自部署用户，提供从低于4.12.0版本升级到4.9.3的操作参考。该升级需根据当前版本的官方升级备注，执行对应的配置调整或脚本操作，确保升级流程符合版本要求。 具体怎么做 1. 确认当前部署的FastGPT版本…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-upgrade-493"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-upgrade-v41",
+    "title": "FastGPT从旧版本升级到V4.1的操作步骤说明",
+    "description": "FastGPT从旧版本升级到V4.1的操作步骤说明 结论 FastGPT从旧版本升级到V4.1时，包含环境变量变更、升级脚本执行与原对话存储初始化三个核心步骤。该版本重新调整了对话存储结构，初始化原存储内容的操作不可跳过。 具体怎么做 1. 运行FastGPT V4.1版本配套的升级脚本 2. 更新部署配置…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-upgrade-v41"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-upgrade-v4147",
+    "title": "FastGPT V4.14.7版本升级与环境变量变更操作指南",
+    "description": "FastGPT V4.14.7版本升级与环境变量变更操作指南 结论 FastGPT V4.14.7是4.14.x系列的正式更新版本，本次更新包含环境变量变更与升级脚本调整两项核心改动。完成该版本升级并适配新的环境变量规则后，可正常使用该版本的全部功能，且兼容此前4.14.x系列的部署架构。 具体怎么做 1.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-upgrade-v4147"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-upgrade-v43",
+    "title": "FastGPT从旧版本升级至V4.3的完整操作指南",
+    "description": "FastGPT从旧版本升级至V4.3的完整操作指南 结论 FastGPT从旧版本升级到V4.3需处理两项核心调整：环境变量变更与升级脚本执行。该版本的升级流程已收录在官方版本升级说明中，需严格按照对应步骤操作。 具体怎么做 1. 确认当前FastGPT部署版本低于V4.3，避免跨大版本直接升级导致异常 2.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-upgrade-v43"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-upgrade-v44-guide",
+    "title": "FastGPT从旧版本升级到V4.4的操作指南",
+    "description": "FastGPT从旧版本升级到V4.4的操作指南 结论 FastGPT从旧版本升级到V4.4需使用专属升级脚本完成。该升级路径仅支持版本低于4.12.0的FastGPT实例，是官方明确的标准升级方案。 具体怎么做 1. 确认当前FastGPT的版本号，确保其低于4.12.0； 2. 从FastGPT官方文档获…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-upgrade-v44-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-upgrade-v441",
+    "title": "FastGPT从旧版本升级到V4.4.1的操作指南",
+    "description": "FastGPT从旧版本升级到V4.4.1的操作指南 结论 本页提供FastGPT从版本低于4.12.0的旧版本升级到V4.4.1的标准操作方法，需使用对应版本的升级脚本完成更新。该升级流程仅适用于指定范围的旧版本，升级后需验证系统版本是否符合预期。 具体怎么做 1. 确认当前FastGPT版本低于4.12.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-upgrade-v441"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-upgrade-v498-from-pre-4120",
+    "title": "FastGPT 从低于4.12.0版本升级至V4.9.8的操作指南",
+    "description": "FastGPT 从低于4.12.0版本升级至V4.9.8的操作指南 结论 本文档用于指导FastGPT低于4.12.0版本升级至V4.9.8。升级需遵循官方指定流程，确保版本适配性。该升级流程适配FastGPT官方发布的版本升级路径，可完成从旧版本到V4.9.8的平稳更新。 具体怎么做 1. 确认当前Fas…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-upgrade-v498-from-pre-4120"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-11-1-upgrade-guide",
+    "title": "FastGPT从低于4.12.0升级至V4.11.1操作速查",
+    "description": "FastGPT从低于4.12.0升级至V4.11.1操作速查 结论 本页针对FastGPT从低于4.12.0版本升级至V4.11.1提供标准化操作指引。遵循对应版本的配置要求完成前置操作后，可顺利部署V4.11.1版本的FastGPT服务。 具体怎么做 1. 确认当前FastGPT版本低于4.12.0，可通…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-11-1-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-14-12-upgrade-guide",
+    "title": "FastGPT V4.14.12版本升级操作参考指南",
+    "description": "FastGPT V4.14.12版本升级操作参考指南 结论 本页面提供FastGPT V4.14.12版本升级的官方参考内容。该版本属于4.14.x系列升级分支，需结合前置版本的具体升级要求完成操作，确保系统正常启动与功能可用。 具体怎么做 1. 定位到对应版本的升级文档，优先查阅4.14.x系列的官方升级…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-14-12-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-14-14-upgrade-guide",
+    "title": "FastGPT V4.14.14版本升级操作的详细说明",
+    "description": "FastGPT V4.14.14版本升级操作的详细说明 结论 本页面为FastGPT V4.14.14版本的升级相关说明。该版本属于4.14.x系列的升级分支，可作为同系列版本的升级目标之一。 具体怎么做 1. 确认当前使用的FastGPT版本所属系列，4.14.x系列可升级至V4.14.14版本。 2.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-14-14-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-14-16-upgrade-guide",
+    "title": "FastGPT V4.14.16版本升级操作说明",
+    "description": "FastGPT V4.14.16版本升级操作说明 结论 V4.14.16是FastGPT 4.14.x分支的正式版本升级项。该升级需遵循4.14.x分支的专属流程，需提前核对前置版本的变更要求。 具体怎么做 1. 确认当前部署的FastGPT版本属于4.14.x分支。 2. 核对从当前版本到V4.14.16…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-14-16-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-14-17-upgrade-guide",
+    "title": "FastGPT V4.14.17版本升级操作速查指南",
+    "description": "FastGPT V4.14.17版本升级操作速查指南 结论 本文档为FastGPT V4.14.17版本的升级提供速查指引。该版本属于4.14.x系列升级分支，升级前需确认前置版本的变更要求。 具体怎么做 1. 确认当前运行的FastGPT版本属于4.14.x系列。 2. 对照版本变更标记完成前置准备： -…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-14-17-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-14-19-upgrade-quick-ref",
+    "title": "FastGPT V4.14.19版本升级操作速查",
+    "description": "FastGPT V4.14.19版本升级操作速查 结论 FastGPT V4.14.19属于4.14.x系列的正式升级版本。该页面提供该版本升级的前置检查与操作指引，帮助用户快速明确升级前的关键注意事项，顺利完成版本升级。 具体怎么做 1. 确认当前使用的FastGPT版本属于4.14.x系列。 2. 若当…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-14-19-upgrade-quick-ref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-14-2-upgrade-guide",
+    "title": "FastGPT V4.14.2版本升级适配操作说明",
+    "description": "FastGPT V4.14.2版本升级适配操作说明 结论 V4.14.2是FastGPT 4.14.x版本系列的升级项。升级至该版本需结合当前版本的适配要求完成操作，部分前置版本存在额外配置要求。 具体怎么做 1. 确认当前部署的FastGPT版本属于4.14.x分支 2. 查阅官方4.14.x系列版本清单…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-14-2-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-14-25-deprecation-upgrade",
+    "title": "FastGPT V4.14.25弃用版本升级操作说明",
+    "description": "FastGPT V4.14.25弃用版本升级操作说明 结论 V4.14.25是FastGPT 4.14.x系列中已被官方弃用的历史版本，不再提供后续维护与更新支持。如需对该版本进行升级或相关操作，需查阅官方对应弃用版本的专属升级文档。 具体怎么做 1. 登录FastGPT官方文档，进入「版本升级」板块下的4…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-14-25-deprecation-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-14-4-upgrade-script",
+    "title": "FastGPT V4.14.4版本升级脚本使用说明",
+    "description": "FastGPT V4.14.4版本升级脚本使用说明 结论 FastGPT V4.14.4版本属于4.14.x系列，官方提供专属升级脚本用于该版本的更新。按照规范操作可完成合规升级，确保系统版本符合官方更新要求。 具体怎么做 1. 确认当前FastGPT部署为Docker Compose模式。 2. 获取并运…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-14-4-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-14-5-upgrade-guide",
+    "title": "FastGPT V4.14.5版本环境变量变更及升级操作说明",
+    "description": "FastGPT V4.14.5版本环境变量变更及升级操作说明 结论 FastGPT V4.14.5版本存在专属的环境变量变更，同时官方提供了对应的升级脚本。该升级流程仅针对4.14.x系列版本，可帮助用户完成该版本的部署更新。 具体怎么做 1. 确认当前部署的FastGPT版本属于4.14.x系列，避免误用…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-14-5-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-15-0-beta5-upgrade",
+    "title": "FastGPT V4.15.0-beta5版本升级与环境变量变更说明",
+    "description": "FastGPT V4.15.0-beta5版本升级与环境变量变更说明 结论 FastGPT V4.15.0-beta5版本包含环境变量变更内容，需通过官方配套的升级脚本完成升级。该版本属于4.15.x系列的升级分支，其升级逻辑与同系列的V4.15.0及beta1-beta7版本一致，均需配合升级脚本与环境变…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-15-0-beta5-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-15-0-beta6-upgrade-guide",
+    "title": "FastGPT V4.15.0-beta6版本环境变量变更与升级操作指南",
+    "description": "FastGPT V4.15.0-beta6版本环境变量变更与升级操作指南 结论 FastGPT V4.15.0-beta6版本存在环境变量变更，需通过官方升级脚本完成部署更新。该版本属于4.15.x系列升级分支，需遵循官方指定的升级流程操作。 具体怎么做 1. 备份当前FastGPT部署的环境变量配置与业务…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-15-0-beta6-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-15-beta2-env-updates",
+    "title": "FastGPT V4.15.0-beta2版本环境变量变更升级指引",
+    "description": "FastGPT V4.15.0-beta2版本环境变量变更升级指引 结论 本页针对FastGPT V4.15.0-beta2版本的环境变量变更场景提供明确的升级操作指引，该版本属于4.15.x系列升级路径中的子版本，升级过程中需适配环境变量的调整要求，避免因配置不兼容导致部署异常。 具体怎么做 1. 进入F…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-15-beta2-env-updates"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-15-beta7-upgrade",
+    "title": "FastGPT V4.15.0-beta7版本升级与环境变量变更说明",
+    "description": "FastGPT V4.15.0-beta7版本升级与环境变量变更说明 结论 本页针对FastGPT V4.15.0-beta7版本，说明其升级操作与配套的环境变量变更要求。该版本属于4.15.x系列升级范畴，升级需结合专用升级脚本完成，同时需同步调整对应环境变量配置，确保版本升级后系统正常运行。 具体怎么做…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-15-beta7-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-15-upgrade-guide",
+    "title": "FastGPT V4.15.0版本升级与环境变量变更操作指南",
+    "description": "FastGPT V4.15.0版本升级与环境变量变更操作指南 结论 FastGPT V4.15.0及所有beta测试版本均包含环境变量变更与专属升级脚本。用户需根据官方说明完成配置调整与升级，确保部署流程正确。 具体怎么做 1. 确认需升级的具体子版本，查阅对应V4.15.0系列版本的环境变量变更说明，调整…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-15-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-6-2-upgrade-script",
+    "title": "FastGPT V4.6.2版本升级脚本的使用操作指南",
+    "description": "FastGPT V4.6.2版本升级脚本的使用操作指南 结论 FastGPT V4.6.2版本属于4.12.0之前的版本区间，需使用官方提供的专属升级脚本完成升级。该版本的升级流程适配Docker Compose、Sealos以及本地开发三种部署方式，可通过官方文档获取对应升级资源。 具体怎么做 1. 确认…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-6-2-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-11-upgrade-script",
+    "title": "自部署环境下FastGPT V4.8.11版本升级脚本的具体使用说明",
+    "description": "自部署环境下FastGPT V4.8.11版本升级脚本的具体使用说明 结论 FastGPT V4.8.11版本升级需使用官方配套的升级脚本完成。该升级属于FastGPT自部署环境下的轻量型更新，适用于版本低于4.12.0的部署实例，按官方步骤操作即可完成版本切换。 具体怎么做 1. 进入FastGPT自部署…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-11-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-13-env-variable-change",
+    "title": "FastGPT V4.8.13版本环境变量变更的适配操作说明",
+    "description": "FastGPT V4.8.13版本环境变量变更的适配操作说明 结论 FastGPT V4.8.13版本存在环境变量配置变更，需调整部署配置以正常运行该版本。该变更仅涉及环境变量相关配置，不影响核心业务逻辑的基础框架。 具体怎么做 1. 备份当前FastGPT部署的环境变量配置文件 2. 参照V4.8.13版…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-13-env-variable-change"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-14-update-ref",
+    "title": "FastGPT V4.8.14版本更新内容技术速查",
+    "description": "FastGPT V4.8.14版本更新内容技术速查 结论 本页整理FastGPT V4.8.14版本的全部更新内容，涵盖新增功能、体验优化与问题修复三类，可供技术人员快速查阅与版本适配参考。本次更新覆盖变量配置、文件上传、工作流等多个核心模块。 具体怎么做 1. 新增功能： - 数组变量选择支持多选，可选择…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-14-update-ref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-15-release-notes",
+    "title": "FastGPT V4.8.15版本更新内容技术速查",
+    "description": "FastGPT V4.8.15版本更新内容技术速查 结论 本页汇总FastGPT V4.8.15版本的官方更新内容，包含新增功能、优化项与问题修复三类。该版本弃用外部文件库，新增多项实用功能，修复了多个运行与配置问题。 具体怎么做 新增功能 1. API知识库，外部文件库将被弃用 2. 工具箱页面，展示系统…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-15-release-notes"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-16-config-change",
+    "title": "FastGPT V4.8.16版本配置变更的操作指南",
+    "description": "FastGPT V4.8.16版本配置变更的操作指南 结论 FastGPT V4.8.16版本存在配置变更项，归类在版本升级的<4.12.0板块下。部署或升级至该版本时，需按照官方对应说明完成配置调整，确保系统正常运行。 具体怎么做 1. 访问FastGPT官方自部署文档的版本升级模块 2. 定位到<4.1…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-16-config-change"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-17-upgrade-script",
+    "title": "FastGPT V4.8.17版本升级操作速查",
+    "description": "FastGPT V4.8.17版本升级操作速查 结论 FastGPT V4.8.17版本升级需使用官方提供的专属升级脚本完成。该升级流程属于4.12.0之前版本的升级范畴，仅面向自部署FastGPT的技术用户，可帮助完成从低版本到V4.8.17的版本更新。 具体怎么做 1. 访问FastGPT官方自部署升级…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-17-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-18-upgrade-script",
+    "title": "FastGPT V4.8.18版本升级脚本操作指南",
+    "description": "FastGPT V4.8.18版本升级脚本操作指南 结论 FastGPT V4.8.18版本升级需使用官方发布的专属升级脚本。该脚本为FastGPT自部署升级的标准工具，仅适配版本低于4.12.0的FastGPT实例，可完成从对应旧版本到V4.8.18的升级操作。 具体怎么做 1. 确认当前运行的FastG…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-18-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-2-env-changes",
+    "title": "FastGPT V4.8.2版本环境变量变更适配操作指南",
+    "description": "FastGPT V4.8.2版本环境变量变更适配操作指南 结论 FastGPT V4.8.2版本存在专属的环境变量配置变更。升级或部署该版本时，需提前调整对应环境变量参数。未完成适配将可能引发系统启动异常，影响正常使用。 具体怎么做 1. 确认当前部署的FastGPT版本低于V4.12.0，符合升级至V4.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-2-env-changes"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-23-upgrade-script",
+    "title": "FastGPT V4.8.23版本升级脚本使用操作指南",
+    "description": "FastGPT V4.8.23版本升级脚本使用操作指南 结论 本页面针对FastGPT V4.8.23版本提供升级脚本相关操作指引。该版本属于<4.12.0的升级分支，需使用官方提供的专属升级脚本完成版本升级，是FastGPT自部署环境下的标准升级方式之一。 具体怎么做 1. 进入FastGPT官方文档的自…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-23-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-4-upgrade-script",
+    "title": "FastGPT V4.8.4版本升级脚本的使用说明",
+    "description": "FastGPT V4.8.4版本升级脚本的使用说明 结论 FastGPT V4.8.4版本升级需使用官方提供的专用升级脚本完成。该版本属于<4.12.0版本区间的更新条目，升级操作依托专用脚本执行。 具体怎么做 1. 参考FastGPT官方文档的<4.12.0版本升级板块 2. 获取V4.8.4版本对应的官…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-4-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-5-upgrade-guide",
+    "title": "FastGPT从低于V4.12.0版本升级至V4.8.5的操作指南",
+    "description": "FastGPT从低于V4.12.0版本升级至V4.8.5的操作指南 结论 FastGPT V4.8.5版本升级需使用专用升级脚本。该升级流程适用于版本低于V4.12.0的自部署实例。 具体怎么做 1. 确认当前部署的FastGPT版本低于V4.12.0。 2. 获取V4.8.5版本对应的升级脚本文件。 3.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-5-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-6-upgrade-script",
+    "title": "FastGPT V4.8.6版本升级脚本使用说明",
+    "description": "FastGPT V4.8.6版本升级脚本使用说明 结论 FastGPT V4.8.6版本升级需使用专属升级脚本，该流程属于FastGPT版本升级路径中<4.12.0的升级分类，适配版本低于4.12.0的旧实例。执行对应升级脚本可完成版本更新的必要操作，是该版本官方推荐的升级方式。 具体怎么做 1. 确认当前…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-6-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-8-upgrade-script",
+    "title": "FastGPT V4.8.8版本自部署升级脚本的使用说明",
+    "description": "FastGPT V4.8.8版本自部署升级脚本的使用说明 结论 本页内容针对FastGPT V4.8.8版本的升级脚本使用，该脚本是官方针对V4.8.8版本推出的专属更新工具，适用于版本低于4.12.0的自部署FastGPT用户，可通过该脚本完成版本更新。 具体怎么做 1. 确认当前部署的FastGPT版本…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-8-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-9-update-reference",
+    "title": "FastGPT V4.8.9版本更新内容技术速查",
+    "description": "FastGPT V4.8.9版本更新内容技术速查 结论 本文整理FastGPT V4.8.9版本的官方更新内容，涵盖新增功能、体验优化与问题修复。该更新覆盖基础版与商业版功能，包含多项实用功能新增与异常修复。 具体怎么做 1. 配置文件上传：通过系统配置设定文件上传规则，无需依赖视觉模型判断。 2. 开启图…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-9-update-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-update-reference",
+    "title": "FastGPT V4.8版本更新功能、优化与修复速查",
+    "description": "FastGPT V4.8版本更新功能、优化与修复速查 结论 FastGPT V4.8版本包含多项工作流功能新增、性能优化与问题修复。本次更新覆盖工作流、定时任务、插件配置、对话处理等多个模块，可提升应用搭建效率与运行稳定性。 具体怎么做 1. 新增功能操作： - 工作流中添加判断器节点支持if/elseIf…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-update-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-8-upgrade-reference",
+    "title": "FastGPT V4.8版本升级的操作与注意事项速查",
+    "description": "FastGPT V4.8版本升级的操作与注意事项速查 结论 本文针对FastGPT V4.8版本的升级提供明确参考，涵盖对应版本的升级脚本、环境变量变更等核心操作要点。完成升级前需确认当前版本归属，匹配对应升级流程。 具体怎么做 1. 确认当前FastGPT版本，若当前版本低于4.12.0，需参考V4.8专…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-8-upgrade-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-upgrade-guide",
+    "title": "FastGPT从旧版本升级到V4.0的操作说明",
+    "description": "FastGPT从旧版本升级到V4.0的操作说明 结论 FastGPT从旧版本升级到V4.0时，因新版MongoDB表变更幅度较大，需按照官方文档说明执行初始化脚本完成版本升级。该操作是完成V4.0版本升级的必要环节。 具体怎么做 1. 确认当前FastGPT版本为需升级至V4.0的旧版本 2. 查阅官方提供…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4-workflow-intro",
+    "title": "说明FastGPT V4.0版本工作流与插件的基础使用方法",
+    "description": "说明FastGPT V4.0版本工作流与插件的基础使用方法 结论 FastGPT V4.0版本采用Flow节点编排的工作流方式构建AI应用，该功能属于应用构建模块下的工作流&插件板块。该方式可实现复杂工作流，提升应用的可玩性和扩展性。该方式同时提升了上手门槛，有一定开发背景的用户使用会更顺畅。 具体怎么做…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4-workflow-intro"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4100-env-upgrade",
+    "title": "FastGPT V4.10.0版本环境变量变更的升级操作说明",
+    "description": "FastGPT V4.10.0版本环境变量变更的升级操作说明 结论 FastGPT V4.10.0版本更新包含环境变量变更内容，自部署升级至该版本时需完成对应配置调整方可正常运行。该变更是该版本升级的核心配置项，仅适用于从低于V4.10.0版本升级的场景，未完成调整可能导致服务异常。 具体怎么做 1. 备份…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4100-env-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4101-upgrade-script",
+    "title": "FastGPT V4.10.1版本升级脚本的使用操作说明",
+    "description": "FastGPT V4.10.1版本升级脚本的使用操作说明 结论 FastGPT V4.10.1版本升级需使用专属升级脚本完成。该版本的升级流程属于低于4.12.0版本的升级分支，需遵循对应区间的升级规则。 具体怎么做 1. 确认当前FastGPT版本处于<4.12.0的区间内； 2. 查找并获取V4.10.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4101-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4110-env-vars-upgrade",
+    "title": "FastGPT V4.11.0版本环境变量变更的升级处理方法",
+    "description": "FastGPT V4.11.0版本环境变量变更的升级处理方法 结论 FastGPT V4.11.0版本存在环境变量配置变更，从低于V4.12.0的版本升级至该版本时，需完成环境变量的适配调整。该变更属于自部署FastGPT的核心配置调整，未正确更新配置可能导致服务无法正常启动，请严格按照官方指引完成配置修改…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4110-env-vars-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4140-upgrade-script",
+    "title": "FastGPT V4.14.0版本升级脚本的操作说明",
+    "description": "FastGPT V4.14.0版本升级脚本的操作说明 结论 FastGPT V4.14.0版本升级需使用官方配套的升级脚本完成。该版本属于4.14.x版本升级序列的基础版本，升级过程需留意对应子版本的环境变量变更提示。 具体怎么做 1. 访问FastGPT版本升级的4.14.x分类页面，定位到V4.14.0…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4140-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4141-upgrade-script",
+    "title": "FastGPT V4.14.1版本升级脚本使用说明",
+    "description": "FastGPT V4.14.1版本升级脚本使用说明 结论 FastGPT V4.14.1是4.14.x系列的正式升级版本，该版本附带专用升级脚本。通过执行对应升级脚本可完成FastGPT的版本更新。 具体怎么做 1. 确认当前运行的FastGPT版本不属于已弃用的V4.14.25版本。 2. 进入自部署的F…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4141-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41410-env-vars-update",
+    "title": "FastGPT V4.14.10版本环境变量变更适配操作指南",
+    "description": "FastGPT V4.14.10版本环境变量变更适配操作指南 结论 FastGPT V4.14.10版本存在环境变量配置变更。升级或首次部署至该版本时，需根据官方指引更新对应环境变量，否则可能引发服务启动失败或功能异常。 具体怎么做 1. 访问FastGPT官方的环境变量说明页面，查阅V4.14.10版本的…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41410-env-vars-update"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41411-env-variable-changes",
+    "title": "FastGPT V4.14.11版本环境变量变更的处理与操作指南",
+    "description": "FastGPT V4.14.11版本环境变量变更的处理与操作指南 结论 FastGPT V4.14.11版本存在官方明确的环境变量变更。部署该版本或从低版本升级至该版本时，需根据变更调整环境变量配置，否则可能导致服务异常。 具体怎么做 1. 确认当前FastGPT的部署版本，确认是否需要升级至V4.14.1…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41411-env-variable-changes"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41413-upgrade-guide",
+    "title": "FastGPT V4.14.13版本升级的标准操作步骤说明",
+    "description": "FastGPT V4.14.13版本升级的标准操作步骤说明 结论 本文提供FastGPT V4.14.13版本的升级操作指引。该版本属于4.14.x系列升级，需结合当前版本的变更要求与部署方式执行对应流程。升级前需确认版本对应的配置变更内容，避免出现启动异常。 具体怎么做 1. 确认当前FastGPT版本属…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41413-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41415-upgrade-guide",
+    "title": "FastGPT V4.14.15版本升级操作速查指引",
+    "description": "FastGPT V4.14.15版本升级操作速查指引 结论 本页提供FastGPT V4.14.15版本升级的官方参考内容。V4.14.15属于4.14.x版本分支，部分同分支版本存在环境变量变更或升级脚本要求，升级前需核对对应版本说明。 具体怎么做 1. 确认当前部署的FastGPT版本属于4.14.x分…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41415-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41418-upgrade",
+    "title": "FastGPT V4.14.18版本升级操作参考说明",
+    "description": "FastGPT V4.14.18版本升级操作参考说明 结论 本文档提供FastGPT V4.14.18版本的升级参考。该版本属于4.14.x系列升级包，部分前置版本需执行升级脚本或调整环境变量配置。 具体怎么做 1. 确认当前运行的FastGPT版本属于4.14.x系列； 2. 若当前版本为V4.14.0、…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41418-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41420-upgrade-guide",
+    "title": "FastGPT V4.14.20版本升级操作参考指南",
+    "description": "FastGPT V4.14.20版本升级操作参考指南 结论 本页面为FastGPT 4.14.x系列的V4.14.20版本升级提供官方参考说明。升级前需核对当前部署版本与目标版本的变更项，部分前置版本存在环境变量变更或需要执行升级脚本。 具体怎么做 1. 进入FastGPT官方文档的自部署-版本升级板块，打…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41420-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41421-upgrade-guide",
+    "title": "FastGPT V4.14.21版本升级操作速查指南",
+    "description": "FastGPT V4.14.21版本升级操作速查指南 结论 本页提供FastGPT V4.14.21版本的官方升级参考内容。该版本属于4.14.x系列升级分支，可通过官方对应流程完成合规升级。 具体怎么做 1. 进入FastGPT官方文档的4.14.x版本升级目录，定位到V4.14.21版本页面； 2. 核…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41421-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41422-upgrade-quickref",
+    "title": "FastGPT V4.14.22版本升级操作速查",
+    "description": "FastGPT V4.14.22版本升级操作速查 结论 本页为FastGPT V4.14.22版本的升级操作速查内容。该版本属于4.14.x系列升级分支，可参考对应官方说明完成部署更新。 具体怎么做 1. 访问FastGPT自部署的版本升级页面，进入4.14.x分类目录 2. 定位并打开V4.14.22版本…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41422-upgrade-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41424-upgrade-guide",
+    "title": "FastGPT V4.14.24版本升级操作速查",
+    "description": "FastGPT V4.14.24版本升级操作速查 结论 本文档提供FastGPT V4.14.24版本升级的速查信息。该版本属于4.14.x系列升级分支，需结合对应版本的升级要求执行操作。 具体怎么做 1. 确认当前运行的FastGPT版本属于4.14.x系列。 2. 核对升级路径，避开已被弃用的V4.14…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41424-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41426-upgrade-reference",
+    "title": "FastGPT V4.14.26版本升级操作与注意事项速查",
+    "description": "FastGPT V4.14.26版本升级操作与注意事项速查 结论 本页提供FastGPT 4.14.x版本分支下V4.14.26版本的升级相关速查信息，涵盖该分支各版本的升级说明要点，可帮助技术人员快速确认升级注意事项。 具体怎么做 1. 进入FastGPT自部署的版本升级专区，找到4.14.x分支下的对应…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41426-upgrade-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41427-upgrade-guide",
+    "title": "FastGPT V4.14.27版本升级的官方操作指引",
+    "description": "FastGPT V4.14.27版本升级的官方操作指引 结论 FastGPT V4.14.27属于4.14.x系列的正式升级版本。按照对应步骤完成前置配置更新后，可顺利升级至该版本。 具体怎么做 1. 确认当前FastGPT版本所属的4.14.x分支变更类型： - 若当前版本包含（环境变量变更）标注，如V4…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41427-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41429-upgrade",
+    "title": "FastGPT V4.14.29版本升级的操作说明",
+    "description": "FastGPT V4.14.29版本升级的操作说明 结论 本文档为FastGPT V4.14.29版本的升级说明，属于4.14.x分支的迭代更新。升级需结合当前版本匹配对应变更要求与流程。 具体怎么做 1. 确认当前运行的FastGPT版本属于4.14.x系列 2. 若升级至标注「环境变量变更」的版本，提前…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41429-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4143-upgrade-script",
+    "title": "FastGPT V4.14.3版本升级脚本的使用说明",
+    "description": "FastGPT V4.14.3版本升级脚本的使用说明 结论 FastGPT V4.14.3版本提供专属升级脚本用于完成版本升级。该脚本是将FastGPT系统升级至V4.14.3版本的专用操作工具。 具体怎么做 1. 进入FastGPT官方文档中V4.14.3版本升级脚本的专属页面。 2. 按照页面指引获取对…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4143-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41430-upgrade-reference",
+    "title": "FastGPT V4.14.30版本升级操作参考速查",
+    "description": "FastGPT V4.14.30版本升级操作参考速查 结论 本页提供FastGPT 4.14.x系列版本升级的官方参考信息，涵盖V4.14.30及各子版本的变更说明。升级需结合对应版本的标记要求执行操作。 具体怎么做 1. 确认当前版本属于4.14.x系列，定位对应版本的升级说明文档 2. 若目标版本带有「…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41430-upgrade-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4144-fix-quickref",
+    "title": "FastGPT v4.14.4版本修复的功能问题速查",
+    "description": "FastGPT v4.14.4版本修复的功能问题速查 结论 本页汇总了FastGPT v4.14.4版本官方修复的全部功能异常。完成该版本升级后，即可解决这些已被修复的场景问题。 具体怎么做 若遇到以下任一异常场景，可通过升级至FastGPT v4.14.4版本解决： 1. 循环节点数组处理时，取消过滤空内…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4144-fix-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41451-upgrade-script",
+    "title": "FastGPT V4.14.5.1版本升级脚本操作指南",
+    "description": "FastGPT V4.14.5.1版本升级脚本操作指南 结论 本页面针对FastGPT V4.14.5.1版本提供专用升级脚本操作指引。该版本自带升级脚本，可用于完成对应版本的快速升级操作。 具体怎么做 1. 确认当前FastGPT采用Docker Compose或Sealos部署模式 2. 下载V4.14…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41451-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4146-upgrade-reference",
+    "title": "FastGPT V4.14.6版本升级操作参考",
+    "description": "FastGPT V4.14.6版本升级操作参考 结论 本内容为FastGPT V4.14.6版本的升级参考信息，属于4.14.x系列升级分支的官方文档。该页面汇总了4.14.x系列各版本的升级特殊要求。 具体怎么做 1. 确认待升级的FastGPT版本属于4.14.x系列分支。 2. 若升级前版本带有「升级…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4146-upgrade-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4148-env-variable-change",
+    "title": "FastGPT V4.14.8版本环境变量变更的升级操作指引",
+    "description": "FastGPT V4.14.8版本环境变量变更的升级操作指引 结论 FastGPT V4.14.8版本更新包含环境变量变更内容，属于该版本升级的核心配置调整项。该版本归属于4.14.x系列升级包，是自部署FastGPT过程中需要重点关注的配置变更环节。未正确处理该环境变量变更可能导致升级后服务无法正常启动或…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4148-env-variable-change"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v41481-upgrade-guide",
+    "title": "FastGPT V4.14.8.1版本升级操作说明",
+    "description": "FastGPT V4.14.8.1版本升级操作说明 结论 本页内容为FastGPT V4.14.8.1版本的专属升级操作说明。该版本属于4.14.x系列升级分支，相较于部分前置版本未新增额外的复杂配置要求，但需结合当前运行版本的变更情况完成完整的升级流程，确保服务正常更新。 具体怎么做 1. 确认当前运行的…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v41481-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4149-env-changes",
+    "title": "FastGPT V4.14.9版本环境变量变更的适配方法",
+    "description": "FastGPT V4.14.9版本环境变量变更的适配方法 结论 FastGPT V4.14.9版本存在环境变量变更，自部署用户升级或部署该版本时需调整对应配置项。本次变更属于版本升级的必要配置调整，仅涉及环境变量相关设置，不会影响FastGPT的核心业务功能运行。 具体怎么做 1. 进入FastGPT官方文…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4149-env-changes"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4149-fix-quickcheck",
+    "title": "FastGPT v4.14.9版本官方修复问题速查",
+    "description": "FastGPT v4.14.9版本官方修复问题速查 结论 本页汇总FastGPT v4.14.9版本的官方修复内容，覆盖工作流、API知识库、接口调用、模型配置等多个场景的已知异常。升级至该版本可解决上述列出的所有技术问题。 具体怎么做 1. 确认当前FastGPT版本低于v4.14.9 2. 按照官方升级…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4149-fix-quickcheck"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v415-code-optimizations",
+    "title": "FastGPT V4.15版本代码优化内容技术速查",
+    "description": "FastGPT V4.15版本代码优化内容技术速查 结论 FastGPT V4.15针对代码架构、构建工具、模块拆分等多个维度完成优化。本次优化覆盖性能提升、bug修复、工程化升级等方向，可帮助降低模块耦合、提升开发与运行效率。 具体怎么做 1. 升级Next.js并切换至Turbopack构建，容器默认N…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v415-code-optimizations"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v415-fix-quick-reference",
+    "title": "FastGPT v4.15版本官方修复项的技术速查",
+    "description": "FastGPT v4.15版本官方修复项的技术速查 结论 本页整理FastGPT v4.15版本的官方修复内容，覆盖工作流、模型配置、会话交互等多个场景的异常问题。用户可通过本页快速核对对应修复项，确认升级后的功能合规性。 具体怎么做 1. 验证工作流单节点调试的异常默认值问题是否已修复 2. 确认模型配置…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v415-fix-quick-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4150-beta4-env-updates",
+    "title": "FastGPT V4.15.0-beta4版本环境变量变更适配指南",
+    "description": "FastGPT V4.15.0-beta4版本环境变量变更适配指南 结论 FastGPT V4.15.0-beta4属于4.15.x系列版本，该版本存在环境变量变更情况，部署或升级至该版本时需完成对应适配。未调整配置可能引发服务启动异常或功能异常。 具体怎么做 1. 查阅官方文档中4.15.x系列的环境变量…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4150-beta4-env-updates"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4151-upgrade-guide",
+    "title": "FastGPT V4.15.1版本环境变量变更与升级操作说明",
+    "description": "FastGPT V4.15.1版本环境变量变更与升级操作说明 结论 FastGPT V4.15.1版本属于4.15.x升级分支，存在环境变量变更，需通过官方提供的升级脚本完成部署更新。该版本的升级需适配对应的环境变量调整规则，确保部署正常运行。 具体怎么做 1. 确认当前运行的FastGPT版本属于4.15…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4151-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4152-env-changes",
+    "title": "FastGPT V4.15.2版本环境变量变更相关说明",
+    "description": "FastGPT V4.15.2版本环境变量变更相关说明 结论 FastGPT V4.15.2版本存在环境变量变更，自部署用户升级至该版本时需调整对应配置。本次变更属于4.15.x系列版本升级的一部分，需严格遵循官方指引完成操作。 具体怎么做 1. 确认需升级至FastGPT V4.15.2版本。 2. 查阅…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4152-env-changes"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4153-upgrade-guide",
+    "title": "FastGPT V4.15.3版本升级操作步骤说明",
+    "description": "FastGPT V4.15.3版本升级操作步骤说明 结论 V4.15.3是FastGPT 4.15.x系列的正式版本，该系列部分版本存在环境变量变更与升级脚本要求。需按照官方流程完成升级以保障系统稳定。 具体怎么做 1. 确认当前运行的FastGPT版本属于4.15.x系列，提前备份系统数据与配置文件。 2…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4153-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4154-env-upgrade",
+    "title": "FastGPT V4.15.4版本环境变量变更的升级处理指南",
+    "description": "FastGPT V4.15.4版本环境变量变更的升级处理指南 结论 FastGPT V4.15.4版本属于4.15.x系列升级版本，本次更新核心调整为环境变量配置变更。升级至该版本或从该版本进行跨版本升级时，必须调整对应环境变量配置，否则可能引发服务启动异常或功能异常。 具体怎么做 1. 备份当前FastG…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4154-env-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4155-upgrade-guide",
+    "title": "FastGPT V4.15.5版本升级操作的技术参考指南",
+    "description": "FastGPT V4.15.5版本升级操作的技术参考指南 结论 V4.15.5是FastGPT 4.15.x系列的正式升级版本，升级过程中需关注该系列部分前置版本存在的环境变量变更要求，需匹配对应流程完成操作。 具体怎么做 1. 确认当前部署版本属于FastGPT 4.15.x系列 2. 核对前置升级版本的…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4155-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4157-upgrade-quickref",
+    "title": "FastGPT V4.15.7版本升级流程与注意事项速查",
+    "description": "FastGPT V4.15.7版本升级流程与注意事项速查 结论 FastGPT V4.15.7属于4.15.x系列升级版本。该版本的升级操作需结合前置版本的变更情况执行对应流程。 具体怎么做 1. 进入4.15.x系列版本升级页面，定位到V4.15.7升级文档。 2. 核查当前版本与V4.15.7之间的版本…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4157-upgrade-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v442-upgrade-guide",
+    "title": "FastGPT从旧版本升级至V4.4.2的升级脚本操作指南",
+    "description": "FastGPT从旧版本升级至V4.4.2的升级脚本操作指南 结论 本页面针对FastGPT自部署场景，提供升级至V4.4.2的官方操作指引。该版本升级需使用专属升级脚本，仅适用于版本低于4.12.0的FastGPT部署实例。 具体怎么做 1. 确认当前FastGPT运行版本低于4.12.0； 2. 获取官方…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v442-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v445-upgrade-script",
+    "title": "FastGPT V4.4.5版本升级脚本使用指南",
+    "description": "FastGPT V4.4.5版本升级脚本使用指南 结论 FastGPT V4.4.5版本升级需使用专属升级脚本，该方案仅适用于版本低于4.12.0的自部署FastGPT实例。执行对应版本的升级脚本即可完成版本更新与必要的配置适配工作。 具体怎么做 1. 确认当前部署的FastGPT版本低于4.12.0，确认…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v445-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v446-upgrade-reference",
+    "title": "FastGPT V4.4.6版本升级操作速查参考",
+    "description": "FastGPT V4.4.6版本升级操作速查参考 结论 本文为FastGPT V4.4.6版本的升级提供官方速查参考。该升级路径适用于当前部署版本低于4.12.0的自部署用户，严格遵循官方流程可完成版本更新。 具体怎么做 1. 确认当前FastGPT自部署版本属于<4.12.0范畴 2. 进入对应部署环境目…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v446-upgrade-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v447-upgrade-script",
+    "title": "FastGPT V4.4.7版本升级脚本使用速查指南",
+    "description": "FastGPT V4.4.7版本升级脚本使用速查指南 结论 FastGPT V4.4.7版本升级需使用官方提供的专属升级脚本。该升级方案仅适用于版本号低于4.12.0的FastGPT实例，是官方针对该版本发布的标准化升级流程，可完成从当前低版本到V4.4.7的版本更新。 具体怎么做 1. 确认当前FastG…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v447-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v451-upgrade-script",
+    "title": "FastGPT V4.5.1版本的升级操作方法说明",
+    "description": "FastGPT V4.5.1版本的升级操作方法说明 结论 FastGPT V4.5.1版本升级需通过官方提供的专属升级脚本完成。该版本属于4.12.0之前的旧版本升级范畴，需遵循对应分类下的升级流程操作。 具体怎么做 1. 确认当前部署的FastGPT版本低于4.12.0，避免使用错误的升级脚本 2. 从官…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v451-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v452-upgrade-guide",
+    "title": "FastGPT从低于4.12.0版本升级至V4.5.2的操作说明",
+    "description": "FastGPT从低于4.12.0版本升级至V4.5.2的操作说明 结论 本文档针对FastGPT从低于4.12.0版本升级至V4.5.2提供官方标准操作指引。该升级路径需严格匹配FastGPT官方版本升级列表中的各版本变更要求，完成对应配置与服务的更新操作，确保升级后系统正常运行。 具体怎么做 1. 确认当…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v452-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v46-init-api-steps",
+    "title": "FastGPT v46版本初始化API的标准执行步骤说明",
+    "description": "FastGPT v46版本初始化API的标准执行步骤说明 结论 本页说明FastGPT v46版本的初始化API执行流程，需按顺序完成两个接口调用。该操作用于完成系统默认团队、数据库资源等核心初始化配置。 具体怎么做 1. 替换参数：将{{rootkey}}替换为环境变量中的rootkey，{{host}}…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v46-init-api-steps"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v46-upgrade-guide",
+    "title": "FastGPT V4.6版本升级操作及升级相关注意事项",
+    "description": "FastGPT V4.6版本升级操作及升级相关注意事项 结论 FastGPT V4.6版本需使用官方配套的升级脚本完成升级。该版本升级完成后，无法执行旧版本的升级脚本，且无法进行版本回退。 具体怎么做 1. 确认当前FastGPT版本低于4.12.0，满足升级到V4.6的前置要求。 2. 获取FastGPT…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v46-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v461-upgrade-guide",
+    "title": "FastGPT V4.6.1版本升级的官方操作指引",
+    "description": "FastGPT V4.6.1版本升级的官方操作指引 结论 本文档针对FastGPT V4.6.1版本的升级提供官方操作指引。该版本升级属于FastGPT自部署版本升级的一部分，需遵循官方列出的版本升级规范。完成升级后可适配对应版本的系统配置与插件要求。 具体怎么做 1. 确认当前FastGPT的运行版本，确…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v461-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v463-upgrade-script",
+    "title": "FastGPT V4.6.3版本升级脚本操作说明",
+    "description": "FastGPT V4.6.3版本升级脚本操作说明 结论 FastGPT V4.6.3版本的升级需通过官方配套的专用升级脚本完成。该版本升级流程属于FastGPT自部署版本升级体系中的标准化操作环节，仅适用于对应版本的更新需求。 具体怎么做 1. 确认当前FastGPT部署版本处于<4.12.0的适配区间内，…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v463-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v464-upgrade-script-quickref",
+    "title": "FastGPT V4.6.4版本升级脚本操作速查指南",
+    "description": "FastGPT V4.6.4版本升级脚本操作速查指南 结论 FastGPT V4.6.4版本升级需使用官方提供的专属升级脚本完成，该升级操作归类于<4.12.0版本升级的范畴。该专属脚本是FastGPT官方为V4.6.4版本推出的自动化更新工具，可完成从低版本到V4.6.4的部署更新。 具体怎么做 1. 确…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v464-upgrade-script-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v465-config-change",
+    "title": "FastGPT V4.6.5版本配置变更的升级处理指引",
+    "description": "FastGPT V4.6.5版本配置变更的升级处理指引 结论 FastGPT V4.6.5版本存在配置变更，属于低于4.12.0的升级分支范畴。部署或升级至该版本需完成对应配置调整。 具体怎么做 1. 确认当前FastGPT运行版本低于4.12.0 2. 对照V4.6.5版本的配置变更要求调整系统配置 3.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v465-config-change"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v466-config-env-changes",
+    "title": "FastGPT V4.6.6版本配置与环境变量变更处理指南",
+    "description": "FastGPT V4.6.6版本配置与环境变量变更处理指南 结论 FastGPT V4.6.6版本存在配置与环境变量两类变更项，属于自部署FastGPT升级流程中的关键内容。该变更仅适用于当前部署版本低于4.12.0的用户，需通过官方文档的对应指引完成调整，保障升级后服务正常运行。 具体怎么做 1. 确认当…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v466-config-env-changes"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v467-upgrade-script",
+    "title": "FastGPT V4.6.7版本升级脚本使用操作指引",
+    "description": "FastGPT V4.6.7版本升级脚本使用操作指引 结论 本页提供FastGPT V4.6.7版本的升级操作指引，该版本属于<4.12.0的升级范畴，需使用官方提供的专属升级脚本完成升级。按照官方流程操作后，即可完成FastGPT V4.6.7版本的版本更新，适配对应版本的功能与配置要求。 具体怎么做 1…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v467-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v468-update-guide",
+    "title": "FastGPT V4.6.8版本更新内容与使用说明",
+    "description": "FastGPT V4.6.8版本更新内容与使用说明 结论 本页整理FastGPT V4.6.8版本的官方更新内容，涵盖新增功能、优化项与问题修复。使用该版本可获得更灵活的模块配置与更流畅的交互体验。 具体怎么做 1. 使用新增的知识库搜索合并模块与新Http模块，新Http模块支持灵活参数传入，接口输出的J…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v468-update-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v468-upgrade-script-guide",
+    "title": "FastGPT V4.6.8版本升级操作速查指南",
+    "description": "FastGPT V4.6.8版本升级操作速查指南 结论 FastGPT V4.6.8版本升级需使用官方提供的升级脚本完成操作。该版本属于4.12.0以下的旧版本升级序列，需按照自部署环境的规范流程执行更新。 具体怎么做 1. 进入FastGPT基于Docker Compose部署的项目目录。 2. 从官方渠…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v468-upgrade-script-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v469-upgrade-guide",
+    "title": "FastGPT V4.6.9版本升级与环境变量变更操作指南",
+    "description": "FastGPT V4.6.9版本升级与环境变量变更操作指南 结论 FastGPT V4.6.9版本升级需同时完成环境变量变更配置与对应升级脚本的执行。该版本属于<4.12.0的旧版本升级范畴，更新内容包含环境变量变更与升级脚本相关调整，需严格遵循官方指定流程。 具体怎么做 1. 确认当前部署的FastGPT…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v469-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v47-update-reference",
+    "title": "FastGPT V4.7版本更新内容及配置操作指引",
+    "description": "FastGPT V4.7版本更新内容及配置操作指引 结论 本文汇总FastGPT V4.7版本的全部更新内容，涵盖新增功能、体验优化与问题修复。部分功能需调整模型配置参数方可启用。 具体怎么做 1. 启用工具调用模块，让LLM模型可根据用户意图动态选择其他模型或插件执行。 2. 配置分类和内容提取的func…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v47-update-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v47-upgrade-script",
+    "title": "FastGPT V4.7版本升级脚本使用速查",
+    "description": "FastGPT V4.7版本升级脚本使用速查 结论 FastGPT V4.7版本升级需使用官方专属升级脚本，该流程仅面向版本低于4.12.0的FastGPT自部署实例。用户需通过官方指定渠道获取对应升级脚本，严格按照脚本指引完成操作，确保升级过程顺利。 具体怎么做 1. 确认当前FastGPT部署的版本号，…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v47-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v471-update-quickref",
+    "title": "FastGPT V4.7.1版本更新内容速查",
+    "description": "FastGPT V4.7.1版本更新内容速查 结论 本文整理了FastGPT V4.7.1版本的全部更新内容，涵盖新增功能、优化项、修改内容与修复的BUG。用户可对照本文快速了解该版本的变更细节。 具体怎么做 1. 新增语音输入完整配置：支持开关语音输入（含分享页面）、语音输入后自动发送、语音输入后自动流式…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v471-update-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v471-upgrade-guide",
+    "title": "FastGPT V4.7.1版本升级与环境变量变更处理指南",
+    "description": "FastGPT V4.7.1版本升级与环境变量变更处理指南 结论 FastGPT V4.7.1版本更新包含环境变量配置变更与配套升级脚本两项核心内容。该版本升级仅适用于版本低于4.12.0的FastGPT部署，需同步完成配置调整与脚本执行方可完成升级。本次更新的升级脚本用于自动处理版本文件的替换与校验，减少…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v471-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v481-upgrade-script-guide",
+    "title": "FastGPT V4.8.1版本升级脚本操作指引",
+    "description": "FastGPT V4.8.1版本升级脚本操作指引 结论 FastGPT V4.8.1版本升级需通过官方配套的升级脚本完成，该升级方案属于FastGPT旧版本升级体系，仅面向版本低于4.12.0的用户，可完成从旧版本到V4.8.1的版本更新与配置适配。 具体怎么做 1. 确认当前FastGPT运行版本低于4.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v481-upgrade-script-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4810-env-upgrade",
+    "title": "FastGPT V4.8.10版本环境变量变更与升级操作指南",
+    "description": "FastGPT V4.8.10版本环境变量变更与升级操作指南 结论 FastGPT V4.8.10版本更新包含环境变量变更与配套升级脚本。该版本的升级流程需结合环境变量调整与脚本执行完成，按照官方指引操作可顺利完成版本升级。 具体怎么做 1. 备份当前FastGPT部署的所有配置文件与业务数据。 2. 获取…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4810-env-upgrade"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4812-upgrade-script",
+    "title": "FastGPT V4.8.12版本升级脚本的使用步骤速查",
+    "description": "FastGPT V4.8.12版本升级脚本的使用步骤速查 结论 FastGPT V4.8.12版本的升级需通过官方专属升级脚本完成。该版本的升级仅支持从版本低于4.12.0的FastGPT自部署实例进行迁移，是官方针对该版本制定的标准升级流程。 具体怎么做 1. 确认当前FastGPT实例的运行版本低于4.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4812-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4813-update-quickref",
+    "title": "FastGPT V4.8.13版本更新内容的技术速查",
+    "description": "FastGPT V4.8.13版本更新内容的技术速查 结论 本文整理FastGPT V4.8.13版本的全部更新内容，包含新增功能、优化项与修复的问题，可快速查阅该版本变更细节，辅助版本升级与功能适配。 具体怎么做 新增功能 1. 全局变量支持数字类型，可配置默认值和部分输入框参数 2. 插件自定义输入支持…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4813-update-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4814-upgrade-reference",
+    "title": "FastGPT V4.8.14版本升级操作速查说明",
+    "description": "FastGPT V4.8.14版本升级操作速查说明 结论 FastGPT V4.8.14是FastGPT自部署的旧版本之一，归类在<4.12.0的升级分支范畴中。与部分相邻的低版本不同，该版本未标注需要单独调整的环境变量或专属升级脚本，升级流程无需额外处理特殊配置。 具体怎么做 1. 确认当前部署的Fast…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4814-upgrade-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4815-update-reference",
+    "title": "FastGPT V4.8.15版本官方更新内容速查",
+    "description": "FastGPT V4.8.15版本官方更新内容速查 结论 本文整理了FastGPT V4.8.15的官方更新内容，涵盖新增功能、体验优化与问题修复三类更新项。同时附带该版本的升级相关说明信息。 具体怎么做 1. 新增功能 - 工作流支持进入聊天框/点击开始对话后自动触发一轮对话 - 重写chatContex…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4815-update-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4815-upgrade-script",
+    "title": "FastGPT自部署V4.8.15版本升级脚本使用说明",
+    "description": "FastGPT自部署V4.8.15版本升级脚本使用说明 结论 FastGPT V4.8.15版本升级需使用官方专属升级脚本完成。该版本的升级适配范围为低于V4.12.0的自部署实例。 具体怎么做 1. 确认当前FastGPT自部署版本处于<4.12.0的升级区间内。 2. 调用官方提供的V4.8.15版本升…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4815-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4815-v4817-updates",
+    "title": "FastGPT V4.8.15与V4.8.17版本更新内容速查",
+    "description": "FastGPT V4.8.15与V4.8.17版本更新内容速查 结论 本页整理FastGPT V4.8.15与V4.8.17版本的官方更新内容，涵盖新增功能、体验优化与问题修复三类。用户可根据升级需求对照对应内容完成适配或排查异常。 具体怎么做 新增功能 1. 新增SearXNG搜索插件、钉钉与企微机器人w…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4815-v4817-updates"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4816-v4818-update-quickref",
+    "title": "FastGPT V4.8.16与V4.8.18版本更新内容速查",
+    "description": "FastGPT V4.8.16与V4.8.18版本更新内容速查 结论 本文整理了FastGPT V4.8.16（含配置变更说明）与V4.8.18的官方更新内容，涵盖新增功能、体验优化与问题修复三类。这些更新覆盖工具调用、工作流、模型参数等核心功能模块，可用于版本升级参考。 具体怎么做 1. 新增功能 - 简…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4816-v4818-update-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4818-v4820-updates",
+    "title": "FastGPT V4.8.18与V4.8.20版本更新内容速查",
+    "description": "FastGPT V4.8.18与V4.8.20版本更新内容速查 结论 本页整理了FastGPT V4.8.18与V4.8.20的官方更新内容，涵盖新增功能、体验优化与问题修复三类，同时包含对应版本的升级脚本说明。 具体怎么做 1. 新增功能： - 工作流知识库检索支持按知识库权限过滤 - 飞书/语雀知识库查…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4818-v4820-updates"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4819-update-quick-check",
+    "title": "FastGPT V4.8.19版本更新内容技术速查",
+    "description": "FastGPT V4.8.19版本更新内容技术速查 结论 本页汇总FastGPT V4.8.19的全部更新内容，涵盖新增功能、体验优化与问题修复三类，可帮助使用者快速查阅该版本的变更细节。 具体怎么做 1. 版本升级：使用官方提供的V4.8.19升级脚本完成部署更新。 2. 新增功能使用： - 支持通过JS…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4819-update-quick-check"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4819-upgrade-script",
+    "title": "FastGPT V4.8.19版本升级脚本的操作使用说明",
+    "description": "FastGPT V4.8.19版本升级脚本的操作使用说明 结论 FastGPT V4.8.19版本属于需要使用专属升级脚本完成升级的FastGPT历史版本。执行官方提供的对应升级脚本，即可完成该版本的部署更新操作。 具体怎么做 1. 确认当前部署的FastGPT版本符合升级至V4.8.19的目标场景。 2.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4819-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4820-upgrade-guide",
+    "title": "FastGPT V4.8.20版本升级与环境变量变更操作说明",
+    "description": "FastGPT V4.8.20版本升级与环境变量变更操作说明 结论 FastGPT V4.8.20版本更新包含环境变量变更与配套升级脚本两项核心内容。该版本属于<4.12.0的升级分支，需通过对应升级脚本完成升级操作，确保服务符合新版本的配置要求。 具体怎么做 1. 确认当前FastGPT版本处于<4.12…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4820-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4821-update-quick-reference",
+    "title": "FastGPT V4.8.21版本更新内容速查",
+    "description": "FastGPT V4.8.21版本更新内容速查 结论 本页整理FastGPT V4.8.21版本的官方更新内容。更新涵盖新增功能、体验优化与问题修复三类，覆盖模型配置、使用记录、语法扩展等多个场景。 具体怎么做 以下是本次更新的具体内容： 1. 新增功能 - 可视化模型参数配置，取代原配置文件配置模型，预设…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4821-update-quick-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4821-upgrade-quickref",
+    "title": "FastGPT V4.8.21版本升级相关操作速查参考",
+    "description": "FastGPT V4.8.21版本升级相关操作速查参考 结论 FastGPT V4.8.21是FastGPT的常规升级版本，本次升级无专属环境变量调整或升级脚本要求，适用于版本低于4.12.0的FastGPT实例，可通过标准部署流程完成更新。 具体怎么做 1. 提前完成系统数据备份，避免升级过程中数据丢失…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4821-upgrade-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4822-update-quickref",
+    "title": "FastGPT V4.8.22版本更新内容速查",
+    "description": "FastGPT V4.8.22版本更新内容速查 结论 本文整理了FastGPT V4.8.22版本的官方更新内容，涵盖新增功能、体验优化、问题修复三类项，同时包含该版本的升级脚本与V4.8.20环境变量变更说明，供部署与使用人员参考。 具体怎么做 1. 版本升级：可使用官方提供的V4.8.22升级脚本完成部…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4822-update-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4822-upgrade-script",
+    "title": "FastGPT V4.8.22版本升级脚本操作指南",
+    "description": "FastGPT V4.8.22版本升级脚本操作指南 结论 FastGPT V4.8.22版本的自部署升级需使用该版本专属的升级脚本完成。该升级流程属于FastGPT官方自部署版本升级体系中的标准脚本操作范畴，可完成从低版本到V4.8.22的版本更新。 具体怎么做 1. 确认当前FastGPT部署方式为Doc…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4822-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v483-upgrade-quickref",
+    "title": "FastGPT V4.8.3版本升级操作步骤速查",
+    "description": "FastGPT V4.8.3版本升级操作步骤速查 结论 V4.8.3是FastGPT的历史正式版本，属于<4.12.0版本升级范畴。该版本未标注专属环境变量变更或升级脚本要求，升级流程可依托官方现有部署规范执行。 具体怎么做 1. 确认当前FastGPT运行版本低于V4.8.3 2. 停止当前正在运行的Fa…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v483-upgrade-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v487-upgrade-reference",
+    "title": "FastGPT V4.8.7版本升级的操作参考指南",
+    "description": "FastGPT V4.8.7版本升级的操作参考指南 结论 FastGPT V4.8.7版本适用于从低于4.12.0的现有FastGPT版本升级。升级需遵循官方指定的部署与更新流程，完成系统版本更新。 具体怎么做 1. 确认当前FastGPT版本低于4.12.0。 2. 通过Docker Compose部署方…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v487-upgrade-reference"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v488-update-quickcheck",
+    "title": "FastGPT V4.8.8版本更新内容技术速查",
+    "description": "FastGPT V4.8.8版本更新内容技术速查 结论 本页整理FastGPT V4.8.8版本的官方更新内容，涵盖新增功能、体验优化与问题修复三类。用户可根据自身需求对应启用新功能或调整配置。 具体怎么做 1. 系统插件结构重构，支持向社区提交PR，具体参考官方指引《如何向FastGPT社区提交系统插件》…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v488-update-quickcheck"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v489-upgrade-script",
+    "title": "FastGPT V4.8.9版本升级脚本的具体使用操作指南",
+    "description": "FastGPT V4.8.9版本升级脚本的具体使用操作指南 结论 FastGPT V4.8.9版本升级需通过专属升级脚本完成。该升级脚本适配低于V4.8.9版本的FastGPT部署场景，按规范流程执行即可完成版本更新。 具体怎么做 1. 备份当前FastGPT部署的系统数据与配置文件。 2. 获取V4.8.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v489-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v490-upgrade-guide",
+    "title": "FastGPT V4.9.0版本自部署升级操作与配置说明",
+    "description": "FastGPT V4.9.0版本自部署升级操作与配置说明 结论 FastGPT V4.9.0版本的自部署升级包含环境变量变更与专属升级脚本两个必要环节，需严格按照官方指定的升级逻辑完成操作，以保障系统升级后正常运行。该版本升级是FastGPT历史版本中涉及配置与脚本同步更新的典型升级项之一。 具体怎么做 1…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v490-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v491-upgrade-script",
+    "title": "FastGPT V4.9.1版本升级脚本的使用说明",
+    "description": "FastGPT V4.9.1版本升级脚本的使用说明 结论 FastGPT V4.9.1版本升级需使用专属升级脚本完成。该版本的升级操作属于<4.12.0版本区间的升级类型，需严格遵循对应流程执行。 具体怎么做 1. 确认当前FastGPT实例的版本低于4.12.0。 2. 获取V4.9.1版本对应的专属升级…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v491-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4910-upgrade-guide",
+    "title": "FastGPT V4.9.10版本升级的操作指引",
+    "description": "FastGPT V4.9.10版本升级的操作指引 结论 FastGPT V4.9.10版本属于<4.12.0的升级分类，需遵循对应版本升级流程完成部署更新。升级前需完成现有配置与数据的备份，确保升级过程不会影响业务运行。 具体怎么做 1. 登录FastGPT自部署管理后台，进入版本升级模块 2. 在版本列表…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4910-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4911-upgrade-script",
+    "title": "FastGPT V4.9.11版本升级脚本的使用操作说明",
+    "description": "FastGPT V4.9.11版本升级脚本的使用操作说明 结论 FastGPT V4.9.11版本需使用专属升级脚本完成升级操作，该版本属于早于4.12.0的FastGPT升级分支，需参考官方文档<4.12.0分类下的指引执行更新。该脚本为V4.9.11版本专属的升级工具，适配该版本的全部更新内容。 具体怎…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4911-upgrade-script"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4912-env-vars-update",
+    "title": "FastGPT V4.9.12版本环境变量变更升级说明",
+    "description": "FastGPT V4.9.12版本环境变量变更升级说明 结论 FastGPT V4.9.12版本存在环境变量配置变更，该版本的升级适配仅针对低于4.12.0的旧版本。未完成配置调整直接升级可能引发系统运行异常。 具体怎么做 1. 确认当前部署的FastGPT版本低于4.12.0； 2. 查阅官方文档中对应版…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4912-env-vars-update"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4913-upgrade-guide",
+    "title": "FastGPT V4.9.13版本升级操作参考指南",
+    "description": "FastGPT V4.9.13版本升级操作参考指南 结论 FastGPT V4.9.13版本升级适用于版本低于4.12.0的FastGPT实例。需按照官方指定的<4.12.0区间升级流程完成部署更新。 具体怎么做 1. 确认当前FastGPT版本处于<4.12.0区间，符合升级前置条件 2. 参考官方文档中…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4913-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v4914-upgrade-guide",
+    "title": "FastGPT V4.9.14版本升级操作速查指南",
+    "description": "FastGPT V4.9.14版本升级操作速查指南 结论 本文档提供FastGPT V4.9.14版本的升级操作指引。该版本属于<4.12.0的升级分类范畴，需按照官方指定流程完成升级。 具体怎么做 1. 进入FastGPT自部署的版本升级页面，定位到<4.12.0分类下的V4.9.14升级说明； 2. 核…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v4914-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v492-env-vars-changes",
+    "title": "FastGPT V4.9.2版本环境变量变更的升级处理说明",
+    "description": "FastGPT V4.9.2版本环境变量变更的升级处理说明 结论 FastGPT V4.9.2版本包含环境变量配置的变更内容。该版本属于低于4.12.0的升级范畴，部署或升级到该版本时，需按照官方变更要求调整环境变量配置，否则可能引发系统启动异常或功能异常。 具体怎么做 1. 确认当前部署的FastGPT版…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v492-env-vars-changes"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v494-upgrade-guide",
+    "title": "FastGPT V4.9.4版本升级与环境变量变更处理指南",
+    "description": "FastGPT V4.9.4版本升级与环境变量变更处理指南 结论 FastGPT V4.9.4版本升级包含环境变量变更与配套升级脚本。该版本升级需严格按照官方指定流程处理环境变量调整，并运行对应升级脚本，以确保服务正常启动与数据兼容。完成升级后需重启部署服务，使新的环境变量配置生效。 具体怎么做 1. 备份…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v494-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v495-upgrade-quick-guide",
+    "title": "FastGPT V4.9.5版本升级操作方法速查指南",
+    "description": "FastGPT V4.9.5版本升级操作方法速查指南 结论 本页针对FastGPT V4.9.5版本的升级操作提供速查指引。V4.9.5属于<4.12.0版本区间，需参考对应区间的通用升级规则与专属更新说明。 具体怎么做 1. 定位FastGPT自部署升级文档的<4.12.0版本升级章节。 2. 查找V4.…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v495-upgrade-quick-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v496-env-vars-adjust",
+    "title": "FastGPT V4.9.6版本环境变量变更的适配操作指南",
+    "description": "FastGPT V4.9.6版本环境变量变更的适配操作指南 结论 FastGPT V4.9.6版本存在环境变量配置变更，自部署用户需完成对应调整才能正常运行该版本。本次变更仅涉及环境变量相关配置，不影响原有业务核心逻辑，属于常规升级适配内容。 具体怎么做 1. 确认当前FastGPT版本低于4.12.0。…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v496-env-vars-adjust"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v497-upgrade-guide",
+    "title": "FastGPT V4.9.7版本升级操作与注意事项速查",
+    "description": "FastGPT V4.9.7版本升级操作与注意事项速查 结论 FastGPT V4.9.7版本升级适用于FastGPT版本低于4.12.0的自部署场景。该版本升级需遵循官方指定的升级流程，需关注对应版本的配置变更要求。 具体怎么做 1. 确认当前FastGPT版本低于4.12.0； 2. 对照官方版本升级列…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v497-upgrade-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-v499-upgrade-quickref",
+    "title": "FastGPT V4.9.9版本自部署升级操作速查指南",
+    "description": "FastGPT V4.9.9版本自部署升级操作速查指南 结论 本页面提供FastGPT V4.9.9版本的自部署升级速查参考。该升级条目归类于<4.12.0版本的升级说明中，面向版本低于4.12.0的FastGPT自部署用户。该页面属于官方旧版本升级文档的一部分，仅聚焦V4.9.9版本的升级操作。 具体怎么…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-v499-upgrade-quickref"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-vector-search-guide",
+    "title": "FastGPT向量搜索的原理与优化使用要点",
+    "description": "FastGPT向量搜索的原理与优化使用要点 结论 FastGPT通过Embedding向量实现知识库的相似度匹配。向量距离越小代表两者相似度越高，通常采用topk召回前k个相似内容，再交由大模型完成最终问答。 具体怎么做 1. 将知识库文本与查询文本转换为Embedding向量； 2. 计算查询向量与知识库…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-vector-search-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-vm-state-deduplication",
+    "title": "FastGPT虚拟机生命周期状态去重机制说明",
+    "description": "FastGPT虚拟机生命周期状态去重机制说明 结论 FastGPT通过状态去重机制避免虚拟机热启动时重复执行脚本，减少等待延迟。该机制通过脚本哈希或技能版本ID判断是否需要重新执行脚本。 具体怎么做 1. 系统在虚拟机内部维护状态文件/.fastgpt/agent-skill-entrypoints/sta…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-vm-state-deduplication"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-volume-manager-env-config",
+    "title": "FastGPT Volume Manager环境变量配置参数说明",
+    "description": "FastGPT Volume Manager环境变量配置参数说明 结论 FastGPT Volume Manager的环境变量由projects/volume-manager/src/env.ts加载和校验。配置时需保证VMAUTHTOKEN与FastGPT侧OpenSandbox的AGENTSANDBOX…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-volume-manager-env-config"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-wechat-official-account-access",
+    "title": "FastGPT商业版接入微信公众号的具体操作说明",
+    "description": "FastGPT商业版接入微信公众号的具体操作说明 结论 FastGPT商业版4.8.10及以上版本支持直接接入微信公众号，无需额外调用第三方API。该功能支持已完成验证的微信服务号和订阅号。 具体怎么做 1. 确认使用的FastGPT版本为4.8.10及以上，且为商业版产品。 2. 遵循FastGPT官方接…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-wechat-official-account-access"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-wechat-official-account-ip-whitelist",
+    "title": "配置FastGPT对接微信公众号所需的IP白名单",
+    "description": "配置FastGPT对接微信公众号所需的IP白名单 结论 对接微信公众号发布功能时，需将FastGPT官方IP加入你的服务IP白名单。不同部署环境的官方IP列表不同，需按场景选择对应内容。 具体怎么做 1. 确认你的FastGPT部署场景： - 国际版（使用cloud.fastgpt.io）：使用以下IP列表…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-wechat-official-account-ip-whitelist"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-wecom-bot-integration-guide",
+    "title": "FastGPT接入企业微信机器人的配置方法说明",
+    "description": "FastGPT接入企业微信机器人的配置方法说明 结论 本页说明FastGPT接入企业微信机器人的支持范围与配置方式。FastGPT商业版从4.12.4版本起支持直接接入企微机器人，无需额外API。FastGPT云服务版从4.14.4版本起，可通过配置自定义域名接入企微智能机器人。 具体怎么做 1. 确认部署…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-wecom-bot-integration-guide"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-wordbank-match-api",
+    "title": "调用FastGPT自定义词库接口获取匹配问题的方法",
+    "description": "调用FastGPT自定义词库接口获取匹配问题的方法 结论 FastGPT自定义词库接口用于获取与搜索关键词匹配的自定义问题。调用该接口将返回最多5个匹配结果。 具体怎么做 1. 构造GET请求，请求地址为http://localhost:3000/api/core/chat/inputGuide/query…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-wordbank-match-api"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-workflow-dataset-search",
+    "title": "FastGPT工作流节点知识库搜索的使用与配置方法",
+    "description": "FastGPT工作流节点知识库搜索的使用与配置方法 结论 知识库搜索是FastGPT工作流的标准节点，用于触发知识库内容检索。其具体参数说明与内部逻辑需参考官方指定的知识库搜索方案文档。 具体怎么做 1. 进入FastGPT应用构建模块下的工作流编辑页面； 2. 在节点列表中添加知识库搜索节点； 3. 进入…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-workflow-dataset-search"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-workflow-document-parsing-node",
+    "title": "FastGPT工作流节点文档解析组件的使用说明",
+    "description": "FastGPT工作流节点文档解析组件的使用说明 结论 文档解析是FastGPT工作流中的内置节点组件，属于应用构建模块下工作流节点列表的功能项。开启文件上传功能后，即可使用该组件处理相关文档文件。 具体怎么做 1. 进入FastGPT的应用构建模块，打开对应的工作流编辑页面。 2. 在工作流的节点列表中，查…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-workflow-document-parsing-node"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-workflow-execution-rules",
+    "title": "FastGPT工作流的运行流程与节点执行规则说明",
+    "description": "FastGPT工作流的运行流程与节点执行规则说明 结论 FastGPT工作流从【流程开始】节点启动，以单轮调用中所有节点不再运行为结束标志。工作流通过节点间的前置线、后置线的状态变化控制执行逻辑，依据前置线状态判断节点是否触发。 具体怎么做 1. 明确节点连线的三种状态： - waiting：被连接的节点等…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-workflow-execution-rules"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-workflow-http-node",
+    "title": "FastGPT工作流节点中HTTP请求模块的使用方法速查",
+    "description": "FastGPT工作流节点中HTTP请求模块的使用方法速查 结论 HTTP请求节点是FastGPT工作流的内置通用工具节点，用于发起外部HTTP接口调用。该节点可帮助工作流对接外部系统，实现数据的获取与提交操作。 具体怎么做 1. 导航至FastGPT的应用构建 工作流 节点页面 2. 从节点列表中选择HTT…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-workflow-http-node"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-workflow-http-post-service-example",
+    "title": "FastGPT工作流HTTP节点对接业务服务的POST请求实现",
+    "description": "FastGPT工作流HTTP节点对接业务服务的POST请求实现 结论 这是FastGPT工作流HTTP节点对接外部业务服务的POST请求处理代码示例。该示例通过判断动作参数，调用对应的数据操作函数，实现标准化的业务数据交互逻辑。 具体怎么做 入参说明 请求体需符合RequestType类型约束，包含以下参数…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-workflow-http-post-service-example"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-workflow-loop-node",
+    "title": "FastGPT工作流循环节点的配置与使用方法",
+    "description": "FastGPT工作流循环节点的配置与使用方法 结论 循环节点是FastGPT工作流模块的内置节点，仅支持4.15.0及以上版本使用。它可以遍历指定的列表变量，为每个列表项运行一次后续连接的工作流节点，实现批量重复逻辑的自动化执行。 具体怎么做 1. 在FastGPT工作流编辑界面中添加循环节点。 2. 配置…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-workflow-loop-node"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-workflow-parallel-run-node",
+    "title": "FastGPT工作流并行执行节点的配置与使用方法",
+    "description": "FastGPT工作流并行执行节点的配置与使用方法 结论 并行执行节点是FastGPT工作流中的内置节点，适用于4.14.11及以上版本。该节点可同时运行多个独立的工作流子任务，将原本串行的多分支流程改为并行执行，提升工作流的整体执行效率。 具体怎么做 1. 进入FastGPT的应用构建模块，打开目标工作流的…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-workflow-parallel-run-node"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-workflow-user-selection-node",
+    "title": "FastGPT工作流用户选择节点的使用方法说明",
+    "description": "FastGPT工作流用户选择节点的使用方法说明 结论 用户选择节点是FastGPT工作流中的交互节点，用于收集用户提交的选择类输入内容。它能够为后续工作流分支提供用户选择的参数，支撑个性化的交互流程。 具体怎么做 1. 登录FastGPT平台，进入应用构建模块的工作流编辑页面 2. 在左侧节点面板的工作流&…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-workflow-user-selection-node"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-workflow-v1-v2-migration",
+    "title": "FastGPT工作流V1升级至V2的迁移操作指南",
+    "description": "FastGPT工作流V1升级至V2的迁移操作指南 结论 该迁移步骤仅适用于部署过低于4.8版本FastGPT的用户。V4.15.0-beta7后工作流保存结构统一使用V2，需先完成V1到V2的迁移，再执行后续V2脏数据清洗。 具体怎么做 1. 迁移脚本位置为projects/app/src/pages/ap…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-workflow-v1-v2-migration"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-xinference-ctransformers-setup",
+    "title": "为FastGPT在个人设备部署Xinference并使用CTransformers作为推理后端",
+    "description": "为FastGPT在个人设备部署Xinference并使用CTransformers作为推理后端 结论 在个人设备部署Xinference时，推荐使用CTransformers作为推理后端，可借助GGML库在消费级硬件运行大模型。完成安装配置后，运行xinference-local即可启动服务供FastGPT…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-xinference-ctransformers-setup"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-xinference-local-model",
+    "title": "在FastGPT中使用Xinference接入本地模型的具体操作方法",
+    "description": "在FastGPT中使用Xinference接入本地模型的具体操作方法 结论 Xinference是适配FastGPT的开源模型推理平台，可用于接入本地模型。它支持部署LLM大语言模型、Embedding向量模型与ReRank重排模型，这些模型类型在企业级RAG构建中至关重要。同时，Xinference还提供…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-xinference-local-model"
+  },
+  {
+    "identity": "zh|/reference/fastgpt-yuque-file-library-import",
+    "title": "介绍FastGPT商业版语雀文件库的导入配置与使用方法",
+    "description": "介绍FastGPT商业版语雀文件库的导入配置与使用方法 结论 FastGPT v4.8.16及以上的商业版支持语雀文件库导入功能，该功能属于FastGPT第三方知识库的集成模块。用户可通过配置语雀的token与uid，完成语雀文档库的导入操作。 具体怎么做 1. 进入FastGPT知识库模块下的第三方知识库…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/fastgpt-yuque-file-library-import"
+  },
+  {
+    "identity": "zh|/reference/migrate-oneapi-fastgpt-aiproxy",
+    "title": "将OneAPI渠道配置迁移到FastGPT AI Proxy的操作方法",
+    "description": "将OneAPI渠道配置迁移到FastGPT AI Proxy的操作方法 结论 可以通过发起HTTP请求完成OneAPI渠道配置到FastGPT AI Proxy的迁移。执行成功的请求会返回{\"success\": true}。 具体怎么做 1. 准备参数：将{{host}}替换为AI Proxy地址，{{ad…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/migrate-oneapi-fastgpt-aiproxy"
+  },
+  {
+    "identity": "zh|/reference/modify-fastgpt-session-title",
+    "title": "使用 FastGPT 官方 OpenAPI 修改会话标题的具体操作步骤",
+    "description": "使用 FastGPT 官方 OpenAPI 修改会话标题的具体操作步骤 使用 FastGPT 官方 OpenAPI 修改会话标题的具体操作步骤 结论 通过FastGPT官方提供的OpenAPI，可以修改指定会话的自定义标题或置顶状态。调用成功后会返回固定格式的响应结果，响应code字段固定为200，data…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/modify-fastgpt-session-title"
+  },
+  {
+    "identity": "zh|/reference/oneapi-connect-ollama-fastgpt",
+    "title": "通过OneAPI将Ollama接入FastGPT部署环境的具体操作方法",
+    "description": "通过OneAPI将Ollama接入FastGPT部署环境的具体操作方法 结论 通过OneAPI中转，可以将Ollama模型接入FastGPT部署环境。完成全流程配置后，即可在FastGPT中使用Ollama部署的模型。 具体怎么做 1. 拉取OneAPI镜像：执行命令 docker pull intel/o…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/oneapi-connect-ollama-fastgpt"
+  },
+  {
+    "identity": "zh|/reference/sealos-fastgpt-pgvector-upgrade",
+    "title": "在Sealos部署的FastGPT中完成PgVector数据库升级的具体步骤",
+    "description": "在Sealos部署的FastGPT中完成PgVector数据库升级的具体步骤 结论 本页提供Sealos部署FastGPT的PgVector数据库升级操作流程。完成全部步骤后，PgVector插件将升级至0.5.0版本，同时完成数据库索引重构与构建。 具体怎么做 1. 点击Sealos桌面的数据库应用。 2…",
+    "category": "reference",
+    "locale": "zh",
+    "publicPath": "/reference/sealos-fastgpt-pgvector-upgrade"
+  },
+  {
+    "identity": "zh|/troubleshoot/embed-fastgpt-distinguish-external-users",
+    "title": "解决嵌入FastGPT应用时区分外部门户网站登录用户的问题",
+    "description": "解决嵌入FastGPT应用时区分外部门户网站登录用户的问题 现象 门户网站通过免登录窗口嵌入FastGPT应用，门户网站自身带有用户登录系统，但嵌入的FastGPT应用无法识别当前门户网站的登录用户，用户希望通过带入手机号码的方式区分不同用户。 可能原因 当前嵌入FastGPT应用的流程未支持传递外部系统的…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/embed-fastgpt-distinguish-external-users"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-4152-agentv2-button-error",
+    "title": "解决FastGPT 4.15.2版本agentV2点击按键无响应转圈问题",
+    "description": "解决FastGPT 4.15.2版本agentV2点击按键无响应转圈问题 现象 在FastGPT 4.15.2版本的agentV2功能中，用户点击按键后无响应，停止按键持续处于转圈状态，同时启动新对话时会提示“正在运行”。通过浏览器F12开发者工具查看控制台，可获取到接口返回的响应数据：{\"code\": 2…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-4152-agentv2-button-error"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-417-if-judge-abort",
+    "title": "解决FastGPT 4.17版本工作流if判断器异常终止问题",
+    "description": "解决FastGPT 4.17版本工作流if判断器异常终止问题 现象 FastGPT 4.12版本无此问题，升级至4.17版本（含官方公有云版本）后，配置包含全局变量与if判断器的工作流时，输入任意数字作为全局变量、发送任意内容触发流程，if判断器会异常终止。用户上传了两张简化工作流的运行截图、一张完整wor…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-417-if-judge-abort"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-agent-toolcall-missing",
+    "title": "解决FastGPT多工具Agent调用时无tool_call数组的中断问题",
+    "description": "解决FastGPT多工具Agent调用时无toolcall数组的中断问题 现象 使用FastGPT私有部署v4.14.20版本，为Agent配置33个工具，开启将工具调用信息加入上下文的功能，进行2-3轮交互后，第三次请求仅输出思考内容，finishreason为toolcalls，但未返回toolcall…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-agent-toolcall-missing"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-agent-volume-manager-139-exit",
+    "title": "解决麒麟Linux aarch64下FastGPT卷管理器139退出问题",
+    "description": "解决麒麟Linux aarch64下FastGPT卷管理器139退出问题 现象 在麒麟Kylin Linux Advanced Server V10 (Tercel) aarch64环境中，使用registry.cn-hangzhou.aliyuncs.com/fastgpt/fastgpt-agent-v…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-agent-volume-manager-139-exit"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-title-index-params",
+    "title": "FastGPT API创建知识库时配置标题加入索引的参数说明",
+    "description": "FastGPT API创建知识库时配置标题加入索引的参数说明 现象 用户使用私有部署v4.15.4版本的FastGPT，通过调用/api/core/dataset/collection/create/localFile接口创建知识库集合并上传本地文档，希望开启索引增强中的“将标题加入索引”功能，但不清楚对应…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-title-index-params"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-copy-workflow-api-empty-result",
+    "title": "解决FastGPT副本工作流远程调用返回空数组的问题",
+    "description": "解决FastGPT副本工作流远程调用返回空数组的问题 现象 用户在FastGPT中使用工具调用功能调用其他工作流时，为目标工作流创建副本后，副本工作流的内部运行可正常完成。但通过外部服务远程调用该副本工作流时，请求显示成功，却返回空数组[]。源工作流的远程调用功能可正常返回结果，副本工作流的内部调用也可正常…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-copy-workflow-api-empty-result"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-dataset-dataid-validation-error",
+    "title": "解决FastGPT私有部署中知识库分块的dataId校验失败问题",
+    "description": "解决FastGPT私有部署中知识库分块的dataId校验失败问题 现象 用户在FastGPT私有部署V4.14.10.1版本，基于docker-compose.pg.yml部署环境中，执行新建知识库分块操作时，调用/api/core/dataset/data/insertData接口报错。完整报错文本为Va…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-dataset-dataid-validation-error"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-deploy-network-vector-error",
+    "title": "解决FastGPT部署时docker compose拉取镜像报undefined network vector错误",
+    "description": "解决FastGPT部署时docker compose拉取镜像报undefined network vector错误 现象 用户在FastGPT部署流程中，执行配置下载后，运行docker compose --profile prepull pull opensandbox-agent-sandbox-ima…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-deploy-network-vector-error"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-dev-high-memory",
+    "title": "解决FastGPT开发模式下内存占用过高的问题",
+    "description": "解决FastGPT开发模式下内存占用过高的问题 现象 使用FastGPT 14.14 main分支，执行pnpm dev或pnpm dev start app启动应用后，系统内存占用飙升至2GB，对比同类前端应用在相同环境下启动后的内存占用仅约200MB。 可能原因 目前可推测的潜在关联方向包括开发模式的热…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-dev-high-memory"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-upgrade-pitfalls",
+    "title": "FastGPT私有部署Docker升级问题排查与解决方法",
+    "description": "FastGPT私有部署Docker升级问题排查与解决方法 现象 在FastGPT私有部署Docker Compose逐步升级过程中，可能出现服务启动失败、502 Bad Gateway、curl: Recv failure: Connection reset by peer、Invalid environm…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-upgrade-pitfalls"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embed-float-window-scale",
+    "title": "解决FastGPT免登录嵌入悬浮窗无法缩放的问题",
+    "description": "解决FastGPT免登录嵌入悬浮窗无法缩放的问题 现象 免登录嵌入的悬浮窗在进行聊天问答时，若输出内容较多或包含图片，会出现显示空间不足的问题，无法完整展示全部聊天内容或图片，且当前悬浮窗不支持调整大小，影响正常使用体验。 可能原因 目前无官方明确说明该功能未实现的具体原因，相关情况需按实际部署环境与使用版…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embed-float-window-scale"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-file-oss-upload-dependency-setup",
+    "title": "解决FastGPT上传文件存自定义OSS、HTTP组件使用及依赖安装问题",
+    "description": "解决FastGPT上传文件存自定义OSS、HTTP组件使用及依赖安装问题 现象 用户在FastGPT中上传文件后，需要将文件存储至自定义OSS，尝试使用HTTP组件未达成预期效果；尝试通过代码节点调用SystemHelper.httpRequest()方法，但该方法的官方文档存在缺失，无法明确如何实现文件下…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-file-oss-upload-dependency-setup"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-file-upload-dns-error",
+    "title": "解决FastGPT对话上传文件时出现ERR_NAME_NOT_RESOLVED报错问题",
+    "description": "解决FastGPT对话上传文件时出现ERRNAMENOTRESOLVED报错问题 现象 用户在私有部署V4.14.8版本的FastGPT中，对话上传文件时出现ERRNAMENOTRESOLVED报错。上传请求的URL为https://fastgpt-private.${domain}:8080/chat/x…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-file-upload-dns-error"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-form-node-dynamic-variable",
+    "title": "解决当前FastGPT表单节点无法引用动态变量的问题",
+    "description": "解决当前FastGPT表单节点无法引用动态变量的问题 现象 FastGPT的表单节点中，文本框、单选框、多选框等输入类型无法引用动态变量，仅支持手动输入静态值。当上游节点输出Array[string]类型的变量（例如[\"手机\",\"电脑\",\"自行车\"]）时，无法将该变量绑定到表单节点的选项配置中，导致无法在工…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-form-node-dynamic-variable"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-free-api-pipeline-troubleshooting",
+    "title": "FastGPT免费API多技能写作流水线排错指南",
+    "description": "FastGPT免费API多技能写作流水线排错指南 现象 使用FastGPT搭建包含大纲生成、内容写作、质量校验三类OpenClaw技能的六阶段流水线时，出现流水线阶段衔接异常、内容生成未达预期、质量校验环节失效等情况。 可能原因 需按实际部署与配置环境确认，常见可能包括免费API调用额度耗尽、API接口配置…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-free-api-pipeline-troubleshooting"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-funasr-integration",
+    "title": "为FastGPT集成FunASR实现语音输入与音频文件解析功能",
+    "description": "为FastGPT集成FunASR实现语音输入与音频文件解析功能 现象 部分用户因业务需求需要在FastGPT中使用语音对话交互，或处理音频、视频类知识库素材，但现有FastGPT版本未提供对应的功能支持，无法完成语音转写或音频文件文本提取。 可能原因 FastGPT原生未集成支持语音转写的工具，缺少对接AS…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-funasr-integration"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-historical-kb-partition-fix",
+    "title": "FastGPT私有部署升级后历史知识库分块无法查看编辑的排错方案",
+    "description": "FastGPT私有部署升级后历史知识库分块无法查看编辑的排错方案 现象 FastGPT私有部署4.15.1版本，从4.14.7升级后，历史知识库的文件数据集点击后，会立即弹出红色报错框，分块列表一闪后退回上层页面，无法进入分块编辑查看页面。所有升级前的历史知识库均存在该问题，升级后新建的知识库可正常操作分块…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-historical-kb-partition-fix"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-http-image-not-display",
+    "title": "解决FastGPT中HTTP文生图工具调用后图片无法正常展示的问题",
+    "description": "解决FastGPT中HTTP文生图工具调用后图片无法正常展示的问题 现象 用户在私有部署版本的FastGPT中，使用自定义的HTTP文生图工具。该工具单独调试时运行正常，但在配置了该工具的Agent（含V2 beat）中调用后，图片生成完成却无法正常展示。该功能在之前的FastGPT版本中可正常使用，近两个…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-http-image-not-display"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-index-model-support-context-embedding-models",
+    "title": "解决FastGPT索引模型无法使用指定上下文嵌入模型的问题",
+    "description": "解决FastGPT索引模型无法使用指定上下文嵌入模型的问题 现象 在FastGPT平台配置pplx-embed-context-v1-4b或voyage-context-3作为文档索引的嵌入模型时，会出现无法正常提交索引任务、系统提示模型不支持，或索引过程中出现调用失败的情况。 可能原因 当前FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-index-model-support-context-embedding-models"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-init-fetch-error-troubleshoot",
+    "title": "解决FastGPT部署后系统初始化失败fetch报错问题",
+    "description": "解决FastGPT部署后系统初始化失败fetch报错问题 现象 部署FastGPT私有部署版本后，启动fastgpt-app容器时出现以下日志：首先输出Postgres慢查询告警，涉及SQL为CREATE EXTENSION IF NOT EXISTS vector;以及创建modeldata表的语句，耗时…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-init-fetch-error-troubleshoot"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-intent-class-streaming-issue",
+    "title": "解决FastGPT意图分类调用分应用时流式输出一次性返回的问题",
+    "description": "解决FastGPT意图分类调用分应用时流式输出一次性返回的问题 现象 在FastGPT 4.11.0私有部署版本中，用户通过工作流编排应用，主应用使用意图分类指向不同分应用。所有分应用均已开启流式输出开关，但调用分应用的接口返回结果为1秒内一次性全部返回，未呈现正常的流式输出效果。直接调用模型回答的问题则可…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-intent-class-streaming-issue"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-kb-import-failure",
+    "title": "解决FastGPT私有部署版本知识库导出分块后导入失败问题",
+    "description": "解决FastGPT私有部署版本知识库导出分块后导入失败问题 现象 私有部署FastGPT 4.14、4.15版本中，将知识库导出分块后，新建知识库并使用导出的CSV文件通过模板导入或备份导入时，导入操作失败，页面显示对应报错信息（对应issue上传的截图内容）。 可能原因 目前暂未明确该问题的具体触发原因，…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-kb-import-failure"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-kb-search-indexes-metadata",
+    "title": "解决FastGPT知识库搜索无法返回indexes元数据的问题",
+    "description": "解决FastGPT知识库搜索无法返回indexes元数据的问题 现象 FastGPT知识库搜索返回的结果中，无法包含indexes元数据字段。当需要通过indexes字段匹配权限、过滤搜索结果时，当前仅能逐条调用http://localhost:3000/api/core/dataset/data/deta…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-kb-search-indexes-metadata"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-lexical-paste-error",
+    "title": "解决FastGPT工作流AI对话插件提示词多行粘贴报错问题",
+    "description": "解决FastGPT工作流AI对话插件提示词多行粘贴报错问题 现象 在FastGPT工作流内创建AI对话插件，输入2行以上提示词并保存刷新后，复制文本框内2行以上文本直接进行粘贴替换操作时，会触发报错：Lexical errror Error: Minified Lexical error #19; visi…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-lexical-paste-error"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-llm-tracing-troubleshooting",
+    "title": "FastGPT集成外部LLM追踪平台的配置与排错方法",
+    "description": "FastGPT集成外部LLM追踪平台的配置与排错方法 现象 配置外部LLM追踪平台后，可能出现以下异常：未捕获到LLM调用数据；团队级或系统级追踪配置未按预期覆盖应用级设置；多追踪平台同时配置时，数据未同时发送到所有目标平台；敏感应用未成功禁用追踪功能。 可能原因 1. 配置优先级未遵循App（开关） Te…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-llm-tracing-troubleshooting"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-local-mcp-tool-support",
+    "title": "解决云端FastGPT无法调用本地或内网MCP工具的问题",
+    "description": "解决云端FastGPT无法调用本地或内网MCP工具的问题 现象 云端部署的FastGPT无法调用本地或内网环境部署的MCP工具。当MCP Server运行在127.0.0.1或内网网段时，无法与云端FastGPT建立通信，导致无法使用SSH、本地系统命令、内网API、文件操作等本地工具能力。 可能原因 当前…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-local-mcp-tool-support"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-markdown-fix",
+    "title": "修复FastGPT中的Markdown格式异常问题",
+    "description": "修复FastGPT中的Markdown格式异常问题 现象 使用FastGPT处理内容时，Markdown格式无法按照预期正常渲染，或出现显示错乱、样式失效的问题，影响内容的正常展示与使用。 可能原因 由于本次issue仅提及需要修复Markdown格式相关问题，未提供具体异常场景的细节，因此具体原因需按实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-markdown-fix"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-markdown-image-upload-fix",
+    "title": "解决FastGPT上传文档时内嵌图片未转存数据库的问题",
+    "description": "解决FastGPT上传文档时内嵌图片未转存数据库的问题 现象 用户使用FastGPT的API或手动上传Markdown文档时，文档内的Base64格式内嵌图片会被原封不动保留，未被转换为独立图片存储到数据库。这会导致文档分块后的块大小过大，产生过多无效索引，无法满足自定义分块的需求。 可能原因 当前Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-markdown-image-upload-fix"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-mcp-name-auth-config",
+    "title": "为FastGPT的MCP服务添加名称修改与安全认证功能",
+    "description": "为FastGPT的MCP服务添加名称修改与安全认证功能 现象 FastGPT创建MCP服务后，服务名称会自动生成，格式为FastGPT-mcp-xxxxxxxxxxx。在其他平台调用该MCP服务时，仅能使用该自动生成的名称，无法自定义修改，不利于识别；同时MCP服务未内置Authorization: Bea…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-mcp-name-auth-config"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-mineru-saas-files-config",
+    "title": "解决FastGPT中MinerU Saas插件files参数配置问题",
+    "description": "解决FastGPT中MinerU Saas插件files参数配置问题 现象 在FastGPT私有部署V4.14.20版本的对话Agent中，配置MinerU Saas解析插件的files参数时，在参数值输入框输入斜杠（/）后，无法弹出参数值来源选择列表，无法完成该参数的配置。 可能原因 暂无公开明确的触发原…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-mineru-saas-files-config"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-minimax-h3-video-support",
+    "title": "排查并解决FastGPT中MiniMax-H3模型与视频生成支持问题",
+    "description": "排查并解决FastGPT中MiniMax-H3模型与视频生成支持问题 现象 在FastGPT中尝试调用MiniMax-H3模型生成视频时，无法正常使用该模型，无法满足制作文档过程中生成小视频讲解短片的需求，与issue中提及的应用场景一致。 可能原因 FastGPT当前版本未完成MiniMax-H3模型的适…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-minimax-h3-video-support"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-mongo-data-cleanup",
+    "title": "FastGPT MongoDB目录大量数据文件清理与排查方法",
+    "description": "FastGPT MongoDB目录大量数据文件清理与排查方法 现象 用户在FastGPT部署环境中，发现MongoDB的数据目录下存在大量数据文件，需明确文件相关信息并完成清理操作。 可能原因 MongoDB会存储FastGPT运行产生的各类业务数据，随着系统运行时长增加、业务交互累积，数据会持续写入存储目…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-mongo-data-cleanup"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-new-channel-no-model-search",
+    "title": "解决FastGPT新增渠道时未添加模型无法搜索的问题",
+    "description": "解决FastGPT新增渠道时未添加模型无法搜索的问题 现象 在FastGPT的「模型渠道 新增渠道」页面，未添加模型时无法使用模型搜索功能，仅能展示全量未筛选的模型列表，需向下滚动页面手动查找目标模型，操作流程较长。 可能原因 该页面的模型搜索功能与渠道已添加的模型配置绑定，未加入模型时搜索功能无法正常触发…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-new-channel-no-model-search"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-no-thinking-process-output",
+    "title": "解决FastGPT开启模型思考模式后无思考过程输出的问题",
+    "description": "解决FastGPT开启模型思考模式后无思考过程输出的问题 现象 用户在FastGPT 4.14.10私有部署版本中，已在模型配置页面开启思考模式，但在发起问答交互时，未输出对应的思考过程内容。 可能原因 由于本次issue未披露更多异常细节，可能的关联因素需结合实际部署环境确认，例如模型配置的思考模式参数未…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-no-thinking-process-output"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-opensandbox-deployment-solution",
+    "title": "解决FastGPT 4.15版本OpenSandbox部署复杂的问题",
+    "description": "解决FastGPT 4.15版本OpenSandbox部署复杂的问题 现象 用户在使用FastGPT 4.15版本时，遇到OpenSandbox、fastgpt-agent-sandbox-proxy相关部署流程复杂的问题，花费较长时间仍无法顺利完成部署；同时配套官方文档存在前后描述不一致、字段名称不统一的…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-opensandbox-deployment-solution"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-portal-identity-unification",
+    "title": "解决FastGPT免登与门户集成的身份体系不统一问题",
+    "description": "解决FastGPT免登与门户集成的身份体系不统一问题 现象 在FastGPT私有部署v4.15.1版本中，免登录身份验证流程会从身份服务器获取uid并将其作为智能体对话的用户id参数。当FastGPT与本地门户集成后，门户创建的账户uid由FastGPT自动生成，导致两条链路的用户身份体系相互独立。同一名自…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-portal-identity-unification"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-private-deployment-dollar-mcp-storage-error",
+    "title": "解决FastGPT私有部署中$开头MCP工具的存储报错问题",
+    "description": "解决FastGPT私有部署中$开头MCP工具的存储报错问题 现象 FastGPT私有部署版本4.15.6中，因部署环境CPU不支持AVX指令集，使用了mongo:4.4.30作为MongoDB镜像。当存在名称以$开头的MCP工具时，单击保存按钮会触发MongoDB存储相关报错，无法完成工具保存。 可能原因…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-private-deployment-dollar-mcp-storage-error"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-private-image-display-fix",
+    "title": "解决FastGPT私有部署中知识库图片无法正常输出的问题",
+    "description": "解决FastGPT私有部署中知识库图片无法正常输出的问题 现象 用户在私有部署V4.14.2版本的FastGPT中，使用知识库作为业务客服辅助工具，上传带图片的Word文档后，在AI对话中引导模型输出图片时，图片无法正常展示。尝试开启或关闭“图片转64位”功能，未对图片展示效果产生影响。日志显示异常图片链接…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-private-image-display-fix"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-private-wechat-reply-troubleshooting",
+    "title": "FastGPT私有部署微信渠道无回复的排错步骤",
+    "description": "FastGPT私有部署微信渠道无回复的排错步骤 现象 用户部署FastGPT V4.14.26私有版本时，agent网页对话功能正常，但个人微信渠道出现异常：扫码绑定后页面显示\"渠道从未使用\"，微信客户端提示无法连接。经测试，容器内可正常连接微信服务器，但发送消息后，app容器的debug日志无任何输出。…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-private-wechat-reply-troubleshooting"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-prompt-output-debug",
+    "title": "解决FastGPT调用指定短视频创作提示词的输出异常问题",
+    "description": "解决FastGPT调用指定短视频创作提示词的输出异常问题 现象 未从提供的语料中获取明确的报错信息或具体异常表现。若实际使用中出现输出未遵循指定结构化格式、风格不符、内容缺失等情况，均需按对应场景记录具体表现。 可能原因 未从提供的语料中获取具体的错误触发条件、配置参数等信息。常见可能方向包括提示词配置偏差…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-prompt-output-debug"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-pushdata-missing-dataid",
+    "title": "解决FastGPT pushData接口返回无dataId字段无法定位数据的问题",
+    "description": "解决FastGPT pushData接口返回无dataId字段无法定位数据的问题 现象 调用FastGPT的/api/core/dataset/data/pushData接口创建训练数据推送任务时，接口返回结果仅包含insertLen统计字段，未返回dataId、q、a等单条数据的标识与内容字段。例如本次请…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-pushdata-missing-dataid"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-qwen35-omni-troubleshooting",
+    "title": "FastGPT中qwen3.5-omni全模态模型的排错方法",
+    "description": "FastGPT中qwen3.5-omni全模态模型的排错方法 现象 用户在FastGPT中配置或调用qwen3.5-omni全模态模型时，出现无法正常调用、无响应或报错的情况，具体报错信息需按实际环境确认。 可能原因 1. 当前使用的FastGPT版本未集成qwen3.5-omni全模态模型的适配配置； 2…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-qwen35-omni-troubleshooting"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-remove-public-domain-ip",
+    "title": "解决FastGPT去除公网域名与IP依赖的相关问题",
+    "description": "解决FastGPT去除公网域名与IP依赖的相关问题 现象 当前使用FastGPT时，无论是部署初始化还是运行对话、知识库调用等核心功能，都必须依赖公网域名或IP地址，无法在仅具备内网访问权限的环境中完成正常使用，无法满足离线部署的需求。 可能原因 由于该需求为用户提交的功能改进请求，官方暂未公开具体的技术限…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-remove-public-domain-ip"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-restart-lost-embed-data",
+    "title": "解决FastGPT私有部署后重启丢失嵌入知识库数据问题",
+    "description": "解决FastGPT私有部署后重启丢失嵌入知识库数据问题 现象 用户使用docker compose部署私有部署版本FastGPT，前端显示版本为4.14.20，fastgpt-app镜像版本为4.14.22，使用seekdb相关的compose文件。创建知识库并添加文件后，seekdb内可查询到嵌入数据，执…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-restart-lost-embed-data"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-sandbox-preview-troubleshooting",
+    "title": "配置FastGPT沙箱代理后无法预览文档的排错方法",
+    "description": "配置FastGPT沙箱代理后无法预览文档的排错方法 现象 用户配置了AGENTSANDBOXPROXYURL环境变量为ws://192.168.0.11:1006，确认该WebSocket代理地址可通过浏览器正常访问，同时配置了AGENTSANDBOXPREVIEWPROXYURL为http://192.1…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-sandbox-preview-troubleshooting"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-sandbox-provider-adapt",
+    "title": "解决FastGPT沙箱提供商适配与扩展相关的排查问题",
+    "description": "解决FastGPT沙箱提供商适配与扩展相关的排查问题 现象 当前FastGPT仅支持sealosdevbox和opensandbox两种沙箱提供商，用户无法直接调用e2b或UCloud沙箱服务，在需要扩展沙箱提供商适配时，无对应的配置或代码路径可供使用。 可能原因 FastGPT内置的沙箱适配模块仅集成了s…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-sandbox-provider-adapt"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-sandbox-seccomp-load-failure",
+    "title": "解决fastgpt-code-sandbox v4.15.0 seccomp加载失败启动异常问题",
+    "description": "解决fastgpt-code-sandbox v4.15.0 seccomp加载失败启动异常问题 现象 fastgpt-code-sandbox 镜像v4.15.0在群晖NAS环境部署时，容器启动后反复打印警告日志：Python warm child failed: load seccomp filter:…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-sandbox-seccomp-load-failure"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-sandbox-security-config",
+    "title": "配置FastGPT Agent Sandbox的出网控制与内容安全审查能力",
+    "description": "配置FastGPT Agent Sandbox的出网控制与内容安全审查能力 现象 使用FastGPT的Agent通过Sandbox联网搜索、访问网页、调用第三方API或检索公开代码仓库时，第三方返回数据可能包含政治、色情、暴力等高风险内容。这类内容未经过滤，会直接显示在工具卡片、运行详情或流式界面中，还可能…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-sandbox-security-config"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-skill-package-missing-md",
+    "title": "解决FastGPT安装第三方技能时的格式校验失败问题",
+    "description": "解决FastGPT安装第三方技能时的格式校验失败问题 现象 用户在FastGPT中直接安装第三方技能时，前端会提示“不符合格式要求”。同时后台日志会记录对应错误信息：请求/api/core/ai/skill/save-deploy返回500状态码，请求耗时约10213ms，报错文本为Failed to pa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-skill-package-missing-md"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-skill-publish-slow-errors",
+    "title": "解决FastGPT技能发布缓慢与发布报错问题",
+    "description": "解决FastGPT技能发布缓慢与发布报错问题 现象 用户在FastGPT平台中执行技能（skill）发布操作时，同时遇到两个问题：一是发布过程耗时过长、进度缓慢，二是发布流程总会触发报错，且附带了两张报错相关的截图。 可能原因 因未提供具体报错文本与运行环境配置细节，可能的原因需按实际运行环境确认。 排查步…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-skill-publish-slow-errors"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-tool-choice-none-error",
+    "title": "解决FastGPT连续工具调用后tool_choice设为none的模型响应异常问题",
+    "description": "解决FastGPT连续工具调用后toolchoice设为none的模型响应异常问题 现象 在FastGPT v4.15.2的工作流工具调用节点中，当连续工具调用次数超过5次后，系统会将下一次请求的toolchoice参数设为none。此时若上游兼容OpenAI接口的模型返回finishreason为tool…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-tool-choice-none-error"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-troubleshooting-guide",
+    "title": "FastGPT 常见异常问题排查与解决指南",
+    "description": "FastGPT 常见异常问题排查与解决指南 现象 暂未明确具体异常表现，需结合实际部署或运行场景确认。常见可观测的异常类型包括服务启动失败、接口请求返回异常、核心功能无法正常触发等，具体表现需按实际运行环境核实。 可能原因 可能原因需结合实际场景确认，常见排查方向包括配置文件参数配置错误、绑定的密钥无法正常…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-troubleshooting-guide"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-upload-file-list-disappears-responsive-switch",
+    "title": "修复FastGPT上传文件后响应式布局切换导致文件列表消失问题",
+    "description": "修复FastGPT上传文件后响应式布局切换导致文件列表消失问题 现象 在FastGPT的知识库或企业门户上传文件完成后，拖动页面、调整浏览器窗口宽度或触发PC/移动端响应式布局切换时，已上传成功的文件列表会直接消失。该问题在公有云版本和V4.14.9私有部署版本中均存在，且非偶发。上传相关接口（如/api/…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-upload-file-list-disappears-responsive-switch"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-vm-ssh-install-sudo-fix",
+    "title": "解决FastGPT虚拟机中安装SSH因无sudo权限失败的问题",
+    "description": "解决FastGPT虚拟机中安装SSH因无sudo权限失败的问题 现象 用户在FastGPT关联的虚拟机环境中尝试安装SSH时，操作直接失败，系统返回固定报错文本： 具体表现为无法正常执行sudo命令，无法完成系统包列表更新与SSH客户端的安装流程。 可能原因 根据报错信息，本次失败的核心原因是当前运行的虚拟…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-vm-ssh-install-sudo-fix"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-workflow-code-support",
+    "title": "解决FastGPT复杂工作流开发依赖手动面板操作的问题",
+    "description": "解决FastGPT复杂工作流开发依赖手动面板操作的问题 现象 当前FastGPT复杂工作流开发依赖手动面板操作，开发循环为：设计或生成工作流JSON→手动导入更新工作流→手动运行全流程测试→检查运行时诊断→修改工作流JSON→重复流程。现有运行时诊断仅在聊天执行时可用，无官方API/CLI支持无头的工作流草…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-workflow-code-support"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-workflow-retrieval-trace",
+    "title": "解决FastGPT工作流返回异常结果的检索调试问题",
+    "description": "解决FastGPT工作流返回异常结果的检索调试问题 现象 当FastGPT工作流返回不正确或不完整的答案时，用户难以定位失败发生的具体位置。知识库类应用的使用者通常需要获取以下信息来调试检索质量：已检索的文本块、重排序后选中的文本块、最终提供给大模型的来源信息。缺少这些信息时，检索质量调试只能依靠反复尝试。…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-workflow-retrieval-trace"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-workflow-text-extract-delay-troubleshooting",
+    "title": "FastGPT工作流中文本内容提取组件耗时过长问题排查与解决",
+    "description": "FastGPT工作流中文本内容提取组件耗时过长问题排查与解决 现象 在FastGPT v4.13.0私有部署版本的工作流中，使用「文本内容提取」组件时，组件耗时较长。该组件配置为名称“文本内容提取#4”，使用模型qwen3-32b-v63q，提取要求为分析整个对话历史，提取所有用户问题，按时间顺序列出每次的…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-workflow-text-extract-delay-troubleshooting"
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-wsl-port-unreachable-fix",
+    "title": "解决WSL中Ubuntu安装FastGPT后无法访问3000端口的问题",
+    "description": "解决WSL中Ubuntu安装FastGPT后无法访问3000端口的问题 现象 用户在Windows 11的WSL环境中安装Ubuntu系统，通过官方bash一键命令完成FastGPT安装，Docker服务正常启动后，无法访问http://localhost:3000链接，且已关闭本地防火墙。 可能原因 1.…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-wsl-port-unreachable-fix"
+  },
+  {
+    "identity": "zh|/troubleshoot/fix-fastgpt-jiebasplit-length-limit",
+    "title": "修复FastGPT中jiebaSplit分词结果过长的配置问题",
+    "description": "修复FastGPT中jiebaSplit分词结果过长的配置问题 现象 用户部署FastGPT后，处理用户查询时出现功能异常，通过查看部署生成的.next/server/chunks/50571.js文件，可发现其中存在未对分词结果做长度限制的jiebaSplit调用代码。 可能原因 该异常的核心原因是Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fix-fastgpt-jiebasplit-length-limit"
+  },
+  {
+    "identity": "zh|/troubleshoot/novel-workflow-integration-fastgpt",
+    "title": "解决第三方小说写作流水线集成到FastGPT工作流的问题",
+    "description": "解决第三方小说写作流水线集成到FastGPT工作流的问题 现象 用户尝试将具备多步骤工作流的第三方小说写作流水线接入FastGPT工作流引擎时，无法实现全流程的正常联动，无法完成从大纲生成到最终交付的完整小说写作流程。 可能原因 结合该第三方流水线的特征，可能的触发原因包括：未匹配FastGPT工作流引擎的…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/novel-workflow-integration-fastgpt"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-add-edit-model-list",
+    "title": "为FastGPT已有供应商新增、修改模型配置列表的操作方法",
+    "description": "为FastGPT已有供应商新增、修改模型配置列表的操作方法 FastGPT支持通过修改已有供应商的配置文件，自定义扩展或调整该供应商支持的模型列表，满足个性化的模型接入需求。 配置步骤与字段说明 首先执行以下操作步骤： 1. 进入对应供应商的配置目录，例如packages/infrastructure/sr…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-add-edit-model-list"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-ai-thinking-settings",
+    "title": "配置FastGPT的AI思考强度参数与多模型平台适配",
+    "description": "配置FastGPT的AI思考强度参数与多模型平台适配 思考配置的核心作用与基础映射规则 思考配置用于控制模型的思考强度，提供多档位选项以适配不同复杂度的问题。默认选项使用模型原生默认配置，不思考模式适合简单问题，可直接返回结果。问题复杂度越高，可选择更高的思考强度档位。该配置对齐OpenAI规范中的reas…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-ai-thinking-settings"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-civil-code-qa-assistant",
+    "title": "使用FastGPT搭建并配置民法典知识库问答助手",
+    "description": "使用FastGPT搭建并配置民法典知识库问答助手 该场景为知识库结合对话Agent的问答应用，可基于已有文档生成准确的针对性回答，区别于基础自由对话场景。用户可通过FastGPT的知识库管理与Agent配置功能，快速搭建面向特定文档的问答工具。 知识库创建与数据集配置 进入主页左侧知识库页面，点击右上角新建…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-civil-code-qa-assistant"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-content-audit-workflow-config",
+    "title": "FastGPT内容审核与自动改写工作流的配置操作步骤",
+    "description": "FastGPT内容审核与自动改写工作流的配置操作步骤 工作流概述 该工作流用于实现内容合规审核与自动改写，覆盖从输入提交到分支处理的完整流程，可帮助快速搭建自动化内容审核系统。 核心配置步骤 1. 创建工作流：进入工作流主页，点击新建工作流，命名为\"内容审核与自动改写\"，完成后进入编辑页。 2. 配置开场白…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-content-audit-workflow-config"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-custom-toolset-config",
+    "title": "详细介绍FastGPT自定义系统工具集的开发配置方法",
+    "description": "详细介绍FastGPT自定义系统工具集的开发配置方法 工具集开发核心逻辑 FastGPT 的系统工具集通过 defineToolSet() 函数实现，将共用的配置信息放在顶层，包括 manifest 和 secretSchema，每个独立的子工具在 children 数组中声明，包含唯一 id、名称、描述和…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-custom-toolset-config"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-data-analysis-agent-v2-setup",
+    "title": "配置FastGPT智能数据分析Agent V2的具体操作步骤",
+    "description": "配置FastGPT智能数据分析Agent V2的具体操作步骤 FastGPT的对话Agent V2可用于搭建智能数据分析工具，支持读取用户上传的Excel/CSV文件、在隔离沙箱中运行Python分析代码，还能主动向用户澄清需求。该工具可完成数据概览分析、核心洞察提取、可视化图表生成与业务建议输出全流程。…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-data-analysis-agent-v2-setup"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-docker-deployment-methods",
+    "title": "FastGPT Docker版本部署配置与三种部署方法",
+    "description": "FastGPT Docker版本部署配置与三种部署方法 FastGPT Docker版本部署配置与三种部署方法 部署方式总览 FastGPT Docker版本的部署支持三种方式：AI Agent代部署、交互式脚本部署、手动下载部署。AI Agent代部署可将提示词参考 https://doc.fastgpt…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-docker-deployment-methods"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-document-catalog-guide",
+    "title": "FastGPT官方文档目录的结构化导航与内容查询指南",
+    "description": "FastGPT官方文档目录的结构化导航与内容查询指南 FastGPT官方文档目录按照功能模块划分为入门、应用构建、对话使用、知识库、工作区、管理员后台、版本介绍、OpenAPI接口、插件系统、自部署等分类，覆盖了从快速上手到系统部署的全流程技术文档，其中插件系统分类包含模型预设、系统工具开发等内容，能够帮助…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-document-catalog-guide"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-enterprise-email-assistant",
+    "title": "在FastGPT中配置企业邮件撰写对话Agent并验证效果",
+    "description": "在FastGPT中配置企业邮件撰写对话Agent并验证效果 应用创建与基础配置 在FastGPT工作台点击新建，选择对话Agent，填写应用名称为企业邮件撰写助手。创建完成后进入应用配置页，页面分为左右两栏，左侧为AI配置，右侧为调试预览。在AI配置中选择对话Agent使用的基础模型，本案例使用GLM-5.…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-enterprise-email-assistant"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-oauth2-sso-config",
+    "title": "为FastGPT配置标准OAuth2.0单点登录的完整接入参数",
+    "description": "为FastGPT配置标准OAuth2.0单点登录的完整接入参数 接入基础说明 FastGPT支持RFC 6749定义的鉴权码模式OAuth2.0单点登录接入。接入流程分为三个核心步骤，需提前准备三个必填地址： 1. 登陆鉴权地址：用户点击SSO按钮后跳转的地址，需携带responsetype=code、cl…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-oauth2-sso-config"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-single-tool-development",
+    "title": "实现FastGPT单系统工具的开发配置与规范说明",
+    "description": "实现FastGPT单系统工具的开发配置与规范说明 单系统工具的基础结构要求 FastGPT单系统工具的入口文件必须默认导出SDK factory实例，需先导入@fastgpt-plugin/sdk-factory提供的createToolHandler、defineTool及对应类型，同时使用zod库定义各…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-single-tool-development"
+  },
+  {
+    "identity": "zh|/tutorial/fastgpt-wecom-sso-config",
+    "title": "配置FastGPT企业微信SSO单点登录的具体操作步骤",
+    "description": "配置FastGPT企业微信SSO单点登录的具体操作步骤 前置参数准备 需要先完成以下参数与环境的准备工作。首先使用管理员账号登录企业微信管理后台https://work.weixin.qq.com/weworkadmin/loginpagewx，进入【我的企业】页面获取企业的CorpID。创建供FastGP…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/fastgpt-wecom-sso-config"
+  },
+  {
+    "identity": "zh|/tutorial/feishu-sso-fastgpt-config",
+    "title": "配置飞书单点登录对接FastGPT的详细操作步骤与参数说明",
+    "description": "配置飞书单点登录对接FastGPT的详细操作步骤与参数说明 前置准备与参数获取 要完成飞书单点登录接入FastGPT的配置，首先需要获取应用的核心凭证。进入飞书开发者后台，点击企业自建应用，在凭证与基础信息页面即可查看应用的App ID和App Secret，这两个参数将用于后续的配置环节。 权限与重定向U…",
+    "category": "tutorial",
+    "locale": "zh",
+    "publicPath": "/tutorial/feishu-sso-fastgpt-config"
   }
 ]
