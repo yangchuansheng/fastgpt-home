@@ -46,18 +46,18 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Verify dual-variant release evidence
+      - name: Verify three-variant release evidence
         run: |
           npm ci
           npm run verify:release -- --keep-artifacts
 
-      - name: Upload failure artifacts
-        if: ${{ failure() && hashFiles('.release-artifacts/**') != '' }}
+      - name: Upload release verification record and artifacts
+        if: ${{ always() && hashFiles('.release-artifacts/**') != '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: guide-release-failure-artifacts
+          name: technical-content-release-evidence
           path: .release-artifacts
-          retention-days: 3
+          retention-days: 7
           if-no-files-found: ignore
           include-hidden-files: true
 

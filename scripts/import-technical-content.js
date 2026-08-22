@@ -15,6 +15,18 @@ const TECHNICAL_CONTENT_POLICY = require('../src/lib/technical-content-policy.js
 const FRONT_MATTER_KEYS = ['title', 'slug', 'page_type', 'source', 'source_type'];
 const SOURCE_TYPES = new Map(Object.entries(TECHNICAL_CONTENT_POLICY.sourceTypes));
 const CATEGORY_LABELS = TECHNICAL_CONTENT_POLICY.categories;
+const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
+const EXPECTED_ACCEPTED_COUNT = TECHNICAL_CONTENT_POLICY.expectedAcceptedCount;
+const EXPECTED_DENIED_COUNT = TECHNICAL_CONTENT_POLICY.expectedDeniedCount;
+const CORRECTION_FIELDS = new Set([
+  'body',
+  'canonicalPath',
+  'citations',
+  'frontMatter',
+  'frontMatterSlug',
+  'lineEndings',
+  'pageType'
+]);
 const SECRET_PATTERN = /\bsk-[A-Za-z0-9][A-Za-z0-9_-]{15,}\b/g;
 
 function sha256(value) {
@@ -1142,6 +1154,16 @@ function verifyCommittedAuthority(repoRoot = REPOSITORY_ROOT) {
   if (manifest.source.acceptedCount !== manifest.pages.length) {
     throw new Error('Technical content manifest count drift: acceptedCount differs from pages');
   }
+  if (manifest.source.acceptedCount !== EXPECTED_ACCEPTED_COUNT) {
+    throw new Error(
+      [
+        'Technical content accepted count drift: expected ',
+        EXPECTED_ACCEPTED_COUNT,
+        ', found ',
+        manifest.source.acceptedCount
+      ].join('')
+    );
+  }
   if (!Array.isArray(ledger.corrections) || !Array.isArray(ledger.denials))
     throw new Error(
       'Schema drift in committed decision ledger: correction and denial arrays required'
@@ -1150,14 +1172,78 @@ function verifyCommittedAuthority(repoRoot = REPOSITORY_ROOT) {
     throw new Error(
       'Schema drift in committed decision ledger: approvedExceptions must be an array'
     );
+  if (manifest.source.deniedCount !== ledger.denials.length) {
+    throw new Error(
+      [
+        `Technical content denial count drift: manifest declares ${manifest.source.deniedCount}, `,
+        `ledger contains ${ledger.denials.length}`
+      ].join('')
+    );
+  }
+  if (manifest.source.deniedCount !== EXPECTED_DENIED_COUNT) {
+    throw new Error(
+      [
+        'Technical content denied count drift: expected ',
+        EXPECTED_DENIED_COUNT,
+        ', found ',
+        manifest.source.deniedCount
+      ].join('')
+    );
+  }
   manifest.pages.forEach(validateManifestPage);
   ledger.corrections.forEach(validateLedgerCorrection);
   ledger.denials.forEach(validateLedgerDenial);
   validateIdentitySet(manifest.pages.map((page) => page.identity));
+  const correctionKeys = new Set();
+  for (const correction of ledger.corrections) {
+    if (!CORRECTION_FIELDS.has(correction.field)) {
+      throw new Error(
+        [
+          'Schema drift in committed decision ledger: unsupported correction field ',
+          correction.field
+        ].join('')
+      );
+    }
+    const key = `${foldIdentity(correction.identity)}|${correction.field}`;
+    if (correctionKeys.has(key)) {
+      throw new Error(
+        [
+          'Undeclared duplicate correction: ',
+          correction.identity.locale,
+          correction.identity.canonicalPath,
+          ' ',
+          correction.field
+        ].join('')
+      );
+    }
+    correctionKeys.add(key);
+  }
+  const denialKeys = new Set();
+  for (const denial of ledger.denials) {
+    const key = foldIdentity(denial.identity);
+    if (denialKeys.has(key)) {
+      throw new Error(
+        [
+          'Undeclared duplicate denial: ',
+          denial.identity.locale,
+          denial.identity.canonicalPath
+        ].join('')
+      );
+    }
+    denialKeys.add(key);
+  }
   const entries = JSON.parse(
     fs.readFileSync(path.join(repoRoot, 'src/components/tech-center/entries.json'), 'utf8')
   );
   if (!Array.isArray(entries)) throw new Error('Technical content registry must be an array');
+  if (entries.length !== EXPECTED_TECHNICAL_PAGE_COUNT) {
+    throw new Error(
+      [
+        `Technical content registry count drift: expected ${EXPECTED_TECHNICAL_PAGE_COUNT}, `,
+        `found ${entries.length}`
+      ].join('')
+    );
+  }
   entries.forEach((entry, index) =>
     validateAuthorityProjection(entry, `technical content registry[${index}]`)
   );
@@ -1166,6 +1252,16 @@ function verifyCommittedAuthority(repoRoot = REPOSITORY_ROOT) {
   const searchProjection = JSON.parse(fs.readFileSync(searchPath, 'utf8'));
   if (!Array.isArray(searchProjection)) {
     throw new Error('Technical content search projection must be an array');
+  }
+  if (searchProjection.length !== EXPECTED_TECHNICAL_PAGE_COUNT) {
+    throw new Error(
+      [
+        'Technical content search projection count drift: expected ',
+        EXPECTED_TECHNICAL_PAGE_COUNT,
+        ', ',
+        `found ${searchProjection.length}`
+      ].join('')
+    );
   }
   searchProjection.forEach((entry, index) =>
     validateSearchProjectionEntry(entry, `technical search projection[${index}]`)

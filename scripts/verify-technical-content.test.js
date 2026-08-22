@@ -4,6 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const test = require('node:test');
+const TECHNICAL_CONTENT_POLICY = require('../src/lib/technical-content-policy.json');
 
 const {
   assertDeniedIdentitiesAbsent,
@@ -12,11 +13,13 @@ const {
   foldIdentity,
   validateIdentitySet,
   verifyImportPlanNoDrift,
+  verifyCommittedAuthority,
   writeImportPlan
 } = require('./import-technical-content');
 
 const root = path.resolve(__dirname, '..');
 const fixture = path.join(root, 'scripts/fixtures/technical-page-delivery');
+const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
 
 test('representative delivery normalizes the canonical path and body', () => {
   const plan = buildImportPlan({ repoRoot: root, sourcePath: fixture });
@@ -239,12 +242,31 @@ test('public search projection contains only discovery fields and matches the re
     publicPath: '/tutorial/private-deployment-topology'
   });
   assert.equal(new Set(projection.map((entry) => entry.identity)).size, entries.length);
-  assert.deepEqual(
-    [...new Set(projection.flatMap((entry) => Object.keys(entry)))].sort(),
-    ['category', 'description', 'identity', 'locale', 'publicPath', 'title']
-  );
+  assert.deepEqual([...new Set(projection.flatMap((entry) => Object.keys(entry)))].sort(), [
+    'category',
+    'description',
+    'identity',
+    'locale',
+    'publicPath',
+    'title'
+  ]);
   assert.deepEqual(
     JSON.parse(fs.readFileSync(path.join(root, 'public/tech-center/search-index.json'), 'utf8')),
     projection
   );
+});
+
+test('committed technical authority covers the complete accepted identity projection', () => {
+  const manifest = verifyCommittedAuthority(root);
+  const entries = JSON.parse(
+    fs.readFileSync(path.join(root, 'src/components/tech-center/entries.json'), 'utf8')
+  );
+  const searchProjection = JSON.parse(
+    fs.readFileSync(path.join(root, 'public/tech-center/search-index.json'), 'utf8')
+  );
+
+  assert.equal(manifest.pages.length, TECHNICAL_CONTENT_POLICY.expectedAcceptedCount);
+  assert.equal(manifest.source.deniedCount, TECHNICAL_CONTENT_POLICY.expectedDeniedCount);
+  assert.equal(entries.length, EXPECTED_TECHNICAL_PAGE_COUNT);
+  assert.equal(searchProjection.length, EXPECTED_TECHNICAL_PAGE_COUNT);
 });

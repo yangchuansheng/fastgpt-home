@@ -94,7 +94,7 @@ test('release coordinator composes Guide checks around each fresh variant export
   );
   assert(source.includes('scripts/verify-guide-content.js'));
   assert(source.includes('scripts/verify-guide-export.js'));
-  assert(source.includes("const variants = options.variant ? [options.variant] : ['io', 'cn'];"));
+  assert(source.includes('const variants = options.variant ? [options.variant] : siteVariants;'));
 
   const variantLoop = source.slice(source.indexOf('for (const variant of variants)'));
   const firstCleanup = variantLoop.indexOf('clearBuildArtifacts()');
@@ -103,6 +103,37 @@ test('release coordinator composes Guide checks around each fresh variant export
   assert(firstCleanup < variantLoop.indexOf('runGuideSourceChecks'));
   assert(variantLoop.indexOf('runGuideSourceChecks') < variantLoop.indexOf('runVariantChecks'));
   assert(variantLoop.indexOf('runVariantChecks') < secondCleanup);
+});
+
+test('release coordinator gates technical content and every site variant', () => {
+  const source = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
+
+  for (const command of [
+    'verify:technical-content',
+    'verify:technical-content-regression',
+    'verify:technical-center-regression',
+    'verify:technical-export-regression',
+    'verify:release-regression',
+    'lint',
+    'verify:technical-center',
+    'verify:technical-export'
+  ]) {
+    assert(source.includes(command), command);
+  }
+
+  assert(source.includes('technical center artifact verification'));
+  assert(source.includes('technical export artifact verification'));
+  assert(source.includes('variantEnvironment(variant)'));
+  assert.match(source, /!options\.sourceOnly && !options\.variant && failures\.length === 0/);
+});
+
+test('release coordinator accepts the preview Site Variant', () => {
+  assert.deepEqual(parseReleaseArgs(['--variant', 'preview']), {
+    sourceOnly: false,
+    keepArtifacts: false,
+    retainSuccessArtifacts: undefined,
+    variant: 'preview'
+  });
 });
 
 test('release source checks run content hygiene first and block dirty published Markdown', () => {
@@ -282,10 +313,11 @@ test('Linux release evidence stays build-only', () => {
   assert.match(workflow, /cache: npm/);
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /npm run verify:release -- --keep-artifacts/);
-  assert.match(workflow, /if: \$\{\{ failure\(\)/);
+  assert.match(workflow, /if: \$\{\{ always\(\)/);
   assert.match(workflow, /actions\/upload-artifact@v4/);
   assert.match(workflow, /\.release-artifacts/);
   assert.match(workflow, /include-hidden-files: true/);
+  assert.match(workflow, /technical-content-release-evidence/);
   assert.match(workflow, /docker build --target runtime/);
   assert.match(workflow, /NEXT_PUBLIC_SITE_VARIANT=cn/);
   for (const pathTrigger of [

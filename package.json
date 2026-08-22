@@ -34,6 +34,7 @@
     "verify:technical-center": "node scripts/verify-technical-center.js",
     "verify:technical-center-regression": "node --test scripts/verify-technical-center.test.js",
     "verify:technical-export": "node scripts/verify-technical-export.js",
+    "verify:technical-export-regression": "node --test scripts/verify-technical-export.test.js",
     "import:technical-content": "node scripts/import-technical-content.js",
     "verify:seo-basics": "node --test scripts/verify-seo-basics.test.js",
     "verify:guide-export": "node scripts/verify-guide-export.js",
