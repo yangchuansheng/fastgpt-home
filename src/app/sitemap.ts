@@ -6,8 +6,9 @@ import {
   getOwnedLocaleUrl,
   getPublishedLocaleCodes
 } from '@/lib/siteRouting';
-import { getTechEntryPath, TECH_ENTRIES } from '@/components/tech-center/data';
+import { TECH_ENTRIES } from '@/components/tech-center/data';
 import { getTechArticleLastModified, getTechCenterLastModified } from '@/lib/tech-center-content';
+import { getTechnicalSitemapUrl } from '@/lib/technicalRouting';
 import { getCompareCanonicalUrl, getCompareHubCanonicalUrl } from '@/lib/seo';
 import { getComparisonPagesForLocale } from '@/content/competitor';
 import { contactPublishedLocaleCodes } from '@/lib/publishedLocales';
@@ -62,10 +63,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   if (currentSiteVariant === 'cn') {
     addEntry(getOwnedLocaleUrl('zh', '/tech-center'), getTechCenterLastModified());
     for (const article of TECH_ENTRIES) {
-      addEntry(
-        getOwnedLocaleUrl('zh', getTechEntryPath(article)),
-        getTechArticleLastModified(article)
-      );
+      const url = getTechnicalSitemapUrl(article, currentSiteVariant);
+      if (url) addEntry(url, getTechArticleLastModified(article));
     }
   }
 

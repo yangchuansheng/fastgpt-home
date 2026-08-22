@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { localeCodes } = require('./site-variant');
+const { getLocaleOwner, getProductionBaseUrls, localeCodes } = require('./site-variant');
 
 const EN_ROUTE_REGISTRY = path.join('src', 'faq', 'generated-en-route-registry.json');
 
@@ -165,9 +165,28 @@ function getFaqRedirectProjection(rootDir) {
 }
 
 function getTechPaths(rootDir) {
-  return JSON.parse(
+  return getTechIdentities(rootDir).map((identity) => identity.sourcePath);
+}
+
+function getTechIdentities(rootDir) {
+  const entries = JSON.parse(
     fs.readFileSync(path.join(rootDir, 'src', 'components', 'tech-center', 'entries.json'), 'utf8')
-  ).map((entry) => entry.slug);
+  );
+  const identities = entries.map((entry) => {
+    const match = entry.slug.match(/^\/([^/]+)(\/[^?#]+)$/);
+    if (!match) throw new Error(`Invalid technical page identity: ${entry.slug}`);
+    const [, locale, canonicalPath] = match;
+    return {
+      key: `${locale}|${canonicalPath}`,
+      locale,
+      canonicalPath,
+      sourcePath: `/${locale}${canonicalPath}`
+    };
+  });
+  if (new Set(identities.map((identity) => identity.key)).size !== identities.length) {
+    throw new Error('Technical Page Identities must be unique');
+  }
+  return identities;
 }
 
 function addRedirect(redirects, source, target) {
@@ -191,16 +210,15 @@ function addFaqAliasRedirect(redirects, prefix, entry) {
   }
 }
 
-function buildRedirects(rootDir) {
-  const cnUrl = 'https://fastgpt.cn';
-  const ioUrl = 'https://fastgpt.io';
+function buildRedirects(rootDir, env = process.env) {
+  const { cn: cnUrl, io: ioUrl } = getProductionBaseUrls(env);
   const { chinese: chineseFaqIds, english: englishFaqIds } = getPublishedFaqIds(rootDir);
   const faqProjection = getFaqRedirectProjection(rootDir);
   const compareSlugs = fs
     .readdirSync(path.join(rootDir, 'content', 'competitors', 'en'))
     .filter((file) => file.endsWith('.md'))
     .map((file) => file.replace(/\.md$/, ''));
-  const techPaths = getTechPaths(rootDir);
+  const techIdentities = getTechIdentities(rootDir);
   const ioRedirects = new Map();
   const cnRedirects = new Map();
 
@@ -260,10 +278,11 @@ function buildRedirects(rootDir) {
 
   addRedirect(ioRedirects, '/zh/tech-center', `${cnUrl}/tech-center`);
   addRedirect(cnRedirects, '/zh/tech-center', `${cnUrl}/tech-center`);
-  for (const techPath of techPaths) {
-    const targetPath = techPath.replace(/^\/zh(?=\/)/, '');
-    addRedirect(ioRedirects, techPath, `${cnUrl}${targetPath}`);
-    addRedirect(cnRedirects, techPath, `${cnUrl}${targetPath}`);
+  for (const identity of techIdentities) {
+    if (getLocaleOwner(identity.locale) !== 'cn') continue;
+    const targetUrl = `${cnUrl}${identity.canonicalPath}`;
+    addRedirect(ioRedirects, identity.sourcePath, targetUrl);
+    addRedirect(cnRedirects, identity.sourcePath, targetUrl);
   }
 
   return { cnRedirects, ioRedirects };
@@ -358,6 +377,7 @@ module.exports = {
   buildRedirects,
   getFaqRedirectProjection,
   getPublishedFaqIds,
+  getTechIdentities,
   getTechPaths,
   parseNginxRedirectMap,
   writeCloudflareWorker,

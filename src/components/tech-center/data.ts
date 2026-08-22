@@ -9,13 +9,14 @@ export type {
   TechCategoryKey,
   TechEntry,
   TechSearchEntry,
-  TechSource
+  TechSource,
+  TechnicalPageIdentity
 } from './types';
 export { COMMON_TOPICS, PAGE_SIZE } from './constants';
 
 export const TECH_ENTRIES = entries as TechEntry[];
 
-export { getTechEntryPath } from './types';
+export { getTechEntryPath, getTechnicalPageIdentity } from './types';
 
 export const FEATURED_ENTRY =
   TECH_ENTRIES.find((entry) => entry.slug === '/zh/api/fastgpt-chat-api-guide') || TECH_ENTRIES[0]!;

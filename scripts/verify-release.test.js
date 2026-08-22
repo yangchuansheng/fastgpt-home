@@ -225,7 +225,7 @@ test('release build and workflow wiring preserve source hygiene while enforcing 
   );
   assert.match(
     packageJson.scripts.build,
-    /fix-html-lang\.js && node scripts\/verify-content-hygiene\.js --mode html --root out$/
+    /fix-html-lang\.js && node scripts\/verify-technical-export\.js && node scripts\/verify-content-hygiene\.js --mode html --root out$/
   );
   assert(
     release.indexOf("['build']") <

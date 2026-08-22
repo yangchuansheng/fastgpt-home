@@ -4,7 +4,7 @@ import { CATEGORY_META, FEATURED_ENTRY, TECH_ENTRIES } from '@/components/tech-c
 import { PAGE_SIZE } from '@/components/tech-center/constants';
 import { defaultLocale, getDictionary } from '@/lib/i18n';
 import { localeMap } from '@/lib/seo';
-import { getOwnedLocaleUrl } from '@/lib/siteRouting';
+import { currentSiteVariant, getOwnedLocaleUrl } from '@/lib/siteRouting';
 import { normalizeLocale } from '@/lib/locales';
 import { toTechSearchEntry } from '@/components/tech-center/types';
 import { Metadata } from 'next';
@@ -70,12 +70,15 @@ export async function generateMetadata({
   const description = descriptionMap[locale] || descriptionMap.en;
   const canonical = getOwnedLocaleUrl(locale, '/tech-center');
   const baseUrl = new URL(canonical).origin;
-  const indexable = locale === 'zh';
+  const indexable = locale === 'zh' && currentSiteVariant !== 'preview';
 
   return {
     title,
     description,
-    robots: indexable ? { index: true, follow: true } : { index: false, follow: true },
+    robots:
+      currentSiteVariant === 'preview'
+        ? { index: false, follow: false }
+        : { index: indexable, follow: true },
     alternates: { canonical },
     openGraph: {
       title,

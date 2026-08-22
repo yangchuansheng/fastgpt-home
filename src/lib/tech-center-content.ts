@@ -2,7 +2,12 @@ import 'server-only';
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { TECH_ENTRIES, type TechEntry } from '@/components/tech-center/data';
+import {
+  TECH_ENTRIES,
+  getTechnicalPageIdentity,
+  type TechEntry
+} from '@/components/tech-center/data';
+import { currentSiteVariant, type SiteVariant } from '@/lib/siteRouting';
 
 const CONTENT_ROOT = path.join(process.cwd(), 'src/content/tech-center');
 
@@ -54,12 +59,13 @@ function parseFrontMatter(markdown: string) {
 }
 
 function getEntryPath(entry: Pick<TechEntry, 'slug'>) {
-  const segments = entry.slug.split('/');
-  if (segments.length !== 4 || segments[1] !== 'zh') {
+  const identity = getTechnicalPageIdentity(entry);
+  const segments = identity.canonicalPath.split('/');
+  if (identity.locale !== 'zh' || segments.length !== 3 || !segments[1] || !segments[2]) {
     throw new Error(`Unsupported tech article slug: ${entry.slug}`);
   }
 
-  return path.join(CONTENT_ROOT, segments[2], `${segments[3]}.md`);
+  return path.join(CONTENT_ROOT, segments[1], `${segments[2]}.md`);
 }
 
 const DESCRIPTION_LIMIT = 155;
@@ -202,10 +208,28 @@ export function getRelatedTechArticles(article: TechEntry, limit = 3) {
 
 export function getTechArticleParams(): TechArticleParams[] {
   return TECH_ENTRIES.map((entry) => {
-    const [, lang, section, slug] = entry.slug.split('/');
-    if (lang !== 'zh' || !section || !slug) {
+    const identity = getTechnicalPageIdentity(entry);
+    const [, section, slug] = identity.canonicalPath.split('/');
+    if (identity.locale !== 'zh' || !section || !slug) {
       throw new Error(`Invalid tech article slug: ${entry.slug}`);
     }
-    return { lang, section, slug };
+    return { lang: 'zh', section, slug };
   });
+}
+
+export function getTechArticleReviewParams(
+  variant: SiteVariant = currentSiteVariant
+): TechArticleParams[] {
+  const params = getTechArticleParams();
+  return variant === 'preview' ? params : params.slice(0, 1);
+}
+
+export function getTechArticleOwnerParams(
+  section: string,
+  variant: SiteVariant = currentSiteVariant
+) {
+  const params = getTechArticleParams()
+    .filter((param) => param.section === section)
+    .map(({ slug }) => ({ slug }));
+  return variant === 'cn' ? params : params.slice(0, 1);
 }

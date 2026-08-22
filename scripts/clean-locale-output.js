@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {
   buildRedirects,
-  getTechPaths,
+  getTechIdentities,
   writeCloudflareWorker,
   writeNginxRedirectMap
 } = require('./lib/redirects');
@@ -21,7 +21,7 @@ const nextDir = path.join(rootDir, '.next');
 const variant = resolveSiteVariant();
 const defaultLocale = getDefaultLocale(variant);
 const allowedLocales = new Set(getPublishedLocaleCodes(variant));
-const techPaths = getTechPaths(rootDir);
+const techIdentities = getTechIdentities(rootDir);
 
 function removePath(targetPath) {
   if (!fs.existsSync(targetPath)) return 0;
@@ -75,9 +75,8 @@ for (const locale of localeCodes) {
 
 // The technical center currently publishes complete content only in Simplified Chinese.
 if (defaultLocale !== 'zh') removed += removeRoute('/tech-center');
-for (const techPath of techPaths) {
-  const canonicalPath = techPath.replace(/^\/zh(?=\/)/, '');
-  removed += removeRoute(variant === 'cn' ? techPath : canonicalPath);
+for (const identity of techIdentities) {
+  removed += removeRoute(variant === 'cn' ? identity.sourcePath : identity.canonicalPath);
 }
 
 const { cnRedirects, ioRedirects } = buildRedirects(rootDir);
@@ -96,5 +95,7 @@ if (variant === 'preview') {
 }
 
 console.log(
-  `[clean-locale-output] variant=${variant}; kept=${[...allowedLocales].join(',')}; removed=${removed}; previewHtmlPatched=${previewHtmlPatched}`
+  `[clean-locale-output] variant=${variant}; kept=${[...allowedLocales].join(
+    ','
+  )}; removed=${removed}; previewHtmlPatched=${previewHtmlPatched}`
 );

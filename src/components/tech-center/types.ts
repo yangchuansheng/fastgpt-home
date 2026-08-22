@@ -32,6 +32,12 @@ export type TechEntry = {
   minutes: number;
 };
 
+export type TechnicalPageIdentity = {
+  locale: string;
+  canonicalPath: string;
+  key: string;
+};
+
 export type CategoryMeta = {
   key: TechCategory;
   label: string;
@@ -40,21 +46,26 @@ export type CategoryMeta = {
 };
 
 function splitTechSlug(slug: string) {
-  const match = slug.match(/^\/([^/]+)(\/.*)$/);
+  const match = slug.match(/^\/([^/]+)(\/[^?#]+)$/);
   if (!match) throw new Error(`Invalid technical page slug: ${slug}`);
   return { locale: match[1], publicPath: match[2] };
 }
 
+export function getTechnicalPageIdentity(entry: Pick<TechEntry, 'slug'>): TechnicalPageIdentity {
+  const { locale, publicPath } = splitTechSlug(entry.slug);
+  return { locale, canonicalPath: publicPath, key: `${locale}|${publicPath}` };
+}
+
 export function getTechEntryPath(entry: Pick<TechEntry, 'slug'>) {
-  return splitTechSlug(entry.slug).publicPath;
+  return getTechnicalPageIdentity(entry).canonicalPath;
 }
 
 export function toTechSearchEntry(
   entry: Pick<TechEntry, 'title' | 'slug' | 'category' | 'summary'>
 ): TechSearchEntry {
-  const { locale, publicPath } = splitTechSlug(entry.slug);
+  const { locale, canonicalPath: publicPath, key } = getTechnicalPageIdentity(entry);
   return {
-    identity: `${locale}|${publicPath}`,
+    identity: key,
     title: entry.title,
     description: entry.summary,
     category: entry.category,

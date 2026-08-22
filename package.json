@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "prebuild": "node scripts/verify-content-hygiene.js --mode source && node scripts/verify-technical-content.js && node scripts/generate-robots.js && node scripts/generate-llms.js",
-    "build": "next build && node scripts/clean-locale-output.js && node scripts/clean-faq-rsc.js && node scripts/verify-technical-center.js && node scripts/fix-html-lang.js && node scripts/verify-content-hygiene.js --mode html --root out",
+    "build": "next build && node scripts/clean-locale-output.js && node scripts/clean-faq-rsc.js && node scripts/verify-technical-center.js && node scripts/fix-html-lang.js && node scripts/verify-technical-export.js && node scripts/verify-content-hygiene.js --mode html --root out",
     "start": "npx serve@latest out",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "prepare": "husky",
@@ -33,6 +33,7 @@
     "verify:technical-content-regression": "node --test scripts/verify-technical-content.test.js",
     "verify:technical-center": "node scripts/verify-technical-center.js",
     "verify:technical-center-regression": "node --test scripts/verify-technical-center.test.js",
+    "verify:technical-export": "node scripts/verify-technical-export.js",
     "import:technical-content": "node scripts/import-technical-content.js",
     "verify:seo-basics": "node --test scripts/verify-seo-basics.test.js",
     "verify:guide-export": "node scripts/verify-guide-export.js",
