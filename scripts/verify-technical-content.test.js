@@ -11,6 +11,7 @@ const {
   buildImportPlan,
   buildSearchProjection,
   foldIdentity,
+  validateImportPlanPolicy,
   validateIdentitySet,
   verifyImportPlanNoDrift,
   verifyCommittedAuthority,
@@ -139,7 +140,7 @@ test('identity folding rejects full-identity collisions and permits repeated fin
     () =>
       validateIdentitySet([
         { locale: 'zh', canonicalPath: '/reference/example' },
-        { locale: 'zh', canonicalPath: '/Ｒｅｆｅｒｅｎｃｅ/example' }
+        { locale: 'zh', canonicalPath: '/ｒｅｆｅｒｅｎｃｅ/example' }
       ]),
     /identity collision/i
   );
@@ -147,7 +148,12 @@ test('identity folding rejects full-identity collisions and permits repeated fin
     () =>
       buildSearchProjection([
         { slug: '/zh/reference/example', title: 'One', summary: 'One', category: 'reference' },
-        { slug: '/ZH/REFERENCE/example', title: 'Two', summary: 'Two', category: 'reference' }
+        {
+          slug: '/zh/ｒｅｆｅｒｅｎｃｅ/example',
+          title: 'Two',
+          summary: 'Two',
+          category: 'reference'
+        }
       ]),
     /identity collision/i
   );
@@ -194,6 +200,55 @@ test('schema drift fails with an actionable error', () => {
   assert.throws(() => buildImportPlan({ repoRoot: root, sourcePath: tempRoot }), /wordCount/i);
 });
 
+test('delivery trust boundaries validate public sources, citation counts, and lowercase routes', () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'technical-content-boundary-'));
+  fs.cpSync(fixture, tempRoot, { recursive: true });
+  const manifestPath = path.join(tempRoot, 'delivery.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+
+  manifest.accepted[0].source = 'http://example.com/source';
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  assert.throws(
+    () => buildImportPlan({ repoRoot: root, sourcePath: tempRoot }),
+    /public HTTPS URL/i
+  );
+
+  manifest.accepted[0].source = 'https://2130706433/';
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  assert.throws(
+    () => buildImportPlan({ repoRoot: root, sourcePath: tempRoot }),
+    /public HTTPS URL/i
+  );
+
+  manifest.accepted[0].source = 'https://[fd00::1]/';
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  assert.throws(
+    () => buildImportPlan({ repoRoot: root, sourcePath: tempRoot }),
+    /public HTTPS URL/i
+  );
+
+  manifest.accepted[0].source = 'https://doc.fastgpt.cn/zh-CN/self-host/config/sandbox/opensandbox';
+  manifest.accepted[0].sourceCount = 0;
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  assert.throws(() => buildImportPlan({ repoRoot: root, sourcePath: tempRoot }), /sourceCount/i);
+
+  manifest.accepted[0].sourceCount = 1;
+  manifest.accepted[0].slug = 'Deploy/fastgpt-opensandbox-env-config';
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  assert.throws(() => buildImportPlan({ repoRoot: root, sourcePath: tempRoot }), /lowercase/i);
+});
+
+test('write policy fixes the accepted operation distribution', () => {
+  assert.throws(
+    () =>
+      validateImportPlanPolicy({
+        pages: Array.from({ length: 454 }, () => ({ operation: 'add' })),
+        ledger: { denials: Array.from({ length: 6 }) }
+      }),
+    /operation drift/i
+  );
+});
+
 test('check mode leaves committed projections byte-for-byte unchanged', () => {
   const outputs = [
     'src/components/tech-center/entries.json',
@@ -231,7 +286,9 @@ test('public search projection contains only discovery fields and matches the re
     'description',
     'category',
     'locale',
-    'publicPath'
+    'publicPath',
+    'sourceType',
+    'minutes'
   ]);
   assert.deepEqual(projection[0], {
     identity: 'zh|/tutorial/private-deployment-topology',
@@ -239,7 +296,9 @@ test('public search projection contains only discovery fields and matches the re
     description: firstEntry.summary,
     category: firstEntry.category,
     locale: 'zh',
-    publicPath: '/tutorial/private-deployment-topology'
+    publicPath: '/tutorial/private-deployment-topology',
+    sourceType: firstEntry.sourceType,
+    minutes: firstEntry.minutes
   });
   assert.equal(new Set(projection.map((entry) => entry.identity)).size, entries.length);
   assert.deepEqual([...new Set(projection.flatMap((entry) => Object.keys(entry)))].sort(), [
@@ -247,7 +306,9 @@ test('public search projection contains only discovery fields and matches the re
     'description',
     'identity',
     'locale',
+    'minutes',
     'publicPath',
+    'sourceType',
     'title'
   ]);
   assert.deepEqual(

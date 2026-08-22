@@ -18,6 +18,8 @@ const CATEGORY_LABELS = TECHNICAL_CONTENT_POLICY.categories;
 const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
 const EXPECTED_ACCEPTED_COUNT = TECHNICAL_CONTENT_POLICY.expectedAcceptedCount;
 const EXPECTED_DENIED_COUNT = TECHNICAL_CONTENT_POLICY.expectedDeniedCount;
+const EXPECTED_ADD_COUNT = TECHNICAL_CONTENT_POLICY.expectedAddCount;
+const EXPECTED_UPDATE_COUNT = TECHNICAL_CONTENT_POLICY.expectedUpdateCount;
 const CORRECTION_FIELDS = new Set([
   'body',
   'canonicalPath',
@@ -25,7 +27,9 @@ const CORRECTION_FIELDS = new Set([
   'frontMatter',
   'frontMatterSlug',
   'lineEndings',
-  'pageType'
+  'pageType',
+  'sourceCount',
+  'wordCount'
 ]);
 const SECRET_PATTERN = /\bsk-[A-Za-z0-9][A-Za-z0-9_-]{15,}\b/g;
 
@@ -100,6 +104,37 @@ function requireJsonNonNegativeInteger(value, label) {
   return value;
 }
 
+function normalizePublicHttpsUrl(value, label) {
+  const text = requireText(value, label);
+  let url;
+  try {
+    url = new URL(text);
+  } catch {
+    throw new Error(`Schema drift in ${label}: expected an absolute HTTPS URL`);
+  }
+  const hostname = url.hostname.replace(/^\[|\]$/g, '').toLowerCase();
+  const privateHostname =
+    hostname === 'localhost' ||
+    hostname.endsWith('.localhost') ||
+    hostname.endsWith('.local') ||
+    hostname.endsWith('.internal') ||
+    hostname.endsWith('.home.arpa');
+  // IP literals and numeric labels (for example https://2130706433/) can encode
+  // private addresses in many notations, so public sources must use domain names.
+  const addressLikeHostname = /^[\da-f.:]+$/i.test(hostname);
+  if (
+    url.protocol !== 'https:' ||
+    !url.hostname ||
+    url.username ||
+    url.password ||
+    privateHostname ||
+    addressLikeHostname
+  ) {
+    throw new Error(`Schema drift in ${label}: expected a public HTTPS URL`);
+  }
+  return url.href;
+}
+
 function parseWorkbookNonNegativeInteger(value, label) {
   const text = requireText(value, label);
   if (!/^\d+$/.test(text)) {
@@ -124,6 +159,9 @@ function normalizeCanonicalPath(value, label = 'canonical path') {
     )
   ) {
     throw new Error(`Invalid ${label}: ${value}`);
+  }
+  if (withLeadingSlash !== withLeadingSlash.toLowerCase()) {
+    throw new Error(`Invalid ${label}: canonical paths must be lowercase`);
   }
   return `/${segments.join('/')}`;
 }
@@ -243,6 +281,30 @@ function normalizeCitations(body) {
   return { body: normalized, replacements };
 }
 
+function extractCitationUrls(body, label) {
+  const urls = [];
+  const pattern =
+    /^\s*>\s*(?:来源|Source|Sources|参考资料|References)\s*[:：]\s*(?:\[[^\]]+\]\(([^)\s]+)\)|([^\s]+))\s*$/gimu;
+  for (const match of body.matchAll(pattern)) {
+    const url = match[1] || match[2];
+    normalizePublicHttpsUrl(url, `${label} citation`);
+    urls.push(url);
+  }
+  return [...new Set(urls)];
+}
+
+function validateBodyIntegrity(body, record, label) {
+  if (!body.trim() || record.wordCount < 1) {
+    throw new Error(`Schema drift in ${label}: wordCount must be positive for a publishable page`);
+  }
+  const citationUrls = extractCitationUrls(body, label);
+  if (citationUrls.length !== record.sourceCount) {
+    throw new Error(
+      `Schema drift in ${label}: sourceCount ${record.sourceCount} does not match ${citationUrls.length} unique citation URL(s)`
+    );
+  }
+}
+
 function normalizeStructuralEscapedLineEndings(body) {
   let replacements = 0;
   let normalized = body.replace(
@@ -292,6 +354,10 @@ function normalizeSourceType(value, label) {
   return normalized;
 }
 
+function isSupportedSourceType(value) {
+  return [...SOURCE_TYPES.values()].includes(value);
+}
+
 function parseJsonDelivery(filePath) {
   const source = readJson(filePath);
   assertExactKeys(source, ['schemaVersion', 'accepted', 'denied'], filePath);
@@ -319,7 +385,7 @@ function parseJsonDelivery(filePath) {
       pageType: requireText(record.pageType, `${label}.pageType`),
       wordCount: requireJsonNonNegativeInteger(record.wordCount, `${label}.wordCount`),
       sourceCount: requireJsonNonNegativeInteger(record.sourceCount, `${label}.sourceCount`),
-      source: requireText(record.source, `${label}.source`),
+      source: normalizePublicHttpsUrl(record.source, `${label}.source`),
       row: index + 2
     };
   });
@@ -496,7 +562,7 @@ function parseWorkbook(filePath) {
       row.F,
       `XLSX 上线清单 row ${index + 2} source count`
     ),
-    source: requireText(row.G, `XLSX 上线清单 row ${index + 2} source`),
+    source: normalizePublicHttpsUrl(row.G, `XLSX 上线清单 row ${index + 2} source`),
     row: index + 2
   }));
   const denied = deniedRows.slice(1).map((row, index) => ({
@@ -638,6 +704,7 @@ function buildImportPlan({ repoRoot = REPOSITORY_ROOT, sourcePath }) {
       throw new Error(`Schema drift in ${record.file}: title differs from delivery row`);
     if (metadata.source !== record.source)
       throw new Error(`Schema drift in ${record.file}: source differs from delivery row`);
+    normalizePublicHttpsUrl(metadata.source, `${record.file} source`);
     const routeIdentity = parseIdentityFromSlug(metadata.slug, `${record.file} front matter slug`);
     const canonicalPath = normalizeCanonicalPath(
       `/${record.file.slice(0, -3)}`,
@@ -648,6 +715,7 @@ function buildImportPlan({ repoRoot = REPOSITORY_ROOT, sourcePath }) {
     const sanitized = sanitizeBody(parsed.body);
     const citations = normalizeCitations(sanitized.body);
     const lineEndings = normalizeStructuralEscapedLineEndings(citations.body);
+    validateBodyIntegrity(lineEndings.body, record, record.file);
     const normalized = normalizeDocument(
       metadata,
       identity.locale,
@@ -863,6 +931,39 @@ function buildImportPlan({ repoRoot = REPOSITORY_ROOT, sourcePath }) {
   };
 }
 
+function validateImportPlanPolicy(plan) {
+  if (plan.pages.length !== EXPECTED_ACCEPTED_COUNT) {
+    throw new Error(
+      `Technical content import accepted count drift: expected ${EXPECTED_ACCEPTED_COUNT}, found ${plan.pages.length}`
+    );
+  }
+  if (plan.ledger.denials.length !== EXPECTED_DENIED_COUNT) {
+    throw new Error(
+      `Technical content import denied count drift: expected ${EXPECTED_DENIED_COUNT}, found ${plan.ledger.denials.length}`
+    );
+  }
+  assertExpectedOperationCounts(plan.pages, 'Technical content import operation');
+}
+
+function countImportOperations(pages) {
+  return pages.reduce(
+    (counts, page) => ({ ...counts, [page.operation]: counts[page.operation] + 1 }),
+    { add: 0, update: 0 }
+  );
+}
+
+function assertExpectedOperationCounts(pages, label) {
+  const operationCounts = countImportOperations(pages);
+  if (
+    operationCounts.add !== EXPECTED_ADD_COUNT ||
+    operationCounts.update !== EXPECTED_UPDATE_COUNT
+  ) {
+    throw new Error(
+      `${label} drift: expected add=${EXPECTED_ADD_COUNT}, update=${EXPECTED_UPDATE_COUNT}; found add=${operationCounts.add}, update=${operationCounts.update}`
+    );
+  }
+}
+
 function mergeProjectionEntries(existingEntries, pages) {
   const entries = existingEntries.map((entry) => ({ ...entry }));
   const indexes = new Map(
@@ -898,7 +999,9 @@ function buildSearchProjection(entries) {
       description: entry.summary,
       category: entry.category,
       locale: identity.locale,
-      publicPath: identity.canonicalPath
+      publicPath: identity.canonicalPath,
+      sourceType: entry.sourceType,
+      minutes: entry.minutes
     };
   });
 }
@@ -1022,17 +1125,33 @@ function validateAuthorityProjection(projection, label) {
   requireText(projection.category, `${label}.category`);
   requireText(projection.categoryLabel, `${label}.categoryLabel`);
   requireText(projection.sourceType, `${label}.sourceType`);
+  if (!isSupportedSourceType(projection.sourceType)) {
+    throw new Error(
+      `Schema drift in ${label}.sourceType: unsupported source type ${projection.sourceType}`
+    );
+  }
   requireText(projection.summary, `${label}.summary`);
   requireJsonNonNegativeInteger(projection.minutes, `${label}.minutes`);
   if (projection.minutes < 1)
     throw new Error(`Schema drift in ${label}.minutes: expected at least 1`);
-  if (projection.source !== undefined) requireText(projection.source, `${label}.source`);
+  if (projection.source !== undefined) {
+    normalizePublicHttpsUrl(projection.source, `${label}.source`);
+  }
 }
 
 function validateSearchProjectionEntry(entry, label) {
   assertExactKeys(
     entry,
-    ['identity', 'title', 'description', 'category', 'locale', 'publicPath'],
+    [
+      'identity',
+      'title',
+      'description',
+      'category',
+      'locale',
+      'publicPath',
+      'sourceType',
+      'minutes'
+    ],
     label
   );
   requireText(entry.identity, `${label}.identity`);
@@ -1044,6 +1163,14 @@ function validateSearchProjectionEntry(entry, label) {
   }
   const locale = requireText(entry.locale, `${label}.locale`);
   const publicPath = normalizeCanonicalPath(entry.publicPath, `${label}.publicPath`);
+  requireText(entry.sourceType, `${label}.sourceType`);
+  if (!isSupportedSourceType(entry.sourceType)) {
+    throw new Error(
+      `Schema drift in ${label}.sourceType: unsupported source type ${entry.sourceType}`
+    );
+  }
+  requireJsonNonNegativeInteger(entry.minutes, `${label}.minutes`);
+  if (entry.minutes < 1) throw new Error(`Schema drift in ${label}.minutes: expected at least 1`);
   if (locale !== fold(locale) || publicPath !== entry.publicPath) {
     throw new Error(`Schema drift in ${label}: public identity fields must be normalized`);
   }
@@ -1164,6 +1291,7 @@ function verifyCommittedAuthority(repoRoot = REPOSITORY_ROOT) {
       ].join('')
     );
   }
+  assertExpectedOperationCounts(manifest.pages, 'Technical content operation count');
   if (!Array.isArray(ledger.corrections) || !Array.isArray(ledger.denials))
     throw new Error(
       'Schema drift in committed decision ledger: correction and denial arrays required'
@@ -1289,6 +1417,7 @@ function verifyCommittedAuthority(repoRoot = REPOSITORY_ROOT) {
       throw new Error(`Technical content body slug drift for ${slug}`);
     if (sha256(parsed.body) !== page.normalizedBody.sha256)
       throw new Error(`Technical content body hash drift for ${slug}`);
+    validateBodyIntegrity(parsed.body, page.provenance, slug);
     if (SECRET_PATTERN.test(parsed.body))
       throw new Error(`Technical content body contains a secret-shaped value for ${slug}`);
     SECRET_PATTERN.lastIndex = 0;
@@ -1354,7 +1483,10 @@ function main(argv = process.argv.slice(2)) {
     printCheck(plan);
     return;
   }
+  validateImportPlanPolicy(plan);
+  verifyCommittedAuthority();
   writeImportPlan(plan);
+  verifyCommittedAuthority();
   console.log(`Technical content import written: ${plan.pages.length} pages`);
 }
 
@@ -1376,5 +1508,6 @@ module.exports = {
   verifyImportPlanNoDrift,
   writeImportPlan,
   validateIdentitySet,
+  validateImportPlanPolicy,
   verifyCommittedAuthority
 };

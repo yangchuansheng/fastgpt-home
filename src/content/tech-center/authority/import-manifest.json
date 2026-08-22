@@ -4888,7 +4888,7 @@
         "rawSlug": "reference/fastgpt-minio-storage-config",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host/config/object-storage",
         "wordCount": 1735,
-        "sourceCount": 2
+        "sourceCount": 1
       },
       "sourceHash": "e81c2661e59e6fc73a60bbd82e81cc044e4aeab7523571c879b96e9355916a25",
       "normalizedBody": {
@@ -8980,7 +8980,7 @@
         "rawSlug": "reference/fastgpt-v4149-env-changes",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host/upgrading/4-14/4149",
         "wordCount": 621,
-        "sourceCount": 0
+        "sourceCount": 1
       },
       "sourceHash": "6ee03620dc69355f6930291d6affcbfe9c88a45723e779e69ea0696a760fada6",
       "normalizedBody": {
@@ -11646,7 +11646,7 @@
         "rawSlug": "reference/modify-fastgpt-session-title",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/openapi/chat",
         "wordCount": 1247,
-        "sourceCount": 2
+        "sourceCount": 1
       },
       "sourceHash": "6f5fb97ad587f1cf3c96c91cf36b7b6159108dca95583ccc3e3cf40fdec04048",
       "normalizedBody": {
@@ -13877,8 +13877,8 @@
         "sourceFile": "tutorial/fastgpt-docker-deployment-methods.md",
         "rawSlug": "tutorial/fastgpt-docker-deployment-methods",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host",
-        "wordCount": 0,
-        "sourceCount": 0
+        "wordCount": 1772,
+        "sourceCount": 2
       },
       "sourceHash": "62c78c286966d765a67effa0efef931febabfc2febf0a3ce10de7cae9d24d880",
       "normalizedBody": {

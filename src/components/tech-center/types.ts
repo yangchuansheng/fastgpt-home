@@ -19,6 +19,8 @@ export type TechSearchEntry = {
   category: TechCategory;
   locale: string;
   publicPath: string;
+  sourceType: TechSource;
+  minutes: number;
 };
 
 export type TechEntry = {
@@ -48,7 +50,12 @@ export type CategoryMeta = {
 function splitTechSlug(slug: string) {
   const match = slug.match(/^\/([^/]+)(\/[^?#]+)$/);
   if (!match) throw new Error(`Invalid technical page slug: ${slug}`);
-  return { locale: match[1], publicPath: match[2] };
+  const locale = match[1];
+  const publicPath = match[2];
+  if (locale !== locale.toLowerCase() || publicPath !== publicPath.toLowerCase()) {
+    throw new Error(`Technical page slug must use lowercase identity fields: ${slug}`);
+  }
+  return { locale, publicPath };
 }
 
 export function getTechnicalPageIdentity(entry: Pick<TechEntry, 'slug'>): TechnicalPageIdentity {
@@ -61,7 +68,7 @@ export function getTechEntryPath(entry: Pick<TechEntry, 'slug'>) {
 }
 
 export function toTechSearchEntry(
-  entry: Pick<TechEntry, 'title' | 'slug' | 'category' | 'summary'>
+  entry: Pick<TechEntry, 'title' | 'slug' | 'category' | 'summary' | 'sourceType' | 'minutes'>
 ): TechSearchEntry {
   const { locale, canonicalPath: publicPath, key } = getTechnicalPageIdentity(entry);
   return {
@@ -70,6 +77,8 @@ export function toTechSearchEntry(
     description: entry.summary,
     category: entry.category,
     locale,
-    publicPath
+    publicPath,
+    sourceType: entry.sourceType,
+    minutes: entry.minutes
   };
 }

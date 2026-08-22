@@ -136,6 +136,16 @@ test('release coordinator accepts the preview Site Variant', () => {
   });
 });
 
+test('preview release gates skip production-only FAQ artifacts and sitemap cardinality', () => {
+  const source = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
+  assert.doesNotMatch(source, /if \(variant === 'preview'\) return;/);
+  assert.match(
+    source,
+    /if \(variant !== 'preview'\) \{\s*const sitemapPath = path\.join\(OUT_DIR, 'sitemap\.xml'\);/
+  );
+  assert.match(source, /if \(variant !== 'preview'\) \{[\s\S]*FAQ metadata HTML verification/);
+});
+
 test('release source checks run content hygiene first and block dirty published Markdown', () => {
   assert.equal(
     packageJson.scripts['verify:content-hygiene'],

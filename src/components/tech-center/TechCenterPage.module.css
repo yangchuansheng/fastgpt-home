@@ -664,6 +664,7 @@
   border-color: rgba(50, 109, 255, 0.35);
 }
 
+.sourceSelect,
 .sortSelect {
   height: 42px;
   color: #4e555f;
@@ -672,6 +673,15 @@
   border-radius: 7px;
   cursor: pointer;
   font-size: 13px;
+}
+
+.sourceSelect {
+  width: 100%;
+  padding: 0 34px 0 11px;
+}
+
+.mobileFilterRow {
+  display: none;
 }
 
 .results {
@@ -752,6 +762,12 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 7px;
+}
+
+.cardSource {
+  color: var(--tech-muted);
+  font-size: 11px;
+  font-weight: 650;
 }
 
 .cardTitle {
@@ -1016,6 +1032,16 @@
     margin-left: 4px;
   }
 
+  .mobileFilterRow {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .mobileFilterRow .sourceSelect {
+    flex: 1;
+  }
+
   .cardGrid {
     grid-template-columns: 1fr 1fr;
   }
@@ -1154,7 +1180,6 @@
   .pagination {
     flex-wrap: wrap;
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {

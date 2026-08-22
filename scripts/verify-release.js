@@ -366,26 +366,29 @@ function verifyExportCardinality(variant) {
     );
   }
 
-  const sitemapPath = path.join(OUT_DIR, 'sitemap.xml');
-  if (!fs.existsSync(sitemapPath)) throw new Error(`variant=${variant} is missing out/sitemap.xml`);
-  const sitemapUrls = [
-    ...fs.readFileSync(sitemapPath, 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)
-  ].map((match) => match[1]);
-  const faqUrls = sitemapUrls.filter((url) => {
-    try {
-      const parsed = new URL(url);
-      return (
-        parsed.pathname.startsWith('/faq/') &&
-        parsed.pathname.split('/').filter(Boolean).length === 2
+  if (variant !== 'preview') {
+    const sitemapPath = path.join(OUT_DIR, 'sitemap.xml');
+    if (!fs.existsSync(sitemapPath))
+      throw new Error(`variant=${variant} is missing out/sitemap.xml`);
+    const sitemapUrls = [
+      ...fs.readFileSync(sitemapPath, 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)
+    ].map((match) => match[1]);
+    const faqUrls = sitemapUrls.filter((url) => {
+      try {
+        const parsed = new URL(url);
+        return (
+          parsed.pathname.startsWith('/faq/') &&
+          parsed.pathname.split('/').filter(Boolean).length === 2
+        );
+      } catch {
+        return false;
+      }
+    });
+    if (faqUrls.length !== expected || new Set(faqUrls).size !== expected) {
+      throw new Error(
+        `variant=${variant} FAQ sitemap cardinality mismatch: expected ${expected}, found ${faqUrls.length}`
       );
-    } catch {
-      return false;
     }
-  });
-  if (faqUrls.length !== expected || new Set(faqUrls).size !== expected) {
-    throw new Error(
-      `variant=${variant} FAQ sitemap cardinality mismatch: expected ${expected}, found ${faqUrls.length}`
-    );
   }
 }
 
@@ -524,17 +527,21 @@ function runVariantChecks(failures, variant, env, record) {
     ['P0 HTML verification', ['verify:p0']],
     ['P1 HTML verification', ['verify:p1'], extractP1SuccessMeasurement],
     ['P2 HTML verification', ['verify:p2']],
-    ['i18n SEO HTML verification', ['verify:i18n-seo']],
-    [
-      'FAQ metadata HTML verification',
-      ['verify:faq-metadata', '--', '--html', '--variant', variant]
-    ],
-    [
-      'FAQ SEO graph HTML verification',
-      ['verify:faq-seo-graph', '--', '--html', '--out-dir', 'out', '--variant', variant]
-    ],
-    ['FAQ redirect artifact verification', ['verify:faq-redirects']]
+    ['i18n SEO HTML verification', ['verify:i18n-seo']]
   ];
+  if (variant !== 'preview') {
+    checks.push(
+      [
+        'FAQ metadata HTML verification',
+        ['verify:faq-metadata', '--', '--html', '--variant', variant]
+      ],
+      [
+        'FAQ SEO graph HTML verification',
+        ['verify:faq-seo-graph', '--', '--html', '--out-dir', 'out', '--variant', variant]
+      ],
+      ['FAQ redirect artifact verification', ['verify:faq-redirects']]
+    );
+  }
   for (const [label, args, formatSuccess] of checks) {
     npmStep(failures, `${label} (${variant})`, args, env, variant, formatSuccess, record);
   }

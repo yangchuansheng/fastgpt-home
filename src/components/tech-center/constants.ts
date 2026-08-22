@@ -1,4 +1,4 @@
-import type { TechCategory } from './types';
+import type { TechCategory, TechSource } from './types';
 
 export const CATEGORY_DEFINITIONS: ReadonlyArray<{
   key: TechCategory;
@@ -12,6 +12,15 @@ export const CATEGORY_DEFINITIONS: ReadonlyArray<{
   { key: 'integration', icon: '↗' },
   { key: 'api', icon: '{ }' },
   { key: 'reference', icon: '⌁' }
+];
+
+export const SOURCE_DEFINITIONS: ReadonlyArray<{
+  value: TechSource;
+  label: string;
+}> = [
+  { value: '官方文档', label: '官方文档' },
+  { value: 'GitHub issue', label: 'GitHub Issue' },
+  { value: '深度场景内容', label: '深度场景内容' }
 ];
 
 export const COMMON_TOPICS = [

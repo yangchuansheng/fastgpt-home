@@ -176,6 +176,9 @@ function getTechIdentities(rootDir) {
     const match = entry.slug.match(/^\/([^/]+)(\/[^?#]+)$/);
     if (!match) throw new Error(`Invalid technical page identity: ${entry.slug}`);
     const [, locale, canonicalPath] = match;
+    if (locale !== locale.toLowerCase() || canonicalPath !== canonicalPath.toLowerCase()) {
+      throw new Error(`Technical page identity must use lowercase fields: ${entry.slug}`);
+    }
     return {
       key: `${locale}|${canonicalPath}`,
       locale,

@@ -8,17 +8,19 @@ import { techPublishedLocaleCodes } from '@/lib/publishedLocales';
 import HomeThemeFix from '@/components/home/HomeThemeFix';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
-import { CATEGORY_DEFINITIONS, COMMON_TOPICS, PAGE_SIZE } from './constants';
+import { CATEGORY_DEFINITIONS, COMMON_TOPICS, PAGE_SIZE, SOURCE_DEFINITIONS } from './constants';
 import {
   getTechEntryPath,
   type CategoryMeta,
   type TechCategoryKey,
   type TechEntry,
-  type TechSearchEntry
+  type TechSearchEntry,
+  type TechSource
 } from './types';
 import styles from './TechCenterPage.module.css';
 
-type SortMode = 'default' | 'title';
+type SourceFilter = 'all' | TechSource;
+type SortMode = 'default' | 'title' | 'minutes';
 
 const FLOW_NODES = [
   { number: '01', title: 'API 调用', kind: 'Request' },
@@ -33,11 +35,18 @@ const SEARCH_ENTRY_KEYS = [
   'description',
   'category',
   'locale',
-  'publicPath'
+  'publicPath',
+  'sourceType',
+  'minutes'
 ];
-const SEARCH_CATEGORIES: ReadonlySet<string> = new Set(
-  CATEGORY_DEFINITIONS.map(({ key }) => key)
+const SEARCH_CATEGORIES: ReadonlySet<string> = new Set(CATEGORY_DEFINITIONS.map(({ key }) => key));
+const SEARCH_SOURCE_TYPES: ReadonlySet<string> = new Set(
+  SOURCE_DEFINITIONS.map(({ value }) => value)
 );
+const SOURCE_OPTIONS: { value: SourceFilter; label: string }[] = [
+  { value: 'all', label: '全部来源' },
+  ...SOURCE_DEFINITIONS
+];
 
 function isTechSearchEntry(value: unknown): value is TechSearchEntry {
   if (!value || typeof value !== 'object') return false;
@@ -56,13 +65,20 @@ function isTechSearchEntry(value: unknown): value is TechSearchEntry {
     typeof entry.category === 'string' &&
     typeof entry.locale === 'string' &&
     typeof entry.publicPath === 'string' &&
+    typeof entry.sourceType === 'string' &&
+    typeof entry.minutes === 'number' &&
+    Number.isInteger(entry.minutes) &&
+    entry.minutes >= 1 &&
     entry.title.trim().length > 0 &&
     entry.description.trim().length > 0 &&
     SEARCH_CATEGORIES.has(entry.category) &&
+    SEARCH_SOURCE_TYPES.has(entry.sourceType) &&
     entry.locale.trim().length > 0 &&
     entry.publicPath.startsWith('/') &&
     !entry.publicPath.startsWith('//') &&
     !/[?#\\]/.test(entry.publicPath) &&
+    entry.locale === entry.locale.toLowerCase() &&
+    entry.publicPath === entry.publicPath.toLowerCase() &&
     entry.identity === `${entry.locale}|${entry.publicPath}`
   );
 }
@@ -80,6 +96,10 @@ function isTechSearchProjection(
 function getCategoryLabel(category: TechCategoryKey, categoryMeta: CategoryMeta[]) {
   if (category === 'all') return '按任务找到答案';
   return categoryMeta.find((item) => item.key === category)?.label || category;
+}
+
+function getSourceLabel(sourceType: TechSource) {
+  return SOURCE_DEFINITIONS.find((item) => item.value === sourceType)?.label || sourceType;
 }
 
 function visiblePageNumbers(current: number, total: number) {
@@ -118,6 +138,7 @@ export default function TechCenterPage({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<TechCategoryKey>('all');
+  const [source, setSource] = useState<SourceFilter>('all');
   const [sort, setSort] = useState<SortMode>('default');
   const [page, setPage] = useState(1);
   const [urlStateReady, setUrlStateReady] = useState(false);
@@ -154,12 +175,15 @@ export default function TechCenterPage({
     const normalizedQuery = query.trim().toLocaleLowerCase('zh-CN');
     const result = entries.filter((entry) => {
       const categoryMatch = category === 'all' || entry.category === category;
+      const sourceMatch = source === 'all' || entry.sourceType === source;
       const categoryLabel = getCategoryLabel(entry.category, categoryMeta);
-      const haystack = [entry.title, entry.description, categoryLabel]
+      const haystack = [entry.title, entry.description, categoryLabel, entry.sourceType]
         .join(' ')
         .toLocaleLowerCase('zh-CN');
 
-      return categoryMatch && (!normalizedQuery || haystack.includes(normalizedQuery));
+      return (
+        categoryMatch && sourceMatch && (!normalizedQuery || haystack.includes(normalizedQuery))
+      );
     });
 
     if (sort === 'title') {
@@ -167,8 +191,16 @@ export default function TechCenterPage({
         .slice()
         .sort((first, second) => first.title.localeCompare(second.title, 'zh-CN'));
     }
+    if (sort === 'minutes') {
+      return result
+        .slice()
+        .sort(
+          (first, second) =>
+            first.minutes - second.minutes || first.title.localeCompare(second.title, 'zh-CN')
+        );
+    }
     return result;
-  }, [category, categoryMeta, entries, query, sort]);
+  }, [category, categoryMeta, entries, query, sort, source]);
 
   const totalPages = Math.max(1, Math.ceil(filteredEntries.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -182,6 +214,7 @@ export default function TechCenterPage({
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlCategory = params.get('category') as TechCategoryKey | null;
+    const urlSource = params.get('sourceType') as SourceFilter | null;
     const urlSort = params.get('sort') as SortMode | null;
 
     queueMicrotask(() => {
@@ -191,7 +224,10 @@ export default function TechCenterPage({
       ) {
         setCategory(urlCategory);
       }
-      if (urlSort === 'default' || urlSort === 'title') {
+      if (urlSource && SOURCE_OPTIONS.some((item) => item.value === urlSource)) {
+        setSource(urlSource);
+      }
+      if (urlSort === 'default' || urlSort === 'title' || urlSort === 'minutes') {
         setSort(urlSort);
       }
       setQuery(params.get('q') || '');
@@ -207,6 +243,7 @@ export default function TechCenterPage({
     const values: Record<string, string> = {
       category,
       q: query.trim(),
+      sourceType: source,
       sort,
       page: String(currentPage)
     };
@@ -218,9 +255,8 @@ export default function TechCenterPage({
         url.searchParams.set(key, value);
       }
     });
-    url.searchParams.delete('source');
     window.history.replaceState(null, '', url);
-  }, [category, currentPage, query, sort, urlStateReady]);
+  }, [category, currentPage, query, sort, source, urlStateReady]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -255,6 +291,7 @@ export default function TechCenterPage({
   const clearFilters = () => {
     setCategory('all');
     setQuery('');
+    setSource('all');
     setSort('default');
     setPage(1);
   };
@@ -423,6 +460,26 @@ export default function TechCenterPage({
                   </button>
                 ))}
               </div>
+              <div className={styles.mobileFilterRow}>
+                <label className={styles.srOnly} htmlFor="mobile-source-filter">
+                  来源类型
+                </label>
+                <select
+                  className={styles.sourceSelect}
+                  id="mobile-source-filter"
+                  value={source}
+                  onChange={(event) => {
+                    setSource(event.target.value as SourceFilter);
+                    setPage(1);
+                  }}
+                >
+                  {SOURCE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className={styles.filterGroup}>
@@ -444,6 +501,26 @@ export default function TechCenterPage({
               </div>
             </div>
 
+            <div className={styles.filterGroup}>
+              <label className={styles.filterHeading} htmlFor="source-filter">
+                内容来源
+              </label>
+              <select
+                className={styles.sourceSelect}
+                id="source-filter"
+                value={source}
+                onChange={(event) => {
+                  setSource(event.target.value as SourceFilter);
+                  setPage(1);
+                }}
+              >
+                {SOURCE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </aside>
 
           <div className={styles.results}>
@@ -470,6 +547,7 @@ export default function TechCenterPage({
               >
                 <option value="default">默认排序</option>
                 <option value="title">按标题</option>
+                <option value="minutes">阅读时间</option>
               </select>
             </div>
 
@@ -482,6 +560,7 @@ export default function TechCenterPage({
                         <span className={styles.badge}>
                           {getCategoryLabel(entry.category, categoryMeta)}
                         </span>
+                        <span className={styles.cardSource}>{getSourceLabel(entry.sourceType)}</span>
                       </div>
                       <h3 className={styles.cardTitle}>
                         <a href={getDefaultLocalePath(entry.locale, entry.publicPath)}>
@@ -490,7 +569,7 @@ export default function TechCenterPage({
                       </h3>
                       <p className={styles.cardSummary}>{entry.description}</p>
                       <div className={styles.cardFooter}>
-                        <span>阅读技术内容</span>
+                        <span>{entry.minutes} 分钟阅读</span>
                         <span className={styles.cardArrow} aria-hidden="true">
                           <ArrowRight size={16} strokeWidth={1.8} />
                         </span>

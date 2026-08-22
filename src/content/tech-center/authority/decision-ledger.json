@@ -1634,6 +1634,16 @@
     {
       "identity": {
         "locale": "zh",
+        "canonicalPath": "/reference/fastgpt-minio-storage-config"
+      },
+      "field": "sourceCount",
+      "from": "2",
+      "to": "1",
+      "reason": "Align the provenance count with the unique reader-facing citation URLs in the normalized body."
+    },
+    {
+      "identity": {
+        "locale": "zh",
         "canonicalPath": "/reference/fastgpt-model-channel-setup"
       },
       "field": "citations",
@@ -2974,6 +2984,16 @@
     {
       "identity": {
         "locale": "zh",
+        "canonicalPath": "/reference/fastgpt-v4149-env-changes"
+      },
+      "field": "sourceCount",
+      "from": "0",
+      "to": "1",
+      "reason": "Align the provenance count with the unique reader-facing citation URLs in the normalized body."
+    },
+    {
+      "identity": {
+        "locale": "zh",
         "canonicalPath": "/reference/fastgpt-v4149-fix-quickcheck"
       },
       "field": "citations",
@@ -3844,6 +3864,16 @@
     {
       "identity": {
         "locale": "zh",
+        "canonicalPath": "/reference/modify-fastgpt-session-title"
+      },
+      "field": "sourceCount",
+      "from": "2",
+      "to": "1",
+      "reason": "Align the provenance count with the unique reader-facing citation URLs in the normalized body."
+    },
+    {
+      "identity": {
+        "locale": "zh",
         "canonicalPath": "/reference/oneapi-connect-ollama-fastgpt"
       },
       "field": "citations",
@@ -4580,6 +4610,26 @@
       "from": "escaped structural Markdown line ending(s)",
       "to": "literal Markdown line ending(s)",
       "reason": "Decode 8 structural Markdown line ending escape(s) before publication."
+    },
+    {
+      "identity": {
+        "locale": "zh",
+        "canonicalPath": "/tutorial/fastgpt-docker-deployment-methods"
+      },
+      "field": "sourceCount",
+      "from": "0",
+      "to": "2",
+      "reason": "Align the provenance count with the unique reader-facing citation URLs in the normalized body."
+    },
+    {
+      "identity": {
+        "locale": "zh",
+        "canonicalPath": "/tutorial/fastgpt-docker-deployment-methods"
+      },
+      "field": "wordCount",
+      "from": "0",
+      "to": "1772",
+      "reason": "Replace the empty delivery count with the measured normalized body length before publication."
     },
     {
       "identity": {
