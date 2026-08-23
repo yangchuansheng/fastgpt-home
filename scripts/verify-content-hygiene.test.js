@@ -248,6 +248,14 @@ test('source CLI enforces citation grammar for labelled Markdown and structured 
   );
 });
 
+test('source CLI enforces English citation labels with fullwidth colons', () => {
+  withFixture({ 'src/content/guides/en/dirty.md': '# Guide\n\nSources：Internal KB\n' }, (root) => {
+    const result = runFixture(root);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /D-07 citation-policy/);
+  });
+});
+
 test('source CLI normalizes the full citation vocabulary and rich structured values', () => {
   const cleanEnglishCitation =
     JSON.stringify({
@@ -1428,6 +1436,25 @@ test('source CLI follows CommonMark emphasis, escaping, and code span semantics'
   assert.match(implementation, /function violatesRuleOfThree\(/);
 });
 
+test('source CLI ignores citation-shaped fields inside fenced code blocks', () => {
+  withFixture(
+    {
+      'src/content/tech-center/tutorial/fenced-code.md': [
+        '# Guide',
+        '',
+        '```json',
+        '{"source": "api", "说明": "来源：中国信息通信研究院"}',
+        '```',
+        ''
+      ].join('\n')
+    },
+    (root) => {
+      const result = runFixture(root);
+      assert.equal(result.status, 0, result.stderr);
+    }
+  );
+});
+
 test('source CLI keeps CommonMark type-1 HTML blocks open through blank lines', () => {
   const blocks = ['pre', 'script', 'style', 'textarea']
     .map((tag) => `<${tag}>\nDemand\n\nbasis: internal\n</${tag}>`)
@@ -2353,6 +2380,53 @@ test('HTML CLI preserves payload source lines through normalization', () => {
       assert.equal(result.status, 1);
       assert.match(result.stderr, /visible .*line=2/);
       assert.match(result.stderr, /payload .*line=5/);
+    }
+  );
+});
+
+test('HTML CLI ignores citation-shaped text inside pre elements', () => {
+  withFixture(
+    {
+      'index.html':
+        '<html><body><pre><code>{"说明":"来源：中国信息通信研究院"}</code></pre></body></html>'
+    },
+    (root) => {
+      const result = spawnSync(
+        process.execPath,
+        [SCRIPT, '--mode', 'html', '--root', root, '--variant', 'io'],
+        { cwd: ROOT, encoding: 'utf8' }
+      );
+      assert.equal(result.status, 0, result.stderr);
+    }
+  );
+});
+
+test('HTML CLI preserves inline code citation boundary semantics', () => {
+  withFixture(
+    {
+      'index.html': '<html><body><p><code>source</code>：日志来源数组</p></body></html>'
+    },
+    (root) => {
+      const result = spawnSync(
+        process.execPath,
+        [SCRIPT, '--mode', 'html', '--root', root, '--variant', 'io'],
+        { cwd: ROOT, encoding: 'utf8' }
+      );
+      assert.equal(result.status, 0, result.stderr);
+    }
+  );
+  withFixture(
+    {
+      'index.html': '<html><body><p><code>Sources：</code> Internal KB</p></body></html>'
+    },
+    (root) => {
+      const result = spawnSync(
+        process.execPath,
+        [SCRIPT, '--mode', 'html', '--root', root, '--variant', 'io'],
+        { cwd: ROOT, encoding: 'utf8' }
+      );
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /D-07 citation-policy/);
     }
   );
 });

@@ -1,7 +1,7 @@
 import type { JsonLdCopy } from '@/components/JsonLd';
 import { JsonLdScript } from '@/components/JsonLd';
-import { getTechEntryPath } from '@/components/tech-center/data';
 import { getOwnedLocaleUrl } from '@/lib/siteRouting';
+import { getTechnicalCanonicalUrl } from '@/lib/technicalRouting';
 import type { TechArticle } from '@/lib/tech-center-content';
 
 function breadcrumbItems(items: { name: string; url: string }[]) {
@@ -65,7 +65,7 @@ export function TechArticleJsonLd({
   schema: JsonLdCopy;
   article: TechArticle;
 }) {
-  const articleUrl = getOwnedLocaleUrl('zh', getTechEntryPath(article));
+  const articleUrl = getTechnicalCanonicalUrl(article);
   const hubUrl = getOwnedLocaleUrl('zh', '/tech-center');
   const siteUrl = new URL(articleUrl).origin;
   const homeUrl = getOwnedLocaleUrl('zh');

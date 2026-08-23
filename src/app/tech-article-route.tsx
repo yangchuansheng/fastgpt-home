@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import TechArticleRoute, {
   generateMetadata as generateTechArticleMetadata
 } from '@/app/[lang]/[section]/[slug]/page';
-import { getTechArticleParams } from '@/lib/tech-center-content';
-import { currentSiteVariant } from '@/lib/siteRouting';
+import { getTechArticleOwnerParams } from '@/lib/tech-center-content';
 
 type RootTechArticleParams = { slug: string };
 
@@ -16,18 +15,11 @@ export function createRootTechArticleRoute(section: string) {
     Page({ params }: { params: Promise<RootTechArticleParams> }) {
       return TechArticleRoute({ params: getLocalizedParams(params, section) });
     },
-    generateMetadata({
-      params
-    }: {
-      params: Promise<RootTechArticleParams>;
-    }): Promise<Metadata> {
+    generateMetadata({ params }: { params: Promise<RootTechArticleParams> }): Promise<Metadata> {
       return generateTechArticleMetadata({ params: getLocalizedParams(params, section) });
     },
     generateStaticParams() {
-      const params = getTechArticleParams()
-        .filter((params) => params.section === section)
-        .map(({ slug }) => ({ slug }));
-      return currentSiteVariant === 'cn' ? params : params.slice(0, 1);
+      return getTechArticleOwnerParams(section);
     }
   };
 }

@@ -1,34 +1,30 @@
 ---
-title: FastGPT从旧版本升级至V4.2版本操作指南
+title: FastGPT从旧版本升级到V4.2的配置修改指南
 slug: /zh/deploy/fastgpt-v42-upgrade-guide
 page_type: 部署场景
 source: https://doc.fastgpt.cn/zh-CN/self-host/upgrading/outdated/42
-source_type: 官方文档
+source_type: 官方文档小节
 ---
 
-# FastGPT从旧版本升级至V4.2版本操作指南
+# FastGPT从旧版本升级到V4.2的配置修改指南
 
-## 升级影响说明
-本次V4.2版本升级对99.9%的用户无额外影响，仅修改了配置文件中QAModel的配置格式，无需执行额外的迁移脚本或复杂操作。
+## 升级概况
+FastGPT V4.2版本的升级操作属于轻量化配置调整，对99.9%的用户不会产生额外影响。本次升级仅涉及配置文件中QAModel字段的格式修改，无需调整其他部署相关的代码、环境变量或服务配置，整体操作难度极低。
 
-## 配置格式调整步骤
-原配置中QAModel为数组格式，升级后需调整为对象格式，需包含四个固定字段：
-- `model`：指定使用的模型标识，例如`gpt-3.5-turbo-16k`
-- `name`：模型的展示名称，例如`GPT35-16k`
-- `maxToken`：模型支持的最大令牌数，例如`16000`
-- `price`：模型计费参数，示例值为`0`
-
-调整后的最小配置示例如下：
-```yaml
-QAModel: {
-  model: "gpt-3.5-turbo-16k",
-  name: "GPT35-16k",
-  maxToken: 16000,
-  price: 0
+## 配置修改步骤
+1. 打开FastGPT的配置文件，定位到QAModel字段。
+2. 将原数组格式的QAModel配置内容，替换为标准的对象格式配置。标准示例如下：
+```json
+"QAModel": {
+  "model": "gpt-3.5-turbo-16k",
+  "name": "GPT35-16k",
+  "maxToken": 16000,
+  "price": 0
 }
 ```
+原配置为数组形式，需严格按照上述示例完成格式转换，确保字段名称和参数值与示例保持一致。
 
-## 配置改动目的
-本次格式调整的核心目的是统一任务调用的模型选择逻辑，不再保留多模型并行选择的配置项，确保系统使用预设的最优模型完成问答任务。
+## 调整逻辑说明
+本次格式调整的核心目的是统一模型调用的配置逻辑，无需用户额外选择模型，仅保留一套适配性最优的配置用于执行相关任务。这一调整可以简化后续的模型管理流程，避免因多模型配置带来的潜在问题，同时确保任务执行的稳定性和一致性。
 
 > 来源：[FastGPT 官方文档](https://doc.fastgpt.cn/zh-CN/self-host/upgrading/outdated/42)

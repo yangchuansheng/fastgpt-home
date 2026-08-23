@@ -49,6 +49,12 @@ function getPublishedLocaleCodes(variant) {
   return localeCodes.filter((code) => siteRoutingManifest.locales[code].owner === variant);
 }
 
+function getLocaleOwner(locale) {
+  const config = siteRoutingManifest.locales[locale];
+  if (!config) throw new Error(`Unknown locale: ${locale}`);
+  return config.owner;
+}
+
 function getProductionBaseUrls(env = process.env) {
   return {
     cn: stripTrailingSlash(env.NEXT_PUBLIC_CN_HOME_URL || 'https://fastgpt.cn'),
@@ -74,6 +80,7 @@ if (require.main === module) {
 module.exports = {
   getCanonicalBaseUrl,
   getDefaultLocale,
+  getLocaleOwner,
   getPublishedLocaleCodes,
   getProductionBaseUrls,
   localeCodes,

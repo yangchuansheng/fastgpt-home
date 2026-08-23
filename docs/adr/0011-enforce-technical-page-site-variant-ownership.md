@@ -1,0 +1,3 @@
+# Enforce technical-page site variant ownership
+
+The China Site publishes indexable Simplified Chinese technical pages at owner-relative root paths and includes them in its sitemap. The International Site sends explicit `/zh` technical requests to the corresponding China Site root path with an exact, query-preserving 301 redirect; unprefixed paths follow International Site publication rules, and the China Site owns Chinese technical canonicals and sitemap entries. Preview Hosts render locale-prefixed review representations with `noindex,nofollow` and production-owner canonical metadata when an owner exists; their sitemaps omit those pages and their review routes remain renderable.
