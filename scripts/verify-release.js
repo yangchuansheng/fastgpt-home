@@ -27,6 +27,14 @@ const EXPECTED_ALIAS_COUNTS = URL_ALIAS_CONTRACT.sourceHosts;
 const EXPECTED_CASE_ONLY_COUNTS = URL_ALIAS_CONTRACT.slices['case-only'].sourceHosts;
 const EXPECTED_REBUILT_SLUG_COUNTS = URL_ALIAS_CONTRACT.slices['rebuilt-slug'].sourceHosts;
 const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
+const EXPECTED_TECHNICAL_AUTHORITY = {
+  historicalAccepted: 454,
+  historicalDenied: 6,
+  historicalAdd: 450,
+  historicalUpdate: 4,
+  historicalPageCount: 1122,
+  candidateCount: 888
+};
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
 const GUIDE_AUTHORIZATION_SLUGS = [
   'finance-research-retrieval',
@@ -120,6 +128,7 @@ function createReleaseRecord(options) {
       expectedImportedPages: TECHNICAL_CONTENT_POLICY.expectedAcceptedCount,
       expectedDeniedPages: TECHNICAL_CONTENT_POLICY.expectedDeniedCount,
       expectedTechnicalPages: EXPECTED_TECHNICAL_PAGE_COUNT,
+      technicalAuthority: { ...EXPECTED_TECHNICAL_AUTHORITY },
       faqMetadata: {
         candidates: EXPECTED_FAQ_METADATA_CANDIDATES,
         identities: EXPECTED_FAQ_METADATA_IDENTITIES,
@@ -152,6 +161,13 @@ function createReleaseRecord(options) {
         artifacts: {}
       },
       publishedTechnicalPages: { status: 'not-verified', claim: false },
+      technicalAuthority: {
+        expected: { ...EXPECTED_TECHNICAL_AUTHORITY },
+        source: false,
+        regression: false,
+        observed: undefined,
+        releaseReady: false
+      },
       faqMetadata: {
         expected: {
           candidates: EXPECTED_FAQ_METADATA_CANDIDATES,
@@ -195,6 +211,29 @@ function createReleaseRecord(options) {
 function collectCountEvidence(record, output) {
   const imported = output.match(/Technical content authority verified: (\d+) imported pages/);
   if (imported) record.counts.importedPages = Number(imported[1]);
+}
+
+function collectTechnicalAuthorityEvidence(record, label, status, output) {
+  if (!record || !label.toLowerCase().includes('technical authority')) return;
+  const evidence = record.evidence.technicalAuthority;
+  const lowerLabel = label.toLowerCase();
+  if (lowerLabel.includes('source verification')) evidence.source = status === 'passed';
+  if (lowerLabel.includes('regression')) evidence.regression = status === 'passed';
+  const marker = output.match(/TECHNICAL_AUTHORITY_RESULT=(\{[^\n]+\})/);
+  if (!marker) return;
+  try {
+    evidence.observed = JSON.parse(marker[1]);
+    record.counts.technicalAuthorityObserved = evidence.observed;
+  } catch (error) {
+    evidence.observed = { status: 'invalid', error: error.message };
+  }
+}
+
+function formatTechnicalAuthoritySuccess(output) {
+  const marker = output.match(/TECHNICAL_AUTHORITY_RESULT=(\{[^\n]+\})/);
+  if (!marker) return undefined;
+  const result = JSON.parse(marker[1]);
+  return `historicalAccepted=${result.historicalAccepted} historicalDenied=${result.historicalDenied} candidates=${result.candidateCount} accepted=${result.accepted} denied=${result.denied} add=${result.add} update=${result.update} resultingPages=${result.resultingPageCount}`;
 }
 
 function writeReleaseRecord(record) {
@@ -251,6 +290,7 @@ function finalizeReleaseRecord(record, failures, options) {
     });
   const guidePairs = record.evidence.guidePairs;
   const guideAuthorization = record.evidence.guideAuthorization;
+  const technicalAuthority = record.evidence.technicalAuthority;
   const completeAuthorization = guideAuthorization.result?.complete;
   const missingAuthorization = guideAuthorization.result?.missing;
   guideAuthorization.releaseReady =
@@ -276,12 +316,21 @@ function finalizeReleaseRecord(record, failures, options) {
         GUIDE_RELEASE_PAIRS.every((pair) => evidence.pairs[pair.slug]?.releaseEligible)
       );
     });
+  technicalAuthority.releaseReady =
+    technicalAuthority.source &&
+    technicalAuthority.regression &&
+    Object.entries(technicalAuthority.expected).every(
+      ([key, expected]) => technicalAuthority.observed?.[key] === expected
+    ) &&
+    technicalAuthority.observed?.resultingPageCount ===
+      technicalAuthority.observed?.historicalPageCount + technicalAuthority.observed?.add;
   const releaseGate = !options.sourceOnly && !options.variant && failures.length === 0;
   record.evidence.releaseEligible =
     releaseGate &&
     caseOnly.releaseReady &&
     aliasContract.releaseReady &&
     faqMetadata.releaseReady &&
+    technicalAuthority.releaseReady &&
     guideAuthorization.releaseReady &&
     guidePairs.releaseReady;
   record.status = record.evidence.releaseEligible
@@ -306,6 +355,7 @@ function recordStep(record, label, command, variant, status, output, evidence) {
   step.output = output.trim().slice(status === 'failed' ? -4000 : -1200) || '<no command output>';
   record.commands.push(step);
   collectCountEvidence(record, output);
+  collectTechnicalAuthorityEvidence(record, label, status, output);
   collectCaseOnlyEvidence(record, label, variant, status, output);
   collectAliasContractEvidence(record, label, variant, status, output);
   collectFaqMetadataEvidence(record, label, variant, status, output);
@@ -753,13 +803,19 @@ function runSourceChecks(failures, env, record) {
     ['URL Alias Authority source verification', 'scripts/verify-url-alias-authority.js', []],
     ['case-only authority and projection source verification', 'scripts/verify-case-only-aliases.js', []],
     ['URL Alias rebuilt-slug authority and projection source verification', 'scripts/verify-rebuilt-slug-aliases.js', []],
-    ['FAQ redirect source verification', 'scripts/verify-faq-redirects.js', ['--source']]
+    ['FAQ redirect source verification', 'scripts/verify-faq-redirects.js', ['--source']],
+    ['technical authority source verification', 'scripts/verify-technical-authority.js', []]
   ];
-  for (const [label, script, args] of checks)
-    nodeStep(failures, label, script, args, env, undefined, record);
+  for (const [label, script, args] of checks) {
+    const formatSuccess = label === 'technical authority source verification'
+      ? formatTechnicalAuthoritySuccess
+      : undefined;
+    nodeStep(failures, label, script, args, env, undefined, record, formatSuccess);
+  }
 
   const technicalChecks = [
     ['technical content authority verification', ['verify:technical-content']],
+    ['technical authority regression', ['verify:technical-authority-regression']],
     ['technical content regression', ['verify:technical-content-regression']],
     ['technical center regression', ['verify:technical-center-regression']],
     ['technical export regression', ['verify:technical-export-regression']],
@@ -769,7 +825,10 @@ function runSourceChecks(failures, env, record) {
     ['FAQ metadata normalization regression', ['verify:faq-metadata-authority-regression']]
   ];
   for (const [label, args] of technicalChecks) {
-    npmStep(failures, label, args, env, undefined, undefined, record);
+    const formatSuccess = label === 'technical authority regression'
+      ? formatTechnicalAuthoritySuccess
+      : undefined;
+    npmStep(failures, label, args, env, undefined, formatSuccess, record);
   }
   npmStep(failures, 'Lint source verification', ['lint'], env, undefined, undefined, record);
   runStep(
