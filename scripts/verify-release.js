@@ -18,6 +18,7 @@ const NEXT_DIR = path.join(ROOT, '.next');
 const OUT_DIR = path.join(ROOT, 'out');
 const RETAIN_DIR = path.join(ROOT, '.release-artifacts');
 const EXPECTED_FAQ_COUNTS = { io: 1400, cn: 1490, preview: 1400 };
+const EXPECTED_CASE_ONLY_COUNTS = { 'fastgpt.cn': 23, 'fastgpt.io': 720 };
 const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
 const P1_BASELINE_KIB = 266.9;
 const P1_BUDGET_KIB = 260;
@@ -95,7 +96,14 @@ function createReleaseRecord(options) {
     evidence: {
       releaseEligible: false,
       exportVerified: [],
-      publishedTechnicalPages: { status: 'not-verified', claim: false }
+      publishedTechnicalPages: { status: 'not-verified', claim: false },
+      caseOnly: {
+        expectedSources: 743,
+        expectedSourceHosts: EXPECTED_CASE_ONLY_COUNTS,
+        source: false,
+        regression: false,
+        variants: {}
+      }
     },
     blockers: []
   };
@@ -125,8 +133,19 @@ function finalizeReleaseRecord(record, failures, options) {
     command: failure.command,
     detail: failure.output
   }));
+  const caseOnly = record.evidence.caseOnly;
+  caseOnly.releaseReady =
+    caseOnly.source &&
+    caseOnly.regression &&
+    Object.entries(EXPECTED_CASE_ONLY_COUNTS).every(([host, expected]) => {
+      const variant = host === 'fastgpt.cn' ? 'cn' : 'io';
+      return (
+        caseOnly.variants[variant]?.status === 'passed' &&
+        caseOnly.variants[variant]?.aliases === expected
+      );
+    });
   record.evidence.releaseEligible =
-    !options.sourceOnly && !options.variant && failures.length === 0;
+    !options.sourceOnly && !options.variant && failures.length === 0 && caseOnly.releaseReady;
   record.status = record.evidence.releaseEligible
     ? 'release-eligible'
     : record.blockers.some((blocker) => blocker.type === 'environment')
@@ -149,6 +168,23 @@ function recordStep(record, label, command, variant, status, output, evidence) {
   step.output = output.trim().slice(status === 'failed' ? -4000 : -1200) || '<no command output>';
   record.commands.push(step);
   collectCountEvidence(record, output);
+  collectCaseOnlyEvidence(record, label, variant, status, output);
+}
+
+function collectCaseOnlyEvidence(record, label, variant, status, output) {
+  if (!record || !label.toLowerCase().includes('case-only')) return;
+  const aliases = output.match(/aliases=(\d+)/)?.[1];
+  const caseOnly = record.evidence.caseOnly;
+  if (label.includes('source')) caseOnly.source = status === 'passed';
+  if (label.includes('regression')) caseOnly.regression = status === 'passed';
+  if (variant) {
+    caseOnly.variants[variant] = {
+      status,
+      aliases: aliases ? Number(aliases) : undefined,
+      expectedAliases:
+        EXPECTED_CASE_ONLY_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io']
+    };
+  }
 }
 
 function recordVariantOutcome(record, variant, failures, commandStart) {
@@ -172,6 +208,7 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
   const p1Measurement = p1Step?.output.match(
     /P1 verification passed for .*?:\s*([0-9.]+ KiB initial JavaScript gzip)/
   );
+  const caseOnlyStep = findStep(`Case-only HTTP verification (${variant})`);
   const variantCounts = {
     faqPages: EXPECTED_FAQ_COUNTS[variant],
     technicalPages: exportedCount ? Number(exportedCount[1]) : EXPECTED_TECHNICAL_PAGE_COUNT,
@@ -201,6 +238,13 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
       : 'failed',
     technicalExport: technicalExportStep?.status === 'passed',
     technicalPageCount: EXPECTED_TECHNICAL_PAGE_COUNT,
+    caseOnly: {
+      status: caseOnlyStep?.status || 'skipped',
+      aliases: caseOnlyStep?.output.match(/aliases=(\d+)/)?.[1]
+        ? Number(caseOnlyStep.output.match(/aliases=(\d+)/)[1])
+        : undefined,
+      expectedAliases: EXPECTED_CASE_ONLY_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io']
+    },
     counts: variantCounts,
     artifacts: {
       build: artifactStatus(findStep(`build ${variant}`)),
@@ -435,6 +479,7 @@ function runSourceChecks(failures, env, record) {
     ['FAQ metadata source verification', 'scripts/verify-faq-metadata.js', []],
     ['FAQ SEO graph source verification', 'scripts/verify-faq-seo-graph.js', []],
     ['URL Alias Authority source verification', 'scripts/verify-url-alias-authority.js', []],
+    ['case-only authority and projection source verification', 'scripts/verify-case-only-aliases.js', []],
     ['FAQ redirect source verification', 'scripts/verify-faq-redirects.js', ['--source']]
   ];
   for (const [label, script, args] of checks)
@@ -445,7 +490,8 @@ function runSourceChecks(failures, env, record) {
     ['technical content regression', ['verify:technical-content-regression']],
     ['technical center regression', ['verify:technical-center-regression']],
     ['technical export regression', ['verify:technical-export-regression']],
-    ['URL Alias Authority regression', ['verify:url-alias-regression']]
+    ['URL Alias Authority regression', ['verify:url-alias-regression']],
+    ['case-only slice regression', ['verify:case-only-regression']]
   ];
   for (const [label, args] of technicalChecks) {
     npmStep(failures, label, args, env, undefined, undefined, record);
@@ -533,6 +579,15 @@ function runVariantChecks(failures, variant, env, record) {
       `URL Alias black-box verification (${variant})`,
       'scripts/verify-url-alias-blackbox.js',
       ['--variant', variant],
+      env,
+      variant,
+      record
+    );
+    nodeStep(
+      failures,
+      `Case-only HTTP verification (${variant})`,
+      'scripts/verify-url-alias-blackbox.js',
+      ['--variant', variant, '--slice', 'case-only'],
       env,
       variant,
       record

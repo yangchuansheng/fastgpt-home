@@ -127,6 +127,28 @@ test('release coordinator gates technical content and every site variant', () =>
   assert.match(source, /!options\.sourceOnly && !options\.variant && failures\.length === 0/);
 });
 
+test('release coordinator records and gates the case-only alias slice independently', () => {
+  const source = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
+
+  for (const required of [
+    'scripts/verify-case-only-aliases.js',
+    'verify:case-only-regression',
+    "['--variant', variant, '--slice', 'case-only']",
+    'evidence.caseOnly',
+    'caseOnly.releaseReady'
+  ]) {
+    assert(source.includes(required), required);
+  }
+  assert.equal(
+    packageJson.scripts['verify:case-only'],
+    'node scripts/verify-case-only-aliases.js'
+  );
+  assert.equal(
+    packageJson.scripts['verify:case-only-regression'],
+    'node --test scripts/verify-case-only-aliases.test.js'
+  );
+});
+
 test('release coordinator accepts the preview Site Variant', () => {
   assert.deepEqual(parseReleaseArgs(['--variant', 'preview']), {
     sourceOnly: false,

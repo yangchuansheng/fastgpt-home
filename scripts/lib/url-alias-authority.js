@@ -5,6 +5,7 @@ const path = require('node:path');
 const AUTHORITY_RELATIVE_PATH = path.join('src', 'config', 'url-alias-authority.json');
 const AUTHORITY_HOSTS = new Set(['fastgpt.cn', 'fastgpt.io']);
 const DISPOSITIONS = new Set(['accepted', 'denied', 'merged', 'conflict']);
+const URL_ALIAS_SLICE_REASONS = new Set(['case-only', 'cross-host', 'slug-rebuild']);
 
 function compareStrings(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -246,6 +247,47 @@ function buildUrlAliasProjection(authorityResult, sourceHost, baseUrls) {
   return projection;
 }
 
+function getUrlAliasSlice(authorityResult, reason, options = {}) {
+  if (!URL_ALIAS_SLICE_REASONS.has(reason)) {
+    throw authorityError(`unsupported URL Alias slice: ${reason}`);
+  }
+  const authority = getValidatedAuthorityResult(authorityResult);
+  const records = authority.records.filter((record) => record.reason === reason);
+  const slice = validateUrlAliasAuthority(
+    {
+      ...authority.authority,
+      recordCount: records.length,
+      records
+    },
+    {
+      requireEvidence: options.requireEvidence === true,
+      rootDir: options.rootDir
+    }
+  );
+
+  if (reason === 'case-only') {
+    const normalizeCaseOnlyPath = (urlPath) =>
+      urlPath.startsWith('/en/faq/') ? urlPath.slice('/en'.length) : urlPath;
+    for (const record of slice.records) {
+      if (record.sourceHost !== record.targetHost) {
+        throw authorityError(
+          `case-only records must stay on one host: ${record.sourceHost}${record.sourcePath} -> ${record.targetHost}${record.targetPath}`
+        );
+      }
+      if (
+        record.sourcePath === record.targetPath ||
+        normalizeCaseOnlyPath(record.sourcePath).toLowerCase() !== record.targetPath.toLowerCase()
+      ) {
+        throw authorityError(
+          `case-only records must differ only by path case: ${record.sourceHost}${record.sourcePath} -> ${record.targetHost}${record.targetPath}`
+        );
+      }
+    }
+  }
+
+  return slice;
+}
+
 function getUrlAliasAuthorityDigest(authorityResult) {
   const records = getValidatedAuthorityResult(authorityResult).records;
   return crypto.createHash('sha256').update(JSON.stringify(records)).digest('hex');
@@ -281,6 +323,7 @@ module.exports = {
   getAuthorityPath,
   getUrlAliasAuthorityDigest,
   getUrlAliasAuthoritySummary,
+  getUrlAliasSlice,
   readUrlAliasAuthority,
   recordKey,
   targetUrl,

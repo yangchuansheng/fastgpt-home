@@ -12,6 +12,7 @@ const { pathToFileURL } = require('node:url');
 const {
   buildUrlAliasProjection,
   getUrlAliasAuthorityDigest,
+  getUrlAliasSlice,
   readUrlAliasAuthority
 } = require('./lib/url-alias-authority');
 const { getProductionBaseUrls, resolveSiteVariant } = require('./lib/site-variant');
@@ -21,12 +22,14 @@ const ROOT = path.resolve(__dirname, '..');
 function parseArgs(argv) {
   const options = {
     variant: undefined,
+    slice: undefined,
     outDir: path.join(ROOT, 'out'),
     nextDir: path.join(ROOT, '.next')
   };
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
     if (token === '--variant') options.variant = argv[++index];
+    else if (token === '--slice') options.slice = argv[++index];
     else if (token === '--out-dir') options.outDir = path.resolve(ROOT, argv[++index]);
     else if (token === '--next-dir') options.nextDir = path.resolve(ROOT, argv[++index]);
     else throw new Error(`Unknown argument: ${token}`);
@@ -149,7 +152,7 @@ async function startNginxSurface(redirectMapPath, outDir) {
   const quoteNginxPath = (value) => `"${value.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`;
   fs.writeFileSync(
     configPath,
-    `events {}\nhttp {\n  include ${quoteNginxPath(
+    `events {}\nhttp {\n  map_hash_bucket_size 256;\n  include ${quoteNginxPath(
       redirectMapPath
     )};\n  server {\n    listen 127.0.0.1:${port};\n    root ${quoteNginxPath(
       outDir
@@ -237,9 +240,12 @@ async function main() {
   if (!['cn', 'io'].includes(variant))
     throw new Error(`Black-box gate requires cn or io, received ${variant}`);
   const authority = readUrlAliasAuthority(ROOT);
+  const projectionAuthority = options.slice
+    ? getUrlAliasSlice(authority, options.slice, { rootDir: ROOT, requireEvidence: true })
+    : authority;
   const authorityDigest = getUrlAliasAuthorityDigest(authority);
   const sourceHost = variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io';
-  const projection = buildUrlAliasProjection(authority, sourceHost, getProductionBaseUrls());
+  const projection = buildUrlAliasProjection(projectionAuthority, sourceHost, getProductionBaseUrls());
   if (variant === 'io') {
     const workerPath = path.join(options.outDir, '_worker.js');
     if (!fs.existsSync(workerPath)) throw new Error(`Missing Worker artifact: ${workerPath}`);
@@ -247,7 +253,8 @@ async function main() {
     try {
       const checked = await verifySurface(surface, projection, 'fastgpt.io', true);
       console.log(
-        `[verify-url-alias-blackbox] io Worker passed (aliases=${checked}, terminal=all, digest=${authorityDigest})`
+        `[verify-url-alias-blackbox] io Worker passed (aliases=${checked}, ` +
+          `terminal=all, slice=${options.slice || 'all'}, digest=${authorityDigest})`
       );
     } finally {
       await surface.close();
@@ -263,7 +270,8 @@ async function main() {
   try {
     const checked = await verifySurface(surface, projection, 'fastgpt.cn', false);
     console.log(
-      `[verify-url-alias-blackbox] cn Nginx passed (aliases=${checked}, terminal=local-and-verified, digest=${authorityDigest})`
+      `[verify-url-alias-blackbox] cn Nginx passed (aliases=${checked}, ` +
+        `terminal=local-and-verified, slice=${options.slice || 'all'}, digest=${authorityDigest})`
     );
   } finally {
     await surface.close();
