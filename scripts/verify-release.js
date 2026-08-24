@@ -27,6 +27,15 @@ const EXPECTED_ALIAS_COUNTS = URL_ALIAS_CONTRACT.sourceHosts;
 const EXPECTED_CASE_ONLY_COUNTS = URL_ALIAS_CONTRACT.slices['case-only'].sourceHosts;
 const EXPECTED_REBUILT_SLUG_COUNTS = URL_ALIAS_CONTRACT.slices['rebuilt-slug'].sourceHosts;
 const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
+const FAQ_METADATA_CONTRACT = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', 'src/faq/generated-en-metadata-authority.json'), 'utf8'),
+).counts;
+const EXPECTED_FAQ_METADATA_CANDIDATES = FAQ_METADATA_CONTRACT.candidates;
+const EXPECTED_FAQ_METADATA_IDENTITIES = FAQ_METADATA_CONTRACT.identities;
+const EXPECTED_FAQ_METADATA_BASELINE = FAQ_METADATA_CONTRACT.baseline;
+const EXPECTED_FAQ_METADATA_ADDITIONS = FAQ_METADATA_CONTRACT.additions;
+const EXPECTED_FAQ_METADATA_FALLBACK_BEFORE = FAQ_METADATA_CONTRACT.fallback.before;
+const EXPECTED_FAQ_METADATA_FALLBACK = FAQ_METADATA_CONTRACT.fallback.after;
 const P1_BASELINE_KIB = 266.9;
 const P1_BUDGET_KIB = 260;
 const RELEASE_RECORD_FILENAME = 'release-verification.json';
@@ -97,6 +106,15 @@ function createReleaseRecord(options) {
       expectedImportedPages: TECHNICAL_CONTENT_POLICY.expectedAcceptedCount,
       expectedDeniedPages: TECHNICAL_CONTENT_POLICY.expectedDeniedCount,
       expectedTechnicalPages: EXPECTED_TECHNICAL_PAGE_COUNT,
+      faqMetadata: {
+        candidates: EXPECTED_FAQ_METADATA_CANDIDATES,
+        identities: EXPECTED_FAQ_METADATA_IDENTITIES,
+        baseline: EXPECTED_FAQ_METADATA_BASELINE,
+        additions: EXPECTED_FAQ_METADATA_ADDITIONS,
+        fallbackBefore: EXPECTED_FAQ_METADATA_FALLBACK_BEFORE,
+        fallback: EXPECTED_FAQ_METADATA_FALLBACK,
+        fallbackDelta: EXPECTED_FAQ_METADATA_FALLBACK - EXPECTED_FAQ_METADATA_FALLBACK_BEFORE
+      },
       variants: {}
     },
     variants: [],
@@ -120,6 +138,21 @@ function createReleaseRecord(options) {
         artifacts: {}
       },
       publishedTechnicalPages: { status: 'not-verified', claim: false },
+      faqMetadata: {
+        expected: {
+          candidates: EXPECTED_FAQ_METADATA_CANDIDATES,
+          identities: EXPECTED_FAQ_METADATA_IDENTITIES,
+          baseline: EXPECTED_FAQ_METADATA_BASELINE,
+          additions: EXPECTED_FAQ_METADATA_ADDITIONS,
+          fallbackBefore: EXPECTED_FAQ_METADATA_FALLBACK_BEFORE,
+          fallback: EXPECTED_FAQ_METADATA_FALLBACK,
+          fallbackDelta: EXPECTED_FAQ_METADATA_FALLBACK - EXPECTED_FAQ_METADATA_FALLBACK_BEFORE
+        },
+        source: false,
+        regression: false,
+        variants: {},
+        releaseReady: false
+      },
       caseOnly: {
         expectedSources: 743,
         expectedSourceHosts: EXPECTED_CASE_ONLY_COUNTS,
@@ -179,8 +212,19 @@ function finalizeReleaseRecord(record, failures, options) {
       const expected = EXPECTED_ALIAS_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io'];
       return evidence?.status === 'passed' && evidence.aliases === expected;
     });
+  const faqMetadata = record.evidence.faqMetadata;
+  faqMetadata.releaseReady =
+    faqMetadata.source &&
+    faqMetadata.regression &&
+    ['cn', 'io'].every((variant) => faqMetadata.variants[variant]?.status === 'passed') &&
+    faqMetadata.variants.io?.staticHtml === 'passed' &&
+    Object.entries(faqMetadata.expected).every(([key, expected]) => {
+      if (key === 'fallbackDelta') return faqMetadata.observed?.fallbackDelta === expected;
+      return faqMetadata.observed?.[key] === expected;
+    });
   const releaseGate = !options.sourceOnly && !options.variant && failures.length === 0;
-  record.evidence.releaseEligible = releaseGate && caseOnly.releaseReady && aliasContract.releaseReady;
+  record.evidence.releaseEligible =
+    releaseGate && caseOnly.releaseReady && aliasContract.releaseReady && faqMetadata.releaseReady;
   record.status = record.evidence.releaseEligible
     ? 'release-eligible'
     : record.blockers.some((blocker) => blocker.type === 'environment')
@@ -205,6 +249,7 @@ function recordStep(record, label, command, variant, status, output, evidence) {
   collectCountEvidence(record, output);
   collectCaseOnlyEvidence(record, label, variant, status, output);
   collectAliasContractEvidence(record, label, variant, status, output);
+  collectFaqMetadataEvidence(record, label, variant, status, output);
 }
 
 function collectCaseOnlyEvidence(record, label, variant, status, output) {
@@ -243,6 +288,34 @@ function collectAliasContractEvidence(record, label, variant, status, output) {
   }
 }
 
+function collectFaqMetadataEvidence(record, label, variant, status, output) {
+  if (!record || !label.toLowerCase().includes('faq metadata normalization')) return;
+  const match = output.match(
+    /candidates=(\d+) identities=(\d+) baseline=(\d+) additions=(\d+) fallbackBefore=(\d+) fallback=(\d+) delta=([+-]?\d+)/
+  );
+  const evidence = record.evidence.faqMetadata;
+  if (label.includes('source verification')) evidence.source = status === 'passed';
+  if (label.includes('regression')) evidence.regression = status === 'passed';
+  if (match) {
+    evidence.observed = {
+      candidates: Number(match[1]),
+      identities: Number(match[2]),
+      baseline: Number(match[3]),
+      additions: Number(match[4]),
+      fallbackBefore: Number(match[5]),
+      fallback: Number(match[6]),
+      fallbackDelta: Number(match[7])
+    };
+  }
+  if (variant) {
+    evidence.variants[variant] = {
+      status,
+      staticHtml: output.match(/staticHtml=([^\s]+)/)?.[1],
+      ...(evidence.observed || {})
+    };
+  }
+}
+
 function recordVariantOutcome(record, variant, failures, commandStart) {
   if (!record) return;
   const commands = record.commands.slice(commandStart);
@@ -255,6 +328,7 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
   );
   const guideStep = findStep(`Guide export artifact verification (${variant})`);
   const p1Step = findStep(`P1 HTML verification (${variant})`);
+  const faqMetadataStep = findStep(`FAQ metadata normalization HTML verification (${variant})`);
   const exportedCount = technicalExportStep?.output.match(
     /Export-verified Technical Pages: (\d+) \(/
   );
@@ -275,7 +349,10 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
           technicalCenterInitialJavaScriptGzipKiB: Number(centerMeasurement[2])
         }
       : {}),
-    ...(p1Measurement ? { initialJavaScriptGzip: p1Measurement[1] } : {})
+    ...(p1Measurement ? { initialJavaScriptGzip: p1Measurement[1] } : {}),
+    faqMetadata: record.evidence.faqMetadata.variants[variant] || {
+      status: faqMetadataStep?.status || 'skipped'
+    }
   };
   const artifactStatus = (step) => {
     if (!step) return 'skipped';
@@ -315,6 +392,7 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
       htmlHygiene: artifactStatus(findStep(`Complete HTML hygiene (${variant})`)),
       technicalCenter: artifactStatus(technicalCenterStep),
       technicalExport: artifactStatus(technicalExportStep),
+      faqMetadata: artifactStatus(faqMetadataStep),
       guide: artifactStatus(guideStep)
     }
   });
@@ -545,6 +623,7 @@ function runSourceChecks(failures, env, record) {
     ['metadata snapshot check', 'scripts/generate-faq-metadata.js', ['--check']],
     ['FAQ route source verification', 'scripts/verify-faq-routes.js', []],
     ['FAQ metadata source verification', 'scripts/verify-faq-metadata.js', []],
+    ['FAQ metadata normalization source verification', 'scripts/verify-faq-metadata-authority.js', []],
     ['FAQ SEO graph source verification', 'scripts/verify-faq-seo-graph.js', []],
     ['URL Alias Authority source verification', 'scripts/verify-url-alias-authority.js', []],
     ['case-only authority and projection source verification', 'scripts/verify-case-only-aliases.js', []],
@@ -561,7 +640,8 @@ function runSourceChecks(failures, env, record) {
     ['technical export regression', ['verify:technical-export-regression']],
     ['URL Alias Authority regression', ['verify:url-alias-regression']],
     ['case-only slice regression', ['verify:case-only-regression']],
-    ['URL Alias rebuilt-slug slice regression', ['verify:rebuilt-slug-regression']]
+    ['URL Alias rebuilt-slug slice regression', ['verify:rebuilt-slug-regression']],
+    ['FAQ metadata normalization regression', ['verify:faq-metadata-authority-regression']]
   ];
   for (const [label, args] of technicalChecks) {
     npmStep(failures, label, args, env, undefined, undefined, record);
@@ -675,6 +755,10 @@ function runVariantChecks(failures, variant, env, record) {
       [
         'FAQ metadata HTML verification',
         ['verify:faq-metadata', '--', '--html', '--variant', variant]
+      ],
+      [
+        'FAQ metadata normalization HTML verification',
+        ['verify:faq-metadata-authority', '--', '--html', '--variant', variant]
       ],
       [
         'FAQ SEO graph HTML verification',

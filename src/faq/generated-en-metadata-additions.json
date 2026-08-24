@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "source": {
+    "authority": "generated-en-metadata-authority.json",
+    "recordCount": 1
+  },
+  "records": [
+    {
+      "contentId": "can-ai-intelligent-customer-service",
+      "sourceSlug": "can-ai-intelligent-customer-service",
+      "workbookRow": 2,
+      "title": "How AI Lowers Customer Service Labor Costs",
+      "description": "Discover how automating routine inquiries with NLP and ML reduces labor costs by handling order status and troubleshooting 24/7.",
+      "keywords": "GPT Integration, AI Knowledge Management, Smart Assistant, AI Platform, Task Automation AI",
+      "authoredDigests": {
+        "Question": "ecbd2e9a4f6826d52c11dc6bf5d4391be026f7b8fcf09a1f5f41796f62c617e9",
+        "Answers": "25ea2b19d73adc15fcd3a454fbf9dd7d0e638e7acc6af546afe69b1471b500d2",
+        "Category": "fec93648f357a62c86c82f642bfe97eee87d08d8d72cf75bdeabd55a68067b74"
+      }
+    }
+  ]
+}
