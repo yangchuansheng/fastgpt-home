@@ -1701,7 +1701,10 @@ function main() {
   const advisories = [];
   const retainedPaths = [];
   const record = createReleaseRecord(options);
-  if (!options.keepArtifacts) fs.rmSync(RETAIN_DIR, { recursive: true, force: true });
+  // Source-only checks run inside release regressions; preserve any full release record they inspect.
+  if (!options.keepArtifacts && !options.sourceOnly) {
+    fs.rmSync(RETAIN_DIR, { recursive: true, force: true });
+  }
   loadSolutionsEvidence(record, options);
   addRollbackFile(
     record,
@@ -1876,8 +1879,10 @@ function main() {
     process.exitCode = failures.length || solutionsBlocked ? 1 : 0;
   } finally {
     finalizeReleaseRecord(record, failures, options);
-    const recordPath = writeReleaseRecord(record);
-    console.log(`[verify-release] verification record: ${recordPath}`);
+    if (!options.sourceOnly) {
+      const recordPath = writeReleaseRecord(record);
+      console.log(`[verify-release] verification record: ${recordPath}`);
+    }
     restoreGeneratedPublicFiles(snapshot);
     if (!failures.length || !options.keepArtifacts) {
       clearBuildArtifacts();

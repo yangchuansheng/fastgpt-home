@@ -414,13 +414,18 @@ test('retired consultation modal dependencies and APIs stay removed', () => {
 
 test('source-only release leaves the existing build info bytes unchanged', () => {
   const buildInfoPath = path.join(ROOT, 'tsconfig.tsbuildinfo');
+  const releaseRecordPath = path.join(ROOT, '.release-artifacts', 'release-verification.json');
+  const readReleaseRecord = () =>
+    fs.existsSync(releaseRecordPath) ? fs.readFileSync(releaseRecordPath) : undefined;
   const before = fs.readFileSync(buildInfoPath);
+  const releaseRecordBefore = readReleaseRecord();
   const result = spawnSync(process.execPath, ['scripts/verify-release.js', '--source-only'], {
     cwd: ROOT,
     encoding: 'utf8'
   });
   assert.equal(result.status, 0, result.stdout + result.stderr);
   assert.deepEqual(fs.readFileSync(buildInfoPath), before);
+  assert.deepEqual(readReleaseRecord(), releaseRecordBefore);
 });
 
 test('release build and workflow wiring preserve source hygiene while enforcing completed HTML exports', () => {
