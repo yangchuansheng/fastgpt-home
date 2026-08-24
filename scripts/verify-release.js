@@ -11,6 +11,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const TECHNICAL_CONTENT_POLICY = require('../src/lib/technical-content-policy.json');
+const { URL_ALIAS_CONTRACT } = require('./lib/url-alias-authority');
+const {
+  verifyUrlAliasArtifactBundle,
+  writeUrlAliasArtifactBundle
+} = require('./lib/url-alias-artifacts');
 const { siteVariants } = require('./lib/site-variant');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -18,7 +23,9 @@ const NEXT_DIR = path.join(ROOT, '.next');
 const OUT_DIR = path.join(ROOT, 'out');
 const RETAIN_DIR = path.join(ROOT, '.release-artifacts');
 const EXPECTED_FAQ_COUNTS = { io: 1400, cn: 1490, preview: 1400 };
-const EXPECTED_CASE_ONLY_COUNTS = { 'fastgpt.cn': 23, 'fastgpt.io': 720 };
+const EXPECTED_ALIAS_COUNTS = URL_ALIAS_CONTRACT.sourceHosts;
+const EXPECTED_CASE_ONLY_COUNTS = URL_ALIAS_CONTRACT.slices['case-only'].sourceHosts;
+const EXPECTED_REBUILT_SLUG_COUNTS = URL_ALIAS_CONTRACT.slices['rebuilt-slug'].sourceHosts;
 const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
 const P1_BASELINE_KIB = 266.9;
 const P1_BUDGET_KIB = 260;
@@ -96,6 +103,22 @@ function createReleaseRecord(options) {
     evidence: {
       releaseEligible: false,
       exportVerified: [],
+      aliasContract: {
+        expectedSources: URL_ALIAS_CONTRACT.sources,
+        expectedSourceHosts: EXPECTED_ALIAS_COUNTS,
+        expectedTargets: URL_ALIAS_CONTRACT.targets,
+        expectedManyToOneTargets: URL_ALIAS_CONTRACT.manyToOneTargets,
+        source: false,
+        regression: false,
+        rebuiltSlug: {
+          expectedSources: URL_ALIAS_CONTRACT.slices['rebuilt-slug'].sources,
+          expectedSourceHosts: EXPECTED_REBUILT_SLUG_COUNTS,
+          source: false,
+          regression: false
+        },
+        variants: {},
+        artifacts: {}
+      },
       publishedTechnicalPages: { status: 'not-verified', claim: false },
       caseOnly: {
         expectedSources: 743,
@@ -144,8 +167,20 @@ function finalizeReleaseRecord(record, failures, options) {
         caseOnly.variants[variant]?.aliases === expected
       );
     });
-  record.evidence.releaseEligible =
-    !options.sourceOnly && !options.variant && failures.length === 0 && caseOnly.releaseReady;
+  const aliasContract = record.evidence.aliasContract;
+  aliasContract.releaseReady =
+    aliasContract.source &&
+    aliasContract.regression &&
+    aliasContract.rebuiltSlug.source &&
+    aliasContract.rebuiltSlug.regression &&
+    ['cn', 'io'].every((variant) => aliasContract.artifacts[variant]?.status === 'passed') &&
+    ['cn', 'io'].every((variant) => {
+      const evidence = aliasContract.variants[variant];
+      const expected = EXPECTED_ALIAS_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io'];
+      return evidence?.status === 'passed' && evidence.aliases === expected;
+    });
+  const releaseGate = !options.sourceOnly && !options.variant && failures.length === 0;
+  record.evidence.releaseEligible = releaseGate && caseOnly.releaseReady && aliasContract.releaseReady;
   record.status = record.evidence.releaseEligible
     ? 'release-eligible'
     : record.blockers.some((blocker) => blocker.type === 'environment')
@@ -169,6 +204,7 @@ function recordStep(record, label, command, variant, status, output, evidence) {
   record.commands.push(step);
   collectCountEvidence(record, output);
   collectCaseOnlyEvidence(record, label, variant, status, output);
+  collectAliasContractEvidence(record, label, variant, status, output);
 }
 
 function collectCaseOnlyEvidence(record, label, variant, status, output) {
@@ -183,6 +219,26 @@ function collectCaseOnlyEvidence(record, label, variant, status, output) {
       aliases: aliases ? Number(aliases) : undefined,
       expectedAliases:
         EXPECTED_CASE_ONLY_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io']
+    };
+  }
+}
+
+function collectAliasContractEvidence(record, label, variant, status, output) {
+  if (!record || !label.toLowerCase().includes('url alias')) return;
+  const aliases = output.match(/aliases=(\d+)/)?.[1];
+  const aliasContract = record.evidence.aliasContract;
+  if (label.includes('source verification')) aliasContract.source = status === 'passed';
+  if (label.includes('regression')) aliasContract.regression = status === 'passed';
+  if (label.includes('rebuilt-slug')) {
+    if (label.includes('source verification')) aliasContract.rebuiltSlug.source = status === 'passed';
+    if (label.includes('regression')) aliasContract.rebuiltSlug.regression = status === 'passed';
+  }
+  if (variant && label.includes('black-box')) {
+    aliasContract.variants[variant] = {
+      status,
+      aliases: aliases ? Number(aliases) : undefined,
+      expectedAliases:
+        EXPECTED_ALIAS_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io']
     };
   }
 }
@@ -209,6 +265,7 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
     /P1 verification passed for .*?:\s*([0-9.]+ KiB initial JavaScript gzip)/
   );
   const caseOnlyStep = findStep(`Case-only HTTP verification (${variant})`);
+  const aliasStep = findStep(`URL Alias black-box verification (${variant})`);
   const variantCounts = {
     faqPages: EXPECTED_FAQ_COUNTS[variant],
     technicalPages: exportedCount ? Number(exportedCount[1]) : EXPECTED_TECHNICAL_PAGE_COUNT,
@@ -244,6 +301,13 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
         ? Number(caseOnlyStep.output.match(/aliases=(\d+)/)[1])
         : undefined,
       expectedAliases: EXPECTED_CASE_ONLY_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io']
+    },
+    aliasContract: {
+      status: aliasStep?.status || 'skipped',
+      aliases: aliasStep?.output.match(/aliases=(\d+)/)?.[1]
+        ? Number(aliasStep.output.match(/aliases=(\d+)/)[1])
+        : undefined,
+      expectedAliases: EXPECTED_ALIAS_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io']
     },
     counts: variantCounts,
     artifacts: {
@@ -462,6 +526,10 @@ function retainSuccessArtifacts(variant, retainDir) {
   fs.cpSync(OUT_DIR, retainedOut, { recursive: true });
   fs.mkdirSync(path.join(retainedOut, '__release'), { recursive: true });
   fs.copyFileSync(redirectMap, path.join(retainedOut, '__release', 'nginx-redirects.conf'));
+  const aliasBundle = writeUrlAliasArtifactBundle(ROOT, retainedPath, variant);
+  if (aliasBundle.releaseManifest.authority.sourceCount !== URL_ALIAS_CONTRACT.sources) {
+    throw new Error(`URL Alias artifact source count drift for ${variant}`);
+  }
   return retainedPath;
 }
 
@@ -480,6 +548,7 @@ function runSourceChecks(failures, env, record) {
     ['FAQ SEO graph source verification', 'scripts/verify-faq-seo-graph.js', []],
     ['URL Alias Authority source verification', 'scripts/verify-url-alias-authority.js', []],
     ['case-only authority and projection source verification', 'scripts/verify-case-only-aliases.js', []],
+    ['URL Alias rebuilt-slug authority and projection source verification', 'scripts/verify-rebuilt-slug-aliases.js', []],
     ['FAQ redirect source verification', 'scripts/verify-faq-redirects.js', ['--source']]
   ];
   for (const [label, script, args] of checks)
@@ -491,7 +560,8 @@ function runSourceChecks(failures, env, record) {
     ['technical center regression', ['verify:technical-center-regression']],
     ['technical export regression', ['verify:technical-export-regression']],
     ['URL Alias Authority regression', ['verify:url-alias-regression']],
-    ['case-only slice regression', ['verify:case-only-regression']]
+    ['case-only slice regression', ['verify:case-only-regression']],
+    ['URL Alias rebuilt-slug slice regression', ['verify:rebuilt-slug-regression']]
   ];
   for (const [label, args] of technicalChecks) {
     npmStep(failures, label, args, env, undefined, undefined, record);
@@ -813,6 +883,31 @@ function main() {
       runVariantChecks(failures, variant, env, record);
       appendP1HistoricalBaselineAdvisories(failures, beforeFailures, advisories);
       const variantFailed = failures.length > beforeFailures;
+      if (!variantFailed && ['cn', 'io'].includes(variant)) {
+        try {
+          const bundle = writeUrlAliasArtifactBundle(ROOT, RETAIN_DIR, variant);
+          verifyUrlAliasArtifactBundle(path.join(RETAIN_DIR, 'url-alias'), [variant]);
+          record.evidence.aliasContract.artifacts[variant] = {
+            status: 'passed',
+            path: path.relative(ROOT, bundle.root),
+            authorityDigest: bundle.releaseManifest.authority.digest,
+            authoritySha256: bundle.authoritySha256,
+            projectionSha256: bundle.projectionSha256
+          };
+          console.log(`[verify-release] URL Alias ${variant} release/rollback artifacts passed`);
+        } catch (error) {
+          failures.push({
+            label: `URL Alias release artifacts (${variant})`,
+            variant,
+            command: 'in-process URL Alias release artifact generation',
+            output: error.message
+          });
+          record.evidence.aliasContract.artifacts[variant] = {
+            status: 'failed',
+            detail: error.message
+          };
+        }
+      }
       if (variantFailed && options.keepArtifacts) {
         try {
           retainedPaths.push(retainFailureArtifacts(variant));
@@ -827,12 +922,15 @@ function main() {
       }
       if (!variantFailed && options.retainSuccessArtifacts) {
         try {
-          console.log(
-            `[verify-release] retained verified ${variant} output: ${retainSuccessArtifacts(
-              variant,
-              options.retainSuccessArtifacts
-            )}`
-          );
+          const retainedPath = retainSuccessArtifacts(variant, options.retainSuccessArtifacts);
+          record.evidence.aliasContract.artifacts[variant] = {
+            status: 'passed',
+            path: path.relative(ROOT, path.join(retainedPath, 'url-alias', variant)),
+            authorityDigest: JSON.parse(
+              fs.readFileSync(path.join(retainedPath, 'url-alias', variant, 'release', 'manifest.json'), 'utf8')
+            ).authority.digest
+          };
+          console.log(`[verify-release] retained verified ${variant} output: ${retainedPath}`);
         } catch (error) {
           failures.push({
             label: `success artifact retention (${variant})`,

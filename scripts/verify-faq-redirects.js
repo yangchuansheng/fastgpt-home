@@ -11,11 +11,16 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const {
+  URL_ALIAS_CONTRACT,
   buildUrlAliasProjection,
   getUrlAliasAuthoritySummary,
   readUrlAliasAuthority
 } = require('./lib/url-alias-authority');
-const { getFaqRedirectProjection, parseNginxRedirectMap } = require('./lib/redirects');
+const {
+  getFaqRedirectProjection,
+  getPublishedFaqIds,
+  parseNginxRedirectMap
+} = require('./lib/redirects');
 const { getProductionBaseUrls, resolveSiteVariant } = require('./lib/site-variant');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -121,6 +126,18 @@ function verifyAuthorityProjection() {
   assert.deepEqual(summary.sourceHosts, EXPECTED_ALIAS_COUNTS, 'Unexpected alias host partition');
   assert.equal(summary.targets, 1274, 'Unexpected URL Alias Authority target count');
   assert.equal(summary.manyToOneTargets, 8, 'Unexpected many-to-one target count');
+  assert.deepEqual(summary.sourceHosts, URL_ALIAS_CONTRACT.sourceHosts);
+  assert.deepEqual(summary.reasons, { 'case-only': 743, 'cross-host': 14, 'slug-rebuild': 531 });
+
+  const published = getPublishedFaqIds(ROOT);
+  const terminalPaths = {
+    'fastgpt.cn': new Set(published.chinese.map((slug) => `/faq/${slug}`)),
+    'fastgpt.io': new Set(published.english.map((slug) => `/faq/${slug}`))
+  };
+  for (const record of authority.records) {
+    assert(!terminalPaths[record.sourceHost].has(record.sourcePath), `Alias source entered canonical graph: ${record.sourcePath}`);
+    assert(terminalPaths[record.targetHost].has(record.targetPath), `Alias target left canonical graph: ${record.targetPath}`);
+  }
 
   const baseUrls = getProductionBaseUrls();
   for (const sourceHost of Object.keys(EXPECTED_ALIAS_COUNTS)) {

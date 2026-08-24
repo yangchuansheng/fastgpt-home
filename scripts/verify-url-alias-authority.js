@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const {
+  URL_ALIAS_CONTRACT,
   buildUrlAliasProjection,
   getUrlAliasAuthoritySummary,
   readUrlAliasAuthority,
@@ -15,7 +16,7 @@ const {
 const { writeCloudflareWorker, writeNginxRedirectMap } = require('./lib/redirects');
 
 const ROOT = path.resolve(__dirname, '..');
-const EXPECTED_SOURCE_COUNTS = { 'fastgpt.cn': 37, 'fastgpt.io': 1251 };
+const EXPECTED_SOURCE_COUNTS = URL_ALIAS_CONTRACT.sourceHosts;
 
 function minimalRecord(sourcePath, targetPath, sourceHost = 'fastgpt.io', targetHost = sourceHost) {
   return { sourceHost, sourcePath, targetHost, targetPath };
@@ -92,8 +93,9 @@ function main() {
   assert.equal(authority.authority.recordCount, authority.records.length);
   assert.equal(summary.sources, 1288);
   assert.deepEqual(summary.sourceHosts, EXPECTED_SOURCE_COUNTS);
-  assert.equal(summary.targets, 1274);
-  assert.equal(summary.manyToOneTargets, 8);
+  assert.equal(summary.targets, URL_ALIAS_CONTRACT.targets);
+  assert.equal(summary.manyToOneTargets, URL_ALIAS_CONTRACT.manyToOneTargets);
+  assert.deepEqual(summary.reasons, { 'case-only': 743, 'cross-host': 14, 'slug-rebuild': 531 });
 
   const baseUrls = { 'fastgpt.cn': 'https://fastgpt.cn', 'fastgpt.io': 'https://fastgpt.io' };
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fastgpt-url-alias-'));

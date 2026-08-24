@@ -10,6 +10,7 @@ const {
 } = require('./lib/redirects');
 const {
   getUrlAliasAuthorityDigest,
+  getUrlAliasAuthoritySummary,
   readUrlAliasAuthority
 } = require('./lib/url-alias-authority');
 const {
@@ -27,9 +28,13 @@ const defaultLocale = getDefaultLocale(variant);
 const allowedLocales = new Set(getPublishedLocaleCodes(variant));
 const techIdentities = getTechIdentities(rootDir);
 const aliasAuthority = readUrlAliasAuthority(rootDir);
+const aliasAuthoritySummary = getUrlAliasAuthoritySummary(aliasAuthority);
 const aliasAuthorityMetadata = {
   authorityDigest: getUrlAliasAuthorityDigest(aliasAuthority),
-  authoritySourceCount: aliasAuthority.records.length
+  authoritySourceCount: aliasAuthority.records.length,
+  authorityTargetCount: aliasAuthoritySummary.targets,
+  authoritySourceHosts: aliasAuthoritySummary.sourceHosts,
+  authorityManyToOneTargets: aliasAuthoritySummary.manyToOneTargets
 };
 
 function removePath(targetPath) {

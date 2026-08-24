@@ -334,6 +334,8 @@ function writeNginxRedirectMap(nextDir, redirects, metadata = {}) {
   const lines = [
     `# URL Alias Authority: ${metadata.authorityDigest || 'untracked'}; sources=${
       metadata.authoritySourceCount || 0
+    }; targets=${metadata.authorityTargetCount || 0}; many-to-one=${
+      metadata.authorityManyToOneTargets || 0
     }`,
     'map $uri $locale_redirect_target {',
     '  default "";'
