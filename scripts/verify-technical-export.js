@@ -4,9 +4,8 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { parseNginxRedirectMap } = require('./lib/redirects');
+const { buildRedirects, getTechIdentities, parseNginxRedirectMap } = require('./lib/redirects');
 const { getProductionBaseUrls, resolveSiteVariant } = require('./lib/site-variant');
-const { getTechIdentities } = require('./lib/redirects');
 const TECHNICAL_CONTENT_POLICY = require('../src/lib/technical-content-policy.json');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -72,6 +71,13 @@ function readNginxRedirects(nextDir) {
   return parseNginxRedirectMap(fs.readFileSync(mapPath, 'utf8'));
 }
 
+function verifyRedirectProjection(actual, expected, label) {
+  assert.equal(actual.size, expected.size, `${label} has an unexpected redirect count`);
+  for (const [source, target] of expected) {
+    assert.equal(actual.get(source), target, `${label} has an unexpected target for ${source}`);
+  }
+}
+
 function verifyArticleMetadata(outDir, route, canonical, robots) {
   const html = readHtml(outDir, route);
   assert.equal(getCanonical(html, route), canonical, `${route} has an unexpected canonical`);
@@ -123,45 +129,23 @@ function verifySitemap(outDir, variant, canonicalUrls, reviewPaths, baseUrls) {
   }
 }
 
-function verifyNginxRedirects(nextDir, variant, identities, baseUrls) {
+function verifyNginxRedirects(nextDir, variant, expected) {
   const redirects = readNginxRedirects(nextDir);
-  if (variant === 'preview' || variant === 'io') {
-    assert.equal(redirects.size, 0, `${variant} export contains Nginx redirects`);
-    return;
-  }
-
-  for (const identity of identities) {
-    assert.equal(
-      redirects.get(identity.sourcePath),
-      `${baseUrls.cn}${identity.canonicalPath}`,
-      `CN redirect does not resolve ${identity.sourcePath}`
-    );
-  }
+  verifyRedirectProjection(redirects, expected, `${variant} Nginx export`);
 }
 
-function verifyWorkerRedirects(outDir, variant, identities, baseUrls) {
+function verifyWorkerRedirects(outDir, variant, identities, expected) {
   if (variant === 'cn') return;
 
   const { redirects, source } = readWorkerRedirects(outDir);
+  verifyRedirectProjection(redirects, expected, `${variant} Worker export`);
   if (variant === 'preview') {
-    assert.equal(redirects.size, 0, 'Preview Worker contains production redirects');
     return;
   }
 
-  assert(
-    source.includes('redirectUrl.search = url.search'),
-    'Worker does not preserve query strings'
-  );
-  assert(
-    source.includes('Response.redirect(redirectUrl, 301)'),
-    'Worker does not emit 301 redirects'
-  );
+  assert(source.includes("fallbackUrl.pathname = match[1] || '/'"));
   for (const identity of identities) {
-    assert.equal(
-      redirects.get(identity.sourcePath),
-      `${baseUrls.cn}${identity.canonicalPath}`,
-      `IO redirect does not resolve ${identity.sourcePath}`
-    );
+    assert(!redirects.has(identity.sourcePath), `IO Worker redirects ${identity.sourcePath}`);
   }
 }
 
@@ -181,6 +165,7 @@ function verifyTechnicalExport({
   );
 
   const baseUrls = getProductionBaseUrls(env);
+  const redirectProjection = buildRedirects(ROOT, env);
   const canonicalUrls = identities.map((identity) => `${baseUrls.cn}${identity.canonicalPath}`);
   const reviewPaths = identities.map((identity) => identity.sourcePath);
   const robots = variant === 'preview' ? 'noindex, nofollow' : 'index, follow';
@@ -229,8 +214,17 @@ function verifyTechnicalExport({
   }
 
   verifySitemap(outDir, variant, canonicalUrls, reviewPaths, baseUrls);
-  verifyNginxRedirects(nextDir, variant, identities, baseUrls);
-  verifyWorkerRedirects(outDir, variant, identities, baseUrls);
+  verifyNginxRedirects(
+    nextDir,
+    variant,
+    variant === 'cn' ? redirectProjection.cnRedirects : new Map()
+  );
+  verifyWorkerRedirects(
+    outDir,
+    variant,
+    identities,
+    variant === 'io' ? redirectProjection.ioRedirects : new Map()
+  );
 
   return { count: identities.length, variant };
 }

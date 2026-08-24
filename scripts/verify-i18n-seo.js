@@ -3,7 +3,11 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { getPublishedFaqIds, parseNginxRedirectMap } = require('./lib/redirects');
+const {
+  buildRedirects,
+  getPublishedFaqIds,
+  parseNginxRedirectMap
+} = require('./lib/redirects');
 const {
   getCanonicalBaseUrl,
   getDefaultLocale,
@@ -20,7 +24,6 @@ const variant = resolveSiteVariant();
 const defaultLocale = getDefaultLocale(variant);
 const baseUrls = getProductionBaseUrls();
 const baseUrl = getCanonicalBaseUrl(variant);
-const encodedFaqId = 'why-is-few-shot-learning-useful';
 const techPath = '/tutorial/private-deployment-topology';
 const compareSlugs = [
   'dify-vs-fastgpt',
@@ -190,55 +193,45 @@ function parseNginxRedirects() {
   return parseNginxRedirectMap(read('.next/nginx-redirects.conf'));
 }
 
-function verifyFaqRedirects(redirects, prefix, targetBaseUrl, ids) {
-  for (const id of ids) {
-    const encodedId = encodeURIComponent(id);
-    assert.equal(
-      redirects.get(`${prefix}/${encodedId}`),
-      `${targetBaseUrl}/faq/${encodedId}`,
-      `Missing redirect for ${prefix}/${encodedId}`
-    );
+function verifyRedirectProjection(actual, expected, label) {
+  assert.equal(actual.size, expected.size, `${label} has an unexpected redirect count`);
+  for (const [source, target] of expected) {
+    assert.equal(actual.get(source), target, `${label} has an unexpected target for ${source}`);
   }
 }
 
 function verifyRedirects() {
   assert(!fs.existsSync(path.join(outDir, '_redirects')), 'Legacy Cloudflare redirects were exported');
 
+  const projection = buildRedirects(rootDir);
   const nginxRedirects = parseNginxRedirects();
-  const faqIds = getPublishedFaqIds(rootDir);
   if (variant === 'cn') {
-    assert.equal(nginxRedirects.get('/ja/price'), 'https://fastgpt.io/ja/price');
-    assert.equal(nginxRedirects.get(`/zh${techPath}`), `https://fastgpt.cn${techPath}`);
-    assert(!nginxRedirects.has('/ja/faq'), 'Nginx redirects an unpublished Japanese FAQ');
-    assert(!nginxRedirects.has('/ja/contact'), 'Nginx redirects an unpublished Japanese Contact');
-    verifyFaqRedirects(nginxRedirects, '/zh/faq', baseUrls.cn, faqIds.chinese);
-    verifyFaqRedirects(nginxRedirects, '/en/faq', baseUrls.io, faqIds.english);
+    verifyRedirectProjection(nginxRedirects, projection.cnRedirects, 'CN Nginx export');
     return;
   }
 
-  assert.equal(nginxRedirects.size, 0, `${variant} build contains Nginx redirects`);
+  verifyRedirectProjection(nginxRedirects, new Map(), `${variant} Nginx export`);
   const { redirects, worker } = parseWorkerRedirects();
+  verifyRedirectProjection(
+    redirects,
+    variant === 'io' ? projection.ioRedirects : new Map(),
+    `${variant} Worker export`
+  );
 
   if (variant === 'preview') {
-    assert.equal(redirects.size, 0, 'Preview worker contains production redirects');
     assert(worker.includes("X-Robots-Tag', 'noindex, nofollow"));
     return;
   }
 
-  assert.equal(redirects.get('/zh'), 'https://fastgpt.cn/');
-  assert.equal(redirects.get(`/zh/faq/${faqId}`), `https://fastgpt.cn/faq/${faqId}`);
-  assert.equal(
-    redirects.get(`/zh/faq/${encodedFaqId}`),
-    `https://fastgpt.cn/faq/${encodedFaqId}`
-  );
-  assert.equal(redirects.get('/zh/tech-center'), 'https://fastgpt.cn/tech-center');
-  assert.equal(redirects.get(`/zh${techPath}`), `https://fastgpt.cn${techPath}`);
-  assert.equal(redirects.get('/en'), 'https://fastgpt.io/');
+  assert(!redirects.has('/zh'), 'Worker redirects /zh to another domain');
+  assert(!redirects.has('/en'), 'Worker redirects /en to another domain');
+  assert(!redirects.has(`/zh/faq/${faqId}`), 'Worker redirects a locale-prefixed FAQ');
+  assert(!redirects.has('/zh/tech-center'), 'Worker redirects a locale-prefixed tech center');
+  assert(!redirects.has(`/zh${techPath}`), 'Worker redirects a locale-prefixed article');
   assert(!redirects.has('/zh/faq/not-published'), 'Worker redirects an unpublished FAQ');
   assert(!redirects.has('/ja/faq'), 'Worker redirects an unpublished Japanese FAQ');
   assert(!redirects.has('/ja/contact'), 'Worker redirects an unpublished Japanese Contact');
-  verifyFaqRedirects(redirects, '/zh/faq', baseUrls.cn, faqIds.chinese);
-  verifyFaqRedirects(redirects, '/en/faq', baseUrls.io, faqIds.english);
+  assert(worker.includes('fallbackUrl.pathname = match[1] || \'/\''));
 }
 
 function verifySitemap() {

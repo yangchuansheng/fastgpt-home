@@ -5,6 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const test = require('node:test');
 const {
+  buildRedirects,
   getTechIdentities,
   parseNginxRedirectMap,
   writeCloudflareWorker,
@@ -34,7 +35,6 @@ test('technical export verifier accepts a complete China projection', () => {
   try {
     const identities = getTechIdentities(root);
     const sitemap = [];
-    const redirects = new Map();
     for (const identity of identities) {
       const canonical = `${baseUrls.cn}${identity.canonicalPath}`;
       const routePath = path.join(outDir, `${identity.canonicalPath.slice(1)}.html`);
@@ -44,12 +44,17 @@ test('technical export verifier accepts a complete China projection', () => {
         `<link rel="canonical" href="${canonical}"><meta name="robots" content="index, follow"><script>{"url":"${canonical}"}</script>`
       );
       sitemap.push(`<url><loc>${canonical}</loc></url>`);
-      redirects.set(identity.sourcePath, canonical);
     }
 
     fs.writeFileSync(path.join(outDir, 'sitemap.xml'), `<urlset>${sitemap.join('')}</urlset>`);
     writeCloudflareWorker(outDir, new Map(), false);
-    writeNginxRedirectMap(nextDir, redirects);
+    writeNginxRedirectMap(
+      nextDir,
+      buildRedirects(root, {
+        NEXT_PUBLIC_CN_HOME_URL: baseUrls.cn,
+        NEXT_PUBLIC_IO_HOME_URL: baseUrls.io
+      }).cnRedirects
+    );
 
     assert.deepEqual(
       verifyTechnicalExport({
