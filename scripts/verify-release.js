@@ -28,6 +28,10 @@ const EXPECTED_CASE_ONLY_COUNTS = URL_ALIAS_CONTRACT.slices['case-only'].sourceH
 const EXPECTED_REBUILT_SLUG_COUNTS = URL_ALIAS_CONTRACT.slices['rebuilt-slug'].sourceHosts;
 const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
+const GUIDE_RELEASE_PAIRS = [
+  { slug: 'database-qa-integration-guide', locales: ['zh', 'en'] },
+  { slug: 'scheduled-report-automation', locales: ['zh', 'en'] }
+];
 const FAQ_METADATA_CONTRACT = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', 'src/faq/generated-en-metadata-authority.json'), 'utf8'),
 ).counts;
@@ -160,6 +164,12 @@ function createReleaseRecord(options) {
         source: false,
         regression: false,
         variants: {}
+      },
+      guidePairs: {
+        expected: GUIDE_RELEASE_PAIRS,
+        source: false,
+        variants: {},
+        releaseReady: false
       }
     },
     blockers: []
@@ -223,9 +233,23 @@ function finalizeReleaseRecord(record, failures, options) {
       if (key === 'fallbackDelta') return faqMetadata.observed?.fallbackDelta === expected;
       return faqMetadata.observed?.[key] === expected;
     });
+  const guidePairs = record.evidence.guidePairs;
+  guidePairs.releaseReady =
+    guidePairs.source &&
+    ['cn', 'io'].every((variant) => {
+      const evidence = guidePairs.variants[variant];
+      return (
+        evidence?.status === 'passed' &&
+        GUIDE_RELEASE_PAIRS.every((pair) => evidence.pairs[pair.slug]?.releaseEligible)
+      );
+    });
   const releaseGate = !options.sourceOnly && !options.variant && failures.length === 0;
   record.evidence.releaseEligible =
-    releaseGate && caseOnly.releaseReady && aliasContract.releaseReady && faqMetadata.releaseReady;
+    releaseGate &&
+    caseOnly.releaseReady &&
+    aliasContract.releaseReady &&
+    faqMetadata.releaseReady &&
+    guidePairs.releaseReady;
   record.status = record.evidence.releaseEligible
     ? 'release-eligible'
     : record.blockers.some((blocker) => blocker.type === 'environment')
@@ -251,6 +275,36 @@ function recordStep(record, label, command, variant, status, output, evidence) {
   collectCaseOnlyEvidence(record, label, variant, status, output);
   collectAliasContractEvidence(record, label, variant, status, output);
   collectFaqMetadataEvidence(record, label, variant, status, output);
+  collectGuidePairEvidence(record, label, variant, status, output);
+}
+
+function collectGuidePairEvidence(record, label, variant, status, output) {
+  if (!record || !label.toLowerCase().includes('guide')) return;
+  const guidePairs = record.evidence.guidePairs;
+  if (label.toLowerCase().includes('content source verification')) {
+    const match = output.match(/Guide content verified: (\d+) slugs, (\d+) documents/);
+    guidePairs.source = status === 'passed';
+    guidePairs.sourceCounts = match
+      ? { slugs: Number(match[1]), documents: Number(match[2]) }
+      : undefined;
+  }
+  if (!variant || !label.toLowerCase().includes('export artifact verification')) return;
+  const match = output.match(/Guide HTML verified: (\d+) pages, (\d+) sitemap URLs/);
+  const artifactStatus = output.includes('skipped') ? 'skipped' : status;
+  guidePairs.variants[variant] = {
+    status: artifactStatus,
+    pages: match ? Number(match[1]) : undefined,
+    sitemapUrls: match ? Number(match[2]) : undefined,
+    pairs: Object.fromEntries(
+      GUIDE_RELEASE_PAIRS.map((pair) => [
+        pair.slug,
+        {
+          locales: pair.locales,
+          releaseEligible: artifactStatus === 'passed'
+        }
+      ])
+    )
+  };
 }
 
 function collectCaseOnlyEvidence(record, label, variant, status, output) {
@@ -406,6 +460,15 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
         expectedSlug: GUIDE_TRACER_SLUG,
         pages: guideMeasurement ? Number(guideMeasurement[1]) : undefined,
         sitemapUrls: guideMeasurement ? Number(guideMeasurement[2]) : undefined
+      },
+      guidePairs: record.evidence.guidePairs.variants[variant] || {
+        status: artifactStatus(guideStep),
+        pairs: Object.fromEntries(
+          GUIDE_RELEASE_PAIRS.map((pair) => [
+            pair.slug,
+            { locales: pair.locales, releaseEligible: artifactStatus(guideStep) === 'passed' }
+          ])
+        )
       }
     }
   });

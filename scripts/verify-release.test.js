@@ -96,6 +96,10 @@ test('release coordinator composes Guide checks around each fresh variant export
   assert(source.includes('scripts/verify-guide-export.js'));
   assert(source.includes('guideTracer'));
   assert(source.includes('poc-30-day-design'));
+  assert(source.includes('guidePairs'));
+  assert(source.includes('database-qa-integration-guide'));
+  assert(source.includes('scheduled-report-automation'));
+  assert(source.includes('releaseEligible'));
   assert(source.includes('const variants = options.variant ? [options.variant] : siteVariants;'));
 
   const variantLoop = source.slice(source.indexOf('for (const variant of variants)'));

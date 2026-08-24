@@ -54,14 +54,14 @@ function withGuideRoot(slug, mutate, verify) {
   }
 }
 
-test('approved Guide corpus reports the complete 9x2 contract', () => {
+test('approved Guide corpus reports the complete 11x2 contract', () => {
   const result = spawnSync(process.execPath, ['scripts/verify-guide-content.js'], {
     cwd: ROOT,
     encoding: 'utf8'
   });
 
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.stdout, 'Guide content verified: 9 slugs, 18 documents\n');
+  assert.equal(result.stdout, 'Guide content verified: 11 slugs, 22 documents\n');
   assert.equal(result.stderr, '');
 });
 
@@ -84,6 +84,36 @@ test('POC tracer is a complete bilingual decision Guide with a real step contrac
     assert.match(body, /\[[^\]]+\]\(https:\/\/[^)]+\)/);
     assert.doesNotMatch(body, /KB 5\.1|核验日|verified on \*\*2026-07-20\*\*/i);
     assert.doesNotMatch(body, /```mermaid/);
+  }
+});
+
+test('Database and Human Review pairs are complete bilingual implementation Guides', () => {
+  const expected = [
+    ['database-qa-integration-guide', /database|数据库/i],
+    ['scheduled-report-automation', /human review|人工审核/i]
+  ];
+
+  for (const [slug, topic] of expected) {
+    const entry = findEntry(registry.entries, slug);
+    assert(entry, `${slug} must be registered`);
+    assert.equal(entry.group, 'implementation');
+    assert.deepEqual(entry.en.schemaTokens, ['HowTo', 'Article', 'BreadcrumbList']);
+    assert.deepEqual(entry.zh.schemaTokens, ['HowTo', 'Article', 'BreadcrumbList']);
+
+    for (const locale of ['zh', 'en']) {
+      assert.equal(entry[locale].assetPolicy.status, 'none');
+      assert.equal(entry[locale].configuredInternalLinks.length, 3);
+      const sourcePath = path.join(ROOT, 'src/content/guides', locale, entry[locale].sourceName);
+      const { body } = parseDeliverySource(
+        fs.readFileSync(sourcePath, 'utf8'),
+        { ...entry[locale], slug: entry.slug }
+      );
+
+      assert.match(body, topic);
+      assert.match(body, /## References/);
+      assert.match(body, /\[[^\]]+\]\(https:\/\/[^)]+\)/);
+      assert.doesNotMatch(body, /```mermaid|KB 2\.3|核验日|verified on \*\*2026-07-20\*\*/i);
+    }
   }
 });
 
