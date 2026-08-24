@@ -43,6 +43,14 @@ const EXPECTED_TECHNICAL_AUTHORITY = {
   credentialUnresolved: 0,
   operationRiskUnresolved: 0
 };
+const EXPECTED_TECHNICAL_WAVE = {
+  wave: 'wave-1',
+  baselinePageCount: 1122,
+  selectedCount: 50,
+  acceptedAdd: 50,
+  acceptedUpdate: 0,
+  resultingPageCount: 1172
+};
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
 const GUIDE_AUTHORIZATION_SLUGS = [
   'finance-research-retrieval',
@@ -137,6 +145,7 @@ function createReleaseRecord(options) {
       expectedDeniedPages: TECHNICAL_CONTENT_POLICY.expectedDeniedCount,
       expectedTechnicalPages: EXPECTED_TECHNICAL_PAGE_COUNT,
       technicalAuthority: { ...EXPECTED_TECHNICAL_AUTHORITY },
+      technicalWave: { ...EXPECTED_TECHNICAL_WAVE },
       faqMetadata: {
         candidates: EXPECTED_FAQ_METADATA_CANDIDATES,
         identities: EXPECTED_FAQ_METADATA_IDENTITIES,
@@ -174,6 +183,14 @@ function createReleaseRecord(options) {
         source: false,
         regression: false,
         observed: undefined,
+        releaseReady: false
+      },
+      technicalWave: {
+        expected: { ...EXPECTED_TECHNICAL_WAVE },
+        source: false,
+        regression: false,
+        observed: undefined,
+        variants: {},
         releaseReady: false
       },
       faqMetadata: {
@@ -232,6 +249,24 @@ function collectTechnicalAuthorityEvidence(record, label, status, output) {
   try {
     evidence.observed = JSON.parse(marker[1]);
     record.counts.technicalAuthorityObserved = evidence.observed;
+  } catch (error) {
+    evidence.observed = { status: 'invalid', error: error.message };
+  }
+}
+
+function collectTechnicalWaveEvidence(record, label, variant, status, output) {
+  if (!record || !label.toLowerCase().includes('technical wave')) return;
+  const evidence = record.evidence.technicalWave;
+  const lowerLabel = label.toLowerCase();
+  if (lowerLabel.includes('source verification')) evidence.source = status === 'passed';
+  if (lowerLabel.includes('regression')) evidence.regression = status === 'passed';
+  const marker = output.match(/WAVE1_RESULT=(\{[^\n]+\})/);
+  if (!marker) return;
+  try {
+    const observed = JSON.parse(marker[1]);
+    evidence.observed = observed;
+    record.counts.technicalWaveObserved = observed;
+    if (variant) evidence.variants[variant] = observed;
   } catch (error) {
     evidence.observed = { status: 'invalid', error: error.message };
   }
@@ -332,6 +367,21 @@ function finalizeReleaseRecord(record, failures, options) {
     ) &&
     technicalAuthority.observed?.resultingPageCount ===
       technicalAuthority.observed?.historicalPageCount + technicalAuthority.observed?.add;
+  const technicalWave = record.evidence.technicalWave;
+  technicalWave.releaseReady =
+    technicalWave.source &&
+    technicalWave.regression &&
+    Object.entries(technicalWave.expected).every(
+      ([key, expected]) => technicalWave.observed?.[key] === expected
+    ) &&
+    ['cn', 'io', 'preview'].every((variant) => {
+      const observed = technicalWave.variants[variant];
+      return (
+        observed?.sourceVerified === true &&
+        observed?.exportVerified === true &&
+        observed?.releaseEligible === true
+      );
+    });
   const releaseGate = !options.sourceOnly && !options.variant && failures.length === 0;
   record.evidence.releaseEligible =
     releaseGate &&
@@ -339,6 +389,7 @@ function finalizeReleaseRecord(record, failures, options) {
     aliasContract.releaseReady &&
     faqMetadata.releaseReady &&
     technicalAuthority.releaseReady &&
+    technicalWave.releaseReady &&
     guideAuthorization.releaseReady &&
     guidePairs.releaseReady;
   record.status = record.evidence.releaseEligible
@@ -364,6 +415,7 @@ function recordStep(record, label, command, variant, status, output, evidence) {
   record.commands.push(step);
   collectCountEvidence(record, output);
   collectTechnicalAuthorityEvidence(record, label, status, output);
+  collectTechnicalWaveEvidence(record, label, variant, status, output);
   collectCaseOnlyEvidence(record, label, variant, status, output);
   collectAliasContractEvidence(record, label, variant, status, output);
   collectFaqMetadataEvidence(record, label, variant, status, output);
@@ -812,7 +864,8 @@ function runSourceChecks(failures, env, record) {
     ['case-only authority and projection source verification', 'scripts/verify-case-only-aliases.js', []],
     ['URL Alias rebuilt-slug authority and projection source verification', 'scripts/verify-rebuilt-slug-aliases.js', []],
     ['FAQ redirect source verification', 'scripts/verify-faq-redirects.js', ['--source']],
-    ['technical authority source verification', 'scripts/verify-technical-authority.js', []]
+    ['technical authority source verification', 'scripts/verify-technical-authority.js', []],
+    ['technical wave source verification', 'scripts/verify-technical-wave.js', []]
   ];
   for (const [label, script, args] of checks) {
     const formatSuccess = label === 'technical authority source verification'
@@ -824,6 +877,7 @@ function runSourceChecks(failures, env, record) {
   const technicalChecks = [
     ['technical content authority verification', ['verify:technical-content']],
     ['technical authority regression', ['verify:technical-authority-regression']],
+    ['technical wave regression', ['verify:technical-wave-regression']],
     ['technical content regression', ['verify:technical-content-regression']],
     ['technical center regression', ['verify:technical-center-regression']],
     ['technical export regression', ['verify:technical-export-regression']],
@@ -936,6 +990,15 @@ function runVariantChecks(failures, variant, env, record) {
     failures,
     `technical export artifact verification (${variant})`,
     ['verify:technical-export'],
+    env,
+    variant,
+    undefined,
+    record
+  );
+  npmStep(
+    failures,
+    `technical wave export verification (${variant})`,
+    ['verify:technical-wave', '--', '--export', '--variant', variant, '--out-dir', 'out'],
     env,
     variant,
     undefined,

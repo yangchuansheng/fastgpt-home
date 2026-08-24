@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "batch": "week05",
+  "wave": "wave-1",
+  "status": "source-verified",
+  "sourceSetSha256": "d0dc7c4967610ec0085c5c8303e2f492e7c75c4688076c4a038e0fd02c5d06c4",
+  "baselinePageCount": 1122,
+  "resultingPageCount": 1172,
+  "atomic": true,
+  "artifacts": [
+    {
+      "path": "src/components/tech-center/entries.json",
+      "sha256": "8a9829a419c4fb073b10cc014d74d4c941c7504614e41e04bb5530679ab9ac38"
+    },
+    {
+      "path": "public/tech-center/search-index.json",
+      "sha256": "bbcedc7a9b2dce7cce637f2e1f6acd681c40e9a92646c777641f8fc208b47705"
+    },
+    {
+      "path": "src/content/tech-center/authority/week05-wave1-content.json",
+      "sha256": "406cf590d8836fcc78a8eae9a58f7c4b4f7b0c34dff3383940d03200a8dbe866"
+    },
+    {
+      "path": "src/content/tech-center/authority/week05-wave1-manifest.json",
+      "sha256": "3494d34468510501db5c6c1d9b7c92803bc115a2bb0122d1b0eb74ebc07067f7"
+    },
+    {
+      "path": "src/content/tech-center/authority/week05-wave1-projection.json",
+      "sha256": "2d56db33f9193d54cf13a5000b174cab5d8e2d6580eebba17c8f81a4c420a7f9"
+    },
+    {
+      "path": "src/content/tech-center/authority/week05-wave1-rollback.json",
+      "sha256": "90a84212a99dbf649d09c6d7ae9c74663a174dfe62e8121ed6ff11b45780e4bc"
+    }
+  ]
+}
