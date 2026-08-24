@@ -12,6 +12,7 @@ const {
   appendP1HistoricalBaselineAdvisories,
   extractP1SuccessMeasurement
 } = require('./verify-release');
+const { normalizeSolutionsEvidence } = require('./lib/release-readiness');
 const { buildOwnerExpectationSet, parseArgs } = require('./verify-faq-metadata');
 const { normalizeFaqMetadataPolicy } = require('./generate-faq-metadata');
 
@@ -100,6 +101,7 @@ test('release coordinator composes Guide checks around each fresh variant export
   assert(source.includes('guideAuthorization'));
   assert(source.includes('scripts/verify-guide-authorization.js'));
   assert(source.includes('verify:guide-authorization-regression'));
+  assert(source.includes('src/content/guides/authorization.json'));
   assert(source.includes('database-qa-integration-guide'));
   assert(source.includes('scheduled-report-automation'));
   assert(source.includes('finance-research-retrieval'));
@@ -150,10 +152,7 @@ test('release coordinator records and gates the case-only alias slice independen
   ]) {
     assert(source.includes(required), required);
   }
-  assert.equal(
-    packageJson.scripts['verify:case-only'],
-    'node scripts/verify-case-only-aliases.js'
-  );
+  assert.equal(packageJson.scripts['verify:case-only'], 'node scripts/verify-case-only-aliases.js');
   assert.equal(
     packageJson.scripts['verify:case-only-regression'],
     'node --test scripts/verify-case-only-aliases.test.js'
@@ -175,6 +174,140 @@ test('release coordinator accepts the preview Site Variant', () => {
     retainSuccessArtifacts: undefined,
     variant: 'preview'
   });
+});
+
+test('release coordinator accepts a separately supplied Solutions preview evidence file', () => {
+  assert.deepEqual(parseReleaseArgs(['--solutions-evidence', 'evidence.json']), {
+    sourceOnly: false,
+    keepArtifacts: false,
+    retainSuccessArtifacts: undefined,
+    variant: undefined,
+    solutionsEvidence: 'evidence.json'
+  });
+  assert.throws(
+    () => parseReleaseArgs(['--solutions-preview-evidence']),
+    /requires a JSON file path/
+  );
+
+  const evidence = normalizeSolutionsEvidence(
+    {
+      producer: 'fastgpt-solutions-preview-http-runner',
+      runnerVersion: 1,
+      status: 'passed',
+      repository: { url: 'https://github.com/example/solutions' },
+      revision: 'abcdef1234567',
+      target: 'https://preview.example.com',
+      approvedTarget: true,
+      capturedAt: '2026-08-24T00:00:00.000Z',
+      checks: {
+        root: 'passed',
+        routes: 'passed',
+        robots: 'passed',
+        sitemap: 'passed',
+        canonical: 'passed',
+        'internal-links': 'passed',
+        projections: 'passed'
+      },
+      artifacts: [
+        'root',
+        'routes',
+        'robots',
+        'sitemap',
+        'canonical',
+        'internal-links',
+        'projections'
+      ].map((name) => ({
+        path: `responses/${name}.body`,
+        bytes: 1,
+        sha256: 'a'.repeat(64),
+        capturedAt: '2026-08-24T00:00:00.000Z'
+      })),
+      responses: [
+        'root',
+        'routes',
+        'robots',
+        'sitemap',
+        'canonical',
+        'internal-links',
+        'projections'
+      ].map((name) => ({
+        name,
+        requestPath:
+          name === 'root'
+            ? '/'
+            : name === 'robots'
+            ? '/robots.txt'
+            : name === 'sitemap'
+            ? '/sitemap.xml'
+            : `/${name}`,
+        artifactPath: `responses/${name}.body`,
+        status: 200,
+        expectedStatus: 200,
+        bytes: 1,
+        sha256: 'a'.repeat(64)
+      }))
+    },
+    { approvedTarget: 'https://preview.example.com' }
+  );
+  assert.equal(evidence.source, 'cross-project');
+  assert.equal(evidence.evidenceTier, 'preview-http');
+  assert.equal(evidence.claim, true);
+  assert.deepEqual(
+    parseReleaseArgs([
+      '--solutions-http-target',
+      'https://preview.example.com',
+      '--solutions-approved-target',
+      'https://preview.example.com',
+      '--solutions-http-contract',
+      'contract.json'
+    ]),
+    {
+      sourceOnly: false,
+      keepArtifacts: false,
+      retainSuccessArtifacts: undefined,
+      variant: undefined,
+      solutionsHttpTarget: 'https://preview.example.com',
+      solutionsApprovedTarget: 'https://preview.example.com',
+      solutionsHttpContract: 'contract.json'
+    }
+  );
+  assert.throws(
+    () => parseReleaseArgs(['--solutions-http-target', 'https://preview.example.com']),
+    /requires --solutions-http-contract/
+  );
+});
+
+test('release record keeps evidence tiers and rollback inventory separate', () => {
+  const source = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
+  for (const required of [
+    "recordKind: 'week05-release-readiness'",
+    'crossProjectInputs',
+    'solutionsPreviewHttp',
+    'source-verified',
+    'export-verified',
+    'release-eligible',
+    'production-observed',
+    'search-observed',
+    'directoryInventory',
+    'buildDeterministicReadiness',
+    'technical-wave-rollback',
+    'verify-solutions-preview-http.js',
+    'verify-guide-preview.js'
+  ]) {
+    assert(source.includes(required), required);
+  }
+  assert.equal(
+    packageJson.scripts['verify:release-readiness'],
+    'node --test scripts/lib/release-readiness.test.js'
+  );
+  assert.equal(
+    packageJson.scripts['verify:solutions-preview'],
+    'node scripts/verify-solutions-preview-http.js'
+  );
+  assert.equal(
+    packageJson.scripts['verify:solutions-preview-regression'],
+    'node --test scripts/lib/solutions-preview-http.test.js'
+  );
 });
 
 test('preview release gates skip production-only FAQ artifacts and sitemap cardinality', () => {

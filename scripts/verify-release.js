@@ -17,6 +17,14 @@ const {
   writeUrlAliasArtifactBundle
 } = require('./lib/url-alias-artifacts');
 const { siteVariants } = require('./lib/site-variant');
+const {
+  RELEASE_READINESS_SCHEMA_VERSION,
+  buildDeterministicReadiness,
+  directoryInventory,
+  fileProvenance,
+  normalizeSolutionsEvidence,
+  verifyResponseDirectory
+} = require('./lib/release-readiness');
 
 const ROOT = path.resolve(__dirname, '..');
 const NEXT_DIR = path.join(ROOT, '.next');
@@ -52,21 +60,22 @@ const EXPECTED_TECHNICAL_WAVE = {
   resultingPageCount: 1172
 };
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
-const GUIDE_AUTHORIZATION_SLUGS = [
-  'finance-research-retrieval',
-  'finance-daily-report-automation'
-];
+const GUIDE_AUTHORIZATION_SLUGS = ['finance-research-retrieval', 'finance-daily-report-automation'];
 const GUIDE_ENTRY_COUNT = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'src/content/guides/policy.json'), 'utf8')
 ).entryCount;
 const GUIDE_RELEASE_PAIRS = [
+  { slug: GUIDE_TRACER_SLUG, locales: ['zh', 'en'] },
   { slug: 'database-qa-integration-guide', locales: ['zh', 'en'] },
   { slug: 'scheduled-report-automation', locales: ['zh', 'en'] },
   { slug: 'finance-research-retrieval', locales: ['zh', 'en'] },
   { slug: 'finance-daily-report-automation', locales: ['zh', 'en'] }
 ];
 const FAQ_METADATA_CONTRACT = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', 'src/faq/generated-en-metadata-authority.json'), 'utf8'),
+  fs.readFileSync(
+    path.join(__dirname, '..', 'src/faq/generated-en-metadata-authority.json'),
+    'utf8'
+  )
 ).counts;
 const EXPECTED_FAQ_METADATA_CANDIDATES = FAQ_METADATA_CONTRACT.candidates;
 const EXPECTED_FAQ_METADATA_IDENTITIES = FAQ_METADATA_CONTRACT.identities;
@@ -77,6 +86,25 @@ const EXPECTED_FAQ_METADATA_FALLBACK = FAQ_METADATA_CONTRACT.fallback.after;
 const P1_BASELINE_KIB = 266.9;
 const P1_BUDGET_KIB = 260;
 const RELEASE_RECORD_FILENAME = 'release-verification.json';
+const SOURCE_PROVENANCE_PATHS = [
+  'src/config/site-routing.json',
+  'src/config/url-alias-authority.json',
+  'src/faq/generated-en-route-registry.json',
+  'src/faq/generated-en-metadata.json',
+  'src/faq/generated-en-metadata-authority.json',
+  'src/content/guides/registry.json',
+  'src/content/guides/policy.json',
+  'src/content/guides/authorization.json',
+  'src/lib/technical-content-policy.json',
+  'src/components/tech-center/entries.json',
+  'public/tech-center/search-index.json',
+  'src/content/tech-center/authority/week05-authority.json',
+  'src/content/tech-center/authority/week05-provenance.json',
+  'src/content/tech-center/authority/week05-release-manifest.json',
+  'src/content/tech-center/authority/week05-wave1-manifest.json',
+  'src/content/tech-center/authority/week05-wave1-release-manifest.json',
+  'src/content/tech-center/authority/week05-wave1-rollback.json'
+];
 const GENERATED_PUBLIC_PATHS = [
   'public/llms.txt',
   'public/robots.txt',
@@ -114,15 +142,150 @@ function parseArgs(argv) {
         throw new Error(`--variant requires one of: ${siteVariants.join(', ')}`);
       }
       options.variant = variant;
+    } else if (token === '--solutions-evidence' || token === '--solutions-preview-evidence') {
+      const evidencePath = argv[++index];
+      if (!evidencePath || evidencePath.startsWith('--')) {
+        throw new Error(`${token} requires a JSON file path`);
+      }
+      options.solutionsEvidence = evidencePath;
+    } else if (token === '--solutions-http-target') {
+      const target = argv[++index];
+      if (!target || target.startsWith('--')) throw new Error(`${token} requires an HTTPS URL`);
+      options.solutionsHttpTarget = target;
+    } else if (token === '--solutions-http-contract') {
+      const contractPath = argv[++index];
+      if (!contractPath || contractPath.startsWith('--')) {
+        throw new Error(`${token} requires a JSON file path`);
+      }
+      options.solutionsHttpContract = contractPath;
+    } else if (token === '--solutions-approved-target') {
+      const target = argv[++index];
+      if (!target || target.startsWith('--')) throw new Error(`${token} requires an HTTPS URL`);
+      options.solutionsApprovedTarget = target;
     } else {
       throw new Error(`Unknown argument: ${token}`);
     }
+  }
+  if (options.solutionsEvidence && (options.solutionsHttpTarget || options.solutionsHttpContract)) {
+    throw new Error(
+      '--solutions-evidence cannot be combined with --solutions-http-target or --solutions-http-contract'
+    );
+  }
+  if (options.solutionsHttpTarget !== undefined && options.solutionsHttpContract === undefined) {
+    throw new Error('--solutions-http-target requires --solutions-http-contract');
+  }
+  if (options.solutionsHttpContract !== undefined && options.solutionsHttpTarget === undefined) {
+    throw new Error('--solutions-http-contract requires --solutions-http-target');
   }
   return options;
 }
 
 function commandLabel(command, args) {
   return [command, ...args].join(' ');
+}
+
+function redactTarget(value) {
+  if (typeof value !== 'string') return value;
+  try {
+    const target = new URL(value);
+    target.username = '';
+    target.password = '';
+    target.search = '';
+    target.hash = '';
+    return target.href;
+  } catch {
+    return '<invalid-target>';
+  }
+}
+
+function redactReleaseOptions(options) {
+  return {
+    ...options,
+    ...(options.solutionsHttpTarget
+      ? { solutionsHttpTarget: redactTarget(options.solutionsHttpTarget) }
+      : {}),
+    ...(options.solutionsApprovedTarget
+      ? { solutionsApprovedTarget: redactTarget(options.solutionsApprovedTarget) }
+      : {})
+  };
+}
+
+function isInsideDirectory(directory, filePath) {
+  const relative = path.relative(path.resolve(directory), path.resolve(filePath));
+  return (
+    relative === '' ||
+    (!relative.startsWith('../') && relative !== '..' && !path.isAbsolute(relative))
+  );
+}
+
+function persistExternalSolutionsEvidence(
+  record,
+  evidencePath,
+  responseDirectory,
+  provenance,
+  normalizedEvidence
+) {
+  record.artifacts.push({
+    variant: 'cross-project',
+    ...provenance,
+    role: 'cross-project-evidence-file'
+  });
+  const evidenceInside = isInsideDirectory(RETAIN_DIR, evidencePath);
+  const responseDirectoryInside = isInsideDirectory(RETAIN_DIR, responseDirectory);
+  if (evidenceInside && (responseDirectoryInside || !fs.existsSync(responseDirectory))) return;
+
+  const persistRoot = path.join(RETAIN_DIR, 'cross-project', provenance.sha256.slice(0, 16));
+  const persistedEvidencePath = path.join(persistRoot, 'evidence.json');
+  fs.mkdirSync(persistRoot, { recursive: true });
+  const persistedResponseDirectory = path.join(persistRoot, 'responses');
+  let persistedEvidence = normalizedEvidence;
+  if (fs.existsSync(responseDirectory) && !responseDirectoryInside) {
+    fs.cpSync(responseDirectory, persistedResponseDirectory, { recursive: true, force: true });
+    const sourceDirectoryRelative = path
+      .relative(ROOT, responseDirectory)
+      .replaceAll(path.sep, '/');
+    const localArtifactPath = (artifactPath) => {
+      const normalizedPath = artifactPath.replaceAll('\\', '/');
+      const relativePath = normalizedPath.startsWith(`${sourceDirectoryRelative}/`)
+        ? normalizedPath.slice(sourceDirectoryRelative.length + 1)
+        : normalizedPath.startsWith('responses/')
+        ? normalizedPath.slice('responses/'.length)
+        : normalizedPath;
+      return `responses/${relativePath}`;
+    };
+    persistedEvidence = {
+      ...normalizedEvidence,
+      artifacts: normalizedEvidence.artifacts.map((artifact) => ({
+        ...artifact,
+        path: localArtifactPath(artifact.path)
+      })),
+      responses: normalizedEvidence.responses.map((response) => {
+        return {
+          ...response,
+          artifactPath: localArtifactPath(response.artifactPath)
+        };
+      })
+    };
+    record.artifacts.push({
+      variant: 'cross-project',
+      ...directoryInventory(persistedResponseDirectory, {
+        root: ROOT,
+        role: 'cross-project-http-responses-persisted',
+        source: 'generated'
+      })
+    });
+  }
+  if (!evidenceInside || persistedEvidence !== normalizedEvidence) {
+    fs.writeFileSync(persistedEvidencePath, `${JSON.stringify(persistedEvidence, null, 2)}\n`);
+    record.artifacts.push({
+      variant: 'cross-project',
+      ...fileProvenance(persistedEvidencePath, {
+        root: ROOT,
+        role: 'cross-project-evidence-persisted',
+        source: 'generated'
+      })
+    });
+  }
 }
 
 function createFailure(label, command, args, output, variant) {
@@ -134,11 +297,272 @@ function createFailure(label, command, args, output, variant) {
   };
 }
 
+function collectSourceProvenance(capturedAt) {
+  const paths = [...SOURCE_PROVENANCE_PATHS, ...GENERATED_PUBLIC_PATHS];
+  return paths
+    .filter((relativePath) => fs.existsSync(path.join(ROOT, relativePath)))
+    .map((relativePath) =>
+      fileProvenance(path.join(ROOT, relativePath), {
+        root: ROOT,
+        role: GENERATED_PUBLIC_PATHS.includes(relativePath) ? 'generated-public' : 'release-source',
+        source: GENERATED_PUBLIC_PATHS.includes(relativePath) ? 'generated' : 'repository',
+        capturedAt
+      })
+    );
+}
+
+function addRollbackFile(record, relativePath, role, capturedAt) {
+  const filePath = path.join(ROOT, relativePath);
+  if (!fs.existsSync(filePath)) return;
+  record.rollback.inventory.push(
+    fileProvenance(filePath, {
+      root: ROOT,
+      role,
+      source: 'repository',
+      capturedAt
+    })
+  );
+}
+
+function loadSolutionsEvidence(record, options) {
+  const httpTarget = options.solutionsHttpTarget || process.env.FASTGPT_SOLUTIONS_PREVIEW_TARGET;
+  const httpContract =
+    options.solutionsHttpContract || process.env.FASTGPT_SOLUTIONS_PREVIEW_CONTRACT;
+  const approvedTarget =
+    options.solutionsApprovedTarget || process.env.FASTGPT_SOLUTIONS_APPROVED_PREVIEW_TARGET;
+  if (httpTarget || httpContract) {
+    if (!httpTarget || !httpContract) {
+      record.crossProjectInputs.solutionsPreviewHttp = normalizeSolutionsEvidence({
+        status: 'blocked'
+      });
+      record.crossProjectInputs.solutionsPreviewHttp.blockers.push({
+        code: 'solutions-http-runner-input-incomplete',
+        detail: 'Solutions preview target and contract must be supplied together'
+      });
+      return;
+    }
+    const contractPath = path.resolve(ROOT, httpContract);
+    const outputPath = path.join(RETAIN_DIR, 'solutions-preview-http.json');
+    try {
+      JSON.parse(fs.readFileSync(contractPath, 'utf8'));
+      record.sourceProvenance.push(
+        fileProvenance(contractPath, {
+          root: ROOT,
+          role: 'cross-project-contract',
+          source: 'external'
+        })
+      );
+      const runnerArgs = [
+        path.join(ROOT, 'scripts/verify-solutions-preview-http.js'),
+        '--target',
+        httpTarget,
+        '--contract',
+        contractPath,
+        '--output',
+        outputPath
+      ];
+      if (approvedTarget) runnerArgs.push('--approved-target', approvedTarget);
+      const result = spawnSync(process.execPath, runnerArgs, {
+        cwd: ROOT,
+        encoding: 'utf8',
+        maxBuffer: 10 * 1024 * 1024
+      });
+      const output = `${result.stdout || ''}${result.stderr || ''}`.trim();
+      const displayRunnerArgs = runnerArgs.map((argument) =>
+        argument === httpTarget || argument === approvedTarget ? redactTarget(argument) : argument
+      );
+      const evidence = result.stdout ? JSON.parse(result.stdout) : { status: 'blocked' };
+      const provenance = fs.existsSync(outputPath)
+        ? fileProvenance(outputPath, {
+            root: ROOT,
+            role: 'cross-project-evidence',
+            source: 'generated'
+          })
+        : undefined;
+      const responseDirectory = path.join(RETAIN_DIR, 'solutions-preview-http-responses');
+      if (fs.existsSync(responseDirectory)) {
+        record.artifacts.push({
+          variant: 'cross-project',
+          ...directoryInventory(responseDirectory, {
+            root: ROOT,
+            role: 'cross-project-http-responses',
+            source: 'generated'
+          })
+        });
+      }
+      if (provenance) {
+        record.artifacts.push({
+          variant: 'cross-project',
+          ...provenance,
+          role: 'cross-project-evidence-file'
+        });
+      }
+      const normalizedEvidence = normalizeSolutionsEvidence(evidence, {
+        provenance,
+        approvedTarget
+      });
+      normalizedEvidence.blockers.push(
+        ...verifyResponseDirectory(normalizedEvidence.responses, responseDirectory)
+      );
+      if (normalizedEvidence.blockers.length) {
+        normalizedEvidence.status = 'blocked';
+        normalizedEvidence.claim = false;
+      }
+      record.crossProjectInputs.solutionsPreviewHttp = normalizedEvidence;
+      if (result.status !== 0) {
+        normalizedEvidence.status = 'blocked';
+        normalizedEvidence.claim = false;
+        record.crossProjectInputs.solutionsPreviewHttp.blockers.push({
+          code: 'solutions-http-runner-failed',
+          detail: output
+        });
+      }
+      record.commands.push({
+        label: 'Solutions preview HTTP black-box contract',
+        command: `${process.execPath} ${displayRunnerArgs.join(' ')}`,
+        status: result.status === 0 ? 'passed' : 'failed',
+        output: output.slice(-4000) || '<no command output>'
+      });
+    } catch (error) {
+      record.crossProjectInputs.solutionsPreviewHttp = normalizeSolutionsEvidence(
+        { status: 'blocked', target: httpTarget },
+        {
+          provenance: {
+            path: path.relative(ROOT, contractPath),
+            role: 'cross-project-contract',
+            source: 'external'
+          },
+          approvedTarget
+        }
+      );
+      record.crossProjectInputs.solutionsPreviewHttp.blockers.push({
+        code: 'solutions-http-runner-failed',
+        detail: error.message
+      });
+      record.commands.push({
+        label: 'Solutions preview HTTP black-box contract',
+        command: `${
+          process.execPath
+        } scripts/verify-solutions-preview-http.js --target ${redactTarget(
+          httpTarget
+        )} --contract ${contractPath}`,
+        status: 'failed',
+        output: error.message
+      });
+    }
+    return;
+  }
+
+  const configuredPath =
+    options.solutionsEvidence || process.env.FASTGPT_SOLUTIONS_PREVIEW_EVIDENCE;
+  if (!configuredPath) {
+    record.crossProjectInputs.solutionsPreviewHttp = normalizeSolutionsEvidence();
+    return;
+  }
+
+  const evidencePath = path.resolve(ROOT, configuredPath);
+  let provenance;
+  try {
+    provenance = fileProvenance(evidencePath, {
+      root: ROOT,
+      role: 'cross-project-evidence',
+      source: 'external'
+    });
+  } catch (error) {
+    record.crossProjectInputs.solutionsPreviewHttp = normalizeSolutionsEvidence(
+      { status: 'invalid', detail: error.message },
+      { provenance: { path: evidencePath, role: 'cross-project-evidence', source: 'external' } }
+    );
+    record.crossProjectInputs.solutionsPreviewHttp.blockers.push({
+      code: 'solutions-evidence-file-unreadable',
+      detail: error.message
+    });
+    return;
+  }
+
+  try {
+    const input = JSON.parse(fs.readFileSync(evidencePath, 'utf8'));
+    const normalizedEvidence = normalizeSolutionsEvidence(input, {
+      provenance,
+      approvedTarget
+    });
+    const responseDirectory = path.join(
+      path.dirname(evidencePath),
+      `${path.basename(evidencePath, path.extname(evidencePath))}-responses`
+    );
+    if (fs.existsSync(responseDirectory)) {
+      record.artifacts.push({
+        variant: 'cross-project',
+        ...directoryInventory(responseDirectory, {
+          root: ROOT,
+          role: 'cross-project-http-responses',
+          source: 'external'
+        })
+      });
+    }
+    normalizedEvidence.blockers.push(
+      ...verifyResponseDirectory(normalizedEvidence.responses, responseDirectory)
+    );
+    if (normalizedEvidence.blockers.length) {
+      normalizedEvidence.status = 'blocked';
+      normalizedEvidence.claim = false;
+    }
+    try {
+      persistExternalSolutionsEvidence(
+        record,
+        evidencePath,
+        responseDirectory,
+        provenance,
+        normalizedEvidence
+      );
+    } catch (error) {
+      normalizedEvidence.blockers.push({
+        code: 'solutions-evidence-persist-failed',
+        detail: error.message
+      });
+      normalizedEvidence.status = 'blocked';
+      normalizedEvidence.claim = false;
+    }
+    record.crossProjectInputs.solutionsPreviewHttp = normalizedEvidence;
+  } catch (error) {
+    record.crossProjectInputs.solutionsPreviewHttp = normalizeSolutionsEvidence(
+      { status: 'invalid', detail: error.message },
+      { provenance, approvedTarget }
+    );
+    record.crossProjectInputs.solutionsPreviewHttp.blockers.push({
+      code: 'solutions-evidence-json-invalid',
+      detail: error.message
+    });
+  }
+}
+
 function createReleaseRecord(options) {
+  const startedAt = new Date().toISOString();
   return {
-    schemaVersion: 1,
-    startedAt: new Date().toISOString(),
-    options,
+    schemaVersion: RELEASE_READINESS_SCHEMA_VERSION,
+    recordKind: 'week05-release-readiness',
+    issue: {
+      number: 247,
+      url: 'https://github.com/labring/fastgpt-home/issues/247'
+    },
+    startedAt,
+    options: redactReleaseOptions(options),
+    sourceProvenance: collectSourceProvenance(startedAt),
+    artifacts: [],
+    crossProjectInputs: {
+      solutionsPreviewHttp: normalizeSolutionsEvidence()
+    },
+    rollback: {
+      inventory: []
+    },
+    evidenceTiers: {
+      'source-verified': { state: 'not-verified', claim: false },
+      'export-verified': { state: 'not-verified', claim: false },
+      'preview-http': { state: 'not-verified', claim: false },
+      'release-eligible': { state: 'blocked', claim: false },
+      'production-observed': { state: 'not-observed', claim: false },
+      'search-observed': { state: 'not-observed', claim: false }
+    },
     commands: [],
     counts: {
       expectedImportedPages: TECHNICAL_CONTENT_POLICY.expectedAcceptedCount,
@@ -298,6 +722,17 @@ function finalizeReleaseRecord(record, failures, options) {
     command: failure.command,
     detail: failure.output
   }));
+  const solutionsPreviewHttp = record.crossProjectInputs.solutionsPreviewHttp;
+  record.evidence.solutionsPreviewHttp = solutionsPreviewHttp;
+  for (const blocker of solutionsPreviewHttp.blockers || []) {
+    record.blockers.push({
+      type: 'cross-project',
+      label: 'Solutions preview HTTP contract',
+      code: blocker.code,
+      detail: blocker.detail
+    });
+  }
+  record.blockerCount = record.blockers.length;
   const caseOnly = record.evidence.caseOnly;
   caseOnly.releaseReady =
     caseOnly.source &&
@@ -346,13 +781,11 @@ function finalizeReleaseRecord(record, failures, options) {
     missingAuthorization.projectedEntries ===
       GUIDE_ENTRY_COUNT - GUIDE_AUTHORIZATION_SLUGS.length &&
     missingAuthorization.financeSlugs?.length === 0 &&
-    GUIDE_AUTHORIZATION_SLUGS.every((slug) =>
-      missingAuthorization.excludedSlugs?.includes(slug)
-    );
+    GUIDE_AUTHORIZATION_SLUGS.every((slug) => missingAuthorization.excludedSlugs?.includes(slug));
   guidePairs.releaseReady =
     guidePairs.source &&
     guideAuthorization.releaseReady &&
-    ['cn', 'io'].every((variant) => {
+    ['cn', 'io', 'preview'].every((variant) => {
       const evidence = guidePairs.variants[variant];
       return (
         evidence?.status === 'passed' &&
@@ -385,6 +818,7 @@ function finalizeReleaseRecord(record, failures, options) {
   const releaseGate = !options.sourceOnly && !options.variant && failures.length === 0;
   record.evidence.releaseEligible =
     releaseGate &&
+    solutionsPreviewHttp.claim === true &&
     caseOnly.releaseReady &&
     aliasContract.releaseReady &&
     faqMetadata.releaseReady &&
@@ -398,12 +832,41 @@ function finalizeReleaseRecord(record, failures, options) {
     ? 'environment-blocked'
     : failures.length
     ? 'failed'
+    : !options.sourceOnly && solutionsPreviewHttp.claim !== true
+    ? 'release-blocked'
     : options.sourceOnly
     ? 'source-verified'
     : 'export-verified';
   record.evidence.exportVerified = record.variants
     .filter((variant) => variant.outcome === 'export-verified')
     .map((variant) => variant.variant);
+  const sourceFailure = failures.some(
+    (failure) =>
+      !failure.variant &&
+      failure.label !== 'case-sensitive filesystem policy' &&
+      !failure.label.includes('Solutions preview HTTP')
+  );
+  const exportClaim =
+    !options.sourceOnly &&
+    !options.variant &&
+    record.variants.length === siteVariants.length &&
+    record.variants.every((variant) => variant.outcome === 'export-verified');
+  record.evidenceTiers = {
+    'source-verified': { state: sourceFailure ? 'blocked' : 'verified', claim: !sourceFailure },
+    'export-verified': { state: exportClaim ? 'verified' : 'not-verified', claim: exportClaim },
+    'preview-http': {
+      state: solutionsPreviewHttp.claim === true ? 'verified' : 'blocked',
+      claim: solutionsPreviewHttp.claim === true
+    },
+    'release-eligible': {
+      state: record.evidence.releaseEligible ? 'eligible' : 'blocked',
+      claim: record.evidence.releaseEligible
+    },
+    'production-observed': { state: 'not-observed', claim: false },
+    'search-observed': { state: 'not-observed', claim: false }
+  };
+  record.evidence.tiers = record.evidenceTiers;
+  record.releaseReadiness = buildDeterministicReadiness(record);
   return record;
 }
 
@@ -449,11 +912,15 @@ function collectGuidePairEvidence(record, label, variant, status, output) {
   }
   if (!variant || !label.toLowerCase().includes('export artifact verification')) return;
   const match = output.match(/Guide HTML verified: (\d+) pages, (\d+) sitemap URLs/);
+  const previewMatch = output.match(
+    /Guide Preview HTML verified: (\d+) pages, (\d+) bilingual pairs/
+  );
   const artifactStatus = output.includes('skipped') ? 'skipped' : status;
   guidePairs.variants[variant] = {
     status: artifactStatus,
-    pages: match ? Number(match[1]) : undefined,
+    pages: match ? Number(match[1]) : previewMatch ? Number(previewMatch[1]) : undefined,
     sitemapUrls: match ? Number(match[2]) : undefined,
+    bilingualPairs: previewMatch ? Number(previewMatch[2]) : undefined,
     pairs: Object.fromEntries(
       GUIDE_RELEASE_PAIRS.map((pair) => [
         pair.slug,
@@ -476,8 +943,7 @@ function collectCaseOnlyEvidence(record, label, variant, status, output) {
     caseOnly.variants[variant] = {
       status,
       aliases: aliases ? Number(aliases) : undefined,
-      expectedAliases:
-        EXPECTED_CASE_ONLY_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io']
+      expectedAliases: EXPECTED_CASE_ONLY_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io']
     };
   }
 }
@@ -489,15 +955,15 @@ function collectAliasContractEvidence(record, label, variant, status, output) {
   if (label.includes('source verification')) aliasContract.source = status === 'passed';
   if (label.includes('regression')) aliasContract.regression = status === 'passed';
   if (label.includes('rebuilt-slug')) {
-    if (label.includes('source verification')) aliasContract.rebuiltSlug.source = status === 'passed';
+    if (label.includes('source verification'))
+      aliasContract.rebuiltSlug.source = status === 'passed';
     if (label.includes('regression')) aliasContract.rebuiltSlug.regression = status === 'passed';
   }
   if (variant && label.includes('black-box')) {
     aliasContract.variants[variant] = {
       status,
       aliases: aliases ? Number(aliases) : undefined,
-      expectedAliases:
-        EXPECTED_ALIAS_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io']
+      expectedAliases: EXPECTED_ALIAS_COUNTS[variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io']
     };
   }
 }
@@ -553,7 +1019,7 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
     /P1 verification passed for .*?:\s*([0-9.]+ KiB initial JavaScript gzip)/
   );
   const guideMeasurement = guideStep?.output.match(
-    /Guide HTML verified: (\d+) pages, (\d+) sitemap URLs \(tracer=([^)]+)\)/
+    /Guide (?:Preview )?HTML verified: (\d+) pages, (?:(\d+) sitemap URLs|(?:\d+) bilingual pairs) \(tracer=([^)]+)\)/
   );
   const caseOnlyStep = findStep(`Case-only HTTP verification (${variant})`);
   const aliasStep = findStep(`URL Alias black-box verification (${variant})`);
@@ -618,7 +1084,10 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
           (guideStep?.output.includes('skipped') ? 'skipped' : 'not-reported'),
         expectedSlug: GUIDE_TRACER_SLUG,
         pages: guideMeasurement ? Number(guideMeasurement[1]) : undefined,
-        sitemapUrls: guideMeasurement ? Number(guideMeasurement[2]) : undefined
+        sitemapUrls: guideMeasurement?.[2] ? Number(guideMeasurement[2]) : undefined,
+        bilingualPairs: guideStep?.output.match(/(\d+) bilingual pairs/)?.[1]
+          ? Number(guideStep.output.match(/(\d+) bilingual pairs/)[1])
+          : undefined
       },
       guidePairs: record.evidence.guidePairs.variants[variant] || {
         status: artifactStatus(guideStep),
@@ -815,6 +1284,41 @@ function verifyExportCardinality(variant) {
   }
 }
 
+function recordVariantArtifactInventory(record, variant) {
+  const capturedAt = new Date().toISOString();
+  const inventory = directoryInventory(OUT_DIR, {
+    root: ROOT,
+    role: 'static-export',
+    source: 'generated',
+    capturedAt
+  });
+  record.artifacts.push({ variant, ...inventory });
+}
+
+function recordVariantRollbackInventory(record, variant) {
+  const bundlePath = path.join(RETAIN_DIR, 'url-alias', variant);
+  if (!fs.existsSync(bundlePath)) return;
+  record.rollback.inventory.push(
+    directoryInventory(bundlePath, {
+      root: ROOT,
+      role: 'url-alias-rollback-bundle',
+      source: 'generated'
+    })
+  );
+}
+
+function recordVariantExportRollbackInventory(record, variant) {
+  if (!fs.existsSync(OUT_DIR)) return;
+  const inventory = directoryInventory(OUT_DIR, {
+    root: ROOT,
+    role: 'static-export-rollback',
+    source: 'generated'
+  });
+  const summary = { ...inventory };
+  delete summary.files;
+  record.rollback.inventory.push({ variant, ...summary });
+}
+
 function retainFailureArtifacts(variant) {
   const retainedPath = path.join(RETAIN_DIR, variant);
   fs.rmSync(retainedPath, { recursive: true, force: true });
@@ -848,6 +1352,7 @@ function retainSuccessArtifacts(variant, retainDir) {
 
 function runSourceChecks(failures, env, record) {
   const checks = [
+    ['Solutions preview runner regression', 'scripts/lib/solutions-preview-http.test.js', []],
     ['SEO basics regression', 'scripts/verify-seo-basics.test.js', []],
     [
       'content hygiene source verification',
@@ -858,19 +1363,32 @@ function runSourceChecks(failures, env, record) {
     ['metadata snapshot check', 'scripts/generate-faq-metadata.js', ['--check']],
     ['FAQ route source verification', 'scripts/verify-faq-routes.js', []],
     ['FAQ metadata source verification', 'scripts/verify-faq-metadata.js', []],
-    ['FAQ metadata normalization source verification', 'scripts/verify-faq-metadata-authority.js', []],
+    [
+      'FAQ metadata normalization source verification',
+      'scripts/verify-faq-metadata-authority.js',
+      []
+    ],
     ['FAQ SEO graph source verification', 'scripts/verify-faq-seo-graph.js', []],
     ['URL Alias Authority source verification', 'scripts/verify-url-alias-authority.js', []],
-    ['case-only authority and projection source verification', 'scripts/verify-case-only-aliases.js', []],
-    ['URL Alias rebuilt-slug authority and projection source verification', 'scripts/verify-rebuilt-slug-aliases.js', []],
+    [
+      'case-only authority and projection source verification',
+      'scripts/verify-case-only-aliases.js',
+      []
+    ],
+    [
+      'URL Alias rebuilt-slug authority and projection source verification',
+      'scripts/verify-rebuilt-slug-aliases.js',
+      []
+    ],
     ['FAQ redirect source verification', 'scripts/verify-faq-redirects.js', ['--source']],
     ['technical authority source verification', 'scripts/verify-technical-authority.js', []],
     ['technical wave source verification', 'scripts/verify-technical-wave.js', []]
   ];
   for (const [label, script, args] of checks) {
-    const formatSuccess = label === 'technical authority source verification'
-      ? formatTechnicalAuthoritySuccess
-      : undefined;
+    const formatSuccess =
+      label === 'technical authority source verification'
+        ? formatTechnicalAuthoritySuccess
+        : undefined;
     nodeStep(failures, label, script, args, env, undefined, record, formatSuccess);
   }
 
@@ -884,12 +1402,12 @@ function runSourceChecks(failures, env, record) {
     ['URL Alias Authority regression', ['verify:url-alias-regression']],
     ['case-only slice regression', ['verify:case-only-regression']],
     ['URL Alias rebuilt-slug slice regression', ['verify:rebuilt-slug-regression']],
-    ['FAQ metadata normalization regression', ['verify:faq-metadata-authority-regression']]
+    ['FAQ metadata normalization regression', ['verify:faq-metadata-authority-regression']],
+    ['release readiness regression', ['verify:release-readiness']]
   ];
   for (const [label, args] of technicalChecks) {
-    const formatSuccess = label === 'technical authority regression'
-      ? formatTechnicalAuthoritySuccess
-      : undefined;
+    const formatSuccess =
+      label === 'technical authority regression' ? formatTechnicalAuthoritySuccess : undefined;
     npmStep(failures, label, args, env, undefined, formatSuccess, record);
   }
   npmStep(failures, 'Lint source verification', ['lint'], env, undefined, undefined, record);
@@ -1083,15 +1601,15 @@ function runVariantChecks(failures, variant, env, record) {
   }
 
   if (variant === 'preview') {
-    recordStep(
-      record,
+    nodeStep(
+      failures,
       `Guide export artifact verification (${variant})`,
-      'preview Guide export verification is covered by i18n and static artifact gates',
+      'scripts/verify-guide-preview.js',
+      ['--out-dir', 'out'],
+      env,
       variant,
-      'passed',
-      'skipped for preview: production Guide sitemap and locale-owner contract do not apply'
+      record
     );
-    console.log(`[verify-release] Guide export artifact verification (${variant}) skipped`);
   } else {
     nodeStep(
       failures,
@@ -1105,9 +1623,7 @@ function runVariantChecks(failures, variant, env, record) {
         const match = output.match(
           /Guide HTML verified: (\d+) pages, (\d+) sitemap URLs \(tracer=([^)]+)\)/
         );
-        return match
-          ? `tracer=${match[3]} pages=${match[1]} sitemapUrls=${match[2]}`
-          : undefined;
+        return match ? `tracer=${match[3]} pages=${match[1]} sitemapUrls=${match[2]}` : undefined;
       }
     );
   }
@@ -1186,6 +1702,29 @@ function main() {
   const retainedPaths = [];
   const record = createReleaseRecord(options);
   if (!options.keepArtifacts) fs.rmSync(RETAIN_DIR, { recursive: true, force: true });
+  loadSolutionsEvidence(record, options);
+  addRollbackFile(
+    record,
+    'src/content/tech-center/authority/week05-wave1-release-manifest.json',
+    'technical-wave-release-manifest',
+    record.startedAt
+  );
+  addRollbackFile(
+    record,
+    'src/content/tech-center/authority/week05-wave1-rollback.json',
+    'technical-wave-rollback',
+    record.startedAt
+  );
+  for (const [relativePath, role] of [
+    ['src/faq/generated-en-route-registry.json', 'faq-route-registry'],
+    ['src/faq/generated-en-metadata.json', 'faq-metadata-projection'],
+    ['src/faq/generated-en-metadata-authority.json', 'faq-metadata-authority'],
+    ['src/content/guides/registry.json', 'guide-registry'],
+    ['src/content/guides/policy.json', 'guide-release-policy'],
+    ['src/content/guides/authorization.json', 'guide-authorization']
+  ]) {
+    addRollbackFile(record, relativePath, role, record.startedAt);
+  }
   const snapshot = snapshotGeneratedPublicFiles();
   const sourceEnv = {
     ...process.env,
@@ -1255,6 +1794,7 @@ function main() {
       const beforeFailures = failures.length;
       runGuideSourceChecks(failures, env, variant, record);
       runVariantChecks(failures, variant, env, record);
+      recordVariantArtifactInventory(record, variant);
       appendP1HistoricalBaselineAdvisories(failures, beforeFailures, advisories);
       const variantFailed = failures.length > beforeFailures;
       if (!variantFailed && ['cn', 'io'].includes(variant)) {
@@ -1268,6 +1808,7 @@ function main() {
             authoritySha256: bundle.authoritySha256,
             projectionSha256: bundle.projectionSha256
           };
+          recordVariantRollbackInventory(record, variant);
           console.log(`[verify-release] URL Alias ${variant} release/rollback artifacts passed`);
         } catch (error) {
           failures.push({
@@ -1282,6 +1823,7 @@ function main() {
           };
         }
       }
+      if (!variantFailed) recordVariantExportRollbackInventory(record, variant);
       if (variantFailed && options.keepArtifacts) {
         try {
           retainedPaths.push(retainFailureArtifacts(variant));
@@ -1301,7 +1843,10 @@ function main() {
             status: 'passed',
             path: path.relative(ROOT, path.join(retainedPath, 'url-alias', variant)),
             authorityDigest: JSON.parse(
-              fs.readFileSync(path.join(retainedPath, 'url-alias', variant, 'release', 'manifest.json'), 'utf8')
+              fs.readFileSync(
+                path.join(retainedPath, 'url-alias', variant, 'release', 'manifest.json'),
+                'utf8'
+              )
             ).authority.digest
           };
           console.log(`[verify-release] retained verified ${variant} output: ${retainedPath}`);
@@ -1318,20 +1863,21 @@ function main() {
     }
 
     reportFailures(failures, advisories, retainedPaths);
-    if (!failures.length) {
+    const solutionsBlocked = record.crossProjectInputs.solutionsPreviewHttp.claim !== true;
+    if (!failures.length && !solutionsBlocked) {
       console.log(
         `[verify-release] release gate passed for source, redirects, ${siteVariants.join(
           ', '
         )}, HTML, and sitemap evidence`
       );
+    } else if (!failures.length && solutionsBlocked) {
+      console.error('[verify-release] release gate blocked by Solutions preview HTTP evidence');
     }
-    process.exitCode = failures.length ? 1 : 0;
+    process.exitCode = failures.length || solutionsBlocked ? 1 : 0;
   } finally {
     finalizeReleaseRecord(record, failures, options);
-    if (options.keepArtifacts || options.retainSuccessArtifacts || process.env.CI) {
-      const recordPath = writeReleaseRecord(record);
-      console.log(`[verify-release] verification record: ${recordPath}`);
-    }
+    const recordPath = writeReleaseRecord(record);
+    console.log(`[verify-release] verification record: ${recordPath}`);
     restoreGeneratedPublicFiles(snapshot);
     if (!failures.length || !options.keepArtifacts) {
       clearBuildArtifacts();
@@ -1348,4 +1894,11 @@ if (require.main === module) {
   }
 }
 
-module.exports = { parseArgs, appendP1HistoricalBaselineAdvisories, extractP1SuccessMeasurement };
+module.exports = {
+  appendP1HistoricalBaselineAdvisories,
+  createReleaseRecord,
+  extractP1SuccessMeasurement,
+  finalizeReleaseRecord,
+  loadSolutionsEvidence,
+  parseArgs
+};
