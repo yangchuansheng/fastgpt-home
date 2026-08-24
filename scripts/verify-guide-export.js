@@ -241,8 +241,9 @@ function loadRegistry(variant, entries) {
       fail(context, `unable to read registry: ${error.message}`);
     }
   }
-  if (!Array.isArray(resolvedEntries) || resolvedEntries.length !== GUIDE_ENTRY_COUNT) {
-    fail(context, `registry must contain exactly ${GUIDE_ENTRY_COUNT} Guide entries`);
+  const expectedEntryCount = entries ? entries.length : GUIDE_ENTRY_COUNT;
+  if (!Array.isArray(resolvedEntries) || resolvedEntries.length !== expectedEntryCount) {
+    fail(context, `registry must contain exactly ${expectedEntryCount} Guide entries`);
   }
   const slugs = new Set();
   for (const entry of resolvedEntries) {

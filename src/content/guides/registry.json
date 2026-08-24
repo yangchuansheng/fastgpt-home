@@ -54,6 +54,130 @@
       "slug": "education-retail-support-insight", "group": "industry",
       "zh": { "sourceName": "education-retail-support-insight.zh.md", "sourceSha256": "c6f97ef10a6872702ad3fbe40abf1a6a4200dc222782bbf19b2354fecfa9009e", "bodySha256": "c29e40b3a904ba3057866e49c929ad21c144f2afe777672aa6693cb4780041fe", "h1": "教育与零售高并发咨询：先分流承接，再挖掘业务洞察", "metaTitle": "教育与零售高并发咨询落地选型指南", "metaDescription": "针对教育、零售行业高并发咨询场景，提供智能分流、业务洞察的落地方法、验证标准与典型参考案例，帮助解决响应慢、数据分散、上线风险等业务难题，涵盖多场景落地细节", "keywords": "咨询分流与学习洞察, 知识库 / 数据分析 / 渠道", "canonical": "https://fastgpt.cn/guide/education-retail-support-insight", "hreflang": "zh-CN | zh-CN → https://fastgpt.cn/guide/education-retail-support-insight | en → https://fastgpt.io/guide/education-retail-support-insight | x-default → https://fastgpt.io/guide/education-retail-support-insight", "schemaTokens": ["Article", "BreadcrumbList"], "sourceSchema": "Article + BreadcrumbList", "sourceImageDirective": "一张包含教育智能客服界面、零售派单中台界面的组合示意图，清晰展示分流与洞察的业务流程", "sourceInternalLinkLabels": ["教育方案页", "零售方案页", "案例页"], "assetPolicy": { "status": "requested-unapproved" }, "configuredInternalLinks": [], "datePublished": "2026-08-11", "dateModified": "2026-08-11" },
       "en": { "sourceName": "education-retail-support-insight.en.md", "sourceSha256": "b5e437ea4d0fcad78a3edfedd60db3fbc097160069ce21e30d2d1e203e4e1323", "bodySha256": "0b22436593caeea940a3702957ed829663317456e2be73c11b05d2162a2a726e", "h1": "Enterprise AI Platform Decision Guide: High-Concurrency Customer Support & Business Insights for Education and Retail", "metaTitle": "AI Support Platform Guide for Education and Retail", "metaDescription": "A guide to enterprise AI platforms for high-volume education and retail inquiries, intelligent routing, operational insights, and phased validation.", "keywords": "咨询分流与学习洞察, 知识库 / 数据分析 / 渠道", "canonical": "https://fastgpt.io/guide/education-retail-support-insight", "hreflang": "en | zh-CN → https://fastgpt.cn/guide/education-retail-support-insight | en → https://fastgpt.io/guide/education-retail-support-insight | x-default → https://fastgpt.io/guide/education-retail-support-insight", "schemaTokens": ["Article", "BreadcrumbList"], "sourceSchema": "Article + BreadcrumbList", "sourceImageDirective": "一张包含教育智能客服界面、零售派单中台界面的组合示意图，清晰展示分流与洞察的业务流程", "sourceInternalLinkLabels": ["教育方案页", "零售方案页", "案例页"], "assetPolicy": { "status": "requested-unapproved" }, "configuredInternalLinks": [], "datePublished": "2026-08-11", "dateModified": "2026-08-20" }
+    },
+    {
+      "slug": "finance-research-retrieval",
+      "group": "industry",
+      "zh": {
+        "sourceName": "finance-research-retrieval.zh.md",
+        "sourceSha256": "786f07839fcbbf010bf4fbce4cf2948dfb55c27d5fcdda5b7c942295186cf62a",
+        "bodySha256": "80186fdf4781c96804263519f14ae2c674bdbfcdd1aa7454f2bd76f77af6b013",
+        "h1": "金融机构研报检索 AI 落地指南：路径、边界与验证方法",
+        "metaTitle": "金融机构研报检索 AI 落地指南：路径、边界与验证方法",
+        "metaDescription": "详解金融机构研报检索 AI 的落地场景、实施路径、边界限制与验证方式，覆盖批量解析、观点结构化、知识库复用和人工审核，帮助团队建立可追溯流程。",
+        "keywords": "研报与资料检索, RAG / 批量解析 / 结构化输出",
+        "canonical": "https://fastgpt.cn/guide/finance-research-retrieval",
+        "hreflang": "zh-CN | zh-CN → https://fastgpt.cn/guide/finance-research-retrieval | en → https://fastgpt.io/guide/finance-research-retrieval | x-default → https://fastgpt.io/guide/finance-research-retrieval",
+        "schemaTokens": ["Article", "BreadcrumbList"],
+        "sourceSchema": "Article + BreadcrumbList",
+        "sourceImageDirective": "两张已完成授权的研报检索与分析师审核流程图，每张图片均有清晰的替代文本记录。",
+        "sourceInternalLinkLabels": ["POC 验证指南", "数据库查询指南", "服务档位"],
+        "assetPolicy": {
+          "status": "required",
+          "path": "/images/tech-center/deep-content/finance-research-workflow.svg",
+          "alt": "金融研报检索从资料接入到审核结论的流程图",
+          "width": 1200,
+          "height": 630
+        },
+        "configuredInternalLinks": [
+          {"label": "POC 验证指南", "target": "https://fastgpt.cn/guide/poc-30-day-design"},
+          {"label": "数据库查询指南", "target": "https://fastgpt.cn/guide/database-qa-integration-guide"},
+          {"label": "服务档位", "target": "https://fastgpt.cn/price"}
+        ],
+        "datePublished": "2026-08-24",
+        "dateModified": "2026-08-24"
+      },
+      "en": {
+        "sourceName": "finance-research-retrieval.en.md",
+        "sourceSha256": "f140685a99f4ea5853e6496fd1064a5128d1ca1ab6833114c90ed80998b67899",
+        "bodySha256": "8740086d9f9147f91f742a9bc627394ce7f1316006a0cad8f1c05ca0ad2cc0e0",
+        "h1": "Enterprise AI Financial Research Retrieval: Deployment and Validation",
+        "metaTitle": "Enterprise AI Financial Research Retrieval and Validation",
+        "metaDescription": "A practical guide to AI financial research retrieval, structured analysis, human review, deployment boundaries, and repeatable validation for enterprise teams.",
+        "keywords": "financial research retrieval, RAG / structured analysis / human review",
+        "canonical": "https://fastgpt.io/guide/finance-research-retrieval",
+        "hreflang": "en | zh-CN → https://fastgpt.cn/guide/finance-research-retrieval | en → https://fastgpt.io/guide/finance-research-retrieval | x-default → https://fastgpt.io/guide/finance-research-retrieval",
+        "schemaTokens": ["Article", "BreadcrumbList"],
+        "sourceSchema": "Article + BreadcrumbList",
+        "sourceImageDirective": "Two authorized workflow visuals for report retrieval and analyst review; each image has a descriptive alternative text record.",
+        "sourceInternalLinkLabels": ["POC validation guide", "Database query guide", "Plans"],
+        "assetPolicy": {
+          "status": "required",
+          "path": "/images/tech-center/deep-content/finance-research-workflow.svg",
+          "alt": "Financial research retrieval workflow from report ingestion to reviewed findings",
+          "width": 1200,
+          "height": 630
+        },
+        "configuredInternalLinks": [
+          {"label": "POC validation guide", "target": "https://fastgpt.io/guide/poc-30-day-design"},
+          {"label": "Database query guide", "target": "https://fastgpt.io/guide/database-qa-integration-guide"},
+          {"label": "Plans", "target": "https://fastgpt.io/price"}
+        ],
+        "datePublished": "2026-08-24",
+        "dateModified": "2026-08-24"
+      }
+    },
+    {
+      "slug": "finance-daily-report-automation",
+      "group": "industry",
+      "zh": {
+        "sourceName": "finance-daily-report-automation.zh.md",
+        "sourceSha256": "a653aa43618618919b717abebfcc777d4404b99178705d9f197a6b8f96261a92",
+        "bodySha256": "6aa25c50bf02477dad2417be0117022365fb75780ab567f8fb9c88c359116337",
+        "h1": "金融团队每日数据播报与财报初稿自动化落地方案",
+        "metaTitle": "金融团队每日数据播报与财报初稿自动化落地方案",
+        "metaDescription": "面向金融财富管理、编辑与研究支持团队，拆解定时取数、数据清洗、指标计算、模板生成、失败告警与人工审核流程，提供可复用的验证方法。",
+        "keywords": "日报与财报自动化, 定时任务 / 数据处理 / 模板生成",
+        "canonical": "https://fastgpt.cn/guide/finance-daily-report-automation",
+        "hreflang": "zh-CN | zh-CN → https://fastgpt.cn/guide/finance-daily-report-automation | en → https://fastgpt.io/guide/finance-daily-report-automation | x-default → https://fastgpt.io/guide/finance-daily-report-automation",
+        "schemaTokens": ["Article", "BreadcrumbList"],
+        "sourceSchema": "Article + BreadcrumbList",
+        "sourceImageDirective": "两张已完成授权的每日数据播报与人工审核流程图，每张图片均有清晰的替代文本记录。",
+        "sourceInternalLinkLabels": ["研报检索指南", "POC 验证指南", "服务档位"],
+        "assetPolicy": {
+          "status": "required",
+          "path": "/images/tech-center/deep-content/finance-daily-report-workflow.svg",
+          "alt": "金融每日数据播报从数据接入到人工审核的自动化流程图",
+          "width": 1200,
+          "height": 630
+        },
+        "configuredInternalLinks": [
+          {"label": "研报检索指南", "target": "https://fastgpt.cn/guide/finance-research-retrieval"},
+          {"label": "POC 验证指南", "target": "https://fastgpt.cn/guide/poc-30-day-design"},
+          {"label": "服务档位", "target": "https://fastgpt.cn/price"}
+        ],
+        "datePublished": "2026-08-24",
+        "dateModified": "2026-08-24"
+      },
+      "en": {
+        "sourceName": "finance-daily-report-automation.en.md",
+        "sourceSha256": "e958f1e3226a12825bc6ee12abf4b33ab4bf5f6b6169b641fadf0eb24eeeddc2",
+        "bodySha256": "7382bb66752661a32261139fbcb64ba84fa3e29177faa7a1b3a7faceaa1c09a1",
+        "h1": "Enterprise Financial Report Automation: Workflow and Review",
+        "metaTitle": "Enterprise Financial Report Automation Workflow Guide",
+        "metaDescription": "A practical guide to automating financial data workflows with scheduled ingestion, calculations, report drafts, alerts, human review, and validation.",
+        "keywords": "financial report automation, scheduled workflow / data processing / human review",
+        "canonical": "https://fastgpt.io/guide/finance-daily-report-automation",
+        "hreflang": "en | zh-CN → https://fastgpt.cn/guide/finance-daily-report-automation | en → https://fastgpt.io/guide/finance-daily-report-automation | x-default → https://fastgpt.io/guide/finance-daily-report-automation",
+        "schemaTokens": ["Article", "BreadcrumbList"],
+        "sourceSchema": "Article + BreadcrumbList",
+        "sourceImageDirective": "Two authorized workflow visuals for daily report automation and review; each image has a descriptive alternative text record.",
+        "sourceInternalLinkLabels": ["Research retrieval guide", "POC validation guide", "Plans"],
+        "assetPolicy": {
+          "status": "required",
+          "path": "/images/tech-center/deep-content/finance-daily-report-workflow.svg",
+          "alt": "Financial daily report automation workflow from data ingestion to human review",
+          "width": 1200,
+          "height": 630
+        },
+        "configuredInternalLinks": [
+          {"label": "Research retrieval guide", "target": "https://fastgpt.io/guide/finance-research-retrieval"},
+          {"label": "POC validation guide", "target": "https://fastgpt.io/guide/poc-30-day-design"},
+          {"label": "Plans", "target": "https://fastgpt.io/price"}
+        ],
+        "datePublished": "2026-08-24",
+        "dateModified": "2026-08-24"
+      }
     }
   ]
 }

@@ -28,9 +28,18 @@ const EXPECTED_CASE_ONLY_COUNTS = URL_ALIAS_CONTRACT.slices['case-only'].sourceH
 const EXPECTED_REBUILT_SLUG_COUNTS = URL_ALIAS_CONTRACT.slices['rebuilt-slug'].sourceHosts;
 const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
+const GUIDE_AUTHORIZATION_SLUGS = [
+  'finance-research-retrieval',
+  'finance-daily-report-automation'
+];
+const GUIDE_ENTRY_COUNT = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'src/content/guides/policy.json'), 'utf8')
+).entryCount;
 const GUIDE_RELEASE_PAIRS = [
   { slug: 'database-qa-integration-guide', locales: ['zh', 'en'] },
-  { slug: 'scheduled-report-automation', locales: ['zh', 'en'] }
+  { slug: 'scheduled-report-automation', locales: ['zh', 'en'] },
+  { slug: 'finance-research-retrieval', locales: ['zh', 'en'] },
+  { slug: 'finance-daily-report-automation', locales: ['zh', 'en'] }
 ];
 const FAQ_METADATA_CONTRACT = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', 'src/faq/generated-en-metadata-authority.json'), 'utf8'),
@@ -170,6 +179,13 @@ function createReleaseRecord(options) {
         source: false,
         variants: {},
         releaseReady: false
+      },
+      guideAuthorization: {
+        expectedSlugs: GUIDE_AUTHORIZATION_SLUGS,
+        source: false,
+        regression: false,
+        result: undefined,
+        releaseReady: false
       }
     },
     blockers: []
@@ -234,8 +250,25 @@ function finalizeReleaseRecord(record, failures, options) {
       return faqMetadata.observed?.[key] === expected;
     });
   const guidePairs = record.evidence.guidePairs;
+  const guideAuthorization = record.evidence.guideAuthorization;
+  const completeAuthorization = guideAuthorization.result?.complete;
+  const missingAuthorization = guideAuthorization.result?.missing;
+  guideAuthorization.releaseReady =
+    guideAuthorization.source &&
+    guideAuthorization.regression &&
+    completeAuthorization?.status === 'publishable' &&
+    completeAuthorization.projectedEntries === GUIDE_ENTRY_COUNT &&
+    completeAuthorization.financeSlugs?.length === GUIDE_AUTHORIZATION_SLUGS.length &&
+    missingAuthorization?.status === 'release-blocked' &&
+    missingAuthorization.projectedEntries ===
+      GUIDE_ENTRY_COUNT - GUIDE_AUTHORIZATION_SLUGS.length &&
+    missingAuthorization.financeSlugs?.length === 0 &&
+    GUIDE_AUTHORIZATION_SLUGS.every((slug) =>
+      missingAuthorization.excludedSlugs?.includes(slug)
+    );
   guidePairs.releaseReady =
     guidePairs.source &&
+    guideAuthorization.releaseReady &&
     ['cn', 'io'].every((variant) => {
       const evidence = guidePairs.variants[variant];
       return (
@@ -249,6 +282,7 @@ function finalizeReleaseRecord(record, failures, options) {
     caseOnly.releaseReady &&
     aliasContract.releaseReady &&
     faqMetadata.releaseReady &&
+    guideAuthorization.releaseReady &&
     guidePairs.releaseReady;
   record.status = record.evidence.releaseEligible
     ? 'release-eligible'
@@ -275,7 +309,22 @@ function recordStep(record, label, command, variant, status, output, evidence) {
   collectCaseOnlyEvidence(record, label, variant, status, output);
   collectAliasContractEvidence(record, label, variant, status, output);
   collectFaqMetadataEvidence(record, label, variant, status, output);
+  collectGuideAuthorizationEvidence(record, label, status, output);
   collectGuidePairEvidence(record, label, variant, status, output);
+}
+
+function collectGuideAuthorizationEvidence(record, label, status, output) {
+  if (!record || !label.toLowerCase().includes('guide authorization')) return;
+  const evidence = record.evidence.guideAuthorization;
+  if (label.toLowerCase().includes('source verification')) evidence.source = status === 'passed';
+  if (label.toLowerCase().includes('regression')) evidence.regression = status === 'passed';
+  const marker = output.match(/GUIDE_AUTHORIZATION_RESULT=(\{[\s\S]*\})/);
+  if (!marker) return;
+  try {
+    evidence.result = JSON.parse(marker[1]);
+  } catch (error) {
+    evidence.result = { status: 'invalid', error: error.message };
+  }
 }
 
 function collectGuidePairEvidence(record, label, variant, status, output) {
@@ -737,6 +786,26 @@ function runSourceChecks(failures, env, record) {
 
 function runGuideSourceChecks(failures, env, variant, record) {
   const suffix = variant ? ` (${variant})` : '';
+  if (!variant) {
+    nodeStep(
+      failures,
+      'Guide authorization source verification',
+      'scripts/verify-guide-authorization.js',
+      [],
+      env,
+      undefined,
+      record
+    );
+    npmStep(
+      failures,
+      'Guide authorization regression',
+      ['verify:guide-authorization-regression'],
+      env,
+      undefined,
+      undefined,
+      record
+    );
+  }
   nodeStep(
     failures,
     `Guide content source verification${suffix}`,

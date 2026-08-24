@@ -32,6 +32,16 @@ function withGuideRoot(slug, mutate, verify) {
   const sources = [];
 
   try {
+    for (const registeredEntry of entries) {
+      for (const locale of ['zh', 'en']) {
+        const asset = registeredEntry[locale].assetPolicy;
+        if (asset.status !== 'required') continue;
+        const sourceAsset = path.join(ROOT, 'public', asset.path);
+        const fixtureAsset = path.join(temporaryRoot, 'public', asset.path);
+        fs.mkdirSync(path.dirname(fixtureAsset), { recursive: true });
+        fs.copyFileSync(sourceAsset, fixtureAsset);
+      }
+    }
     for (const locale of ['zh', 'en']) {
       const sourcePath = path.join(ROOT, 'src/content/guides', locale, entry[locale].sourceName);
       const source = fs.readFileSync(sourcePath, 'utf8');
@@ -54,15 +64,43 @@ function withGuideRoot(slug, mutate, verify) {
   }
 }
 
-test('approved Guide corpus reports the complete 11x2 contract', () => {
+test('approved Guide corpus reports the complete 13x2 contract', () => {
   const result = spawnSync(process.execPath, ['scripts/verify-guide-content.js'], {
     cwd: ROOT,
     encoding: 'utf8'
   });
 
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.stdout, 'Guide content verified: 11 slugs, 22 documents\n');
+  assert.equal(result.stdout, 'Guide content verified: 13 slugs, 26 documents\n');
   assert.equal(result.stderr, '');
+});
+
+test('Finance Research and Daily Report pairs are complete authorized industry Guides', () => {
+  for (const [slug, topic] of [
+    ['finance-research-retrieval', /financial research|研报检索/i],
+    ['finance-daily-report-automation', /financial|财报|数据播报/i]
+  ]) {
+    const entry = findEntry(registry.entries, slug);
+    assert(entry, `${slug} must be registered`);
+    assert.equal(entry.group, 'industry');
+    assert.deepEqual(entry.en.schemaTokens, ['Article', 'BreadcrumbList']);
+    assert.deepEqual(entry.zh.schemaTokens, ['Article', 'BreadcrumbList']);
+    for (const locale of ['zh', 'en']) {
+      assert.equal(entry[locale].assetPolicy.status, 'required');
+      assert.equal(entry[locale].assetPolicy.width, 1200);
+      assert.equal(entry[locale].assetPolicy.height, 630);
+      assert.equal(entry[locale].configuredInternalLinks.length, 3);
+      const sourcePath = path.join(ROOT, 'src/content/guides', locale, entry[locale].sourceName);
+      const { body } = parseDeliverySource(
+        fs.readFileSync(sourcePath, 'utf8'),
+        { ...entry[locale], slug: entry.slug }
+      );
+      assert.match(body, topic);
+      assert.match(body, /## References/);
+      assert.match(body, /\[[^\]]+\]\(https:\/\/[^)]+\)/);
+      assert.doesNotMatch(body, /KB|核验日|verified on|```mermaid/i);
+    }
+  }
 });
 
 test('POC tracer is a complete bilingual decision Guide with a real step contract', () => {

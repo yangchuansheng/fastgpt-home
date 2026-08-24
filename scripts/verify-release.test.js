@@ -97,8 +97,13 @@ test('release coordinator composes Guide checks around each fresh variant export
   assert(source.includes('guideTracer'));
   assert(source.includes('poc-30-day-design'));
   assert(source.includes('guidePairs'));
+  assert(source.includes('guideAuthorization'));
+  assert(source.includes('scripts/verify-guide-authorization.js'));
+  assert(source.includes('verify:guide-authorization-regression'));
   assert(source.includes('database-qa-integration-guide'));
   assert(source.includes('scheduled-report-automation'));
+  assert(source.includes('finance-research-retrieval'));
+  assert(source.includes('finance-daily-report-automation'));
   assert(source.includes('releaseEligible'));
   assert(source.includes('const variants = options.variant ? [options.variant] : siteVariants;'));
 
@@ -152,6 +157,14 @@ test('release coordinator records and gates the case-only alias slice independen
   assert.equal(
     packageJson.scripts['verify:case-only-regression'],
     'node --test scripts/verify-case-only-aliases.test.js'
+  );
+  assert.equal(
+    packageJson.scripts['verify:guide-authorization'],
+    'node scripts/verify-guide-authorization.js'
+  );
+  assert.equal(
+    packageJson.scripts['verify:guide-authorization-regression'],
+    'node --test scripts/verify-guide-authorization.test.js'
   );
 });
 
