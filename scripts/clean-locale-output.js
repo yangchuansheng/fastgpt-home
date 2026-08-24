@@ -9,6 +9,10 @@ const {
   writeNginxRedirectMap
 } = require('./lib/redirects');
 const {
+  getUrlAliasAuthorityDigest,
+  readUrlAliasAuthority
+} = require('./lib/url-alias-authority');
+const {
   getDefaultLocale,
   getPublishedLocaleCodes,
   localeCodes,
@@ -22,6 +26,11 @@ const variant = resolveSiteVariant();
 const defaultLocale = getDefaultLocale(variant);
 const allowedLocales = new Set(getPublishedLocaleCodes(variant));
 const techIdentities = getTechIdentities(rootDir);
+const aliasAuthority = readUrlAliasAuthority(rootDir);
+const aliasAuthorityMetadata = {
+  authorityDigest: getUrlAliasAuthorityDigest(aliasAuthority),
+  authoritySourceCount: aliasAuthority.records.length
+};
 
 function removePath(targetPath) {
   if (!fs.existsSync(targetPath)) return 0;
@@ -80,7 +89,7 @@ for (const identity of techIdentities) {
 }
 
 const { cnRedirects, ioRedirects } = buildRedirects(rootDir);
-writeNginxRedirectMap(nextDir, variant === 'cn' ? cnRedirects : new Map());
+writeNginxRedirectMap(nextDir, variant === 'cn' ? cnRedirects : new Map(), aliasAuthorityMetadata);
 removePath(path.join(outDir, '_redirects'));
 
 let previewHtmlPatched = 0;
@@ -89,9 +98,9 @@ if (variant === 'preview') {
     if (entry.startsWith('sitemap')) removed += removePath(path.join(outDir, entry));
   }
   previewHtmlPatched = patchPreviewRobots();
-  writeCloudflareWorker(outDir, new Map(), true);
+  writeCloudflareWorker(outDir, new Map(), true, aliasAuthorityMetadata);
 } else if (variant === 'io') {
-  writeCloudflareWorker(outDir, ioRedirects, false);
+  writeCloudflareWorker(outDir, ioRedirects, false, aliasAuthorityMetadata);
 }
 
 console.log(

@@ -117,7 +117,9 @@ function finalizeReleaseRecord(record, failures, options) {
   record.finishedAt = new Date().toISOString();
   record.failureCount = failures.length;
   record.blockers = failures.map((failure) => ({
-    type: /filesystem|environment|docker/i.test(failure.label) ? 'environment' : 'verification',
+    type: /filesystem|environment|docker|nginx/i.test(failure.label)
+      ? 'environment'
+      : 'verification',
     label: failure.label,
     variant: failure.variant,
     command: failure.command,
@@ -432,6 +434,7 @@ function runSourceChecks(failures, env, record) {
     ['FAQ route source verification', 'scripts/verify-faq-routes.js', []],
     ['FAQ metadata source verification', 'scripts/verify-faq-metadata.js', []],
     ['FAQ SEO graph source verification', 'scripts/verify-faq-seo-graph.js', []],
+    ['URL Alias Authority source verification', 'scripts/verify-url-alias-authority.js', []],
     ['FAQ redirect source verification', 'scripts/verify-faq-redirects.js', ['--source']]
   ];
   for (const [label, script, args] of checks)
@@ -441,7 +444,8 @@ function runSourceChecks(failures, env, record) {
     ['technical content authority verification', ['verify:technical-content']],
     ['technical content regression', ['verify:technical-content-regression']],
     ['technical center regression', ['verify:technical-center-regression']],
-    ['technical export regression', ['verify:technical-export-regression']]
+    ['technical export regression', ['verify:technical-export-regression']],
+    ['URL Alias Authority regression', ['verify:url-alias-regression']]
   ];
   for (const [label, args] of technicalChecks) {
     npmStep(failures, label, args, env, undefined, undefined, record);
@@ -522,6 +526,18 @@ function runVariantChecks(failures, variant, env, record) {
     undefined,
     record
   );
+
+  if (variant !== 'preview') {
+    nodeStep(
+      failures,
+      `URL Alias black-box verification (${variant})`,
+      'scripts/verify-url-alias-blackbox.js',
+      ['--variant', variant],
+      env,
+      variant,
+      record
+    );
+  }
 
   const checks = [
     ['P0 HTML verification', ['verify:p0']],
