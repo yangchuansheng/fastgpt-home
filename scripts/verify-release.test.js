@@ -420,7 +420,7 @@ test('owner expectation sets use published owner route keys and source data', ()
   const io = buildOwnerExpectationSet('io');
   const cn = buildOwnerExpectationSet('cn');
 
-  assert.equal(io.length, 1195);
+  assert.equal(io.length, 1400);
   assert.equal(cn.length, 1490);
   assert(io.every((record) => record.variant === 'io' && record.routeKey === record.canonicalSlug));
   assert(
@@ -508,7 +508,7 @@ test(
         { cwd: ROOT, encoding: 'utf8' }
       );
       assert.equal(result.status, 0, result.stderr);
-      assert.match(result.stdout, /io, 1195 FAQ pages/);
+      assert.match(result.stdout, /io, 1400 FAQ pages/);
     } finally {
       fs.rmSync(OUT_DIR, { recursive: true, force: true });
       if (preservedOut) fs.renameSync(preservedOutDir, OUT_DIR);

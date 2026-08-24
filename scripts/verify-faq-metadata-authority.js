@@ -109,10 +109,14 @@ function verifySourceContract() {
   assert.equal(authority.counts.additions, EXPECTED_ADDITION_COUNT);
   assert.equal(authority.counts.fallback.before, EXPECTED_FALLBACK_BEFORE);
   assert.equal(authority.counts.fallback.after, EXPECTED_FALLBACK_AFTER);
-  assert.equal(authority.counts.fallback.delta, -1);
+  assert.equal(
+    authority.counts.fallback.delta,
+    EXPECTED_FALLBACK_AFTER - EXPECTED_FALLBACK_BEFORE
+  );
   assert.equal(baseline.records.length, EXPECTED_BASELINE_COUNT);
   assert.equal(additions.length, EXPECTED_ADDITION_COUNT);
   assert.equal(finalIds.size, EXPECTED_BASELINE_COUNT + EXPECTED_ADDITION_COUNT);
+  assert.equal(finalIds.size, EXPECTED_IDENTITY_COUNT);
   assert.equal(faqRecords.length - finalIds.size, EXPECTED_FALLBACK_AFTER);
   assert.deepEqual(
     new Set(authority.records.map((record) => record.contentId).filter(Boolean)),
@@ -157,39 +161,50 @@ function verifySourceContract() {
 
 function verifyStaticHtml(variant, context) {
   if (variant === 'cn') return 'skipped-cn';
-  const addition = context.additions[0];
-  const route = `/faq/${addition.sourceSlug}`;
-  const html = resolveHtml(route);
-  const expected = normalizeFaqMetadataPolicy(addition);
-  assert.equal(getTitle(html), expected.title, 'Addition title mismatch');
-  assert.equal(getMeta(html, 'description'), expected.description, 'Addition description mismatch');
-  assert.equal(
-    getMeta(html, 'keywords'),
-    addition.keywords.replaceAll(', ', ','),
-    'Addition keywords mismatch'
-  );
-  assert.equal(
-    getCanonical(html),
-    `${IO_BASE_URL}${route}`,
-    'Addition canonical identity mismatch'
-  );
-  assert.deepEqual(getAlternates(html), {
-    en: `${IO_BASE_URL}${route}`,
-    'zh-CN': `${CN_BASE_URL}${route}`,
-    'x-default': `${IO_BASE_URL}${route}`
-  });
-
   const sitemap = fs.readFileSync(path.join(OUT_DIR, 'sitemap.xml'), 'utf8');
-  assert(sitemap.includes(`<loc>${IO_BASE_URL}${route}</loc>`), 'Addition is missing from sitemap');
-  for (const href of [...html.matchAll(/\bhref=["']([^"']+)["']/gi)].map((match) =>
-    decodeHtml(match[1])
-  )) {
-    if (!href.startsWith('/faq/')) continue;
-    const target = href.replace(/\/$/, '').split('?')[0];
-    assert(
-      context.routeIdentity.bySourceSlug.has(target.slice('/faq/'.length)),
-      `Internal FAQ link has unknown identity: ${href}`
+  for (const addition of context.additions) {
+    const route = `/faq/${addition.sourceSlug}`;
+    const html = resolveHtml(route);
+    const expected = normalizeFaqMetadataPolicy(addition);
+    assert.equal(getTitle(html), expected.title, `Addition title mismatch: ${addition.contentId}`);
+    assert.equal(
+      getMeta(html, 'description'),
+      expected.description,
+      `Addition description mismatch: ${addition.contentId}`
     );
+    assert.equal(
+      getMeta(html, 'keywords'),
+      addition.keywords.replaceAll(', ', ','),
+      `Addition keywords mismatch: ${addition.contentId}`
+    );
+    assert.equal(
+      getCanonical(html),
+      `${IO_BASE_URL}${route}`,
+      `Addition canonical identity mismatch: ${addition.contentId}`
+    );
+    assert.deepEqual(
+      getAlternates(html),
+      {
+        en: `${IO_BASE_URL}${route}`,
+        'zh-CN': `${CN_BASE_URL}${route}`,
+        'x-default': `${IO_BASE_URL}${route}`
+      },
+      `Addition alternate identity mismatch: ${addition.contentId}`
+    );
+    assert(
+      sitemap.includes(`<loc>${IO_BASE_URL}${route}</loc>`),
+      `Addition is missing from sitemap: ${addition.contentId}`
+    );
+    for (const href of [...html.matchAll(/\bhref=["']([^"']+)["']/gi)].map((match) =>
+      decodeHtml(match[1])
+    )) {
+      if (!href.startsWith('/faq/')) continue;
+      const target = href.replace(/\/$/, '').split('?')[0];
+      assert(
+        context.routeIdentity.bySourceSlug.has(target.slice('/faq/'.length)),
+        `Internal FAQ link has unknown identity: ${href}`
+      );
+    }
   }
   return 'passed';
 }

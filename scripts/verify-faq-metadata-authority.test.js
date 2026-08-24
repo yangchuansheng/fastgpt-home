@@ -36,7 +36,9 @@ test('committed FAQ authority exposes the reviewed disposition arithmetic', () =
     'duplicate-loser': 6,
     'no-page': 1
   });
-  assert.equal(authority.counts.fallback.delta, -1);
+  assert.equal(authority.counts.additions, 205);
+  assert.equal(authority.counts.fallback.delta, -205);
+  assert.equal(authority.counts.fallback.after, 0);
   assert.equal(
     authority.records.filter((record) => record.disposition === 'no-page')[0].businessNo,
     1628
@@ -70,13 +72,20 @@ test('baseline digest rejects an unapproved metadata field change', () => {
   );
 });
 
-test('one approved addition remains an exact source projection', () => {
-  const addition = readJson(ADDITIONS_PATH).records[0];
+test('the approved increment remains an exact source projection', () => {
+  const additions = readJson(ADDITIONS_PATH).records;
+  assert.equal(additions.length, 205);
+  assert.equal(new Set(additions.map((record) => record.contentId)).size, 205);
+  const addition = additions[0];
   assert.equal(addition.contentId, 'can-ai-intelligent-customer-service');
   assert.equal(addition.title, 'How AI Lowers Customer Service Labor Costs');
   assert.equal(
     addition.description,
     'Discover how automating routine inquiries with NLP and ML reduces labor costs by handling order status and troubleshooting 24/7.'
+  );
+  assert.equal(
+    additions.at(-1).contentId,
+    'do-ai-agents-comply-with-children-s-privacy-protection-regulations'
   );
   assert(fs.existsSync(AUTHORITY_PATH));
 });

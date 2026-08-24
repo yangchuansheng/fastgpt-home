@@ -27,9 +27,9 @@ const EXPECTED_CANDIDATE_COUNT = 1407;
 const EXPECTED_IDENTITY_COUNT = 1400;
 const EXPECTED_BASELINE_COUNT = 1195;
 const EXPECTED_INCREMENT_COUNT = 205;
-const EXPECTED_ADDITION_COUNT = 1;
+const EXPECTED_ADDITION_COUNT = 205;
 const EXPECTED_FALLBACK_BEFORE = 205;
-const EXPECTED_FALLBACK_AFTER = 204;
+const EXPECTED_FALLBACK_AFTER = 0;
 
 const SPECIAL_DISPOSITIONS = Object.freeze({
   149: {
@@ -351,16 +351,22 @@ function buildAuthority(workbookPath) {
   const baseline = readJson(BASELINE_PATH);
   const baselineDigests = buildBaselineDigests(baseline);
   const baselineIds = new Set(Object.keys(baselineDigests));
-  const additionCandidate = candidates.find((candidate) => {
+  const additionCandidates = candidates.filter((candidate) => {
     const contentId = routeIdentity.bySourceSlug.get(candidate.sourceSlug);
     return contentId && !baselineIds.has(contentId) && !SPECIAL_DISPOSITIONS[candidate.businessNo];
   });
-  if (!additionCandidate) fail('Unable to select the deterministic first metadata addition');
-  const additionContentId = routeIdentity.bySourceSlug.get(additionCandidate.sourceSlug);
-  const additionRoute = routeIdentity.byContentId.get(additionContentId);
-  const additionAuthored = faqById.get(additionContentId);
-  if (!additionAuthored) fail(`Addition content is missing from FAQ source: ${additionContentId}`);
-  const addition = buildAddition(additionCandidate, additionRoute, additionAuthored);
+  if (additionCandidates.length !== EXPECTED_ADDITION_COUNT) {
+    fail(
+      `Expected ${EXPECTED_ADDITION_COUNT} deterministic metadata additions, found ${additionCandidates.length}`
+    );
+  }
+  const additions = additionCandidates.map((candidate) => {
+    const contentId = routeIdentity.bySourceSlug.get(candidate.sourceSlug);
+    const route = routeIdentity.byContentId.get(contentId);
+    const authored = faqById.get(contentId);
+    if (!authored) fail(`Addition content is missing from FAQ source: ${contentId}`);
+    return buildAddition(candidate, route, authored);
+  });
   const dispositionCounts = Object.fromEntries(
     ['accepted', 'semantic-remap', 'duplicate-loser', 'no-page'].map((disposition) => [
       disposition,
@@ -405,11 +411,11 @@ function buildAuthority(workbookPath) {
       recordCount: EXPECTED_BASELINE_COUNT,
       normalizedDigests: baselineDigests
     },
-    additions: [addition],
+    additions,
     records: dispositions
   };
-  validateAuthority(authority, { faqRecords, routeIdentity, baseline, additions: [addition] });
-  return { authority, additions: [addition] };
+  validateAuthority(authority, { faqRecords, routeIdentity, baseline, additions });
+  return { authority, additions };
 }
 
 function validateAuthority(authority, { faqRecords, routeIdentity, baseline, additions }) {
@@ -535,7 +541,7 @@ function validateAuthority(authority, { faqRecords, routeIdentity, baseline, add
       fail(`Baseline digest drift for ${record.contentId}`);
   }
   if (!Array.isArray(additions) || additions.length !== EXPECTED_ADDITION_COUNT)
-    fail('Addition count is invalid');
+    fail(`Addition count must be ${EXPECTED_ADDITION_COUNT}`);
   const baselineIds = new Set(baseline.records.map((record) => record.contentId));
   const additionIds = new Set();
   for (const addition of additions) {
@@ -571,6 +577,24 @@ function validateAuthority(authority, { faqRecords, routeIdentity, baseline, add
       fail(`Addition authored content drift for ${addition.contentId}`);
     }
   }
+  const expectedAdditionIds = new Set(
+    authority.records
+      .filter((record) => record.disposition === 'accepted' && !baselineIds.has(record.contentId))
+      .map((record) => record.contentId)
+  );
+  if (expectedAdditionIds.size !== EXPECTED_ADDITION_COUNT) {
+    fail(`Expected ${EXPECTED_ADDITION_COUNT} accepted additions, found ${expectedAdditionIds.size}`);
+  }
+  if (stableJson([...additionIds].sort()) !== stableJson([...expectedAdditionIds].sort())) {
+    fail('Addition identity set does not match accepted candidate identities outside the baseline');
+  }
+  const finalIds = new Set([...baselineIds, ...additionIds]);
+  if (finalIds.size !== EXPECTED_IDENTITY_COUNT) {
+    fail(`Final approved identity count is ${finalIds.size}`);
+  }
+  if (faqRecords.some((record) => !finalIds.has(record.contentId))) {
+    fail('Final approved metadata leaves fallback FAQ identities');
+  }
   const counts = authority.counts;
   if (
     !counts ||
@@ -586,7 +610,7 @@ function validateAuthority(authority, { faqRecords, routeIdentity, baseline, add
   if (
     counts.fallback?.before !== EXPECTED_FALLBACK_BEFORE ||
     counts.fallback?.after !== EXPECTED_FALLBACK_AFTER ||
-    counts.fallback?.delta !== -1
+    counts.fallback?.delta !== EXPECTED_FALLBACK_AFTER - EXPECTED_FALLBACK_BEFORE
   ) {
     fail('Fallback count contract drifted');
   }

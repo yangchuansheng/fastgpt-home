@@ -192,7 +192,7 @@ function normalizeAnswer(value) {
 function assertSourceWiring() {
   const sourceChecks = [
     ['src/faq/index.ts', ['resolveFaqContentId', 'getFaqRouteKey', 'getFaqIds(']],
-    ['src/lib/seo.ts', ['getFaqRouteKey', 'getFaqAlternates', "languages['x-default']"]],
+    ['src/lib/faqSeo.ts', ['getFaqRouteKey', 'getFaqAlternates', "languages['x-default']"]],
     ['src/lib/localizedRoutes.ts', ['resolveFaqContentId', 'getFaqRouteKey', 'Unknown FAQ route identity']],
     ['src/app/[lang]/faq/[id]/page.tsx', ['resolveFaqContentId', 'FAQJsonLd', 'getFaqAlternates', 'dynamicParams = false']],
     ['src/app/sitemap.ts', ['getFaqIds(', 'seenUrls', 'getOwnedFaqUrl']],
