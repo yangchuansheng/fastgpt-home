@@ -54,15 +54,37 @@ function withGuideRoot(slug, mutate, verify) {
   }
 }
 
-test('approved Guide corpus reports the complete 8x2 contract', () => {
+test('approved Guide corpus reports the complete 9x2 contract', () => {
   const result = spawnSync(process.execPath, ['scripts/verify-guide-content.js'], {
     cwd: ROOT,
     encoding: 'utf8'
   });
 
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.stdout, 'Guide content verified: 8 slugs, 16 documents\n');
+  assert.equal(result.stdout, 'Guide content verified: 9 slugs, 18 documents\n');
   assert.equal(result.stderr, '');
+});
+
+test('POC tracer is a complete bilingual decision Guide with a real step contract', () => {
+  const entry = findEntry(registry.entries, 'poc-30-day-design');
+  assert(entry, 'poc-30-day-design must be registered');
+  assert.equal(entry.group, 'decision');
+  assert.deepEqual(entry.en.schemaTokens, ['HowTo', 'Article', 'BreadcrumbList']);
+  assert.deepEqual(entry.zh.schemaTokens, ['HowTo', 'Article', 'BreadcrumbList']);
+
+  for (const locale of ['zh', 'en']) {
+    assert.equal(entry[locale].assetPolicy.status, 'requested-unapproved');
+    assert.equal(entry[locale].configuredInternalLinks.length, 3);
+    const sourcePath = path.join(ROOT, 'src/content/guides', locale, entry[locale].sourceName);
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    const { body } = parseDeliverySource(source, { ...entry[locale], slug: entry.slug });
+
+    assert.match(body, /\n1\.\s+/);
+    assert.match(body, /## References/);
+    assert.match(body, /\[[^\]]+\]\(https:\/\/[^)]+\)/);
+    assert.doesNotMatch(body, /KB 5\.1|核验日|verified on \*\*2026-07-20\*\*/i);
+    assert.doesNotMatch(body, /```mermaid/);
+  }
 });
 
 test('verifier imports are silent and side-effect free', () => {

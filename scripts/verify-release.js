@@ -27,6 +27,7 @@ const EXPECTED_ALIAS_COUNTS = URL_ALIAS_CONTRACT.sourceHosts;
 const EXPECTED_CASE_ONLY_COUNTS = URL_ALIAS_CONTRACT.slices['case-only'].sourceHosts;
 const EXPECTED_REBUILT_SLUG_COUNTS = URL_ALIAS_CONTRACT.slices['rebuilt-slug'].sourceHosts;
 const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
+const GUIDE_TRACER_SLUG = 'poc-30-day-design';
 const FAQ_METADATA_CONTRACT = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', 'src/faq/generated-en-metadata-authority.json'), 'utf8'),
 ).counts;
@@ -338,6 +339,9 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
   const p1Measurement = p1Step?.output.match(
     /P1 verification passed for .*?:\s*([0-9.]+ KiB initial JavaScript gzip)/
   );
+  const guideMeasurement = guideStep?.output.match(
+    /Guide HTML verified: (\d+) pages, (\d+) sitemap URLs \(tracer=([^)]+)\)/
+  );
   const caseOnlyStep = findStep(`Case-only HTTP verification (${variant})`);
   const aliasStep = findStep(`URL Alias black-box verification (${variant})`);
   const variantCounts = {
@@ -393,7 +397,16 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
       technicalCenter: artifactStatus(technicalCenterStep),
       technicalExport: artifactStatus(technicalExportStep),
       faqMetadata: artifactStatus(faqMetadataStep),
-      guide: artifactStatus(guideStep)
+      guide: artifactStatus(guideStep),
+      guideTracer: {
+        status: artifactStatus(guideStep),
+        slug:
+          guideMeasurement?.[3] ||
+          (guideStep?.output.includes('skipped') ? 'skipped' : 'not-reported'),
+        expectedSlug: GUIDE_TRACER_SLUG,
+        pages: guideMeasurement ? Number(guideMeasurement[1]) : undefined,
+        sitemapUrls: guideMeasurement ? Number(guideMeasurement[2]) : undefined
+      }
     }
   });
   record.counts.variants = Object.fromEntries(
@@ -430,7 +443,7 @@ function runStep(failures, label, command, args, env, variant, formatSuccess, re
   return true;
 }
 
-function nodeStep(failures, label, script, args, env, variant, record) {
+function nodeStep(failures, label, script, args, env, variant, record, formatSuccess) {
   return runStep(
     failures,
     label,
@@ -438,7 +451,7 @@ function nodeStep(failures, label, script, args, env, variant, record) {
     [script, ...args],
     env,
     variant,
-    undefined,
+    formatSuccess,
     record
   );
 }
@@ -818,7 +831,15 @@ function runVariantChecks(failures, variant, env, record) {
       ['--out-dir', 'out', '--variant', variant],
       env,
       variant,
-      record
+      record,
+      (output) => {
+        const match = output.match(
+          /Guide HTML verified: (\d+) pages, (\d+) sitemap URLs \(tracer=([^)]+)\)/
+        );
+        return match
+          ? `tracer=${match[3]} pages=${match[1]} sitemapUrls=${match[2]}`
+          : undefined;
+      }
     );
   }
   recordVariantOutcome(record, variant, failures, commandStart);
