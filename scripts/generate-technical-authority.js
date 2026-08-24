@@ -6,6 +6,18 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const zlib = require('node:zlib');
+const {
+  AUTHORITY_RELATIVE_PATH,
+  DISPOSITION_LEDGER_RELATIVE_PATH,
+  DUPLICATE_LEDGER_RELATIVE_PATH,
+  IDENTITY_LEDGER_RELATIVE_PATH,
+  OPERATION_RISK_LEDGER_RELATIVE_PATH,
+  PROJECTION_RELATIVE_PATH,
+  PROVENANCE_RELATIVE_PATH,
+  RELEASE_MANIFEST_RELATIVE_PATH,
+  SECURITY_LEDGER_RELATIVE_PATH,
+  projectAuthority
+} = require('./lib/technical-authority');
 
 const ROOT = path.resolve(__dirname, '..');
 const DEFAULT_SOURCE = process.env.FASTGPT_WEEK05_SOURCE;
@@ -34,21 +46,46 @@ const D2_SLUGS = new Set([
   'fastgpt-local-start-heat-update-path-error',
   'fastgpt-private-blank-page-troubleshooting'
 ]);
-const DEFERRED_SLUGS = new Set([
-  'fastgpt-api-error-troubleshooting',
-  'fastgpt-chat-completions-error'
+const WAVE_ZERO_ACCEPTED_LIMIT = 50;
+const REDACTED_CREDENTIAL_FILES = new Set([
+  'troubleshoot/bge-rerank-v2-m3-docker-gpu-fix.md',
+  'troubleshoot/fastgpt-custom-key-troubleshooting.md',
+  'troubleshoot/fastgpt-image-download-failed.md',
+  'troubleshoot/fastgpt-local-image-timeout-fix.md',
+  'troubleshoot/fastgpt-pdf-parse-connection-refused.md',
+  'troubleshoot/fastgpt-rerank-container-error-restart.md',
+  'troubleshoot/fastgpt-speech-recognition-timeout.md',
+  'troubleshoot/fastgpt-support-completions-api.md',
+  'troubleshoot/fastgpt-third-party-voice-model-error.md',
+  'troubleshoot/fastgpt-upgrade-db-start-troubleshooting.md',
+  'troubleshoot/fastgpt-workflow-url-missing-ip-port.md'
+]);
+const UNRESOLVED_CREDENTIAL_FILES = new Set([
+  'troubleshoot/fastgpt-api-error-troubleshooting.md',
+  'troubleshoot/fastgpt-chat-completions-error.md'
 ]);
 const RELATION_SPECS = [
-  [4023, 4031, 'merged'],
-  [1108, 1109, 'pending-review'],
-  [5481, 5483, 'merged'],
-  [2204, 396, 'denied'],
-  [1499, 1572, 'pending-review'],
-  [3214, 981, 'distinct'],
-  [3546, 3765, 'distinct'],
-  [1662, 2425, 'pending-review'],
-  [1782, 1863, 'denied']
+  [4023, 4031],
+  [1108, 1109],
+  [5481, 5483],
+  [2204, 396],
+  [1499, 1572],
+  [3214, 981],
+  [3546, 3765],
+  [1662, 2425],
+  [1782, 1863]
 ];
+const RELATION_DECISIONS = {
+  '4023-4031': { resolution: 'merged', winnerIssue: 4023, resolutionReason: '4031 merged into 4023; the retained candidate remains denied pending root-cause evidence.' },
+  '1108-1109': { resolution: 'denied', resolutionReason: 'Both candidates lack a confirmed cause and standard repair evidence.' },
+  '5481-5483': { resolution: 'merged', winnerIssue: 5481, resolutionReason: '5483 merged into 5481; the retained candidate remains denied pending configuration evidence.' },
+  '2204-396': { resolution: 'distinct', resolutionReason: 'The candidates describe distinct request states and retain separate identities.' },
+  '1499-1572': { resolution: 'denied', resolutionReason: 'The candidates remain unresolved without formal version or commit evidence.' },
+  '3214-981': { resolution: 'distinct', resolutionReason: 'Dataset-process and browser-environment failures have distinct causes.' },
+  '3546-3765': { resolution: 'distinct', resolutionReason: 'Tool-calling integration and general model configuration are distinct intents.' },
+  '1662-2425': { resolution: 'distinct', resolutionReason: 'Image compatibility and InnoDB corruption require separate remediation paths.' },
+  '1782-1863': { resolution: 'denied', resolutionReason: 'Both candidates lack a verified root cause and repair path.' }
+};
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
@@ -171,8 +208,11 @@ function fingerprint(source, title) {
 function redactCredentialShapes(value) {
   return value
     .replace(/\bsk-[A-Za-z0-9][A-Za-z0-9_-]{5,}\b/gi, '[REDACTED_CREDENTIAL]')
+    .replace(/\bfastgpt-(?=[A-Za-z0-9_-]{9,}\b)(?=[A-Za-z0-9_-]*[A-Z])[A-Za-z0-9][A-Za-z0-9_-]*\b/g, '[REDACTED_CREDENTIAL]')
     .replace(/\bBearer\s+[A-Za-z0-9._~+/=-]{6,}/gi, 'Bearer [REDACTED_CREDENTIAL]')
     .replace(/\beyJ[A-Za-z0-9._-]{20,}\b/g, '[REDACTED_CREDENTIAL]')
+    .replace(/([?&](?:token|key|secret|api[_-]?key|access[_-]?token)=)[^&\s)`]+/gi, '$1[REDACTED_CREDENTIAL]')
+    .replace(/(\b(?:mysql|postgres(?:ql)?|mongodb(?:\+srv)?):\/\/)[^\s`:@]+:[^\s`@]+@/gi, '$1[REDACTED_CREDENTIAL]:[REDACTED_CREDENTIAL]@')
     .replace(
       /((?:api[_-]?key|access[_-]?token|authorization|password|secret)\s*[:=]\s*["']?)([^\s,"'`}]+)/gi,
       '$1[REDACTED_CREDENTIAL]'
@@ -194,14 +234,60 @@ function issueId(sourceUrl) {
   return Number(sourceUrl.match(/\/issues\/(\d+)$/)?.[1] || 0);
 }
 
-function buildRisk(slug) {
-  const level = D0_SLUGS.has(slug)
-    ? 'D0'
-    : D1_SLUGS.has(slug)
-    ? 'D1'
-    : D2_SLUGS.has(slug)
-    ? 'D2'
-    : 'none';
+function operationMatches(source) {
+  const patterns = [
+    ['docker-volume-removal', /docker(?:[- ]compose)?\s+down[^\n`]*-v/gi],
+    ['docker-system-prune', /docker\s+system\s+prune/gi],
+    ['docker-builder-prune', /docker\s+builder\s+prune/gi],
+    ['recursive-delete', /rm\s+-rf[^\n`]*/gi],
+    ['persistent-data-delete', /删除[^\n`]*(?:持久化数据目录|数据库目录|数据卷|数据目录)/gi],
+    ['lockfile-delete', /(?:rm\s+-rf|删除)[^\n`]*(?:pnpm-lock|package-lock|yarn\.lock|lockfile)/gi],
+    ['cache-delete', /(?:rm\s+-rf|删除)[^\n`]*(?:\.next|缓存)/gi],
+    ['credential-file-delete', /删除[^\n`]*(?:密钥文件|密钥相关文件|private_key)/gi],
+    ['permission-change', /(?:chmod|chown)\s+[^\n`]*/gi]
+  ];
+  const findings = [];
+  const lines = source.split(/\r?\n/);
+  lines.forEach((line, lineIndex) => {
+    patterns.forEach(([kind, pattern]) => {
+      pattern.lastIndex = 0;
+      for (const match of line.matchAll(pattern)) {
+        findings.push({ kind, line: lineIndex + 1, raw: match[0].trim() });
+      }
+    });
+  });
+  const seen = new Set();
+  return findings.filter((finding) => {
+    const key = `${finding.kind}|${finding.line}|${finding.raw}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function riskLevelForFindings(slug, findings) {
+  if (D0_SLUGS.has(slug)) return 'D0';
+  if (D1_SLUGS.has(slug)) return 'D1';
+  if (D2_SLUGS.has(slug)) return 'D2';
+  if (findings.some((finding) => ['docker-system-prune', 'persistent-data-delete', 'docker-volume-removal'].includes(finding.kind))) {
+    return 'D0';
+  }
+  if (
+    findings.some((finding) =>
+      ['docker-builder-prune', 'recursive-delete', 'lockfile-delete', 'credential-file-delete', 'permission-change'].includes(
+        finding.kind
+      )
+    )
+  ) {
+    return 'D1';
+  }
+  if (findings.some((finding) => finding.kind === 'cache-delete')) return 'D2';
+  return 'none';
+}
+
+function buildRisk(slug, source, sourceUrl, sourceFile) {
+  const scannedFindings = operationMatches(source);
+  const level = riskLevelForFindings(slug, scannedFindings);
   const safeguards = {
     none: {
       warning: 'No destructive operation identified in the candidate.',
@@ -228,18 +314,109 @@ function buildRisk(slug) {
       decision: 'needs-evidence'
     }
   };
-  return { level, ...safeguards[level] };
+  return {
+    level,
+    ...safeguards[level],
+    findings: scannedFindings.map((finding) => ({
+      kind: finding.kind,
+      location: { sourceFile, line: finding.line },
+      fingerprint: sha256(finding.raw),
+      evidence: sourceUrl,
+      disposition: level === 'none' ? 'cleared' : 'denied'
+    }))
+  };
 }
 
-function buildSecurity(source, slug) {
-  const matches = source.match(
-    /\bsk-[A-Za-z0-9][A-Za-z0-9_-]{5,}\b|\bBearer\s+[A-Za-z0-9._~+/=-]{6,}|\beyJ[A-Za-z0-9._-]{20,}\b|\b(?:api[_-]?key|access[_-]?token|chat_api_key|token_key|password|secret)\s*[:=]\s*[A-Za-z0-9._~+/=-]{4,}/gi
-  ) || [];
+function credentialMatches(source) {
+  const patterns = [
+    ['generic-sk-token', /\bsk-[A-Za-z0-9][A-Za-z0-9_-]{5,}\b/gi],
+    ['fastgpt-token', /\bfastgpt-(?=[A-Za-z0-9_-]{9,}\b)(?=[A-Za-z0-9_-]*[A-Z])[A-Za-z0-9][A-Za-z0-9_-]*\b/g],
+    ['bearer-token', /\bBearer\s+[A-Za-z0-9._~+/=-]{6,}/gi],
+    ['jwt', /\beyJ[A-Za-z0-9._-]{20,}\b/g],
+    [
+      'credential-assignment',
+      /\b(?:api[_-]?key|access[_-]?token|chat_api_key|token_key|password|secret)\s*[:=]\s*["'`]?[^\s,"'`}]+/gi
+    ],
+    ['credential-query', /[?&](?:token|key|secret|api[_-]?key|access[_-]?token)=[^&\s)`]+/gi],
+    ['cloud-access-key', /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/g],
+    ['private-key', /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g],
+    ['credential-dsn', /\b(?:mysql|postgres(?:ql)?|mongodb(?:\+srv)?):\/\/[^\s`]+/gi],
+    ['auth-header', /\b(?:Authorization|X-[A-Za-z0-9-]*(?:Token|Key))\s*[:=]\s*[^\s,;`)]+/gi]
+  ];
+  const lines = source.split(/\r?\n/);
+  const matches = [];
+  lines.forEach((line, lineIndex) => {
+    patterns.forEach(([kind, pattern]) => {
+      pattern.lastIndex = 0;
+      for (const match of line.matchAll(pattern)) {
+        matches.push({ kind, line: lineIndex + 1, raw: match[0] });
+      }
+    });
+  });
+  const seen = new Set();
+  return matches.filter((match) => {
+    const key = `${match.kind}|${match.line}|${match.raw}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function isPlaceholder(value) {
+  return /\[REDACTED|YOUR_|<[^>]+>|\[[^\]]+\]|\b(?:xxx+|xxxx+|mytoken|123456|sk-fastgpt|sk-tarzan)\b|\$\{/i.test(value);
+}
+
+function buildSecurity(source, record) {
+  const matches = credentialMatches(source);
   if (!matches.length) return { status: 'clear', findings: [] };
-  return {
-    status: DEFERRED_SLUGS.has(slug) ? 'needs-review' : 'redacted-secret',
-    findings: [{ kind: 'credential-shaped', disposition: DEFERRED_SLUGS.has(slug) ? 'needs-review' : 'redacted-secret' }]
-  };
+  const findings = matches.map((match) => {
+    const isEmptyBearer = /(?:authorization\s*[:=]\s*bearer|bearer)\s*$/i.test(match.raw);
+    const status = UNRESOLVED_CREDENTIAL_FILES.has(record.sourceFile)
+      ? 'needs-review'
+      : isEmptyBearer
+      ? 'clear'
+      : REDACTED_CREDENTIAL_FILES.has(record.sourceFile)
+      ? 'redacted-secret'
+      : isPlaceholder(match.raw)
+      ? 'approved-synthetic-placeholder'
+      : 'redacted-secret';
+    const disposition = status === 'needs-review' ? 'denied' : status === 'clear' ? 'cleared' : 'redacted';
+    return {
+      kind: match.kind,
+      location: { sourceFile: record.sourceFile, line: match.line },
+      fingerprint: sha256(redactCredentialShapes(match.raw)),
+      disposition,
+      reviewer: 'technical-governance',
+      evidence: record.sourceUrl,
+      replacement:
+        status === 'needs-review'
+          ? 'Denied before publication; source value remains outside all public projections.'
+          : disposition === 'cleared'
+          ? 'No credential value present; no replacement required.'
+          : status === 'approved-synthetic-placeholder'
+          ? 'YOUR_API_KEY'
+          : '[REDACTED_CREDENTIAL]'
+    };
+  });
+  const statuses = new Set(
+    findings.map((finding) =>
+      finding.disposition === 'denied'
+        ? 'needs-review'
+        : finding.disposition === 'cleared'
+        ? 'clear'
+        : finding.replacement === 'YOUR_API_KEY'
+        ? 'approved-synthetic-placeholder'
+        : 'redacted-secret'
+    )
+  );
+  const status = statuses.has('needs-review')
+    ? 'needs-review'
+    : statuses.has('redacted-secret')
+    ? 'redacted-secret'
+    : statuses.has('approved-synthetic-placeholder')
+    ? 'approved-synthetic-placeholder'
+    : 'clear';
+  return { status, findings };
 }
 
 function buildEvidence(source, record) {
@@ -280,27 +457,6 @@ function buildAuthority(sourceDirectory) {
     const source = sourceBody(sourceDirectory, record);
     const identity = normalizeIdentity(record.slug);
     const slug = path.posix.basename(identity.canonicalPath);
-    const security = buildSecurity(source, slug);
-    const operationRisk = buildRisk(slug);
-    const conflict = KNOWN_CONFLICTS.has(slug);
-    const tracer = index === 0;
-    const denied = conflict || operationRisk.level === 'D0';
-    const deferred = DEFERRED_SLUGS.has(slug);
-    const state = tracer ? 'accepted' : denied ? 'denied' : deferred ? 'deferred' : 'needs-evidence';
-    const decision = tracer
-      ? {
-          disposition: 'accepted',
-          operation: 'add',
-          reason: 'Controlled Week05 tracer with source, identity, security, and risk review complete.'
-        }
-      : denied
-      ? {
-          disposition: 'denied',
-          reason: conflict
-            ? 'Identity conflicts with an existing Technical Center page and requires a separate resolution.'
-            : 'D0 operation risk requires a non-destructive replacement and recovery evidence.'
-        }
-      : null;
     const candidate = {
       id: `week05-${String(index + 1).padStart(4, '0')}`,
       identity,
@@ -317,24 +473,30 @@ function buildAuthority(sourceDirectory) {
         bodySha256: sha256(source)
       },
       evidence: buildEvidence(source, record),
-      security,
-      operationRisk,
+      security: buildSecurity(source, record),
+      operationRisk: buildRisk(slug, source, record.sourceUrl, record.sourceFile),
       relations: [],
-      state,
-      decision
+      state: 'needs-evidence',
+      decision: null
     };
     byIssue.set(issueId(record.sourceUrl), candidate.id);
     return candidate;
   });
 
-  const relations = RELATION_SPECS.map(([leftIssue, rightIssue, resolution]) => {
+  const relations = RELATION_SPECS.map(([leftIssue, rightIssue]) => {
     const relatedCandidateIds = [byIssue.get(leftIssue), byIssue.get(rightIssue)];
     if (relatedCandidateIds.some((candidateId) => !candidateId)) {
       throw new Error(`Week05 duplicate relation is missing issue ${leftIssue}/${rightIssue}`);
     }
+    const relationDecision = RELATION_DECISIONS[`${leftIssue}-${rightIssue}`];
+    const winnerCandidateId = relationDecision.winnerIssue
+      ? byIssue.get(relationDecision.winnerIssue)
+      : undefined;
     return {
       id: `issue-${leftIssue}-${rightIssue}`,
-      resolution,
+      resolution: relationDecision.resolution,
+      resolutionReason: relationDecision.resolutionReason,
+      ...(winnerCandidateId ? { winnerCandidateId } : {}),
       relatedCandidateIds,
       evidence: `https://github.com/labring/FastGPT/issues/${leftIssue} and https://github.com/labring/FastGPT/issues/${rightIssue}`
     };
@@ -357,23 +519,91 @@ function buildAuthority(sourceDirectory) {
       id: `identity-conflict-${candidate.id}`,
       candidateId: candidate.id,
       existingIdentity: candidate.identity,
-      resolution: 'denied'
+      resolution: 'denied',
+      reason: 'existing-identity-collision',
+      evidence: `https://fastgpt.cn${candidate.identity.canonicalPath}`
     }));
+
+  const conflictCandidateIds = new Set(identityConflicts.map((conflict) => conflict.candidateId));
+  const relationByCandidate = new Map();
+  relations.forEach((relation) => {
+    relation.relatedCandidateIds.forEach((candidateId) => {
+      const list = relationByCandidate.get(candidateId) || [];
+      list.push(relation);
+      relationByCandidate.set(candidateId, list);
+    });
+  });
+  const waveZeroEligible = candidates.filter(
+    (candidate) =>
+      !conflictCandidateIds.has(candidate.id) &&
+      candidate.relations.length === 0 &&
+      candidate.operationRisk.level === 'none' &&
+      candidate.security.status !== 'needs-review' &&
+      candidate.evidence.status === 'verified' &&
+      candidate.evidence.fingerprint.length >= 24
+  );
+  const acceptedIds = new Set(waveZeroEligible.slice(0, WAVE_ZERO_ACCEPTED_LIMIT).map((candidate) => candidate.id));
+  candidates.forEach((candidate) => {
+    const relation = relationByCandidate.get(candidate.id)?.[0];
+    const conflict = conflictCandidateIds.has(candidate.id);
+    const unresolvedCredential = candidate.security.status === 'needs-review';
+    const risk = candidate.operationRisk.level;
+    let reason = 'Evidence quality is insufficient for the bounded Wave 0 admission set.';
+    if (conflict) reason = 'existing-identity-collision';
+    else if (unresolvedCredential) reason = 'credential-review-unresolved';
+    else if (risk !== 'none') reason = `operation-risk-${risk}`;
+    else if (relation?.resolution === 'merged') reason = 'merged-into-retained-candidate';
+    else if (relation?.resolution === 'denied') reason = 'duplicate-evidence-insufficient';
+    else if (relation?.resolution === 'distinct') reason = 'high-similarity-review-held';
+    if (acceptedIds.has(candidate.id)) {
+      candidate.state = 'accepted';
+      candidate.decision = {
+        disposition: 'accepted',
+        operation: 'add',
+        reason: 'Source, identity, evidence fingerprint, security, and operation-risk gates passed for Wave 0 dry-run admission.',
+        evidence: [candidate.provenance.sourceUrl],
+        reviewer: 'technical-governance',
+        wave: 'wave-0-dry-run'
+      };
+      return;
+    }
+    candidate.state = 'denied';
+    candidate.decision = {
+      disposition: 'denied',
+      reason,
+      evidence: [candidate.provenance.sourceUrl],
+      reviewer: 'technical-governance'
+    };
+    if (relation?.resolution === 'merged' && relation.winnerCandidateId === candidate.id) {
+      candidate.decision.reason = 'Retained identity remains denied until the merged evidence set proves root cause and repair.';
+    }
+  });
   const finalAccepted = candidates.filter((candidate) => candidate.state === 'accepted').map((candidate) => candidate.id);
   const finalDenied = candidates.filter((candidate) => candidate.state === 'denied').map((candidate) => candidate.id);
-  const temporaryNeedsEvidence = candidates.filter((candidate) => candidate.state === 'needs-evidence').map((candidate) => candidate.id);
-  const temporaryDeferred = candidates.filter((candidate) => candidate.state === 'deferred').map((candidate) => candidate.id);
   const add = finalAccepted.filter((candidateId) => candidates.find((candidate) => candidate.id === candidateId).decision.operation === 'add').length;
   const update = finalAccepted.length - add;
-  return {
+  const securityFindings = candidates.reduce((count, candidate) => count + candidate.security.findings.length, 0);
+  const operationFindings = candidates.reduce((count, candidate) => count + candidate.operationRisk.findings.length, 0);
+  const authority = {
     schemaVersion: 1,
-    batch: { id: 'week05', status: 'open', candidateCount: 888, source: 'Week05 technical delivery' },
+    batch: {
+      id: 'week05',
+      status: 'closed',
+      candidateCount: 888,
+      source: 'Week05 technical delivery',
+      closure: {
+        status: 'governance-complete',
+        wave: 'wave-0',
+        publicationCount: 0,
+        reviewer: 'technical-governance'
+      }
+    },
     history: historyForRepository(),
     candidates,
     relations,
     identityConflicts,
     final: { accepted: finalAccepted, denied: finalDenied },
-    temporary: { needsEvidence: temporaryNeedsEvidence, deferred: temporaryDeferred },
+    temporary: { needsEvidence: [], deferred: [] },
     counts: {
       accepted: finalAccepted.length,
       denied: finalDenied.length,
@@ -382,19 +612,221 @@ function buildAuthority(sourceDirectory) {
       resultingPageCount: 1122 + add
     },
     projection: {
+      schemaVersion: 1,
       mode: 'dry-run',
       publicPageDelta: 0,
+      publicationCount: 0,
+      governanceStatus: 'governance-complete',
+      wave: 'wave-0',
       resultingPageCount: 1122 + add,
       tracerCandidateId: finalAccepted[0],
-      surfaces: ['registry', 'search', 'sitemap', 'static-export', 'release-record', 'rollback']
+      surfaces: ['registry', 'search', 'sitemap', 'static-export', 'release-record', 'rollback'],
+      acceptedCandidateCount: finalAccepted.length,
+      artifactPath: PROJECTION_RELATIVE_PATH
+    },
+    governance: {
+      status: 'governance-complete',
+      wave: 'wave-0',
+      candidateCount: candidates.length,
+      finalAcceptedCount: finalAccepted.length,
+      finalDeniedCount: finalDenied.length,
+      temporaryCount: 0,
+      identityConflictCount: identityConflicts.length,
+      duplicateRelationCount: relations.length,
+      resolvedRelationCount: relations.filter((relation) => relation.resolution !== 'pending-review').length,
+      credentialFindingCount: securityFindings,
+      unresolvedCredentialCount: candidates.filter(
+        (candidate) => candidate.security.status === 'needs-review' && candidate.decision?.disposition !== 'denied'
+      ).length,
+      deniedCredentialCount: candidates.filter(
+        (candidate) => candidate.security.status === 'needs-review' && candidate.decision?.disposition === 'denied'
+      ).length,
+      operationFindingCount: operationFindings,
+      unresolvedOperationRiskCount: candidates.filter((candidate) => candidate.operationRisk.level !== 'none' && candidate.decision?.disposition !== 'denied').length,
+      publicationCount: 0
+    },
+    provenance: {
+      workbook: path.basename(workbook.path),
+      workbookSha256: workbook.sha256,
+      workbookFormat: 'xlsx',
+      workbookRows: workbook.records.length,
+      firstDataRow: workbook.records[0].row,
+      lastDataRow: workbook.records.at(-1).row,
+      sourceDirectory: path.basename(sourceDirectory),
+      sourceFileCount: new Set(candidates.map((candidate) => candidate.provenance.sourceFile)).size,
+      sourceUrlCount: new Set(candidates.map((candidate) => candidate.provenance.sourceUrl)).size,
+      sourceSetSha256: sha256(
+        stableJson(
+          candidates.map((candidate) => ({
+            id: candidate.id,
+            sourceFile: candidate.provenance.sourceFile,
+            sourceUrl: candidate.provenance.sourceUrl,
+            sourceSha256: candidate.provenance.sourceSha256,
+            bodySha256: candidate.provenance.bodySha256
+          }))
+        )
+      ),
+      artifactManifestPath: RELEASE_MANIFEST_RELATIVE_PATH
     }
   };
+  return authority;
 }
 
 function writeJson(relativePath, value) {
   const filePath = path.join(ROOT, relativePath);
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, stableJson(value));
+}
+
+function buildArtifacts(authority) {
+  const candidatesById = new Map(authority.candidates.map((candidate) => [candidate.id, candidate]));
+  return {
+    projection: projectAuthority(authority),
+    disposition: {
+      schemaVersion: 1,
+      batch: authority.batch.id,
+      status: 'closed',
+      wave: 'wave-0',
+      candidateCount: authority.candidates.length,
+      accepted: authority.final.accepted,
+      denied: authority.final.denied,
+      decisions: authority.candidates.map((candidate) => ({
+        candidateId: candidate.id,
+        identity: candidate.identity,
+        state: candidate.state,
+        disposition: candidate.decision.disposition,
+        operation: candidate.decision.operation,
+        reason: candidate.decision.reason,
+        evidence: candidate.decision.evidence || [candidate.provenance.sourceUrl]
+      }))
+    },
+    identity: {
+      schemaVersion: 1,
+      batch: authority.batch.id,
+      status: 'closed',
+      candidateCount: authority.candidates.length,
+      records: authority.candidates.map((candidate) => ({
+        candidateId: candidate.id,
+        identity: candidate.identity,
+        identityKey: `${candidate.identity.locale}|${candidate.identity.canonicalPath}`,
+        workbookRow: candidate.provenance.workbookRow,
+        resolution: candidate.state === 'denied' && candidate.decision.reason === 'existing-identity-collision' ? 'existing-identity-collision' : candidate.decision.disposition
+      })),
+      conflicts: authority.identityConflicts
+    },
+    duplicate: {
+      schemaVersion: 1,
+      batch: authority.batch.id,
+      status: 'closed',
+      relationCount: authority.relations.length,
+      resolvedRelationCount: authority.relations.filter((relation) => relation.resolution !== 'pending-review').length,
+      relations: authority.relations.map((relation) => ({
+        ...relation,
+        candidates: relation.relatedCandidateIds.map((candidateId) => ({
+          candidateId,
+          identity: candidatesById.get(candidateId).identity,
+          disposition: candidatesById.get(candidateId).decision.disposition
+        }))
+      }))
+    },
+    security: {
+      schemaVersion: 1,
+      batch: authority.batch.id,
+      status: 'closed',
+      findingCount: authority.governance.credentialFindingCount,
+      unresolvedCount: authority.governance.unresolvedCredentialCount,
+      deniedCount: authority.governance.deniedCredentialCount,
+      findings: authority.candidates.flatMap((candidate) =>
+        candidate.security.findings.map((finding) => ({
+          candidateId: candidate.id,
+          identity: candidate.identity,
+          status: candidate.security.status,
+          ...finding
+        }))
+      )
+    },
+    operationRisk: {
+      schemaVersion: 1,
+      batch: authority.batch.id,
+      status: 'closed',
+      findingCount: authority.governance.operationFindingCount,
+      unresolvedCount: authority.governance.unresolvedOperationRiskCount,
+      levels: authority.candidates.reduce(
+        (levels, candidate) => ({ ...levels, [candidate.operationRisk.level]: levels[candidate.operationRisk.level] + 1 }),
+        { none: 0, D0: 0, D1: 0, D2: 0 }
+      ),
+      records: authority.candidates
+        .filter((candidate) => candidate.operationRisk.level !== 'none' || candidate.operationRisk.findings.length)
+        .map((candidate) => ({
+          candidateId: candidate.id,
+          identity: candidate.identity,
+          level: candidate.operationRisk.level,
+          decision: candidate.operationRisk.decision,
+          warning: candidate.operationRisk.warning,
+          prerequisite: candidate.operationRisk.prerequisite,
+          rollback: candidate.operationRisk.rollback,
+          findings: candidate.operationRisk.findings
+        }))
+    },
+    provenance: {
+      schemaVersion: 1,
+      batch: authority.batch.id,
+      status: 'closed',
+      workbook: {
+        file: authority.provenance.workbook,
+        sha256: authority.provenance.workbookSha256,
+        format: authority.provenance.workbookFormat,
+        rows: authority.provenance.workbookRows,
+        firstDataRow: authority.provenance.firstDataRow,
+        lastDataRow: authority.provenance.lastDataRow
+      },
+      sources: authority.candidates.map((candidate) => ({
+        candidateId: candidate.id,
+        workbookRow: candidate.provenance.workbookRow,
+        sourceFile: candidate.provenance.sourceFile,
+        sourceUrl: candidate.provenance.sourceUrl,
+        sourceSha256: candidate.provenance.sourceSha256,
+        bodySha256: candidate.provenance.bodySha256
+      })),
+      sourceSetSha256: authority.provenance.sourceSetSha256
+    }
+  };
+}
+
+function writeAuthorityArtifacts(authority) {
+  const artifacts = buildArtifacts(authority);
+  writeJson(PROJECTION_RELATIVE_PATH, artifacts.projection);
+  authority.projection.artifactSha256 = sha256(stableJson(artifacts.projection));
+  writeJson(AUTHORITY_RELATIVE_PATH, authority);
+  writeJson(DISPOSITION_LEDGER_RELATIVE_PATH, artifacts.disposition);
+  writeJson(IDENTITY_LEDGER_RELATIVE_PATH, artifacts.identity);
+  writeJson(DUPLICATE_LEDGER_RELATIVE_PATH, artifacts.duplicate);
+  writeJson(SECURITY_LEDGER_RELATIVE_PATH, artifacts.security);
+  writeJson(OPERATION_RISK_LEDGER_RELATIVE_PATH, artifacts.operationRisk);
+  writeJson(PROVENANCE_RELATIVE_PATH, artifacts.provenance);
+  const artifactPaths = [
+    AUTHORITY_RELATIVE_PATH,
+    PROJECTION_RELATIVE_PATH,
+    DISPOSITION_LEDGER_RELATIVE_PATH,
+    IDENTITY_LEDGER_RELATIVE_PATH,
+    DUPLICATE_LEDGER_RELATIVE_PATH,
+    SECURITY_LEDGER_RELATIVE_PATH,
+    OPERATION_RISK_LEDGER_RELATIVE_PATH,
+    PROVENANCE_RELATIVE_PATH
+  ];
+  writeJson(RELEASE_MANIFEST_RELATIVE_PATH, {
+    schemaVersion: 1,
+    batch: authority.batch.id,
+    status: 'closed',
+    governanceStatus: authority.governance.status,
+    publicationCount: authority.governance.publicationCount,
+    sourceSetSha256: authority.provenance.sourceSetSha256,
+    artifacts: artifactPaths.map((relativePath) => ({
+      path: relativePath,
+      sha256: sha256(fs.readFileSync(path.join(ROOT, relativePath)))
+    }))
+  });
+  return artifacts;
 }
 
 function main(argv = process.argv.slice(2)) {
@@ -406,7 +838,7 @@ function main(argv = process.argv.slice(2)) {
   }
   const sourceDirectory = path.resolve(source);
   const authority = buildAuthority(sourceDirectory);
-  writeJson('src/content/tech-center/authority/week05-authority.json', authority);
+  writeAuthorityArtifacts(authority);
   writeJson('scripts/fixtures/technical-authority/week05-tracer.json', {
     schemaVersion: 1,
     candidateId: authority.projection.tracerCandidateId,
@@ -415,7 +847,10 @@ function main(argv = process.argv.slice(2)) {
     summary: 'Controlled Week05 tracer projection for the Technical Content Authority.',
     operation: 'add'
   });
-  console.log(`[generate-technical-authority] generated 888 candidates from ${sourceDirectory}`);
+  console.log(
+    `[generate-technical-authority] generated 888 candidates from ${sourceDirectory}; ` +
+      `accepted=${authority.counts.accepted} denied=${authority.counts.denied} publication-count=0`
+  );
 }
 
 if (require.main === module) {
@@ -427,4 +862,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { buildAuthority, main, readWorkbook };
+module.exports = { buildAuthority, buildArtifacts, main, readWorkbook, writeAuthorityArtifacts };

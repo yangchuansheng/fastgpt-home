@@ -33,7 +33,15 @@ const EXPECTED_TECHNICAL_AUTHORITY = {
   historicalAdd: 450,
   historicalUpdate: 4,
   historicalPageCount: 1122,
-  candidateCount: 888
+  candidateCount: 888,
+  temporary: 0,
+  governanceStatus: 'governance-complete',
+  publicationCount: 0,
+  identityConflicts: 4,
+  duplicateRelations: 9,
+  resolvedRelations: 9,
+  credentialUnresolved: 0,
+  operationRiskUnresolved: 0
 };
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
 const GUIDE_AUTHORIZATION_SLUGS = [
@@ -233,7 +241,7 @@ function formatTechnicalAuthoritySuccess(output) {
   const marker = output.match(/TECHNICAL_AUTHORITY_RESULT=(\{[^\n]+\})/);
   if (!marker) return undefined;
   const result = JSON.parse(marker[1]);
-  return `historicalAccepted=${result.historicalAccepted} historicalDenied=${result.historicalDenied} candidates=${result.candidateCount} accepted=${result.accepted} denied=${result.denied} add=${result.add} update=${result.update} resultingPages=${result.resultingPageCount}`;
+  return `status=${result.governanceStatus} publication-count=${result.publicationCount} historicalAccepted=${result.historicalAccepted} historicalDenied=${result.historicalDenied} candidates=${result.candidateCount} accepted=${result.accepted} denied=${result.denied} add=${result.add} update=${result.update} resultingPages=${result.resultingPageCount}`;
 }
 
 function writeReleaseRecord(record) {
@@ -841,6 +849,13 @@ function runSourceChecks(failures, env, record) {
     undefined,
     record
   );
+  const technicalAuthority = record?.evidence.technicalAuthority;
+  if (
+    technicalAuthority?.observed?.governanceStatus === 'governance-complete' &&
+    technicalAuthority.observed.publicationCount === 0
+  ) {
+    console.log('[verify-release] Wave 0 governance-complete; publication-count=0');
+  }
 }
 
 function runGuideSourceChecks(failures, env, variant, record) {

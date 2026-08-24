@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "batch": "week05",
+  "status": "closed",
+  "governanceStatus": "governance-complete",
+  "publicationCount": 0,
+  "sourceSetSha256": "518f76fe5f2675a4a11592d2d555fb0250b5c812de46b8819174d6e01e230388",
+  "artifacts": [
+    {
+      "path": "src/content/tech-center/authority/week05-authority.json",
+      "sha256": "4f1f1c1d422e120cdcb540e03ef404c0cf5483b2813482b8fb1679d91baf20ab"
+    },
+    {
+      "path": "src/content/tech-center/authority/week05-projection.json",
+      "sha256": "ed7ee38ab71d48b5e687c7560e2c348ec4ead4dcf405e5df38ba1f915e9b9322"
+    },
+    {
+      "path": "src/content/tech-center/authority/week05-disposition-ledger.json",
+      "sha256": "1174daafba8601f58310e029906da3e376660806f8f0f832fc69d3d4fb4f3399"
+    },
+    {
+      "path": "src/content/tech-center/authority/week05-identity-ledger.json",
+      "sha256": "ee4c4986e9f8b3a773e1f3da143854df3eab6f882fff06748631855436abb9bc"
+    },
+    {
+      "path": "src/content/tech-center/authority/week05-duplicate-ledger.json",
+      "sha256": "f4e47263002ea9b9521b79eb4b0699c91202f191a5179787547c61aa1c7b5d0f"
+    },
+    {
+      "path": "src/content/tech-center/authority/week05-security-ledger.json",
+      "sha256": "85aaaed04b3f70602fed84b62fd97d7183d8414fbbccec0c24871253514eba5c"
+    },
+    {
+      "path": "src/content/tech-center/authority/week05-operation-risk-ledger.json",
+      "sha256": "db52b2eae7161c571c6667b71626eac1456b344c17c2eccc0b0220e0c3f48478"
+    },
+    {
+      "path": "src/content/tech-center/authority/week05-provenance.json",
+      "sha256": "31faca36f896c26cbad5adef3d172fd305aea0188033d6aef11c33cda39ee2ad"
+    }
+  ]
+}

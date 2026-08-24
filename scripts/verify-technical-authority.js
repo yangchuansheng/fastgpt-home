@@ -6,9 +6,11 @@ const path = require('node:path');
 const {
   loadTechnicalAuthority,
   loadTracer,
+  projectAuthority,
   projectTracer,
   validateTechnicalAuthority,
-  verifyAtomicProjection
+  verifyAtomicProjection,
+  verifyPersistedArtifacts
 } = require('./lib/technical-authority');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -27,12 +29,41 @@ function countRiskLevels(candidates) {
   );
 }
 
+function countOperationFindings(candidates) {
+  return candidates.reduce((count, candidate) => count + candidate.operationRisk.findings.length, 0);
+}
+
+function countUnresolvedCredentials(candidates) {
+  return candidates.filter(
+    (candidate) => candidate.security.status === 'needs-review' && candidate.decision?.disposition !== 'denied'
+  ).length;
+}
+
+function countUnresolvedOperationRisk(candidates) {
+  return candidates.filter(
+    (candidate) => candidate.operationRisk.level !== 'none' && candidate.decision?.disposition !== 'denied'
+  ).length;
+}
+
 function verifyTechnicalAuthority(repoRoot = ROOT) {
   const authority = loadTechnicalAuthority(repoRoot);
-  const result = validateTechnicalAuthority(authority, { repoRoot, verifyHistory: true });
+  const result = validateTechnicalAuthority(authority, {
+    repoRoot,
+    verifyHistory: true,
+    verifyArtifacts: true
+  });
   const tracer = loadTracer(repoRoot);
   const projection = projectTracer(authority, tracer);
   verifyAtomicProjection(projection);
+  const fullProjection = projectAuthority(authority);
+  const repeatProjection = projectAuthority(authority);
+  if (JSON.stringify(fullProjection) !== JSON.stringify(repeatProjection)) {
+    throw new Error('Week05 full dry-run projection is non-deterministic');
+  }
+  const persisted = verifyPersistedArtifacts(authority, repoRoot);
+  if (JSON.stringify(fullProjection) !== JSON.stringify(persisted.projection)) {
+    throw new Error('Week05 persisted projection does not match the authority');
+  }
 
   const observed = {
     historicalAccepted: result.history.accepted,
@@ -50,13 +81,25 @@ function verifyTechnicalAuthority(repoRoot = ROOT) {
     temporary: result.temporary,
     closureBlocked: result.temporary > 0,
     resultingPageCount: result.count.resultingPageCount,
+    governanceStatus: authority.governance.status,
+    publicationCount: authority.governance.publicationCount,
     identityConflicts: authority.identityConflicts.length,
     duplicateRelations: authority.relations.length,
+    resolvedRelations: authority.relations.filter((relation) => relation.resolution !== 'pending-review').length,
     credentialFindings: countSecurityFindings(authority.candidates),
+    credentialUnresolved: countUnresolvedCredentials(authority.candidates),
+    operationFindings: countOperationFindings(authority.candidates),
+    operationRiskUnresolved: countUnresolvedOperationRisk(authority.candidates),
     riskLevels: countRiskLevels(authority.candidates),
     tracerCandidateId: tracer.candidateId,
     projectionIdentityCount: projection.identities.length,
-    projectionSurfaceCount: 6
+    projectionSurfaceCount: 6,
+    fullProjectionIdentityCount: fullProjection.identities.length,
+    fullProjectionSurfaceCount: 6,
+    fullProjectionSha256: require('node:crypto')
+      .createHash('sha256')
+      .update(JSON.stringify(fullProjection))
+      .digest('hex')
   };
 
   console.log(
@@ -72,10 +115,22 @@ function verifyTechnicalAuthority(repoRoot = ROOT) {
     `[verify-technical-authority] closure guard passed: temporary=${observed.temporary} closureBlocked=${observed.closureBlocked}`
   );
   console.log(
-    `[verify-technical-authority] identity/security/risk checks passed: collisions=${observed.identityConflicts} relations=${observed.duplicateRelations} credentialFindings=${observed.credentialFindings} risks=${JSON.stringify(observed.riskLevels)}`
+    `[verify-technical-authority] identity checks passed: conflicts=${observed.identityConflicts}`
   );
   console.log(
-    `[verify-technical-authority] tracer projection passed: candidate=${observed.tracerCandidateId} identities=${observed.projectionIdentityCount} surfaces=${observed.projectionSurfaceCount} atomicRollback=verified`
+    `[verify-technical-authority] duplicate checks passed: relations=${observed.duplicateRelations} resolved=${observed.resolvedRelations}`
+  );
+  console.log(
+    `[verify-technical-authority] security checks passed: credentialFindings=${observed.credentialFindings} unresolved=${observed.credentialUnresolved} denied-review=${authority.governance.deniedCredentialCount}`
+  );
+  console.log(
+    `[verify-technical-authority] operation-risk checks passed: findings=${observed.operationFindings} unresolved=${observed.operationRiskUnresolved} risks=${JSON.stringify(observed.riskLevels)}`
+  );
+  console.log(
+    `[verify-technical-authority] deterministic dry-run projections passed: candidate=${observed.tracerCandidateId} fullIdentities=${observed.fullProjectionIdentityCount} surfaces=${observed.fullProjectionSurfaceCount} publication-count=${observed.publicationCount} atomicRollback=verified sha256=${observed.fullProjectionSha256}`
+  );
+  console.log(
+    `[verify-technical-authority] governance-complete: status=${observed.governanceStatus} publication-count=${observed.publicationCount}`
   );
   console.log(`TECHNICAL_AUTHORITY_RESULT=${JSON.stringify(observed)}`);
   return { authority, projection, observed };
