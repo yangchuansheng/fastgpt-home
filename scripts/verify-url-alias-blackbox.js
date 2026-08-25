@@ -152,9 +152,11 @@ async function startNginxSurface(redirectMapPath, outDir) {
   const quoteNginxPath = (value) => `"${value.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`;
   fs.writeFileSync(
     configPath,
-    `pid ${quoteNginxPath(
+    `error_log ${quoteNginxPath(path.join(runtimeDir, 'error.log'))};\npid ${quoteNginxPath(
       path.join(runtimeDir, 'nginx.pid')
-    )};\nevents {}\nhttp {\n  map_hash_bucket_size 256;\n  include ${quoteNginxPath(
+    )};\nevents {}\nhttp {\n  access_log ${quoteNginxPath(
+      path.join(runtimeDir, 'access.log')
+    )};\n  map_hash_bucket_size 256;\n  include ${quoteNginxPath(
       redirectMapPath
     )};\n  server {\n    listen 127.0.0.1:${port};\n    root ${quoteNginxPath(
       outDir
