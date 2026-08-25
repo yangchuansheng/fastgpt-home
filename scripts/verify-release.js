@@ -61,7 +61,9 @@ function parseArgs(argv) {
     const token = argv[index];
     if (token === '--source-only') options.sourceOnly = true;
     else if (token === '--keep-artifacts') options.keepArtifacts = true;
-    else if (token === '--live') options.live = true;
+    else if (token === '--allow-missing-solutions-evidence') {
+      options.allowMissingSolutionsEvidence = true;
+    } else if (token === '--live') options.live = true;
     else if (token === '--retain-success-artifacts') {
       const retainDir = argv[++index];
       if (!retainDir || retainDir.startsWith('--'))
@@ -683,6 +685,14 @@ function runReleaseRegressionChecks(failures, env, record) {
   );
 }
 
+function isReleaseGateBlocked(failures, solutionsEvidence, options = {}) {
+  if (failures.length) return true;
+  if (solutionsEvidence.claim === true) return false;
+  return !(
+    options.allowMissingSolutionsEvidence === true && solutionsEvidence.status === 'not-provided'
+  );
+}
+
 function main() {
   const options = parseArgs(process.argv.slice(2));
   const failures = [];
@@ -860,17 +870,24 @@ function main() {
     }
 
     reportFailures(failures, advisories, retainedPaths);
-    const solutionsBlocked = record.crossProjectInputs.solutionsPreviewHttp.claim !== true;
+    const solutionsEvidence = record.crossProjectInputs.solutionsPreviewHttp;
+    const solutionsBlocked = solutionsEvidence.claim !== true;
+    const missingSolutionsAllowed =
+      options.allowMissingSolutionsEvidence === true && solutionsEvidence.status === 'not-provided';
     if (!failures.length && !solutionsBlocked) {
       console.log(
         `[verify-release] release gate passed for source, redirects, ${siteVariants.join(
           ', '
         )}, HTML, and sitemap evidence`
       );
+    } else if (!failures.length && missingSolutionsAllowed) {
+      console.log(
+        '[verify-release] pull-request source and export gates passed; production release eligibility awaits Solutions preview HTTP evidence'
+      );
     } else if (!failures.length && solutionsBlocked) {
       console.error('[verify-release] release gate blocked by Solutions preview HTTP evidence');
     }
-    process.exitCode = failures.length || solutionsBlocked ? 1 : 0;
+    process.exitCode = isReleaseGateBlocked(failures, solutionsEvidence, options) ? 1 : 0;
   } finally {
     finalizeReleaseRecord(record, failures, options);
     if (!options.sourceOnly) {
@@ -903,6 +920,7 @@ module.exports = {
   getSourceExecutionOrder,
   getVariantExecutionOrder,
   getVariantSteps,
+  isReleaseGateBlocked,
   loadSolutionsEvidence,
   parseArgs
 };

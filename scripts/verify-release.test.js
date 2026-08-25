@@ -16,6 +16,7 @@ const {
   getSourceNpmSteps,
   getVariantExecutionOrder,
   getVariantSteps,
+  isReleaseGateBlocked,
   parseArgs: parseReleaseArgs
 } = require('./verify-release');
 const { recordStep } = require('./lib/release-record');
@@ -272,6 +273,21 @@ test('release coordinator accepts a separately supplied Solutions preview eviden
   );
 });
 
+test('pull-request verification permits only absent Solutions evidence', () => {
+  const missingEvidence = normalizeSolutionsEvidence();
+  const invalidEvidence = { ...missingEvidence, status: 'invalid' };
+  const options = parseReleaseArgs(['--allow-missing-solutions-evidence']);
+
+  assert.equal(options.allowMissingSolutionsEvidence, true);
+  assert.equal(isReleaseGateBlocked([], missingEvidence), true);
+  assert.equal(isReleaseGateBlocked([], missingEvidence, options), false);
+  assert.equal(isReleaseGateBlocked([], invalidEvidence, options), true);
+  assert.equal(
+    isReleaseGateBlocked([failure('failed check', 'failed')], missingEvidence, options),
+    true
+  );
+});
+
 test('release record keeps evidence tiers and rollback inventory separate', () => {
   const record = createReleaseRecord({ sourceOnly: true });
   assert.equal(record.recordKind, 'week05-release-readiness');
@@ -481,6 +497,7 @@ test('Linux release evidence stays build-only', () => {
   assert.match(workflow, /cache: npm/);
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /npm run verify:release -- --keep-artifacts/);
+  assert.match(workflow, /allow-missing-solutions-evidence/);
   assert.match(workflow, /if: \$\{\{ always\(\)/);
   assert.match(workflow, /actions\/upload-artifact@v4/);
   assert.match(workflow, /\.release-artifacts/);

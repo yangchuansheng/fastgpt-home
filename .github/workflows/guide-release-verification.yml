@@ -71,7 +71,7 @@ jobs:
       - name: Verify three-variant release evidence
         run: |
           npm ci
-          npm run verify:release -- --keep-artifacts
+          npm run verify:release -- --keep-artifacts ${{ github.event_name == 'pull_request' && '--allow-missing-solutions-evidence' || '' }}
 
       - name: Upload release verification record and artifacts
         if: ${{ always() && hashFiles('.release-artifacts/**') != '' }}

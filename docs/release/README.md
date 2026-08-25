@@ -41,3 +41,7 @@ keeps `source-verified`, `export-verified`, `preview-http`, `release-eligible`,
 `production-observed`, and `search-observed` as separate evidence tiers. The persistent
 record embeds the [issue #247](https://github.com/labring/fastgpt-home/issues/247) URL and
 lives at `.release-artifacts/release-verification.json`.
+
+Pull-request CI adds `--allow-missing-solutions-evidence` so source and export verification
+can complete with a release-ineligible record. Manual release runs remain strict and require
+approved Solutions evidence.
