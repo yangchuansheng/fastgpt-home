@@ -43,14 +43,19 @@ function removePath(targetPath) {
   return 1;
 }
 
-function removeRoute(route) {
+function removeRouteDocuments(route) {
   const relativeRoute = route.replace(/^\/+|\/+$/g, '');
   if (!relativeRoute) return 0;
   return [
     path.join(outDir, `${relativeRoute}.html`),
-    path.join(outDir, `${relativeRoute}.txt`),
-    path.join(outDir, relativeRoute)
+    path.join(outDir, `${relativeRoute}.txt`)
   ].reduce((count, targetPath) => count + removePath(targetPath), 0);
+}
+
+function removeRoute(route) {
+  const relativeRoute = route.replace(/^\/+|\/+$/g, '');
+  if (!relativeRoute) return 0;
+  return removeRouteDocuments(route) + removePath(path.join(outDir, relativeRoute));
 }
 
 function walkHtmlFiles(dir) {
@@ -88,7 +93,11 @@ for (const locale of localeCodes) {
 }
 
 // The technical center currently publishes complete content only in Simplified Chinese.
-if (defaultLocale !== 'zh') removed += removeRoute('/tech-center');
+if (defaultLocale !== 'zh') {
+  // Preview keeps the shared search projection consumed by /zh/tech-center.
+  const removeTechCenterRoute = variant === 'preview' ? removeRouteDocuments : removeRoute;
+  removed += removeTechCenterRoute('/tech-center');
+}
 for (const identity of techIdentities) {
   removed += removeRoute(variant === 'cn' ? identity.sourcePath : identity.canonicalPath);
 }
