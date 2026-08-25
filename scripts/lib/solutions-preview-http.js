@@ -193,10 +193,12 @@ async function runSolutionsPreviewContract({
   }
   const requests = contract.requests.map(normalizeRequest);
   const names = new Set();
-  if (requests.some((request) => names.has(request.name))) {
-    throw new Error('Solutions HTTP contract request names must be unique');
+  for (const request of requests) {
+    if (names.has(request.name)) {
+      throw new Error('Solutions HTTP contract request names must be unique');
+    }
+    names.add(request.name);
   }
-  requests.forEach((request) => names.add(request.name));
   validateContractRequests(requests, target);
   const repository = normalizeRepository(contract.repository);
   if (typeof fetch !== 'function') throw new Error('Node fetch is unavailable');

@@ -5,7 +5,7 @@ const path = require('node:path');
 const test = require('node:test');
 
 const {
-  applyAtomicProjection,
+  applyRollbackProjection,
   buildCountInvariant,
   closeAuthority,
   getTemporaryCandidates,
@@ -13,19 +13,13 @@ const {
   projectAuthority,
   projectTracer,
   validateTechnicalAuthority,
-  verifyAtomicProjection,
+  verifyProjectionConsistency,
   verifyPersistedArtifacts
 } = require('./lib/technical-authority');
 
 const ROOT = path.resolve(__dirname, '..');
-const AUTHORITY_PATH = path.join(
-  ROOT,
-  'src/content/tech-center/authority/week05-authority.json'
-);
-const TRACER_PATH = path.join(
-  ROOT,
-  'scripts/fixtures/technical-authority/week05-tracer.json'
-);
+const AUTHORITY_PATH = path.join(ROOT, 'src/content/tech-center/authority/week05-authority.json');
+const TRACER_PATH = path.join(ROOT, 'scripts/fixtures/technical-authority/week05-tracer.json');
 
 test('Week05 authority preserves the historical 454 accepted and 6 denied baseline', () => {
   const authority = loadTechnicalAuthority(ROOT);
@@ -45,21 +39,36 @@ test('Week05 closure records an evidenced final disposition for every candidate'
   const authority = loadTechnicalAuthority(ROOT);
   const finalIds = new Set([...authority.final.accepted, ...authority.final.denied]);
   const securityFindings = authority.candidates.flatMap((candidate) => candidate.security.findings);
-  const operationFindings = authority.candidates.flatMap((candidate) => candidate.operationRisk.findings);
+  const operationFindings = authority.candidates.flatMap(
+    (candidate) => candidate.operationRisk.findings
+  );
 
   assert.equal(finalIds.size, 888);
-  assert.equal(authority.final.accepted.length, 50);
-  assert.equal(authority.final.denied.length, 838);
+  assert.equal(authority.final.accepted.length, 854);
+  assert.equal(authority.final.denied.length, 34);
+  assert.equal(authority.counts.resultingPageCount, 1976);
   assert.equal(authority.temporary.needsEvidence.length, 0);
   assert.equal(authority.temporary.deferred.length, 0);
   assert.equal(authority.identityConflicts.length, 4);
   assert.equal(authority.relations.length, 9);
-  assert(authority.relations.every((relation) => ['merged', 'distinct', 'denied'].includes(relation.resolution)));
+  assert(
+    authority.relations.every((relation) =>
+      ['merged', 'distinct', 'denied'].includes(relation.resolution)
+    )
+  );
   assert.equal(securityFindings.length, 62);
-  assert(securityFindings.every((finding) => ['redacted', 'cleared', 'denied'].includes(finding.disposition)));
+  assert(
+    securityFindings.every((finding) =>
+      ['redacted', 'cleared', 'denied'].includes(finding.disposition)
+    )
+  );
   assert(securityFindings.every((finding) => /^https:\/\//.test(finding.evidence)));
   assert.equal(operationFindings.length, 27);
-  assert(operationFindings.every((finding) => ['denied', 'safeguarded', 'cleared'].includes(finding.disposition)));
+  assert(
+    operationFindings.every((finding) =>
+      ['denied', 'safeguarded', 'cleared'].includes(finding.disposition)
+    )
+  );
   assert(operationFindings.every((finding) => /^https:\/\//.test(finding.evidence)));
   assert(
     authority.candidates.every(
@@ -84,8 +93,8 @@ test('Week05 closure records an evidenced final disposition for every candidate'
     },
     {
       candidateCount: 888,
-      finalAcceptedCount: 50,
-      finalDeniedCount: 838,
+      finalAcceptedCount: 854,
+      finalDeniedCount: 34,
       temporaryCount: 0,
       resolvedRelationCount: 9,
       unresolvedCredentialCount: 0,
@@ -93,6 +102,23 @@ test('Week05 closure records an evidenced final disposition for every candidate'
       publicationCount: 0
     }
   );
+});
+
+test('governance acceptance is independent from Wave 1 publication capacity', () => {
+  const authority = loadTechnicalAuthority(ROOT);
+  const conflictIds = new Set(authority.identityConflicts.map((conflict) => conflict.candidateId));
+  const eligible = authority.candidates.filter(
+    (candidate) =>
+      !conflictIds.has(candidate.id) &&
+      !candidate.relations.some((relation) => relation.resolution !== 'distinct') &&
+      candidate.operationRisk.level === 'none' &&
+      candidate.security.status !== 'needs-review' &&
+      candidate.evidence.status === 'verified' &&
+      candidate.evidence.fingerprint.length >= 24
+  );
+
+  assert.equal(eligible.length, 854);
+  assert(eligible.every((candidate) => candidate.state === 'accepted'));
 });
 
 test('closed authority contains no temporary candidates and is closable', () => {
@@ -127,7 +153,11 @@ test('closed authority enforces final disposition and add/update count invariant
   closed.candidates = closed.candidates.map((candidate) => ({
     ...candidate,
     state: 'denied',
-    decision: { disposition: 'denied', reason: 'Fixture closure', evidence: [candidate.provenance.sourceUrl] }
+    decision: {
+      disposition: 'denied',
+      reason: 'Fixture closure',
+      evidence: [candidate.provenance.sourceUrl]
+    }
   }));
   closed.candidates[0] = {
     ...closed.candidates[0],
@@ -192,7 +222,10 @@ test('authority rejects identity, relation, evidence, credential, and risk drift
 
   const duplicateRelation = structuredClone(authority);
   duplicateRelation.relations.push(structuredClone(duplicateRelation.relations[0]));
-  assert.throws(() => validateTechnicalAuthority(duplicateRelation), /duplicates a relation group/i);
+  assert.throws(
+    () => validateTechnicalAuthority(duplicateRelation),
+    /duplicates a relation group/i
+  );
 
   const invalidEvidence = structuredClone(authority);
   invalidEvidence.candidates[1].evidence = {
@@ -203,12 +236,16 @@ test('authority rejects identity, relation, evidence, credential, and risk drift
   assert.throws(() => validateTechnicalAuthority(invalidEvidence), /require a source/i);
 
   const credentialFinding = structuredClone(authority);
-  const credentialCandidate = credentialFinding.candidates.find((candidate) => candidate.security.findings.length);
+  const credentialCandidate = credentialFinding.candidates.find(
+    (candidate) => candidate.security.findings.length
+  );
   credentialCandidate.security.findings[0].value = 'secret-shaped-value';
   assert.throws(() => validateTechnicalAuthority(credentialFinding), /credential-shaped values/i);
 
   const invalidRisk = structuredClone(authority);
-  const d0Candidate = invalidRisk.candidates.find((candidate) => candidate.operationRisk.level === 'D0');
+  const d0Candidate = invalidRisk.candidates.find(
+    (candidate) => candidate.operationRisk.level === 'D0'
+  );
   d0Candidate.operationRisk.decision = 'review';
   assert.throws(() => validateTechnicalAuthority(invalidRisk), /D0 records require a denial/i);
 
@@ -217,7 +254,8 @@ test('authority rejects identity, relation, evidence, credential, and risk drift
   assert.throws(() => validateTechnicalAuthority(governanceDrift), /governance/i);
 
   const acceptedEvidenceDrift = structuredClone(authority);
-  delete acceptedEvidenceDrift.candidates.find((candidate) => candidate.state === 'accepted').decision.evidence;
+  delete acceptedEvidenceDrift.candidates.find((candidate) => candidate.state === 'accepted')
+    .decision.evidence;
   assert.throws(() => validateTechnicalAuthority(acceptedEvidenceDrift), /decision\.evidence/i);
 });
 
@@ -233,7 +271,7 @@ test('tracer projection shares one identity set across all public surfaces', () 
   assert.equal(projection.staticExport.length, 1);
   assert.equal(projection.releaseRecord.length, 1);
   assert.equal(projection.rollback.length, 1);
-  assert.doesNotThrow(() => verifyAtomicProjection(projection));
+  assert.doesNotThrow(() => verifyProjectionConsistency(projection));
 });
 
 test('full Wave 0 projections are deterministic and artifact-backed', () => {
@@ -249,32 +287,42 @@ test('full Wave 0 projections are deterministic and artifact-backed', () => {
   assert.deepEqual(first, persisted.projection);
 });
 
-test('atomic projections require one unique identity per surface', () => {
+test('projection consistency requires one unique identity per surface', () => {
   const authority = loadTechnicalAuthority(ROOT);
   const projection = projectAuthority(authority);
   projection.registry.push(structuredClone(projection.registry[0]));
-  assert.throws(() => verifyAtomicProjection(projection), /cardinality|duplicate|identity drift/i);
+  assert.throws(
+    () => verifyProjectionConsistency(projection),
+    /cardinality|duplicate|identity drift/i
+  );
 });
 
-test('atomic tracer projection rolls every surface back after a failed write', () => {
+test('rollback projection restores every surface after a failed write', () => {
   const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'technical-projection-'));
-  const surfaces = ['registry', 'search', 'sitemap', 'static-export', 'release-record', 'rollback'].map(
-    (name) => path.join(temporaryRoot, `${name}.json`)
-  );
+  const surfaces = [
+    'registry',
+    'search',
+    'sitemap',
+    'static-export',
+    'release-record',
+    'rollback'
+  ].map((name) => path.join(temporaryRoot, `${name}.json`));
   surfaces.forEach((filePath) => fs.writeFileSync(filePath, '{"version":"baseline"}\n'));
   const before = surfaces.map((filePath) => fs.readFileSync(filePath));
 
   try {
     assert.throws(
       () =>
-        applyAtomicProjection({
+        applyRollbackProjection({
           files: surfaces,
           contents: surfaces.map(() => '{"version":"tracer"}\n'),
           failAt: 3
         }),
       /projection failure/i
     );
-    surfaces.forEach((filePath, index) => assert.deepEqual(fs.readFileSync(filePath), before[index]));
+    surfaces.forEach((filePath, index) =>
+      assert.deepEqual(fs.readFileSync(filePath), before[index])
+    );
   } finally {
     fs.rmSync(temporaryRoot, { recursive: true, force: true });
   }

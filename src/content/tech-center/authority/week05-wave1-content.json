@@ -11,7 +11,7 @@
     "safeguards",
     "rollback-guidance"
   ],
-  "sourceSetSha256": "d0dc7c4967610ec0085c5c8303e2f492e7c75c4688076c4a038e0fd02c5d06c4",
+  "sourceSetSha256": "3337bedb389db9bc901b634d1afaa32639c80818a774bfa076b2cbadeb4362a3",
   "readerCount": 50,
   "sources": [
     {
@@ -32,8 +32,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-1c1g-build-oom.md",
-      "readerSha256": "77e2a5e7318df8a27f573c6643f9cd83001c511bc1a68787ade8fcb1a040d61f",
-      "registryEntrySha256": "c12bc0421367e67cf6cbbde5c1d31965de333106e8287f6fcdedac83b9e6b5ba"
+      "readerSha256": "c28eed071d58cf2ff1be1ed79d495ee4ef704d3bc9d02ab43dc0ed02c195cbbc",
+      "registryEntrySha256": "a735a6e20870ff8c43f8ad5cd53c8298d4c2cf9fb48b6a0759501821838849e7"
     },
     {
       "candidateId": "week05-0003",
@@ -53,8 +53,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-3-3-json-parse-index-error.md",
-      "readerSha256": "6a1df9e532ddb0c8477c156e78268e7defdbe48a1e38774e5bb001fe2e12efab",
-      "registryEntrySha256": "52efef7f89f4d749fa7f7c31758b2cda40d951430da243e908fe479ee835d15f"
+      "readerSha256": "7db28ccee916f7c4f3413574358f836af04b56e5fa944b8bd23296e1e24b59b4",
+      "registryEntrySha256": "05941fe84367cdae19612f8b08e40421a9ee1beaa3bf6d44c4ac4c6fbcdb0e36"
     },
     {
       "candidateId": "week05-0004",
@@ -74,8 +74,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-307-classify-error.md",
-      "readerSha256": "9078a22c5ee35d7d8c2127ca88fac967fe4e894e06427a4448faa6c5e52356e3",
-      "registryEntrySha256": "c7120dbed7c054eb7cb6534c8adc9ca11ec1a8fdff9a6d7de584c8aeb597d1ad"
+      "readerSha256": "57e35514db724d20177e2ac8955021d9503b94b2fe7391239daf1e1d853b5080",
+      "registryEntrySha256": "a0253770227e531825dffac21818fca7978253f7e8d6c7cbede2d7dffffca1c5"
     },
     {
       "candidateId": "week05-0005",
@@ -95,8 +95,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-3814-docker-missing-proto-file.md",
-      "readerSha256": "ae5e1dc229506b1887bb0d7ebaeec70d027c778a3cb3090c061b5b9767d5fd8a",
-      "registryEntrySha256": "ca91e94dcb3170b1aa3d4e642c0f19f733bf43bb5009a190c98bd17a7f0bf377"
+      "readerSha256": "6c2b7d03a6872cf4e37ab20e8442491f0ea70f14f73fe39468738b4a75a3714e",
+      "registryEntrySha256": "0dc912d606825af5257e4da1b4d35bdba7d357ad04900bdeefb039a1ca79635e"
     },
     {
       "candidateId": "week05-0009",
@@ -116,8 +116,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-4-8-18-knowledge-retrieval-failure.md",
-      "readerSha256": "05185df85382d4c40840ee9e31739232baa3eface04c7c12260839843f86d745",
-      "registryEntrySha256": "f13f41d8224c5cdd7a242dbb6830026a098fe9e7dc270c41656c5e54fb3daaa7"
+      "readerSha256": "e194e2a06302c7e48add236594cbd1f9df697743a3e0879b87258b6dbe1fb477",
+      "registryEntrySha256": "bc6c78a0fc55a4d2458589f673b495061b9e191af95c181e7e4de608d27f9113"
     },
     {
       "candidateId": "week05-0016",
@@ -137,8 +137,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-466-model-config-troubleshooting.md",
-      "readerSha256": "08289173377dcf3fa60b831b25de08f221b47df8f919d48d6107a096681afdaf",
-      "registryEntrySha256": "dd1e0a4e85a399a2726ed1da5689f0f2544a4dc7b7b4a903b47f151eb8036cf4"
+      "readerSha256": "5e23138c51c3f219e9f7c95c77783d78282fe6c33cb5d570766bf6bbb9708c30",
+      "registryEntrySha256": "7021a4cfd1add93b98504ff5e99633af676d44a866d99612d4f841fe903e95f7"
     },
     {
       "candidateId": "week05-0006",
@@ -158,8 +158,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-4-14-4-email-plugin-install.md",
-      "readerSha256": "7b792ba29b8f4895ae3492de5aa4ba9003ef79a1b76945dcb0a46a8b2a905047",
-      "registryEntrySha256": "f17a8844a9f36f6553b2d3030c8d1baafc2ba8e4b5b84e93a6fe2c96c1891704"
+      "readerSha256": "221a16a31ce9c2b9ebdc91c5274fe5b467ed5f0d5559159966cc5ede4696991b",
+      "registryEntrySha256": "24b0b8fab78b1950fcb0c8214aeef4249ed210a8c8fb8fea4bde8fb804cd8b64"
     },
     {
       "candidateId": "week05-0007",
@@ -179,8 +179,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-4-8-13-workflow-error.md",
-      "readerSha256": "2cc9b851d57c7d85071cc88a0af9b145f8014389d817325362d17d9b79c517a5",
-      "registryEntrySha256": "4c00dac41628641dfef3f47c50a5c2e9291061d82e322e8f133ad416820fed90"
+      "readerSha256": "e8268740158e1c42521141c97f58ce25b4de6e8aeffa8ffd251c101548d9a772",
+      "registryEntrySha256": "8be81ee666681b4cc6b091f0e6af21a7dd2a9b4cca85b2625d5e2f94af00d479"
     },
     {
       "candidateId": "week05-0008",
@@ -200,8 +200,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-4-8-17-plugin-error-troubleshooting.md",
-      "readerSha256": "f2dd175642fce2a1723e8108786ecc981e08da8c77046c7c551caa5e13f82367",
-      "registryEntrySha256": "51508b935b1835bca6bd42a6f6482e5b5c60125f49b435926f062406c3e4ed60"
+      "readerSha256": "509877d289d6df854a526348c8af976ed3da18e8dba5d400d352547585ad8da9",
+      "registryEntrySha256": "758b87f83697836c1f9d7482728f069dd06769a3b68e506004ba88024f813b42"
     },
     {
       "candidateId": "week05-0012",
@@ -221,8 +221,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-4-9-1-model-channel-error.md",
-      "readerSha256": "60d1771d10e127716b10fefaa23a7ca0c2c25881c3556b486c3180f672fd3b4a",
-      "registryEntrySha256": "2a55047accf7c70e9f6376eba485a8dfe6df91733e7360a6f8e026ad2c3e5b25"
+      "readerSha256": "1bfb43a63cd880f64217f0c0caff83d902b697b7af4deaf31718f938137ded44",
+      "registryEntrySha256": "50cea9dd484219821053e258dcea814f24d4d08f872257ce8487959ad965e9aa"
     },
     {
       "candidateId": "week05-0013",
@@ -242,8 +242,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-400-error-knowledge-tool.md",
-      "readerSha256": "8f68be5ad169c17a7788839f6e35dfcc7ddca46471d41cf9cfb134abca495ed7",
-      "registryEntrySha256": "221e29dd941914536f8e55989803fb0149ac02948b49276835f220582bdeb165"
+      "readerSha256": "f29dd9099483fced11eea247f6009212bc706870e19b7cb10bfa6f51af4df3ca",
+      "registryEntrySha256": "8ff3d703eab570515a95d5c9a68ba0297efddb41c6afe9e7735d69aeff65c97c"
     },
     {
       "candidateId": "week05-0014",
@@ -263,8 +263,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-401-dataset-insert-error.md",
-      "readerSha256": "55cae5ee0dbacef64abbd9131eebc8ea12b780e44546340b75f20b27c2ed4b94",
-      "registryEntrySha256": "012c3778d04fcd4dbab95418aa39abdae0a0da56380a10f15ccc3da19f5725bb"
+      "readerSha256": "647121ea031152782c7394e75b8583b940ff7b27b2f91e7dd6b783214f161e5c",
+      "registryEntrySha256": "b4281e088043656d8eeab285c0e40dfe9800385819a1823a66b9b8f2a0019fbe"
     },
     {
       "candidateId": "week05-0015",
@@ -284,8 +284,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-413-embedding-error-troubleshooting.md",
-      "readerSha256": "f4ebd216248893df367b661eb9f4f7961a6ac38df92266a830ce90067cacf476",
-      "registryEntrySha256": "a0b141a27f31072cc379cde08b412c314701b7bd8e097b2aac83d3a33dc81062"
+      "readerSha256": "b5e240e55d7e1d65232675842584577759c23e9311d6000b0695c02f6e61346a",
+      "registryEntrySha256": "400958848bbd2c4d07b50b4c4911e90e51c3b02c641e9f7c1773531308d3de9d"
     },
     {
       "candidateId": "week05-0017",
@@ -305,8 +305,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-47-kb-error-troubleshooting.md",
-      "readerSha256": "837f758598e9b7bb698edb9b92a6d1aac7010c646160a3d18e831c0247786499",
-      "registryEntrySha256": "25eec68c529e7b2df22a464336161e3c4c37a54ab3ee4be85b10e19cd0ce56f6"
+      "readerSha256": "0eab43ee628247ecbcae2c4de6a4d8abba7460386d0556828dbf8a0a9cd2a0eb",
+      "registryEntrySha256": "f6d5e6bc4ba515cfb75556c285ab3aa716aa6ecd0aa2fc78aa070f2b588efb95"
     },
     {
       "candidateId": "week05-0018",
@@ -326,8 +326,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-4810-knowledge-merge-duplicate.md",
-      "readerSha256": "4e634816dd5ef0274e5b686c6d65e55e781b3f1628e8f7b5f930bc50e334d8fa",
-      "registryEntrySha256": "a0d5312de42a6ba7d25e1ba675e6453281498c8d14716f990bb8990178de245f"
+      "readerSha256": "b59c91643a61d3965cb3b99607b9dd69417eb89116cc035f848c3d1b07842600",
+      "registryEntrySha256": "c563ff35adcc348760fece50beb72a27ed5b189feb4275850111b6b90860bd3e"
     },
     {
       "candidateId": "week05-0019",
@@ -347,8 +347,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-4816-log-page-crash.md",
-      "readerSha256": "d4defa2521a9e4a8e0d15afec38d1e8cdf6b692c051e7b5dd7579dfe123d3ef5",
-      "registryEntrySha256": "db34443a45e3e3390ad5bd63e5bab643c807d284bf9c8f6d64eddbfe3e5a8b6c"
+      "readerSha256": "66df2fc23cd1732c25fca3cf4c2b041b2d6ebcf1d69d541dcccfd2f280a59346",
+      "registryEntrySha256": "434545211969d426c7157f15880b6a04241d0aff04bd6ac9b54b27027e322abc"
     },
     {
       "candidateId": "week05-0020",
@@ -368,8 +368,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-4820-bge-reranker-troubleshooting.md",
-      "readerSha256": "f29121244c27bcb68d88b948083ecb77409baccba6ea2b27ad053feef23a5bd4",
-      "registryEntrySha256": "621306870af57ad7bc90386feb3b188c480581626fd09534c3ea7ef722a3792b"
+      "readerSha256": "6458c9dd8eb6c512e120377aad3030de6d541c8ac4705c6df058fc360fcb7d10",
+      "registryEntrySha256": "24a2f6667846e20e29bc2ba69c0ddf104aea175c6d5e94e49c97d9d197f51d0f"
     },
     {
       "candidateId": "week05-0021",
@@ -389,8 +389,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-488-optimize-switch-error.md",
-      "readerSha256": "958247ce98922fe5e2d8fe7dc7015927cccc7ee15d0b6565761f5672a18470eb",
-      "registryEntrySha256": "1ba90c69517bd9987d22fc95bf68d78ee94ae711b3432322e1ddb8f4f82924c5"
+      "readerSha256": "db74b078efaf305612bd9f1198e25d2c65d17a3e93a849023c5568f1a2fb9ef0",
+      "registryEntrySha256": "8ba5d8c61acbe72d51d52941cc567b4a340d30277807fe7c6943b2f297a936f3"
     },
     {
       "candidateId": "week05-0022",
@@ -410,8 +410,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-490-deepseek-timeout-fix.md",
-      "readerSha256": "2777ffa5db3b04d764364c58ea22539b56cda5c9e3302eeb269c5695b6d62bbd",
-      "registryEntrySha256": "0ad41c029d6e045d0ac2325f66e9a68196cfae1401a54fa1ee4e60ac72ef69f6"
+      "readerSha256": "1906d496c5069484b2c4c2ae55f1382b56b194183bc847d338d43b0401586ca1",
+      "registryEntrySha256": "5de6116501f4068e332c7dbf678faf2278a996608d6c5f101d3d8ac62ef647b6"
     },
     {
       "candidateId": "week05-0023",
@@ -431,8 +431,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-503-sse-unavailable-troubleshooting.md",
-      "readerSha256": "981ff54a5206fec955e3f6837ad158eaaf54c73b26f610bd1f1d9a6264108250",
-      "registryEntrySha256": "f1810cc638bf9d4af14db6546921f38896b9741dd069d5449249ee65e0bb29cb"
+      "readerSha256": "b950a9fbe64084255aab7a64aff7ed6e148dd851af20964779f1184255a1d36d",
+      "registryEntrySha256": "46a8b803d0d2daef43572ef2d649a02eef8ce5764f898b5015e496d56eaab20b"
     },
     {
       "candidateId": "week05-0024",
@@ -452,8 +452,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-504-gateway-timeout-troubleshoot.md",
-      "readerSha256": "02da777deeb64419b90cf0ed51371c8d3efe059d62b316502cd8d1023ddddb30",
-      "registryEntrySha256": "9666f7c93281dab8e7069cafdabe235d8b78559293c62add210650bab893f2da"
+      "readerSha256": "4c32800810f9adf04947ad397ebec8417a7f2de882fd9589699b45ef7c28547d",
+      "registryEntrySha256": "ca3b599b63c9f9ea6dfae35464e67a7510eaf1f0c4ed84df011a21c13dfcd1d3"
     },
     {
       "candidateId": "week05-0025",
@@ -473,8 +473,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-ada-protocol-error.md",
-      "readerSha256": "93111d6dd4908db09f89ed7c2b8ab30086c9d65aab4419dd01228e6d7053c9d4",
-      "registryEntrySha256": "039c6d1d0d96b2f73614434fc28de9b3da6994543e4de2c7b8e7d24371ce2888"
+      "readerSha256": "74fb3c83a39387603a9364bc56b4d221d6b04328925cf3aa481abe8a29b8c983",
+      "registryEntrySha256": "36864712b968801afe478dd75f246f468b1849b7f6261e74a6b23f49fffb23ef"
     },
     {
       "candidateId": "week05-0026",
@@ -494,8 +494,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-adapt-markerpdf-response-format.md",
-      "readerSha256": "4b81549df4057955a1a95dca6147d03ca732a799eb7a532d71021547e6041f35",
-      "registryEntrySha256": "65947d07bebac1cd848b64b0f44fa16f587d3a9098805fa5e7c9e544c5aad13e"
+      "readerSha256": "bc48288ac09f029f61fc3e3851e50b41295773db2196b725d3bdce6c08f96c5e",
+      "registryEntrySha256": "5f3da397831979cbaf5605348cce7232251d26d3c0d42dff97ec2e7dcf5518b2"
     },
     {
       "candidateId": "week05-0027",
@@ -515,8 +515,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-add-image-replies.md",
-      "readerSha256": "a3360b1c892ee8440d8b8d8bc61b72b3ed765fc89612b478219cb4f5829aed48",
-      "registryEntrySha256": "0b8e56d98a50a87dc356756baafcc7b906e3949186a91b14010381ed713a2c48"
+      "readerSha256": "0f344d733a577cb2ad05f72abe403f9a4b343f82a3a4190d07bbf9c583f70bb6",
+      "registryEntrySha256": "55aa4ea706f053ea192b1872e811e4b41fba8d6f3d0f42273fe641d6ad10d057"
     },
     {
       "candidateId": "week05-0028",
@@ -536,8 +536,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-add-timestamp-chat-history.md",
-      "readerSha256": "15f34b778628b4ddb6f18cac95f9d4c4856ebe4ea576d144aeaa88038b673e37",
-      "registryEntrySha256": "1166450f32c3a241add06716f5d2ef461294f7abaa891721cda4921ce893af33"
+      "readerSha256": "811fc208b0ea12bbf4447acc1f78c4dd36d48abc5d4859453c482a7e89763d37",
+      "registryEntrySha256": "dbd8bab90cd42c3fbdfbe35618f1ec2c2ff373d34a6f20ba29dbb4cab6cd50a0"
     },
     {
       "candidateId": "week05-0029",
@@ -557,8 +557,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-adjust-reply-min-count.md",
-      "readerSha256": "f8166e251e7db5f3380d3c90c27b66b9405cb143e5cf17df75cfc9e94fed34ae",
-      "registryEntrySha256": "100a15a71a545e1d160ec391a459d3ab5628b0a5e7573d45182ff0a131cfbfb0"
+      "readerSha256": "0679e257e82a31351292a9b500c3996796afe8bc943984d79799f0a1810aa07f",
+      "registryEntrySha256": "2627eee1cbd277511f806332f607c8aa7ffb89a5fef60a42f46ae589ca3a3dc6"
     },
     {
       "candidateId": "week05-0030",
@@ -578,8 +578,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-advanced-classification-mismatch.md",
-      "readerSha256": "996c0acfc7f3f264c561ce0cb59828721949c366f51c2e1191893008e1c9593b",
-      "registryEntrySha256": "7dc5719e561bf9a1b2a4793dc30b1d2b080171c4d8963e50159aa385b496326d"
+      "readerSha256": "d3200167a970800912ee341ccf8691902334752d2969acf5c3887b47799856d2",
+      "registryEntrySha256": "4326c09da7b50e9c790e3c72fee41bf4df021c2d7f2e27dc37d15c2a1569182f"
     },
     {
       "candidateId": "week05-0031",
@@ -599,8 +599,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-advanced-content-extract-model-error.md",
-      "readerSha256": "b3e455f8c98891b3b19a3925fda10c2542a41f7cf863759829e23acf4a6a2622",
-      "registryEntrySha256": "d027d53bf98c7768defc5a8fc722939e31bf19bf0ccc6916a7fc7020f8666a33"
+      "readerSha256": "318a25391a14a1f27d1a1df6031228c1499661745750779c759148d69a0056f8",
+      "registryEntrySha256": "57198d191ac42c6a7aab44273e3e7a7583ef666866a10a2532a625951d1e4aea"
     },
     {
       "candidateId": "week05-0032",
@@ -620,8 +620,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-advanced-data-analysis.md",
-      "readerSha256": "cda4dc514e89f21af96e603f1a73871bba86956b9fe5ed5d0236ab9a7c2571b0",
-      "registryEntrySha256": "2e796ff12adc16f63e81d688d805071ec47c441f6d062d0d91c536b3ea3df04f"
+      "readerSha256": "8e31a5a1846ebf75c6efcc90b6505fb65c8da3489cc03d543b0540c593c5ea9b",
+      "registryEntrySha256": "691ab5ed82737fb24e011b3216eb30ab689cc076b7dc6ec91fb4eebb0bdf3ca7"
     },
     {
       "candidateId": "week05-0033",
@@ -641,8 +641,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-advanced-orchestration-fixes.md",
-      "readerSha256": "0c6ecd25affe164a8ad6185719d9520869661d776b3680580585f8cd7fa2cf07",
-      "registryEntrySha256": "f90501674ebbb244315ee7260257d3c0b759955636e54240fa86f88e4dc694ab"
+      "readerSha256": "4cb825dd702584f892819118b7539a2ff052f63bd9a00064b222e6c0c6e557f8",
+      "registryEntrySha256": "b2a5d91c1330c448aba25ee9737c72faf4ecaaf8659df63c887f16955b27ee42"
     },
     {
       "candidateId": "week05-0034",
@@ -662,8 +662,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-advanced-orchestration-missing-context.md",
-      "readerSha256": "32845841d0376e2e04dba00b8615e22d503ec57526485834ea9ad6e00849228c",
-      "registryEntrySha256": "b5782a9eb1dbcbb0246f84ff850e42a2589cfc65a66c42b52deadc33b42b68e4"
+      "readerSha256": "f94a8c14bcee2e1f5f9b77ce17ed28cd96ba5821170c26603bf205c81397c384",
+      "registryEntrySha256": "db24308dcea7442041290730a0fe49feb6dee0c91260ffa54e4e9fc4cc59bf56"
     },
     {
       "candidateId": "week05-0035",
@@ -683,8 +683,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-aggregate-slow-error.md",
-      "readerSha256": "ff42946da83ce9001e54512422c26eeeca66af208f5f81b7db4d09452a21dfe9",
-      "registryEntrySha256": "1e6e79ecc32988fe8b2c71f1ab1f72dda60d3fbb4599efc25ae0adb2ae87038e"
+      "readerSha256": "370ce630b72a1f29411dd493ed4ef5d8b8435a6e21a14306911548139edd9709",
+      "registryEntrySha256": "6aac2da269a0ceafbf3421624db576aab0f64a13b56622e8535bb2f002b3a6d3"
     },
     {
       "candidateId": "week05-0036",
@@ -704,8 +704,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-ai-proxy-400-error-fix.md",
-      "readerSha256": "efaa3450aa74ee6f3f376b170bda5e34786a34233f01dec703e20677934e7cef",
-      "registryEntrySha256": "607921b8f666699e075612c58551a7694cc760f8db16db998bbfc217d750c1e8"
+      "readerSha256": "deb3c218333da50c4fe6aa4b3768b197e3a355f4b3a519831423fe6f7439a9a8",
+      "registryEntrySha256": "f018313f8f447ba1e93de9c81f97f30ed045a80a869df802405da62113646a66"
     },
     {
       "candidateId": "week05-0037",
@@ -725,8 +725,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-aiproxy-index-out-range.md",
-      "readerSha256": "4cab90db53a01b2082d44cd0d9522cd444e32a9f5dd453e20a5cf5634bdd214f",
-      "registryEntrySha256": "fefe086f7c575ba80ffc31555f92329e141b13f50c19d13a0f04a7c0c084be59"
+      "readerSha256": "1e2267453a979dee48365ec47940c28880ef1bf85925ee453be9595be56855ab",
+      "registryEntrySha256": "4488642ad4358633083b874d7175e336fd6858373ebdc2cc81d1916c6a402cf6"
     },
     {
       "candidateId": "week05-0038",
@@ -746,8 +746,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-aiproxy-params-token-error.md",
-      "readerSha256": "399d3d07313270dcb8db289be677a52ee7e09919332a38a811d3bff43e176dba",
-      "registryEntrySha256": "09523868ccbe4a066203381dcf564c026ee0eb7dfaa1a5a7121fd35b1bb762f9"
+      "readerSha256": "5906875c4b034e6991563b4f47bf67650b18f567c67b23e74827627ac9011248",
+      "registryEntrySha256": "fb2146fe4785b48807a8b5f83ed5921f18a5534acad8bd775104aab6406961bb"
     },
     {
       "candidateId": "week05-0039",
@@ -767,8 +767,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-aiproxy-sensevoice-model-not-found.md",
-      "readerSha256": "3c87e78aef8566311d0a352a2941e6a5d2e346a0801ce1157afcb4d7ab304a40",
-      "registryEntrySha256": "7ea3852163b453a865f3843fc7384995348441fc0fb22b8899d9c07561dfb6a9"
+      "readerSha256": "20d643f0e705569bb12aaebb218f0d99e03267fe74acc73c798be9d42a9194f5",
+      "registryEntrySha256": "eb0e644988fed5a783424a4a08df705c2b4ce25d7025db9d052f79f65eb44258"
     },
     {
       "candidateId": "week05-0040",
@@ -788,8 +788,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-aiproxy-tiktoken-failure.md",
-      "readerSha256": "7eaba658a0d510236ef6a90fc63892b431589925b300b34b5c2c709be69185cb",
-      "registryEntrySha256": "44a6b4548c52a1df15a104910c439218ca376e384cd0177cb6124e556304dc3d"
+      "readerSha256": "47200564f63aa0ba360fa2232ad3ac87ec90825eb113d02c1e6537cabf58f9cb",
+      "registryEntrySha256": "39132ec1a87f49a19835bac0e895f7f15d1f19e2a0078e0c7e34db2021ce64e8"
     },
     {
       "candidateId": "week05-0041",
@@ -809,8 +809,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-api-200-no-data.md",
-      "readerSha256": "170e91b8490a36282614456ff06d433e2a87347a0daa0b009560c07febd7451a",
-      "registryEntrySha256": "908a75257b21feed247abbee5562788a2bf43efe93ec3fa1fc1a161deb10cb01"
+      "readerSha256": "9fddfc90551424a6f9a863cd70a209bdecbc4e46a8acdf8f51b482cd9e5b9175",
+      "registryEntrySha256": "ee5fbe156846621ed2b68ca8e85b489bb776e126b2b99269a6b1e8e8318b4e47"
     },
     {
       "candidateId": "week05-0042",
@@ -830,8 +830,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-api-403-unauthorized-issue.md",
-      "readerSha256": "2663b9c3ac71dfd07a6a39d9e7ea95f05f7ca5edbba2babd48718b350549c990",
-      "registryEntrySha256": "26af4f6342e2f1b48ded4183fabfdcced7ac1d54fefa9b8167d81e25f71eff30"
+      "readerSha256": "1f21c3ac1fafc76b3cab26455e4aaf5d4b22fcb5c3e11bd4e16daca32d826202",
+      "registryEntrySha256": "88015a16eb65f811cb763b5a2f90e09b06c88f536be44eda945ea6533bf1d2a3"
     },
     {
       "candidateId": "week05-0043",
@@ -851,8 +851,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-api-504-gateway-timeout.md",
-      "readerSha256": "2ba0585f0e8ddb934ddc594e7116a16c01c4b262faf45a5584addc7f360fbde4",
-      "registryEntrySha256": "a5f9d06fa299eeb012358f2d4249891cc58d78f3e93185de6951d1bad7f5f87c"
+      "readerSha256": "b3bc5d8169b32c14ff1608c1c2e52f32267d39ed179c569315816031bcb598b6",
+      "registryEntrySha256": "4447348098da00215bfbd0f9f1d30cbcf46db7677944fd577b72bef8db4c6011"
     },
     {
       "candidateId": "week05-0044",
@@ -872,8 +872,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-api-auth-error-troubleshooting.md",
-      "readerSha256": "c66f46467bbf079bff68e725ffe6870d6cfead018f4eb8824c9c88bd97865065",
-      "registryEntrySha256": "107fe33b0355a61632d38075119fe4f9b8606b9a4a9848687366e63cf331d016"
+      "readerSha256": "aec79675b71456fa69922f31890bf6c663e005de7bd6c01ae4c4e96079488a05",
+      "registryEntrySha256": "2d5d646f7c3839934880a3f1e74ba49eae9d48b80ed4529b11e8681cf4083207"
     },
     {
       "candidateId": "week05-0045",
@@ -893,8 +893,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-api-base64-image-no-response.md",
-      "readerSha256": "402c7f3663ecd0e19ccb3542eed62267ab1f329ea9287b278449c3b7d3ad516b",
-      "registryEntrySha256": "9912697158cc895eb3bea5f2e7e0ddd94d48222ef871e117a2db4ffab885f38c"
+      "readerSha256": "017d66650f20cd45f001d96941c7a5ed9fc7ac56debde758b3996dfbdaf5f8c4",
+      "registryEntrySha256": "bb1a40efb2c70b97532e51c97390e400cea5e035152dfab2bc651aa8f3b88740"
     },
     {
       "candidateId": "week05-0047",
@@ -914,8 +914,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-api-chatid-global-variable-issue.md",
-      "readerSha256": "063bdeeb1ddaef2ebe5eeb5991b95a532598b1081399bef0e0ed334dc9edf3cf",
-      "registryEntrySha256": "6b83ad71eb87c00ff511a1019b8e26ffe5683d3a49465b36b974a7bd8cf27f52"
+      "readerSha256": "6d134fb8e919e05fb104bbb81f7ea5d0c793f25b40bf8904f1f95173f02fe8f1",
+      "registryEntrySha256": "5e07c6d198bf9b76eec9c6adf60dfdcd3ad625e790565526c005a556e969ed27"
     },
     {
       "candidateId": "week05-0048",
@@ -935,8 +935,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-api-debug-timeout-troubleshooting.md",
-      "readerSha256": "c98adcf1e4273beb865f650c9a836fd0916d7760284472c6a01c1208a5461fee",
-      "registryEntrySha256": "a0dbae8188ed113011ef4e85e576aa243f861e00892b798311c14d672847b7df"
+      "readerSha256": "390962a44277cdf29520e50e82f5252df0cd45939845a9c7284f361ebae185df",
+      "registryEntrySha256": "c09601885402e5a5313ae19b92aea8945d44df8ffdbdf92364fc0433d2ec9c2c"
     },
     {
       "candidateId": "week05-0050",
@@ -956,8 +956,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-api-file-url-parsing-error.md",
-      "readerSha256": "9d2e624fb7c0f3df368a77a37c37bf936066b93c1e149ef462efd9a3a1ef4052",
-      "registryEntrySha256": "a6f7fd89756bd20c48c3d0512be042346b1a136c9f1c841b40a37c8420c18633"
+      "readerSha256": "bdaae30eaf6542ac41d124b9b7d60c79a3114752c576f17245354a2dfa779bc2",
+      "registryEntrySha256": "671cdadad51c998c4070bd5da74c0e0261c5bc01d908fb1931e635d0e0022ab3"
     },
     {
       "candidateId": "week05-0051",
@@ -977,8 +977,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-api-get-specified-workflow-output.md",
-      "readerSha256": "f8fa84d8649bbd716f402f5e05adb3b60621a769e92fbcef360efa740a333c88",
-      "registryEntrySha256": "fc78c9bcb3012b01cc8c2fbc45d9f6cacc3961cd995d1151ecb0a416bfcaecef"
+      "readerSha256": "30b4ca1de81989b410232ff772723a6f62bf2f52c14cb326497fc4d25077f864",
+      "registryEntrySha256": "308bad846d816759da64f11eae5b4e15543d017bf6c07d4308fc1cdc8b0de96e"
     },
     {
       "candidateId": "week05-0001",
@@ -998,8 +998,8 @@
       "securityStatus": "redacted-secret",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/bge-rerank-v2-m3-docker-gpu-fix.md",
-      "readerSha256": "a5e210d1e94724776ea664ad8bcf7f906377e74c7a3cb07515b4a5b75e0bc71a",
-      "registryEntrySha256": "85ad96afdd75b07349a51576e3d77ecee1019a90238a07fbf538c51a8166b7cf"
+      "readerSha256": "deb91fc708f97595deb5461060e00fa982f590bc6a0116cf00f8bafcf7cc2a80",
+      "registryEntrySha256": "a54928bd4ed458eadec7c37d772eac0384c25b90007969b2965dcd1da641492f"
     },
     {
       "candidateId": "week05-0010",
@@ -1019,8 +1019,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-4-8-4-input-error.md",
-      "readerSha256": "a9223c77aaf637b3c8abaf23907ee14f86b009c6efb41386b89d389ec9f95332",
-      "registryEntrySha256": "200e22bc89e06ab7023fc24b950ad462770b172089c0a44789e615840fd47d18"
+      "readerSha256": "ec1fed372994bb5922e92f7810beb393bd9e9cd52b28a407fff520970e53c2f6",
+      "registryEntrySha256": "de15d2d41e104ea343454b0bbb9afb79546383394f922afc1784899bcc4b8975"
     },
     {
       "candidateId": "week05-0011",
@@ -1040,8 +1040,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-4-8-5-prompt-template-missing.md",
-      "readerSha256": "1cad241456be5fd8dbc8a1963405e36980722fccac4aff726b92e48a1d128095",
-      "registryEntrySha256": "9c779b2bf86471a807c2c186dc3da01f35808722ff09c34e3b411139427a82dc"
+      "readerSha256": "d3816dae3fca4640bc76d40010e683e3a19a16e95cb49bb88a8f65c203291db4",
+      "registryEntrySha256": "8eb1a2e60808927ee786bc6d6d5ef7683f3fa1cb120ff042aed09886bdb04b14"
     },
     {
       "candidateId": "week05-0046",
@@ -1061,8 +1061,8 @@
       "securityStatus": "clear",
       "operationRisk": "none",
       "readerPath": "src/content/tech-center/troubleshoot/fastgpt-api-batch-duplicate-index.md",
-      "readerSha256": "ddf4bae6918a87a7d7b59c8bd4fd94544e543d8fbc09d0ea2d3419461ae1ebf5",
-      "registryEntrySha256": "7922cb6c741b89155c9d9cbe1f132911cd728d26a17f7fe52bfea92392b50e6e"
+      "readerSha256": "ef14ec2146a154d24f182b481f62aaadc315269f3fc5b06bb6f023e952ec708e",
+      "registryEntrySha256": "6e41465d5c9d15b63899677a10b801bd169750209a09af71a6aebadbcb70c187"
     }
   ]
 }

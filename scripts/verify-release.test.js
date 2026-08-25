@@ -8,10 +8,18 @@ const packageJson = require('../package.json');
 const packageLock = require('../package-lock.json');
 
 const {
-  parseArgs: parseReleaseArgs,
   appendP1HistoricalBaselineAdvisories,
-  extractP1SuccessMeasurement
+  createReleaseRecord,
+  extractP1SuccessMeasurement,
+  getSourceExecutionOrder,
+  getSourceNodeSteps,
+  getSourceNpmSteps,
+  getVariantExecutionOrder,
+  getVariantSteps,
+  parseArgs: parseReleaseArgs
 } = require('./verify-release');
+const { recordStep } = require('./lib/release-record');
+const { retainSuccessArtifacts } = require('./lib/release-artifacts');
 const { normalizeSolutionsEvidence } = require('./lib/release-readiness');
 const { buildOwnerExpectationSet, parseArgs } = require('./verify-faq-metadata');
 const { normalizeFaqMetadataPolicy } = require('./generate-faq-metadata');
@@ -73,85 +81,72 @@ function isCaseSensitiveFilesystem() {
 }
 
 function failure(label, output, variant = 'io') {
-  return { label, variant, command: 'npm run verify:p1', output };
+  const id = label.startsWith('P1 ') ? 'p1.export' : 'test.failure';
+  return { id, label, variant, command: 'npm run verify:p1', output };
 }
 
-test('release coordinator composes Guide checks around each fresh variant export', () => {
-  const source = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
-  const faqSteps = [
-    'scripts/generate-faq-route-registry.js',
-    'scripts/generate-faq-metadata.js',
-    'scripts/verify-faq-routes.js',
-    'scripts/verify-faq-metadata.js',
-    'scripts/verify-faq-seo-graph.js',
-    'scripts/verify-faq-redirects.js'
-  ];
-  const positions = faqSteps.map((step) => source.indexOf(step));
-
-  assert(positions.every((position) => position >= 0));
+test('release plans compose FAQ, Guide, and variant checks with stable step IDs', () => {
+  const sourceIds = getSourceNodeSteps().map(([stepId]) => stepId);
   assert.deepEqual(
-    [...positions].sort((left, right) => left - right),
-    positions
+    sourceIds.filter((stepId) => stepId.startsWith('faq-')),
+    [
+      'faq-route-registry.source',
+      'faq-metadata-snapshot.source',
+      'faq-routes.source',
+      'faq-metadata-legacy.source',
+      'faq-metadata.source',
+      'faq-seo-graph.source',
+      'faq-redirects.source'
+    ]
   );
-  assert(source.includes('scripts/verify-guide-content.js'));
-  assert(source.includes('scripts/verify-guide-export.js'));
-  assert(source.includes('guideTracer'));
-  assert(source.includes('poc-30-day-design'));
-  assert(source.includes('guidePairs'));
-  assert(source.includes('guideAuthorization'));
-  assert(source.includes('scripts/verify-guide-authorization.js'));
-  assert(source.includes('verify:guide-authorization-regression'));
-  assert(source.includes('src/content/guides/authorization.json'));
-  assert(source.includes('database-qa-integration-guide'));
-  assert(source.includes('scheduled-report-automation'));
-  assert(source.includes('finance-research-retrieval'));
-  assert(source.includes('finance-daily-report-automation'));
-  assert(source.includes('releaseEligible'));
-  assert(source.includes('const variants = options.variant ? [options.variant] : siteVariants;'));
 
-  const variantLoop = source.slice(source.indexOf('for (const variant of variants)'));
-  const firstCleanup = variantLoop.indexOf('clearBuildArtifacts()');
-  const secondCleanup = variantLoop.indexOf('clearBuildArtifacts()', firstCleanup + 1);
-
-  assert(firstCleanup < variantLoop.indexOf('runGuideSourceChecks'));
-  assert(variantLoop.indexOf('runGuideSourceChecks') < variantLoop.indexOf('runVariantChecks'));
-  assert(variantLoop.indexOf('runVariantChecks') < secondCleanup);
+  const record = createReleaseRecord({ sourceOnly: true });
+  assert.deepEqual(
+    record.evidence.guidePairs.expected.map((pair) => pair.slug),
+    [
+      'poc-30-day-design',
+      'database-qa-integration-guide',
+      'scheduled-report-automation',
+      'finance-research-retrieval',
+      'finance-daily-report-automation'
+    ]
+  );
+  const variantOrder = getVariantExecutionOrder('cn');
+  assert.equal(variantOrder[0], 'variant.build');
+  assert(variantOrder.indexOf('content-hygiene.html') < variantOrder.indexOf('guide.export'));
 });
 
 test('release coordinator gates technical content and every site variant', () => {
-  const source = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
-
+  const sourceCommands = getSourceNpmSteps().flatMap(([, , args]) => args);
   for (const command of [
     'verify:technical-content',
     'verify:technical-content-regression',
     'verify:technical-center-regression',
     'verify:technical-export-regression',
-    'verify:release-regression',
-    'lint',
-    'verify:technical-center',
-    'verify:technical-export'
+    'verify:release-readiness'
   ]) {
-    assert(source.includes(command), command);
+    assert(sourceCommands.includes(command), command);
   }
-
-  assert(source.includes('technical center artifact verification'));
-  assert(source.includes('technical export artifact verification'));
-  assert(source.includes('variantEnvironment(variant)'));
-  assert.match(source, /!options\.sourceOnly && !options\.variant && failures\.length === 0/);
+  for (const variant of ['cn', 'io', 'preview']) {
+    const variantIds = getVariantExecutionOrder(variant);
+    assert(variantIds.includes('technical-center.export'));
+    assert(variantIds.includes('technical-export.export'));
+    assert(variantIds.includes('technical-wave.export'));
+  }
 });
 
 test('release coordinator records and gates the case-only alias slice independently', () => {
-  const source = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
+  const sourceStep = getSourceNodeSteps().find(([stepId]) => stepId === 'case-only.source');
+  const regressionStep = getSourceNpmSteps().find(([stepId]) => stepId === 'case-only.regression');
+  const httpStep = getVariantSteps('cn').find((step) => step.id === 'case-only.http');
 
-  for (const required of [
-    'scripts/verify-case-only-aliases.js',
-    'verify:case-only-regression',
-    "['--variant', variant, '--slice', 'case-only']",
-    'evidence.caseOnly',
-    'caseOnly.releaseReady'
-  ]) {
-    assert(source.includes(required), required);
-  }
+  assert.equal(sourceStep[2], 'scripts/verify-case-only-aliases.js');
+  assert.deepEqual(regressionStep[2], ['verify:case-only-regression']);
+  assert.deepEqual(httpStep.args, ['--variant', 'cn', '--slice', 'case-only']);
+  assert.equal(
+    getVariantSteps('preview').some((step) => step.id === 'case-only.http'),
+    false
+  );
   assert.equal(packageJson.scripts['verify:case-only'], 'node scripts/verify-case-only-aliases.js');
   assert.equal(
     packageJson.scripts['verify:case-only-regression'],
@@ -278,24 +273,22 @@ test('release coordinator accepts a separately supplied Solutions preview eviden
 });
 
 test('release record keeps evidence tiers and rollback inventory separate', () => {
-  const source = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
-  for (const required of [
-    "recordKind: 'week05-release-readiness'",
-    'crossProjectInputs',
-    'solutionsPreviewHttp',
-    'source-verified',
-    'export-verified',
-    'release-eligible',
-    'production-observed',
-    'search-observed',
-    'directoryInventory',
-    'buildDeterministicReadiness',
-    'technical-wave-rollback',
-    'verify-solutions-preview-http.js',
-    'verify-guide-preview.js'
-  ]) {
-    assert(source.includes(required), required);
-  }
+  const record = createReleaseRecord({ sourceOnly: true });
+  assert.equal(record.recordKind, 'week05-release-readiness');
+  assert(record.crossProjectInputs.solutionsPreviewHttp);
+  assert(Array.isArray(record.rollback.inventory));
+  recordStep(
+    record,
+    'technical-authority.source',
+    'A freely editable display label',
+    'node scripts/verify-technical-authority.js',
+    undefined,
+    'passed',
+    'TECHNICAL_AUTHORITY_RESULT={"governanceStatus":"governance-complete","publicationCount":0}'
+  );
+  assert.equal(record.commands.at(-1).id, 'technical-authority.source');
+  assert.equal(record.evidence.technicalAuthority.source, true);
+  assert.equal(record.evidence.technicalAuthority.observed.publicationCount, 0);
   assert.equal(
     packageJson.scripts['verify:release-readiness'],
     'node --test scripts/lib/release-readiness.test.js'
@@ -311,13 +304,15 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
 });
 
 test('preview release gates skip production-only FAQ artifacts and sitemap cardinality', () => {
-  const source = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
-  assert.doesNotMatch(source, /if \(variant === 'preview'\) return;/);
-  assert.match(
-    source,
-    /if \(variant !== 'preview'\) \{\s*const sitemapPath = path\.join\(OUT_DIR, 'sitemap\.xml'\);/
-  );
-  assert.match(source, /if \(variant !== 'preview'\) \{[\s\S]*FAQ metadata HTML verification/);
+  const previewIds = getVariantSteps('preview').map((step) => step.id);
+  const cnIds = getVariantSteps('cn').map((step) => step.id);
+
+  assert(previewIds.includes('technical-wave.export'));
+  assert.equal(previewIds.includes('faq-metadata.html'), false);
+  assert.equal(previewIds.includes('faq-seo-graph.html'), false);
+  assert.equal(previewIds.includes('url-alias.blackbox'), false);
+  assert(cnIds.includes('faq-metadata.html'));
+  assert(cnIds.includes('faq-seo-graph.html'));
 });
 
 test('release source checks run content hygiene first and block dirty published Markdown', () => {
@@ -334,11 +329,8 @@ test('release source checks run content hygiene first and block dirty published 
     /^node scripts\/verify-content-hygiene\.js --mode source && /
   );
 
-  const source = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
-  assert(
-    source.indexOf('scripts/verify-content-hygiene.js') <
-      source.indexOf('TypeScript source verification')
-  );
+  const sourceOrder = getSourceExecutionOrder();
+  assert(sourceOrder.indexOf('content-hygiene.source') < sourceOrder.indexOf('typescript.source'));
 
   const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fastgpt-release-hygiene-'));
   const fixtureRoot = path.join(temporaryRoot, 'repo');
@@ -429,7 +421,6 @@ test('source-only release leaves the existing build info bytes unchanged', () =>
 });
 
 test('release build and workflow wiring preserve source hygiene while enforcing completed HTML exports', () => {
-  const release = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
   const verificationWorkflow = fs.readFileSync(
     path.join(ROOT, '.github/workflows/guide-release-verification.yml'),
     'utf8'
@@ -447,12 +438,9 @@ test('release build and workflow wiring preserve source hygiene while enforcing 
     packageJson.scripts.build,
     /fix-html-lang\.js && node scripts\/verify-technical-export\.js && node scripts\/verify-content-hygiene\.js --mode html --root out$/
   );
-  assert(
-    release.indexOf("['build']") <
-      release.indexOf("['--mode', 'html', '--root', 'out', '--variant', variant]")
-  );
-  assert.match(release, /Complete HTML hygiene \(\$\{variant\}\)/);
-  assert.match(release, /--incremental', 'false/);
+  const variantOrder = getVariantExecutionOrder('cn');
+  assert(variantOrder.indexOf('variant.build') < variantOrder.indexOf('content-hygiene.html'));
+  assert(getSourceExecutionOrder().includes('typescript.source'));
   for (const pattern of [
     'src/**',
     'content/competitors/**',
@@ -463,22 +451,13 @@ test('release build and workflow wiring preserve source hygiene while enforcing 
 });
 
 test('successful verified outputs can be retained before lifecycle cleanup', () => {
-  const source = fs.readFileSync(path.join(ROOT, 'scripts/verify-release.js'), 'utf8');
-  assert.match(source, /--retain-success-artifacts/);
-  assert.match(
-    source,
-    /retainSuccessArtifacts\(\s*variant,\s*options\.retainSuccessArtifacts\s*\)/
-  );
-  assert.match(source, /const redirectMap = path\.join\(NEXT_DIR, 'nginx-redirects\.conf'\)/);
-  assert.match(
-    source,
-    /copyFileSync\(redirectMap, path\.join\(retainedOut, '__release', 'nginx-redirects\.conf'\)\)/
-  );
-  const variantLoop = source.slice(source.indexOf('for (const variant of variants)'));
-  assert(
-    variantLoop.indexOf('retainSuccessArtifacts') <
-      variantLoop.indexOf('clearBuildArtifacts()', variantLoop.indexOf('runVariantChecks'))
-  );
+  assert.equal(typeof retainSuccessArtifacts, 'function');
+  assert.deepEqual(parseReleaseArgs(['--retain-success-artifacts', 'tmp/release-output']), {
+    sourceOnly: false,
+    keepArtifacts: false,
+    retainSuccessArtifacts: path.join(ROOT, 'tmp/release-output'),
+    variant: undefined
+  });
 });
 
 test('P1 successful evidence keeps the emitted KiB measurement', () => {

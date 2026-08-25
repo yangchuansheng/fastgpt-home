@@ -152,7 +152,9 @@ async function startNginxSurface(redirectMapPath, outDir) {
   const quoteNginxPath = (value) => `"${value.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`;
   fs.writeFileSync(
     configPath,
-    `events {}\nhttp {\n  map_hash_bucket_size 256;\n  include ${quoteNginxPath(
+    `pid ${quoteNginxPath(
+      path.join(runtimeDir, 'nginx.pid')
+    )};\nevents {}\nhttp {\n  map_hash_bucket_size 256;\n  include ${quoteNginxPath(
       redirectMapPath
     )};\n  server {\n    listen 127.0.0.1:${port};\n    root ${quoteNginxPath(
       outDir
@@ -245,7 +247,11 @@ async function main() {
     : authority;
   const authorityDigest = getUrlAliasAuthorityDigest(authority);
   const sourceHost = variant === 'cn' ? 'fastgpt.cn' : 'fastgpt.io';
-  const projection = buildUrlAliasProjection(projectionAuthority, sourceHost, getProductionBaseUrls());
+  const projection = buildUrlAliasProjection(
+    projectionAuthority,
+    sourceHost,
+    getProductionBaseUrls()
+  );
   if (variant === 'io') {
     const workerPath = path.join(options.outDir, '_worker.js');
     if (!fs.existsSync(workerPath)) throw new Error(`Missing Worker artifact: ${workerPath}`);

@@ -13,15 +13,23 @@ const {
   loadWaveInputs,
   verifyWaveSource
 } = require('./lib/technical-wave');
-const { applyAtomicProjection } = require('./lib/technical-authority');
+const { applyRollbackProjection } = require('./lib/technical-authority');
 
 const ROOT = path.resolve(__dirname, '..');
 
 test('Wave 1 selection is bounded, deterministic, and topic-diverse', () => {
   const first = loadWaveInputs(ROOT);
   const second = loadWaveInputs(ROOT);
-  const firstSelection = chooseWaveCandidates(first.authority, first.entries);
-  const secondSelection = chooseWaveCandidates(second.authority, second.entries);
+  const firstSelection = chooseWaveCandidates(
+    first.authority,
+    first.entries,
+    first.approvedSelection
+  );
+  const secondSelection = chooseWaveCandidates(
+    second.authority,
+    second.entries,
+    second.approvedSelection
+  );
 
   assert.equal(firstSelection.candidates.length, 50);
   assert(firstSelection.candidates.length >= WAVE_MIN_CANDIDATES);
@@ -29,6 +37,10 @@ test('Wave 1 selection is bounded, deterministic, and topic-diverse', () => {
   assert.deepEqual(
     firstSelection.candidates.map((candidate) => candidate.id),
     secondSelection.candidates.map((candidate) => candidate.id)
+  );
+  assert.deepEqual(
+    firstSelection.candidates.map((candidate) => candidate.id),
+    first.approvedSelection.candidateIds
   );
   assert(firstSelection.topicCount >= 4);
   assert(firstSelection.candidates.every((candidate) => candidate.state === 'accepted'));
@@ -53,8 +65,8 @@ test('reader projection contains the required public content contract', () => {
 });
 
 test('wave projection keeps one identity set across registry, search, sitemap, export, release, and rollback', () => {
-  const { authority, entries } = loadWaveInputs(ROOT);
-  const selection = chooseWaveCandidates(authority, entries);
+  const { authority, entries, approvedSelection } = loadWaveInputs(ROOT);
+  const selection = chooseWaveCandidates(authority, entries, approvedSelection);
   const projection = buildWaveProjection({ authority, entries, selection });
 
   assert.equal(projection.baselinePageCount, 1122);
@@ -74,8 +86,8 @@ test('wave projection keeps one identity set across registry, search, sitemap, e
 });
 
 test('updates preserve the page-count baseline while additions increase it', () => {
-  const { authority, entries } = loadWaveInputs(ROOT);
-  const selection = chooseWaveCandidates(authority, entries);
+  const { authority, entries, approvedSelection } = loadWaveInputs(ROOT);
+  const selection = chooseWaveCandidates(authority, entries, approvedSelection);
   const updateSelection = {
     ...selection,
     candidates: selection.candidates.map((candidate, index) =>
@@ -113,7 +125,7 @@ test('partial projection failure restores every public surface', () => {
   try {
     assert.throws(
       () =>
-        applyAtomicProjection({
+        applyRollbackProjection({
           files,
           contents: files.map(() => Buffer.from('wave-1\n')),
           failAt: 4

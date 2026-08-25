@@ -41,4 +41,4 @@ source_type: GitHub issue
 
 ## 维护者证据
 
-- [FastGPT maintainer source](https://github.com/labring/FastGPT/issues/3219)
+> 来源：[FastGPT maintainer source](https://github.com/labring/FastGPT/issues/3219)

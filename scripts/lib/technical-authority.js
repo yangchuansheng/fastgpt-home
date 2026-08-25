@@ -8,6 +8,7 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const { applyRollbackProjection, verifyProjectionConsistency } = require('./technical-projection');
 
 const AUTHORITY_RELATIVE_PATH = 'src/content/tech-center/authority/week05-authority.json';
 const TRACER_RELATIVE_PATH = 'scripts/fixtures/technical-authority/week05-tracer.json';
@@ -69,7 +70,8 @@ function assertArray(value, label) {
 }
 
 function assertText(value, label) {
-  if (typeof value !== 'string' || !value.trim()) throw new Error(`${label} must be non-empty text`);
+  if (typeof value !== 'string' || !value.trim())
+    throw new Error(`${label} must be non-empty text`);
 }
 
 function assertDigest(value, label) {
@@ -79,7 +81,8 @@ function assertDigest(value, label) {
 }
 
 function assertCount(value, label) {
-  if (!Number.isInteger(value) || value < 0) throw new Error(`${label} must be a non-negative integer`);
+  if (!Number.isInteger(value) || value < 0)
+    throw new Error(`${label} must be a non-negative integer`);
 }
 
 function assertHttps(value, label) {
@@ -169,9 +172,7 @@ function validateSecurity(security, label) {
       /\bfastgpt-(?=[A-Za-z0-9_-]{9,}\b)(?=[A-Za-z0-9_-]*[A-Z])[A-Za-z0-9][A-Za-z0-9_-]*\b/.test(
         finding.replacement
       ) ||
-      /\bBearer\s+(?!\[REDACTED_CREDENTIAL\])[A-Za-z0-9._~+/=-]{6,}/i.test(
-        finding.replacement
-      ) ||
+      /\bBearer\s+(?!\[REDACTED_CREDENTIAL\])[A-Za-z0-9._~+/=-]{6,}/i.test(finding.replacement) ||
       /\beyJ[A-Za-z0-9._-]{20,}\b/.test(finding.replacement)
     ) {
       throw new Error(`${label}.findings[${index}].replacement contains a credential-shaped value`);
@@ -238,7 +239,9 @@ function validateDecision(decision, state, label) {
     assertText(decision.reason, `${label}.reason`);
     assertArray(decision.evidence, `${label}.evidence`);
     if (decision.evidence.length < 1) throw new Error(`${label}.evidence requires a source`);
-    decision.evidence.forEach((source, index) => assertHttps(source, `${label}.evidence[${index}]`));
+    decision.evidence.forEach((source, index) =>
+      assertHttps(source, `${label}.evidence[${index}]`)
+    );
     if (state === 'accepted') {
       if (!['add', 'update'].includes(decision.operation)) {
         throw new Error(`${label}.operation must be add or update`);
@@ -264,7 +267,8 @@ function validateRelations(relations, label) {
     if (relationKey.split('|').length !== relation.relatedCandidateIds.length) {
       throw new Error(`${label}[${index}] contains a duplicate candidate relation`);
     }
-    if (relationKeys.has(relationKey)) throw new Error(`${label}[${index}] duplicates a relation group`);
+    if (relationKeys.has(relationKey))
+      throw new Error(`${label}[${index}] duplicates a relation group`);
     relationKeys.add(relationKey);
     assertText(relation.evidence, `${label}[${index}].evidence`);
     if (!/https:\/\/[^\s]+/i.test(relation.evidence)) {
@@ -312,7 +316,11 @@ function validateCandidate(candidate, index) {
   validateDecision(candidate.decision, candidate.state, `${label}.decision`);
 }
 
-function buildCountInvariant({ baselinePageCount = PUBLIC_TECHNICAL_PAGE_COUNT, accepted, denied }) {
+function buildCountInvariant({
+  baselinePageCount = PUBLIC_TECHNICAL_PAGE_COUNT,
+  accepted,
+  denied
+}) {
   assertCount(baselinePageCount, 'baselinePageCount');
   assertArray(accepted, 'accepted');
   assertArray(denied, 'denied');
@@ -322,7 +330,8 @@ function buildCountInvariant({ baselinePageCount = PUBLIC_TECHNICAL_PAGE_COUNT, 
         throw new Error(`accepted[${index}] is not a final accepted decision`);
       }
       const operation = candidate.decision.operation;
-      if (!['add', 'update'].includes(operation)) throw new Error(`accepted[${index}] has no operation`);
+      if (!['add', 'update'].includes(operation))
+        throw new Error(`accepted[${index}] has no operation`);
       counts[operation] += 1;
       return counts;
     },
@@ -393,10 +402,12 @@ function validateGovernance(authority, count, sourceFiles, sourceUrls) {
     0
   );
   const unresolvedCredentials = authority.candidates.filter(
-    (candidate) => candidate.security.status === 'needs-review' && candidate.decision?.disposition !== 'denied'
+    (candidate) =>
+      candidate.security.status === 'needs-review' && candidate.decision?.disposition !== 'denied'
   ).length;
   const deniedCredentials = authority.candidates.filter(
-    (candidate) => candidate.security.status === 'needs-review' && candidate.decision?.disposition === 'denied'
+    (candidate) =>
+      candidate.security.status === 'needs-review' && candidate.decision?.disposition === 'denied'
   ).length;
   if (
     authority.governance.credentialFindingCount !== securityFindings ||
@@ -410,7 +421,8 @@ function validateGovernance(authority, count, sourceFiles, sourceUrls) {
     0
   );
   const unresolvedOperationRisk = authority.candidates.filter(
-    (candidate) => candidate.operationRisk.level !== 'none' && candidate.decision?.disposition !== 'denied'
+    (candidate) =>
+      candidate.operationRisk.level !== 'none' && candidate.decision?.disposition !== 'denied'
   ).length;
   if (
     authority.governance.operationFindingCount !== operationFindings ||
@@ -421,7 +433,10 @@ function validateGovernance(authority, count, sourceFiles, sourceUrls) {
   if (authority.governance.publicationCount !== 0) {
     throw new Error('Week05 governance publication count must remain zero');
   }
-  if (authority.batch.status === 'closed' && authority.governance.status !== 'governance-complete') {
+  if (
+    authority.batch.status === 'closed' &&
+    authority.governance.status !== 'governance-complete'
+  ) {
     throw new Error('Closed Week05 governance must report governance-complete');
   }
   if (authority.batch.status === 'closed' && authority.governance.temporaryCount !== 0) {
@@ -471,11 +486,18 @@ function validateHistory(authority, repoRoot) {
   for (const field of ['accepted', 'denied', 'add', 'update', 'pageCount']) {
     assertCount(history[field], `history.${field}`);
   }
-  if (history.accepted !== 454 || history.denied !== 6 || history.add !== 450 || history.update !== 4) {
+  if (
+    history.accepted !== 454 ||
+    history.denied !== 6 ||
+    history.add !== 450 ||
+    history.update !== 4
+  ) {
     throw new Error('Historical technical authority count drift');
   }
   if (history.pageCount !== PUBLIC_TECHNICAL_PAGE_COUNT) {
-    throw new Error(`Historical technical page count drift: expected ${PUBLIC_TECHNICAL_PAGE_COUNT}`);
+    throw new Error(
+      `Historical technical page count drift: expected ${PUBLIC_TECHNICAL_PAGE_COUNT}`
+    );
   }
   assertText(history.manifestPath, 'history.manifestPath');
   assertText(history.ledgerPath, 'history.ledgerPath');
@@ -519,16 +541,21 @@ function validateHistory(authority, repoRoot) {
   return history;
 }
 
-function validateTechnicalAuthority(authority, { repoRoot, verifyHistory = false, verifyArtifacts = false } = {}) {
+function validateTechnicalAuthority(
+  authority,
+  { repoRoot, verifyHistory = false, verifyArtifacts = false } = {}
+) {
   assertObject(authority, 'technical authority');
-  if (authority.schemaVersion !== 1) throw new Error('Unsupported technical authority schema version');
+  if (authority.schemaVersion !== 1)
+    throw new Error('Unsupported technical authority schema version');
   assertObject(authority.batch, 'batch');
   if (authority.batch.id !== 'week05') throw new Error('Technical authority batch must be week05');
   if (!['open', 'closed'].includes(authority.batch.status)) {
     throw new Error('Technical authority batch status is unsupported');
   }
   assertCount(authority.batch.candidateCount, 'batch.candidateCount');
-  if (authority.batch.candidateCount !== 888) throw new Error('Week05 candidate count must equal 888');
+  if (authority.batch.candidateCount !== 888)
+    throw new Error('Week05 candidate count must equal 888');
   assertArray(authority.candidates, 'candidates');
   if (authority.candidates.length !== authority.batch.candidateCount) {
     throw new Error('Technical authority candidate count drift');
@@ -550,7 +577,8 @@ function validateTechnicalAuthority(authority, { repoRoot, verifyHistory = false
   authority.candidates.forEach((candidate, index) => {
     const sourceFile = candidate.provenance.sourceFile;
     const sourceUrl = candidate.provenance.sourceUrl;
-    if (sourceFiles.has(sourceFile)) throw new Error(`Duplicate technical source file ${sourceFile}`);
+    if (sourceFiles.has(sourceFile))
+      throw new Error(`Duplicate technical source file ${sourceFile}`);
     if (sourceUrls.has(sourceUrl)) throw new Error(`Duplicate technical source URL ${sourceUrl}`);
     sourceFiles.add(sourceFile);
     sourceUrls.add(sourceUrl);
@@ -563,7 +591,8 @@ function validateTechnicalAuthority(authority, { repoRoot, verifyHistory = false
   validateRelations(authority.relations, 'relations');
   authority.relations.forEach((relation) => {
     relation.relatedCandidateIds.forEach((candidateId) => {
-      if (!candidateIds.has(candidateId)) throw new Error(`Unknown relation candidate ${candidateId}`);
+      if (!candidateIds.has(candidateId))
+        throw new Error(`Unknown relation candidate ${candidateId}`);
       const candidate = candidatesById.get(candidateId);
       if (!candidate.relations.some((entry) => entry.id === relation.id)) {
         throw new Error(`Candidate relation ${relation.id} is missing from ${candidateId}`);
@@ -573,7 +602,8 @@ function validateTechnicalAuthority(authority, { repoRoot, verifyHistory = false
   const relationIds = new Set(authority.relations.map((relation) => relation.id));
   authority.candidates.forEach((candidate) =>
     candidate.relations.forEach((relation) => {
-      if (!relationIds.has(relation.id)) throw new Error(`Unknown candidate relation ${relation.id}`);
+      if (!relationIds.has(relation.id))
+        throw new Error(`Unknown candidate relation ${relation.id}`);
       if (!relation.relatedCandidateIds.includes(candidate.id)) {
         throw new Error(`Candidate relation ${relation.id} omits ${candidate.id}`);
       }
@@ -593,7 +623,10 @@ function validateTechnicalAuthority(authority, { repoRoot, verifyHistory = false
       throw new Error(`${label}.candidateId references an unknown candidate`);
     }
     validateIdentity(conflict.existingIdentity, `${label}.existingIdentity`);
-    if (identityKey(conflict.existingIdentity) !== identityKey(candidatesById.get(conflict.candidateId).identity)) {
+    if (
+      identityKey(conflict.existingIdentity) !==
+      identityKey(candidatesById.get(conflict.candidateId).identity)
+    ) {
       throw new Error(`${label}.existingIdentity does not match the candidate identity`);
     }
     if (conflict.resolution !== 'denied') {
@@ -625,14 +658,18 @@ function validateTechnicalAuthority(authority, { repoRoot, verifyHistory = false
   const listed = new Set();
   for (const [state, ids] of stateLists) {
     ids.forEach((candidateId) => {
-      if (!candidateIds.has(candidateId)) throw new Error(`Unknown ${state} candidate ${candidateId}`);
-      if (listed.has(candidateId)) throw new Error(`Candidate appears in multiple state lists: ${candidateId}`);
+      if (!candidateIds.has(candidateId))
+        throw new Error(`Unknown ${state} candidate ${candidateId}`);
+      if (listed.has(candidateId))
+        throw new Error(`Candidate appears in multiple state lists: ${candidateId}`);
       listed.add(candidateId);
       const candidate = candidatesById.get(candidateId);
-      if (candidate.state !== state) throw new Error(`Candidate state list drift for ${candidateId}`);
+      if (candidate.state !== state)
+        throw new Error(`Candidate state list drift for ${candidateId}`);
     });
   }
-  if (listed.size !== authority.candidates.length) throw new Error('Authority state lists are incomplete');
+  if (listed.size !== authority.candidates.length)
+    throw new Error('Authority state lists are incomplete');
   if (authority.batch.status === 'closed' && getTemporaryCandidates(authority).length) {
     throw new Error('Technical authority cannot close while temporary states remain');
   }
@@ -668,14 +705,19 @@ function validateTechnicalAuthority(authority, { repoRoot, verifyHistory = false
   }
   validateGovernance(authority, count, sourceFiles, sourceUrls);
   assertObject(authority.projection, 'projection');
-  if (authority.projection.mode !== 'dry-run') throw new Error('Week05 projection must remain a dry run');
-  if (authority.projection.publicPageDelta !== 0) throw new Error('Week05 dry run must publish zero pages');
+  if (authority.projection.mode !== 'dry-run')
+    throw new Error('Week05 projection must remain a dry run');
+  if (authority.projection.publicPageDelta !== 0)
+    throw new Error('Week05 dry run must publish zero pages');
   assertCount(authority.projection.publicationCount, 'projection.publicationCount');
   if (authority.projection.publicationCount !== 0) {
     throw new Error('Week05 dry run publication count must remain zero');
   }
   assertText(authority.projection.governanceStatus, 'projection.governanceStatus');
-  if (authority.batch.status === 'closed' && authority.projection.governanceStatus !== 'governance-complete') {
+  if (
+    authority.batch.status === 'closed' &&
+    authority.projection.governanceStatus !== 'governance-complete'
+  ) {
     throw new Error('Closed technical authority must report governance-complete');
   }
   if (authority.projection.resultingPageCount !== count.resultingPageCount) {
@@ -700,9 +742,12 @@ function closeAuthority(authority, options = {}) {
   const result = validateTechnicalAuthority(authority, options);
   const temporary = getTemporaryCandidates(authority);
   if (temporary.length) {
-    throw new Error(`Technical authority cannot close with ${temporary.length} temporary candidates`);
+    throw new Error(
+      `Technical authority cannot close with ${temporary.length} temporary candidates`
+    );
   }
-  if (authority.batch.status !== 'closed') throw new Error('Technical authority closure requires closed batch status');
+  if (authority.batch.status !== 'closed')
+    throw new Error('Technical authority closure requires closed batch status');
   return result.count;
 }
 
@@ -775,18 +820,21 @@ function projectionEntry(candidate, canonicalHost = 'https://fastgpt.cn') {
 function projectAuthority(authority, { candidateIds, canonicalHost = 'https://fastgpt.cn' } = {}) {
   validateTechnicalAuthority(authority);
   const selectedIds = candidateIds || authority.final.accepted;
-  const candidatesById = new Map(authority.candidates.map((candidate) => [candidate.id, candidate]));
+  const candidatesById = new Map(
+    authority.candidates.map((candidate) => [candidate.id, candidate])
+  );
   const candidates = selectedIds
     .map((candidateId) => candidatesById.get(candidateId))
     .filter(Boolean);
-  if (candidates.length !== selectedIds.length) throw new Error('Projection references an unknown candidate');
+  if (candidates.length !== selectedIds.length)
+    throw new Error('Projection references an unknown candidate');
   if (candidates.some((candidate) => candidate.state !== 'accepted')) {
     throw new Error('Projection can only contain final accepted candidates');
   }
   const entries = candidates.map((candidate) => projectionEntry(candidate, canonicalHost));
   const projection = {
     schemaVersion: 1,
-    atomic: true,
+    consistency: 'identity-set-verified',
     mode: 'dry-run',
     wave: 'wave-0',
     governanceStatus: 'governance-complete',
@@ -801,13 +849,16 @@ function projectAuthority(authority, { candidateIds, canonicalHost = 'https://fa
     releaseRecord: entries.map((entry) => entry.releaseEntry),
     rollback: entries.map((entry) => entry.rollbackEntry)
   };
-  verifyAtomicProjection(projection);
+  verifyProjectionConsistency(projection);
   return projection;
 }
 
 function projectTracer(authority, tracer) {
   const candidate = candidateForTracer(authority, tracer);
-  const projection = projectAuthority(authority, { candidateIds: [candidate.id], canonicalHost: tracer.canonicalHost });
+  const projection = projectAuthority(authority, {
+    candidateIds: [candidate.id],
+    canonicalHost: tracer.canonicalHost
+  });
   const entry = projection.registry[0];
   const summary = tracer.summary || entry.summary;
   projection.registry[0] = { ...entry, title: tracer.title || entry.title, summary };
@@ -821,76 +872,8 @@ function projectTracer(authority, tracer) {
     status: 'source-verified',
     publicationCount: 0
   };
-  verifyAtomicProjection(projection);
+  verifyProjectionConsistency(projection);
   return projection;
-}
-
-function surfaceIdentitySet(surface, surfaceName) {
-  assertArray(surface, surfaceName);
-  return surface.map((entry, index) => {
-    if (typeof entry === 'string') {
-      const match = entry.match(/^https?:\/\/[^/]+(\/.*)$/);
-      if (!match) throw new Error(`${surfaceName}[${index}] has no route identity`);
-      return fold(match[1]);
-    }
-    assertObject(entry, `${surfaceName}[${index}]`);
-    if (entry.identity) {
-      if (typeof entry.identity === 'object') return identityKey(entry.identity);
-      return fold(entry.identity);
-    }
-    if (entry.key) return fold(entry.key);
-    if (entry.path) return fold(entry.path);
-    throw new Error(`${surfaceName}[${index}] has no route identity`);
-  });
-}
-
-function verifyAtomicProjection(projection) {
-  assertObject(projection, 'projection');
-  if (projection.atomic !== true) throw new Error('Projection must be marked atomic');
-  const identitySet = surfaceIdentitySet(projection.identities, 'identities');
-  if (new Set(identitySet).size !== identitySet.length) {
-    throw new Error('Projection identities contain duplicate entries');
-  }
-  const surfaces = [
-    ['registry', surfaceIdentitySet(projection.registry, 'registry')],
-    ['search', surfaceIdentitySet(projection.search, 'search')],
-    ['sitemap', surfaceIdentitySet(projection.sitemap, 'sitemap')],
-    ['staticExport', surfaceIdentitySet(projection.staticExport, 'staticExport')],
-    ['releaseRecord', surfaceIdentitySet(projection.releaseRecord, 'releaseRecord')],
-    ['rollback', surfaceIdentitySet(projection.rollback, 'rollback')]
-  ];
-  const expected = JSON.stringify(identitySet.sort());
-  for (const [name, identities] of surfaces) {
-    if (identities.length !== identitySet.length || new Set(identities).size !== identities.length) {
-      throw new Error(`Atomic projection identity cardinality drift in ${name}`);
-    }
-    if (JSON.stringify(identities.sort()) !== expected) {
-      throw new Error(`Atomic projection identity drift in ${name}`);
-    }
-  }
-  return true;
-}
-
-function applyAtomicProjection({ files, contents, failAt } = {}) {
-  assertArray(files, 'files');
-  assertArray(contents, 'contents');
-  if (files.length !== contents.length || !files.length) {
-    throw new Error('Projection files and contents must have the same non-empty length');
-  }
-  const before = files.map((filePath) => (fs.existsSync(filePath) ? fs.readFileSync(filePath) : null));
-  try {
-    files.forEach((filePath, index) => {
-      fs.mkdirSync(path.dirname(filePath), { recursive: true });
-      fs.writeFileSync(filePath, contents[index]);
-      if (failAt === index + 1) throw new Error(`Projection failure at surface ${index + 1}`);
-    });
-  } catch (error) {
-    files.forEach((filePath, index) => {
-      if (before[index] === null) fs.rmSync(filePath, { force: true });
-      else fs.writeFileSync(filePath, before[index]);
-    });
-    throw error;
-  }
 }
 
 function verifyPersistedArtifacts(authority, repoRoot) {
@@ -917,7 +900,8 @@ function verifyPersistedArtifacts(authority, repoRoot) {
   ];
   for (const relativePath of artifactPaths) {
     const artifactPath = path.join(repoRoot, relativePath);
-    if (!fs.existsSync(artifactPath)) throw new Error(`Week05 artifact is missing: ${relativePath}`);
+    if (!fs.existsSync(artifactPath))
+      throw new Error(`Week05 artifact is missing: ${relativePath}`);
   }
   const readArtifact = (relativePath) =>
     JSON.parse(fs.readFileSync(path.join(repoRoot, relativePath), 'utf8'));
@@ -931,10 +915,16 @@ function verifyPersistedArtifacts(authority, repoRoot) {
   ) {
     throw new Error('Week05 disposition ledger final sets drift');
   }
-  const dispositionById = new Map(disposition.decisions.map((decision) => [decision.candidateId, decision]));
+  const dispositionById = new Map(
+    disposition.decisions.map((decision) => [decision.candidateId, decision])
+  );
   authority.candidates.forEach((candidate) => {
     const decision = dispositionById.get(candidate.id);
-    if (!decision || decision.disposition !== candidate.decision.disposition || decision.state !== candidate.state) {
+    if (
+      !decision ||
+      decision.disposition !== candidate.decision.disposition ||
+      decision.state !== candidate.state
+    ) {
       throw new Error(`Week05 disposition ledger drift for ${candidate.id}`);
     }
   });
@@ -943,7 +933,10 @@ function verifyPersistedArtifacts(authority, repoRoot) {
     throw new Error('Week05 identity ledger cardinality drift');
   }
   const duplicate = readArtifact(DUPLICATE_LEDGER_RELATIVE_PATH);
-  if (duplicate.relationCount !== authority.relations.length || duplicate.resolvedRelationCount !== authority.relations.length) {
+  if (
+    duplicate.relationCount !== authority.relations.length ||
+    duplicate.resolvedRelationCount !== authority.relations.length
+  ) {
     throw new Error('Week05 duplicate ledger closure drift');
   }
   if (duplicate.relations.some((relation) => relation.resolution === 'pending-review')) {
@@ -954,7 +947,10 @@ function verifyPersistedArtifacts(authority, repoRoot) {
     (count, candidate) => count + candidate.security.findings.length,
     0
   );
-  if (security.findingCount !== securityFindingCount || security.unresolvedCount !== authority.governance.unresolvedCredentialCount) {
+  if (
+    security.findingCount !== securityFindingCount ||
+    security.unresolvedCount !== authority.governance.unresolvedCredentialCount
+  ) {
     throw new Error('Week05 security ledger count drift');
   }
   const operationRisk = readArtifact(OPERATION_RISK_LEDGER_RELATIVE_PATH);
@@ -962,7 +958,10 @@ function verifyPersistedArtifacts(authority, repoRoot) {
     (count, candidate) => count + candidate.operationRisk.findings.length,
     0
   );
-  if (operationRisk.findingCount !== operationFindingCount || operationRisk.unresolvedCount !== authority.governance.unresolvedOperationRiskCount) {
+  if (
+    operationRisk.findingCount !== operationFindingCount ||
+    operationRisk.unresolvedCount !== authority.governance.unresolvedOperationRiskCount
+  ) {
     throw new Error('Week05 operation-risk ledger count drift');
   }
   const provenance = readArtifact(PROVENANCE_RELATIVE_PATH);
@@ -1016,7 +1015,7 @@ module.exports = {
   PROVENANCE_RELATIVE_PATH,
   RELEASE_MANIFEST_RELATIVE_PATH,
   SECURITY_LEDGER_RELATIVE_PATH,
-  applyAtomicProjection,
+  applyRollbackProjection,
   buildCountInvariant,
   closeAuthority,
   fileSha256,
@@ -1029,6 +1028,6 @@ module.exports = {
   sha256,
   stableJson,
   validateTechnicalAuthority,
-  verifyAtomicProjection,
+  verifyProjectionConsistency,
   verifyPersistedArtifacts
 };

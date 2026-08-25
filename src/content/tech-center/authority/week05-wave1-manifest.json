@@ -17,7 +17,7 @@
       "topic-diversity"
     ],
     "selectedCount": 50,
-    "eligibleCount": 50,
+    "eligibleCount": 853,
     "topicCount": 6,
     "candidateIds": [
       "week05-0002",
@@ -71,458 +71,213 @@
       "week05-0011",
       "week05-0046"
     ],
-    "scores": [
+    "topics": [
       {
         "candidateId": "week05-0002",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "application-behavior"
       },
       {
         "candidateId": "week05-0003",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0004",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "workflow-integration"
       },
       {
         "candidateId": "week05-0005",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "deployment-runtime"
       },
       {
         "candidateId": "week05-0009",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "knowledge-indexing"
       },
       {
         "candidateId": "week05-0016",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "model-experience"
       },
       {
         "candidateId": "week05-0006",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "workflow-integration"
       },
       {
         "candidateId": "week05-0007",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "workflow-integration"
       },
       {
         "candidateId": "week05-0008",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "workflow-integration"
       },
       {
         "candidateId": "week05-0012",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0013",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0014",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0015",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "knowledge-indexing"
       },
       {
         "candidateId": "week05-0017",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "model-experience"
       },
       {
         "candidateId": "week05-0018",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "knowledge-indexing"
       },
       {
         "candidateId": "week05-0019",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "deployment-runtime"
       },
       {
         "candidateId": "week05-0020",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "knowledge-indexing"
       },
       {
         "candidateId": "week05-0021",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "application-behavior"
       },
       {
         "candidateId": "week05-0022",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0023",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0024",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "deployment-runtime"
       },
       {
         "candidateId": "week05-0025",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0026",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "knowledge-indexing"
       },
       {
         "candidateId": "week05-0027",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "model-experience"
       },
       {
         "candidateId": "week05-0028",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "application-behavior"
       },
       {
         "candidateId": "week05-0029",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "model-experience"
       },
       {
         "candidateId": "week05-0030",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "workflow-integration"
       },
       {
         "candidateId": "week05-0031",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0032",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "model-experience"
       },
       {
         "candidateId": "week05-0033",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "workflow-integration"
       },
       {
         "candidateId": "week05-0034",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "workflow-integration"
       },
       {
         "candidateId": "week05-0035",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0036",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "deployment-runtime"
       },
       {
         "candidateId": "week05-0037",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0038",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0039",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0040",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0041",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0042",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0043",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0044",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0045",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0047",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0048",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0050",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0051",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 135,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0001",
-        "evidenceQuality": 70,
-        "identitySafety": 20,
-        "securityClearance": 15,
-        "operationRisk": 20,
-        "total": 125,
         "topic": "api-access"
       },
       {
         "candidateId": "week05-0010",
-        "evidenceQuality": 60,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 125,
         "topic": "application-behavior"
       },
       {
         "candidateId": "week05-0011",
-        "evidenceQuality": 60,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 125,
         "topic": "model-experience"
       },
       {
         "candidateId": "week05-0046",
-        "evidenceQuality": 60,
-        "identitySafety": 20,
-        "securityClearance": 25,
-        "operationRisk": 20,
-        "total": 125,
         "topic": "api-access"
       }
-    ]
+    ],
+    "approval": {
+      "reviewer": "technical-governance",
+      "path": "src/content/tech-center/authority/week05-wave1-selection.json",
+      "sha256": "a6f6e33204198a68e2d8c62993f1a6a1c27b8a60850d6b0a3e57e16d5255367a"
+    }
   },
   "counts": {
     "baselinePageCount": 1122,
@@ -534,12 +289,12 @@
   },
   "content": {
     "path": "src/content/tech-center/authority/week05-wave1-content.json",
-    "sha256": "406cf590d8836fcc78a8eae9a58f7c4b4f7b0c34dff3383940d03200a8dbe866",
+    "sha256": "d08b2650469eed61273c2f478ea3ed0df7864e306c4d3bab9bdbb70fdc351101",
     "readerCount": 50
   },
   "projection": {
     "path": "src/content/tech-center/authority/week05-wave1-projection.json",
-    "sha256": "2d56db33f9193d54cf13a5000b174cab5d8e2d6580eebba17c8f81a4c420a7f9",
+    "sha256": "92f30c4715445d9ad6f7d0410d25f27ec518fea63fc77993ad76b554e160ba1e",
     "identityCount": 50
   },
   "rollback": {
@@ -549,8 +304,8 @@
   },
   "provenance": {
     "authorityArtifact": "src/content/tech-center/authority/week05-authority.json",
-    "authorityArtifactSha256": "4f1f1c1d422e120cdcb540e03ef404c0cf5483b2813482b8fb1679d91baf20ab",
-    "sourceSetSha256": "d0dc7c4967610ec0085c5c8303e2f492e7c75c4688076c4a038e0fd02c5d06c4",
+    "authorityArtifactSha256": "fe8d1c8e5d22b044272620c3d67df1ef1f94d2f15a6ac6af8cbbd2c08323c41d",
+    "sourceSetSha256": "3337bedb389db9bc901b634d1afaa32639c80818a774bfa076b2cbadeb4362a3",
     "historicalBaselinePageCount": 1122,
     "sourcePolicy": "Wave 0 final accepted authority with public HTTPS maintainer evidence"
   },

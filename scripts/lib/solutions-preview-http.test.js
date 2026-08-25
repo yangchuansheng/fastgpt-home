@@ -18,6 +18,19 @@ test('Solutions preview runner validates HTTPS targets and records response chec
       }),
     /absolute paths|Unsafe/
   );
+  await assert.rejects(
+    () =>
+      runSolutionsPreviewContract({
+        target: 'https://preview.example.com',
+        contract: {
+          requests: [
+            { name: 'root', path: '/' },
+            { name: 'root', path: '/duplicate' }
+          ]
+        }
+      }),
+    /request names must be unique/
+  );
   const requiredRequests = [
     'root',
     'routes',

@@ -9,7 +9,6 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {
   PUBLIC_TECHNICAL_PAGE_COUNT,
-  applyAtomicProjection,
   fileSha256,
   identityKey,
   loadTechnicalAuthority,
@@ -17,10 +16,13 @@ const {
   sha256,
   stableJson,
   validateTechnicalAuthority,
-  verifyAtomicProjection,
+  verifyProjectionConsistency,
   verifyPersistedArtifacts
 } = require('./technical-authority');
-const { buildSearchProjection } = require('../import-technical-content');
+const {
+  buildNormalizedTechnicalPage,
+  buildSearchProjection
+} = require('../import-technical-content');
 
 const WAVE_ID = 'wave-1';
 const WAVE_MIN_CANDIDATES = 25;
@@ -29,6 +31,8 @@ const WAVE_BASELINE_PAGE_COUNT = PUBLIC_TECHNICAL_PAGE_COUNT;
 const REGISTRY_RELATIVE_PATH = 'src/components/tech-center/entries.json';
 const SEARCH_RELATIVE_PATH = 'public/tech-center/search-index.json';
 const WAVE_MANIFEST_RELATIVE_PATH = 'src/content/tech-center/authority/week05-wave1-manifest.json';
+const WAVE_SELECTION_RELATIVE_PATH =
+  'src/content/tech-center/authority/week05-wave1-selection.json';
 const WAVE_CONTENT_RELATIVE_PATH = 'src/content/tech-center/authority/week05-wave1-content.json';
 const WAVE_PROJECTION_RELATIVE_PATH =
   'src/content/tech-center/authority/week05-wave1-projection.json';
@@ -149,37 +153,6 @@ function topicKey(candidate) {
   return 'application-behavior';
 }
 
-function candidateScore(candidate) {
-  const evidenceQuality =
-    (candidate.evidence.status === 'verified' ? 40 : 0) +
-    (candidate.evidence.sources.length > 0 ? 10 : 0) +
-    (candidate.evidence.fingerprint.length >= 80 ? 10 : 0) +
-    (candidate.evidence.applicability.length >= 24 ? 10 : 0);
-  const securityClearance =
-    candidate.security.status === 'clear'
-      ? 25
-      : candidate.security.status === 'redacted-secret' ||
-        candidate.security.status === 'approved-synthetic-placeholder'
-      ? 15
-      : -100;
-  const operationRisk =
-    candidate.operationRisk.level === 'none'
-      ? 20
-      : candidate.operationRisk.level === 'D2'
-      ? 10
-      : candidate.operationRisk.level === 'D1'
-      ? 5
-      : -100;
-  return {
-    evidenceQuality,
-    identitySafety: 20,
-    securityClearance,
-    operationRisk,
-    total: evidenceQuality + 20 + securityClearance + operationRisk,
-    topic: topicKey(candidate)
-  };
-}
-
 function validateWaveCandidate(candidate, baselineIdentityKeys) {
   const failures = [];
   if (candidate.state !== 'accepted' || candidate.decision?.disposition !== 'accepted') {
@@ -216,9 +189,51 @@ function validateWaveCandidate(candidate, baselineIdentityKeys) {
   return failures;
 }
 
-function chooseWaveCandidates(authority, entries) {
+function loadWaveSelection(repoRoot = path.resolve(__dirname, '../..')) {
+  const selectionPath = path.join(repoRoot, WAVE_SELECTION_RELATIVE_PATH);
+  if (!fs.existsSync(selectionPath)) {
+    throw new Error(`Wave 1 approved selection is missing: ${WAVE_SELECTION_RELATIVE_PATH}`);
+  }
+  const selection = JSON.parse(fs.readFileSync(selectionPath, 'utf8'));
+  assertObject(selection, 'Wave 1 approved selection');
+  assertArray(selection.criteria, 'Wave 1 approved selection criteria');
+  assertArray(selection.candidateIds, 'Wave 1 approved candidate IDs');
+  if (
+    selection.schemaVersion !== 1 ||
+    selection.batch !== 'week05' ||
+    selection.wave !== WAVE_ID ||
+    selection.status !== 'approved'
+  ) {
+    throw new Error('Wave 1 approved selection metadata drift');
+  }
+  assertText(selection.reviewer, 'Wave 1 approved selection reviewer');
+  if (
+    selection.candidateIds.length < WAVE_MIN_CANDIDATES ||
+    selection.candidateIds.length > WAVE_MAX_CANDIDATES
+  ) {
+    throw new Error(
+      `Wave 1 approved selection must contain ${WAVE_MIN_CANDIDATES}-${WAVE_MAX_CANDIDATES} candidates`
+    );
+  }
+  if (new Set(selection.candidateIds).size !== selection.candidateIds.length) {
+    throw new Error('Wave 1 approved selection contains duplicate candidate IDs');
+  }
+  selection.candidateIds.forEach((candidateId, index) =>
+    assertText(candidateId, `Wave 1 approved candidate IDs[${index}]`)
+  );
+  return {
+    ...selection,
+    provenance: {
+      path: WAVE_SELECTION_RELATIVE_PATH,
+      sha256: fileSha256(selectionPath)
+    }
+  };
+}
+
+function chooseWaveCandidates(authority, entries, approvedSelection) {
   validateTechnicalAuthority(authority);
   assertArray(entries, 'entries');
+  assertObject(approvedSelection, 'approvedSelection');
   const acceptedIds = new Set(authority.final.accepted);
   const accepted = authority.candidates.filter((candidate) => acceptedIds.has(candidate.id));
   const baselineIdentityKeys = new Set(
@@ -230,45 +245,49 @@ function chooseWaveCandidates(authority, entries) {
       )
       .map(identityKey)
   );
-  const eligible = accepted
-    .map((candidate) => ({ candidate, score: candidateScore(candidate) }))
-    .filter(({ candidate }) => validateWaveCandidate(candidate, baselineIdentityKeys).length === 0);
+  const eligible = accepted.filter(
+    (candidate) => validateWaveCandidate(candidate, baselineIdentityKeys).length === 0
+  );
   if (eligible.length < WAVE_MIN_CANDIDATES) {
     throw new Error(
       `Wave 1 has only ${eligible.length} eligible candidates; minimum is ${WAVE_MIN_CANDIDATES}`
     );
   }
 
-  const selected = [];
-  const remaining = eligible.slice();
-  while (remaining.length && selected.length < WAVE_MAX_CANDIDATES) {
-    const selectedTopics = new Set(selected.map(({ score }) => score.topic));
-    remaining.sort((left, right) => {
-      const leftValue = left.score.total + (selectedTopics.has(left.score.topic) ? 0 : 25);
-      const rightValue = right.score.total + (selectedTopics.has(right.score.topic) ? 0 : 25);
-      return rightValue - leftValue || left.candidate.id.localeCompare(right.candidate.id);
-    });
-    selected.push(remaining.shift());
-  }
-  const topicCount = new Set(selected.map(({ score }) => score.topic)).size;
+  const eligibleById = new Map(eligible.map((candidate) => [candidate.id, candidate]));
+  const selected = approvedSelection.candidateIds.map((candidateId) => {
+    const candidate = eligibleById.get(candidateId);
+    if (!candidate) {
+      const known = authority.candidates.some((entry) => entry.id === candidateId);
+      throw new Error(
+        known
+          ? `Wave 1 approved candidate is ineligible: ${candidateId}`
+          : `Wave 1 approved candidate is unknown: ${candidateId}`
+      );
+    }
+    return candidate;
+  });
+  const topics = selected.map((candidate) => ({
+    candidateId: candidate.id,
+    topic: topicKey(candidate)
+  }));
+  const topicCount = new Set(topics.map(({ topic }) => topic)).size;
   if (topicCount < 4) throw new Error(`Wave 1 topic diversity is ${topicCount}; minimum is 4`);
   return {
-    criteria: [
-      'evidence-quality',
-      'identity-safety',
-      'security-clearance',
-      'operation-risk',
-      'topic-diversity'
-    ],
-    candidates: selected.map(({ candidate }) => candidate),
-    scores: selected.map(({ candidate, score }) => ({ candidateId: candidate.id, ...score })),
+    criteria: approvedSelection.criteria,
+    candidates: selected,
+    topics,
     topicCount,
     eligibleCount: eligible.length,
-    baselinePageCount: WAVE_BASELINE_PAGE_COUNT
+    baselinePageCount: WAVE_BASELINE_PAGE_COUNT,
+    approval: {
+      reviewer: approvedSelection.reviewer,
+      ...approvedSelection.provenance
+    }
   };
 }
 
-function buildReaderDocument(candidate) {
+function buildReaderBody(candidate) {
   assertObject(candidate, 'candidate');
   const title = sanitizeReaderText(candidate.title);
   const fingerprint = sanitizeReaderText(candidate.evidence.fingerprint);
@@ -288,15 +307,7 @@ function buildReaderDocument(candidate) {
     risk.level === 'none'
       ? '保留变更前的镜像、配置和数据备份；验证失败时恢复上一份完整技术内容投影，并重新执行受影响场景。'
       : sanitizeReaderText(risk.rollback);
-  return `---
-title: ${title}
-slug: /${candidate.identity.locale}${candidate.identity.canonicalPath}
-page_type: 故障排查
-source: ${candidate.provenance.sourceUrl}
-source_type: ${candidate.sourceType}
----
-
-# ${title}
+  return `# ${title}
 
 ## 适用环境与版本范围
 
@@ -335,28 +346,30 @@ ${
 
 ## 维护者证据
 
-- [FastGPT maintainer source](${candidate.provenance.sourceUrl})
+> 来源：[FastGPT maintainer source](${candidate.provenance.sourceUrl})
 `;
 }
 
-function deriveSummary(candidate) {
-  const summary = sanitizeReaderText(candidate.evidence.fingerprint).replace(/[`*~]/g, '').trim();
-  if (summary.length <= 155) return summary || candidate.title;
-  return `${summary.slice(0, 154).trim()}…`;
+function buildReaderPage(candidate) {
+  const body = buildReaderBody(candidate);
+  return buildNormalizedTechnicalPage({
+    metadata: {
+      title: sanitizeReaderText(candidate.title),
+      slug: `/${candidate.identity.locale}${candidate.identity.canonicalPath}`,
+      page_type: '故障排查',
+      source: candidate.provenance.sourceUrl,
+      source_type: candidate.sourceType
+    },
+    identity: candidate.identity,
+    body,
+    wordCount: body.length,
+    sourceCount: 1,
+    label: `Wave 1 ${candidate.id}`
+  });
 }
 
-function buildEntryProjection(candidate, readerDocument) {
-  const bodyLength = readerDocument.replace(/^---[\s\S]*?---\s*/u, '').length;
-  return {
-    title: candidate.title,
-    slug: `/${candidate.identity.locale}${candidate.identity.canonicalPath}`,
-    category: candidate.category,
-    categoryLabel: '故障排查',
-    source: candidate.provenance.sourceUrl,
-    sourceType: candidate.sourceType,
-    summary: deriveSummary(candidate),
-    minutes: Math.max(1, Math.ceil(bodyLength / 500))
-  };
+function buildReaderDocument(candidate) {
+  return buildReaderPage(candidate).document;
 }
 
 function buildWaveContentManifest({ selection, entries, readerDocuments }) {
@@ -468,7 +481,7 @@ function buildWaveProjection({ authority, entries, selection }) {
   const projection = {
     schemaVersion: 1,
     batch: 'week05',
-    atomic: true,
+    consistency: 'identity-set-verified',
     mode: 'publish',
     wave: WAVE_ID,
     governanceStatus: 'governance-complete',
@@ -491,7 +504,7 @@ function buildWaveProjection({ authority, entries, selection }) {
     releaseRecord,
     rollback
   };
-  verifyAtomicProjection(projection);
+  verifyProjectionConsistency(projection);
   return projection;
 }
 
@@ -545,7 +558,8 @@ function loadWaveInputs(repoRoot = path.resolve(__dirname, '../..')) {
   return {
     authority,
     entries: JSON.parse(fs.readFileSync(entriesPath, 'utf8')),
-    search: JSON.parse(fs.readFileSync(searchPath, 'utf8'))
+    search: JSON.parse(fs.readFileSync(searchPath, 'utf8')),
+    approvedSelection: loadWaveSelection(repoRoot)
   };
 }
 
@@ -586,7 +600,7 @@ function verifyReaderDocument(repoRoot, source) {
 }
 
 function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
-  const { authority, entries, search } = loadWaveInputs(repoRoot);
+  const { authority, entries, search, approvedSelection } = loadWaveInputs(repoRoot);
   validateTechnicalAuthority(authority, { repoRoot, verifyHistory: true, verifyArtifacts: true });
   verifyPersistedArtifacts(authority, repoRoot);
   if (authority.projection.wave !== 'wave-0' || authority.projection.publicationCount !== 0) {
@@ -605,7 +619,7 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
     WAVE_RELEASE_MANIFEST_RELATIVE_PATH,
     'Wave 1 release manifest'
   );
-  const selection = chooseWaveCandidates(authority, entries);
+  const selection = chooseWaveCandidates(authority, entries, approvedSelection);
   if (
     manifest.wave !== WAVE_ID ||
     manifest.selection?.selectedCount !== selection.candidates.length
@@ -617,6 +631,14 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
     JSON.stringify(selection.candidates.map((candidate) => candidate.id))
   ) {
     throw new Error('Wave 1 candidate identity selection drift');
+  }
+  if (
+    manifest.selection.eligibleCount !== selection.eligibleCount ||
+    JSON.stringify(manifest.selection.criteria) !== JSON.stringify(selection.criteria) ||
+    JSON.stringify(manifest.selection.topics) !== JSON.stringify(selection.topics) ||
+    JSON.stringify(manifest.selection.approval) !== JSON.stringify(selection.approval)
+  ) {
+    throw new Error('Wave 1 approved selection provenance drift');
   }
   if (
     manifest.baseline?.wave !== 'wave-0' ||
@@ -655,7 +677,7 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
   if (JSON.stringify(projection) !== JSON.stringify(expectedProjection)) {
     throw new Error('Wave 1 deterministic projection drift');
   }
-  verifyAtomicProjection(projection);
+  verifyProjectionConsistency(projection);
   const waveKeys = new Set(projection.identities.map((identity) => identity.key));
   const contentSources = content.sources;
   if (
@@ -733,7 +755,8 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
   if (
     releaseManifest.wave !== WAVE_ID ||
     releaseManifest.status !== 'source-verified' ||
-    releaseManifest.atomic !== true ||
+    releaseManifest.writeStrategy !== 'rollback-on-error' ||
+    releaseManifest.postWriteVerification !== 'required' ||
     releaseManifest.sourceSetSha256 !== content.sourceSetSha256
   ) {
     throw new Error('Wave 1 release manifest verification state drift');
@@ -814,18 +837,20 @@ module.exports = {
   WAVE_MANIFEST_RELATIVE_PATH,
   WAVE_MAX_CANDIDATES,
   WAVE_MIN_CANDIDATES,
+  WAVE_SELECTION_RELATIVE_PATH,
   WAVE_PROJECTION_RELATIVE_PATH,
   WAVE_RELEASE_MANIFEST_RELATIVE_PATH,
   WAVE_ROLLBACK_RELATIVE_PATH,
   WAVE_PUBLIC_SURFACES,
   WAVE_SURFACES,
-  buildEntryProjection,
   buildReaderDocument,
+  buildReaderPage,
   buildWaveContentManifest,
   buildWaveProjection,
   buildWaveRollback,
   chooseWaveCandidates,
   containsCredentialShape,
+  loadWaveSelection,
   loadWaveInputs,
   sanitizeReaderText,
   verifyWaveExport,

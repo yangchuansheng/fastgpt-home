@@ -8,23 +8,23 @@
   "artifacts": [
     {
       "path": "src/content/tech-center/authority/week05-authority.json",
-      "sha256": "4f1f1c1d422e120cdcb540e03ef404c0cf5483b2813482b8fb1679d91baf20ab"
+      "sha256": "fe8d1c8e5d22b044272620c3d67df1ef1f94d2f15a6ac6af8cbbd2c08323c41d"
     },
     {
       "path": "src/content/tech-center/authority/week05-projection.json",
-      "sha256": "ed7ee38ab71d48b5e687c7560e2c348ec4ead4dcf405e5df38ba1f915e9b9322"
+      "sha256": "096d7c2a971d9fc605fbde30ee17134fd2bbac3ca019d29482d2eac3eeb64fe1"
     },
     {
       "path": "src/content/tech-center/authority/week05-disposition-ledger.json",
-      "sha256": "1174daafba8601f58310e029906da3e376660806f8f0f832fc69d3d4fb4f3399"
+      "sha256": "2bf288bac5ed4151024a35832f1c2b14a416bfef6d5f1bcfca806dc14561f7ba"
     },
     {
       "path": "src/content/tech-center/authority/week05-identity-ledger.json",
-      "sha256": "ee4c4986e9f8b3a773e1f3da143854df3eab6f882fff06748631855436abb9bc"
+      "sha256": "f48b559b7eb109ae237330b6bdf702203d7330fd1e89cde7015e7dd9722d637e"
     },
     {
       "path": "src/content/tech-center/authority/week05-duplicate-ledger.json",
-      "sha256": "f4e47263002ea9b9521b79eb4b0699c91202f191a5179787547c61aa1c7b5d0f"
+      "sha256": "0e18b73a315e1da61fc1d9143dbd5e0a19ca3115696f5d6aedd5d3d93e876ff8"
     },
     {
       "path": "src/content/tech-center/authority/week05-security-ledger.json",

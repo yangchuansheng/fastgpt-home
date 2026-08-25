@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Materialize the bounded Week05 Technical Content Wave 1 as one atomic source projection.
+ * Materialize the bounded Week05 Technical Content Wave 1 as one rollback-capable source projection.
  * The generated governance files remain reviewable and the Wave 0 authority stays untouched.
  */
 
 const fs = require('node:fs');
 const path = require('node:path');
 const {
-  applyAtomicProjection,
+  applyRollbackProjection,
   fileSha256,
   loadTechnicalAuthority,
   sha256,
@@ -24,12 +24,12 @@ const {
   WAVE_RELEASE_MANIFEST_RELATIVE_PATH,
   WAVE_ROLLBACK_RELATIVE_PATH,
   WAVE_BASELINE_PAGE_COUNT,
-  buildEntryProjection,
-  buildReaderDocument,
+  buildReaderPage,
   buildWaveContentManifest,
   buildWaveProjection,
   buildWaveRollback,
   chooseWaveCandidates,
+  loadWaveSelection,
   verifyWaveSource
 } = require('./lib/technical-wave');
 const { buildSearchProjection } = require('./import-technical-content');
@@ -95,22 +95,21 @@ function buildWavePackage() {
   if (JSON.stringify(existingSearch) !== JSON.stringify(buildSearchProjection(entries))) {
     throw new Error('Technical registry and search projection drift before Wave 1');
   }
-  const selection = chooseWaveCandidates(authority, entries);
+  const selection = chooseWaveCandidates(authority, entries, loadWaveSelection(REPOSITORY_ROOT));
   const baselineEntries = removeWaveEntries(entries, selection);
   const readerDocuments = new Map();
+  const readerPages = new Map();
   const readerPaths = [];
   for (const candidate of selection.candidates) {
     const readerPath = `src/content/tech-center${candidate.identity.canonicalPath}.md`;
-    const readerDocument = buildReaderDocument(candidate);
-    readerDocuments.set(readerPath, readerDocument);
+    const readerPage = buildReaderPage(candidate);
+    readerDocuments.set(readerPath, readerPage.document);
+    readerPages.set(candidate.id, readerPage);
     readerPaths.push(readerPath);
   }
   const projectedEntries = [
     ...baselineEntries,
-    ...selection.candidates.map((candidate) => {
-      const readerPath = `src/content/tech-center${candidate.identity.canonicalPath}.md`;
-      return buildEntryProjection(candidate, readerDocuments.get(readerPath));
-    })
+    ...selection.candidates.map((candidate) => readerPages.get(candidate.id).projection)
   ];
   const projectedSearch = buildSearchProjection(projectedEntries);
   const content = buildWaveContentManifest({
@@ -144,7 +143,8 @@ function buildWavePackage() {
       eligibleCount: selection.eligibleCount,
       topicCount: selection.topicCount,
       candidateIds: selection.candidates.map((candidate) => candidate.id),
-      scores: selection.scores
+      topics: selection.topics,
+      approval: selection.approval
     },
     counts: {
       baselinePageCount: WAVE_BASELINE_PAGE_COUNT,
@@ -200,7 +200,8 @@ function buildWavePackage() {
     sourceSetSha256: content.sourceSetSha256,
     baselinePageCount: WAVE_BASELINE_PAGE_COUNT,
     resultingPageCount: projection.resultingPageCount,
-    atomic: true,
+    writeStrategy: 'rollback-on-error',
+    postWriteVerification: 'required',
     artifacts: [...artifactBytes.entries()].map(([relativePath, bytes]) => ({
       path: relativePath,
       sha256: sha256(bytes)
@@ -230,7 +231,7 @@ function buildWavePackage() {
 }
 
 function writeWavePackage(wavePackage, failAt) {
-  applyAtomicProjection({
+  applyRollbackProjection({
     files: wavePackage.files,
     contents: wavePackage.contents,
     failAt
