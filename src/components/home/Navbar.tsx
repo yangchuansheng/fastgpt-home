@@ -35,7 +35,8 @@ function getNavLinkRybbitAttrs(link: NavLink) {
     return rybbitClickAttrs(RYBBIT_EVENTS.learningCenterClick, 'home_nav_learning_center');
   }
 
-  if (link.href.includes('solutions.fastgpt.cn')) {
+  // 案例中心：customers 站（fastgpt.cn/customers，含站内相对路径 /customers）为唯一入口。
+  if (link.href.includes('/customers')) {
     return rybbitClickAttrs(RYBBIT_EVENTS.caseCenterClick, 'home_nav_case_center');
   }
 
@@ -47,13 +48,17 @@ export default function Navbar({
   t,
   locale,
   variant = 'default',
-  publishedLocales
+  publishedLocales,
+  consultHref,
+  onConsultClick
 }: {
   links?: NavLink[];
   t: NavCta;
   locale?: string;
   variant?: NavbarVariant;
   publishedLocales?: readonly LocaleCode[];
+  consultHref?: string;
+  onConsultClick?: () => void;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showMobileCta, setShowMobileCta] = useState(true);
@@ -61,7 +66,8 @@ export default function Navbar({
   const [langSheetOpen, setLangSheetOpen] = useState(false);
   const params = useParams<{ lang: string }>();
   const lang = params?.lang || locale || defaultLocale;
-  const contactUrl = useContactUrl(lang);
+  const defaultContactUrl = useContactUrl(lang);
+  const contactUrl = consultHref || defaultContactUrl;
   const desktopStartUrl = useStartUrl();
   const mobileStartUrl = useStartUrl();
   const pathname = usePathname();
@@ -215,6 +221,7 @@ export default function Navbar({
             )}
             <a
               href={contactUrl}
+              onClick={onConsultClick}
               {...rybbitClickAttrs(RYBBIT_EVENTS.businessConsultClick, 'home_nav_consult')}
               aria-label={t.consult}
               className="px-4 py-1.5 rounded-full text-[12px] font-medium text-white bg-btn-dark hover:opacity-90 transition-opacity"
@@ -350,7 +357,10 @@ export default function Navbar({
                   'home_nav_mobile_menu_consult'
                 )}
                 className="h-10 inline-flex items-center justify-center rounded-full text-[13px] font-medium text-white bg-btn-dark"
-                onClick={() => setMobileOpen(false)}
+                onClick={() => {
+                  setMobileOpen(false);
+                  onConsultClick?.();
+                }}
               >
                 {t.consult}
               </a>
