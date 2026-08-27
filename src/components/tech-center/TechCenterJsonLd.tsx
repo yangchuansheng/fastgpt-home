@@ -16,15 +16,17 @@ function breadcrumbItems(items: { name: string; url: string }[]) {
 export function TechCenterHubJsonLd({
   schema,
   title,
-  description
+  description,
+  locale = 'zh'
 }: {
   schema: JsonLdCopy;
   title: string;
   description: string;
+  locale?: string;
 }) {
-  const hubUrl = getOwnedLocaleUrl('zh', '/tech-center');
+  const hubUrl = getOwnedLocaleUrl(locale, '/tech-center');
   const siteUrl = new URL(hubUrl).origin;
-  const homeUrl = getOwnedLocaleUrl('zh');
+  const homeUrl = getOwnedLocaleUrl(locale);
 
   return (
     <JsonLdScript
@@ -37,7 +39,7 @@ export function TechCenterHubJsonLd({
             url: hubUrl,
             name: title,
             description,
-            inLanguage: 'zh-CN',
+            inLanguage: locale === 'zh' ? 'zh-CN' : locale,
             isPartOf: {
               '@type': 'WebSite',
               '@id': `${siteUrl}#website`,
@@ -66,10 +68,11 @@ export function TechArticleJsonLd({
   article: TechArticle;
 }) {
   const articleUrl = getTechnicalCanonicalUrl(article);
-  const hubUrl = getOwnedLocaleUrl('zh', '/tech-center');
+  const locale = article.slug.split('/')[1] || 'zh';
+  const hubUrl = getOwnedLocaleUrl(locale, '/tech-center');
   const siteUrl = new URL(articleUrl).origin;
-  const homeUrl = getOwnedLocaleUrl('zh');
-  const imageUrl = article.image ? getOwnedLocaleUrl('zh', article.image.path) : undefined;
+  const homeUrl = getOwnedLocaleUrl(locale);
+  const imageUrl = article.image ? getOwnedLocaleUrl(locale, article.image.path) : undefined;
 
   return (
     <JsonLdScript
@@ -82,7 +85,7 @@ export function TechArticleJsonLd({
             url: articleUrl,
             headline: article.title,
             description: article.seoDescription,
-            inLanguage: 'zh-CN',
+            inLanguage: locale === 'zh' ? 'zh-CN' : locale,
             articleSection: article.categoryLabel,
             ...(article.datePublished ? { datePublished: article.datePublished } : {}),
             ...(article.dateModified ? { dateModified: article.dateModified } : {}),
@@ -105,7 +108,7 @@ export function TechArticleJsonLd({
             isPartOf: {
               '@type': 'CollectionPage',
               '@id': `${hubUrl}#webpage`,
-              name: 'FastGPT 技术中心',
+              name: locale === 'zh' ? 'FastGPT 技术中心' : 'FastGPT Technical Center',
               url: hubUrl
             },
             mainEntityOfPage: {

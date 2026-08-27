@@ -11,7 +11,9 @@ export const CATEGORY_DEFINITIONS: ReadonlyArray<{
   { key: 'node', icon: '⌘' },
   { key: 'integration', icon: '↗' },
   { key: 'api', icon: '{ }' },
-  { key: 'reference', icon: '⌁' }
+  { key: 'reference', icon: '⌁' },
+  { key: 'model', icon: '◌' },
+  { key: 'glossary', icon: '▤' }
 ];
 
 export const SOURCE_DEFINITIONS: ReadonlyArray<{

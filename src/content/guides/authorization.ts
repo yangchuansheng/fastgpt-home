@@ -1,4 +1,5 @@
 import authorization from './authorization.json';
+import releaseGates from './release-gates.json';
 import type { GuideEntry } from './registry';
 
 export const GUIDE_AUTHORIZATION_REQUIRED_SLUGS = [
@@ -52,6 +53,22 @@ const AUTHORITY_RECORDS = authorization as unknown as {
   requiredSlugs?: string[];
   records?: Record<string, GuideAuthorizationRecord>;
 };
+const RELEASE_GATES = releaseGates as {
+  schemaVersion?: number;
+  entries?: Record<
+    string,
+    {
+      group?: string;
+      status?: string;
+      requiredApprovals?: string[];
+      signoff?: Record<
+        string,
+        { status?: string; reference?: string | null; digest?: string | null }
+      >;
+      blockers?: string[];
+    }
+  >;
+};
 const AUTHORITY_SHAPE_IS_VALID =
   AUTHORITY_RECORDS.schemaVersion === 1 &&
   Array.isArray(AUTHORITY_RECORDS.requiredSlugs) &&
@@ -63,6 +80,10 @@ function isRequiredSlug(slug: string): boolean {
   return GUIDE_AUTHORIZATION_REQUIRED_SLUGS.includes(
     slug as (typeof GUIDE_AUTHORIZATION_REQUIRED_SLUGS)[number]
   );
+}
+
+function releaseGateFor(slug: string) {
+  return RELEASE_GATES.schemaVersion === 1 ? RELEASE_GATES.entries?.[slug] : undefined;
 }
 
 function addBlocker(blockers: string[], category: string, id: string, reason: string) {
@@ -95,6 +116,19 @@ export function evaluateGuideAuthorization(
   slug: string,
   record: Partial<GuideAuthorizationRecord> | undefined
 ): GuideAuthorizationDecision {
+  const releaseGate = releaseGateFor(slug);
+  if (releaseGate?.status === 'release-blocked') {
+    return {
+      slug,
+      status: 'release-blocked',
+      eligible: false,
+      blockers: releaseGate.blockers?.length
+        ? releaseGate.blockers.map((blocker) => `release gate: ${blocker}`)
+        : ['release gate is blocked'],
+      requiredCases: 0,
+      requiredAssets: 0
+    };
+  }
   if (!isRequiredSlug(slug)) {
     return {
       slug,
@@ -177,7 +211,10 @@ export function projectGuideEntries(
   decisions: GuideAuthorizationDecisionMap = guideAuthorizationDecisions
 ): GuideEntry[] {
   return entries.filter(
-    (entry) => !isRequiredSlug(entry.slug) || decisionFor(decisions, entry.slug)?.eligible === true
+    (entry) =>
+      (!isRequiredSlug(entry.slug) && !releaseGateFor(entry.slug)) ||
+      (decisionFor(decisions, entry.slug) || evaluateGuideAuthorization(entry.slug, undefined))
+        ?.eligible === true
   );
 }
 

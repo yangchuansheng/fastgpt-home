@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "batch": "week06",
+  "wave": "wave-0",
+  "status": "empty",
+  "readerContentContract": "Reader content remains outside the public registry until governance closes.",
+  "sourceSetSha256": "b9a235e60640bd681217638e5fdc650b025aba84c4c814aea085e32b6abf5ae3",
+  "readerCount": 0,
+  "sources": []
+}

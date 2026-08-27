@@ -20,7 +20,7 @@ test('complete authorization fixture publishes both finance pairs', () => {
   const result = verifyAuthorizationFixtures({ fixture });
 
   assert.equal(result.status, 'passed');
-  assert.equal(result.complete.projectedEntries, 13);
+  assert.equal(result.complete.projectedEntries, 15);
   assert.deepEqual(result.complete.financeSlugs, [
     'finance-research-retrieval',
     'finance-daily-report-automation'
@@ -33,7 +33,7 @@ test('missing authorization fixture blocks and excludes both finance pairs', () 
   const result = verifyAuthorizationFixtures({ fixture });
 
   assert.equal(result.status, 'passed');
-  assert.equal(result.missing.projectedEntries, 11);
+  assert.equal(result.missing.projectedEntries, 13);
   assert.deepEqual(result.missing.financeSlugs, []);
   assert.equal(result.missing.decisions.length, 2);
   assert(result.missing.decisions.every((decision) => decision.status === 'release-blocked'));
@@ -64,7 +64,7 @@ test('projection accepts an explicit authority decision map', () => {
   );
 
   const projected = projectGuideEntries(registry.entries, decisions);
-  assert.equal(projected.length, 13);
+  assert.equal(projected.length, 15);
   assert(projected.some((entry) => entry.slug === 'finance-research-retrieval'));
   assert(projected.some((entry) => entry.slug === 'finance-daily-report-automation'));
 });

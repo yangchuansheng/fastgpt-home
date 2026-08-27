@@ -92,14 +92,28 @@ for (const locale of localeCodes) {
   removed += removePath(path.join(outDir, `${locale}.txt`));
 }
 
-// The technical center currently publishes complete content only in Simplified Chinese.
-if (defaultLocale !== 'zh') {
-  // Preview keeps the shared search projection consumed by /zh/tech-center.
-  const removeTechCenterRoute = variant === 'preview' ? removeRouteDocuments : removeRoute;
-  removed += removeTechCenterRoute('/tech-center');
+const technicalLocales = new Set(techIdentities.map((identity) => identity.locale));
+if (variant === 'preview') {
+  // Preview keeps both published locale hubs for route and canonical review.
+} else if (defaultLocale === 'zh' && !technicalLocales.has('zh')) {
+  removed += removeRoute('/tech-center');
+  removed += removeRoute('/zh/tech-center');
+} else if (defaultLocale !== 'zh' && !technicalLocales.has('en')) {
+  removed += removeRoute('/tech-center');
+  removed += removeRoute('/en/tech-center');
 }
 for (const identity of techIdentities) {
-  removed += removeRoute(variant === 'cn' ? identity.sourcePath : identity.canonicalPath);
+  const owner = identity.locale === 'zh' ? 'cn' : identity.locale === 'en' ? 'io' : null;
+  if (variant === 'preview') {
+    removed += removeRoute(identity.canonicalPath);
+  } else if (variant === 'cn' && owner === 'cn') {
+    removed += removeRoute(identity.sourcePath);
+  } else if (variant === 'io' && owner === 'io') {
+    removed += removeRoute(identity.sourcePath);
+  } else {
+    removed += removeRoute(identity.sourcePath);
+    removed += removeRoute(identity.canonicalPath);
+  }
 }
 
 const { cnRedirects, ioRedirects } = buildRedirects(rootDir);

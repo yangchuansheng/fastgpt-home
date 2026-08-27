@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "batch": "week06",
+  "wave": "wave-0",
+  "status": "empty",
+  "reviewer": "technical-governance",
+  "criteria": [
+    "authority-input",
+    "identity",
+    "security",
+    "operation-risk",
+    "duplicate-retrieval"
+  ],
+  "selected": [],
+  "projection": [],
+  "rollback": "week06-rollback.json"
+}

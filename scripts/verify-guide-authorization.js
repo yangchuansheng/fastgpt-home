@@ -13,10 +13,15 @@ const ROOT = path.resolve(__dirname, '..');
 const REGISTRY_PATH = path.join(ROOT, 'src/content/guides/registry.json');
 const POLICY_PATH = path.join(ROOT, 'src/content/guides/policy.json');
 const DEFAULT_AUTHORIZATION_PATH = path.join(ROOT, 'src/content/guides/authorization.json');
+const RELEASE_GATES_PATH = path.join(ROOT, 'src/content/guides/release-gates.json');
 const FIXTURE_ROOT = path.join(ROOT, 'scripts/fixtures/guides');
 const policy = JSON.parse(fs.readFileSync(POLICY_PATH, 'utf8'));
 const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
 const FINANCE_SLUGS = ['finance-research-retrieval', 'finance-daily-report-automation'];
+const releaseGates = JSON.parse(fs.readFileSync(RELEASE_GATES_PATH, 'utf8'));
+const G2_SLUGS = Object.entries(releaseGates.entries || {})
+  .filter(([, gate]) => gate.group === 'G2' && gate.status === 'release-blocked')
+  .map(([slug]) => slug);
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const SAFE_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -74,6 +79,16 @@ function validateEvidence(evidence, category, id, blockers) {
 }
 
 function evaluateGuideAuthorization(slug, record) {
+  if (G2_SLUGS.includes(slug)) {
+    return {
+      slug,
+      status: 'release-blocked',
+      eligible: false,
+      blockers: ['release gate: owner sign-off and compliance evidence are pending'],
+      requiredCases: 0,
+      requiredAssets: 0
+    };
+  }
   if (!FINANCE_SLUGS.includes(slug)) {
     return {
       slug,
@@ -153,8 +168,11 @@ function decisionFor(decisions, slug) {
 function projectGuideEntries(entries, decisions) {
   if (!Array.isArray(entries)) throw new Error('registry entries must be an array');
   return entries.filter((entry) => {
-    if (!FINANCE_SLUGS.includes(entry.slug)) return true;
-    return decisionFor(decisions, entry.slug)?.eligible === true;
+    if (!FINANCE_SLUGS.includes(entry.slug) && !G2_SLUGS.includes(entry.slug)) return true;
+    return (
+      (decisionFor(decisions, entry.slug) || evaluateGuideAuthorization(entry.slug, undefined))
+        .eligible === true
+    );
   });
 }
 
@@ -174,6 +192,21 @@ function validateFixtureShape(fixture) {
   for (const slug of FINANCE_SLUGS) {
     if (!Object.prototype.hasOwnProperty.call(fixture.records, slug)) {
       throw new Error(`${slug}: authorization record is missing`);
+    }
+  }
+}
+
+function validateReleaseGates() {
+  for (const slug of G2_SLUGS) {
+    const gate = releaseGates.entries?.[slug];
+    if (!gate || gate.status !== 'release-blocked') {
+      throw new Error(`${slug}: G2 release gate must remain release-blocked until sign-off`);
+    }
+    for (const approval of gate.requiredApprovals || []) {
+      const evidence = gate.signoff?.[approval];
+      if (!evidence || !['pending', 'valid'].includes(evidence.status)) {
+        throw new Error(`${slug}: ${approval} sign-off evidence is missing`);
+      }
     }
   }
 }
@@ -204,7 +237,7 @@ function verifyFixture(fixture) {
   const blocked = [...decisions.values()].filter((decision) => !decision.eligible);
   const fixtureName = fixture.fixtureName || 'custom';
   const expectedProjectedEntries =
-    fixtureName === 'missing' ? policy.entryCount - FINANCE_SLUGS.length : policy.entryCount;
+    policy.entryCount - G2_SLUGS.length - (fixtureName === 'missing' ? FINANCE_SLUGS.length : 0);
   if (registry.entries.length !== policy.entryCount) {
     throw new Error(
       `registry count ${registry.entries.length} does not match policy ${policy.entryCount}`
@@ -231,6 +264,9 @@ function verifyFixture(fixture) {
       `missing authorization fixture projected blocked slugs: ${financeEntries.join(', ')}`
     );
   }
+  if (projectedEntries.some((entry) => G2_SLUGS.includes(entry.slug))) {
+    throw new Error('G2 release-blocked Guides entered the public projection');
+  }
   return {
     fixture: fixtureName,
     status: blocked.length ? 'release-blocked' : 'publishable',
@@ -243,6 +279,7 @@ function verifyFixture(fixture) {
 }
 
 function verifyAuthorizationFixtures({ fixture } = {}) {
+  validateReleaseGates();
   const completeFixture = loadFixture('complete');
   const authority = loadAuthority();
   validateFixtureShape(authority);
@@ -312,6 +349,7 @@ if (require.main === module) {
 module.exports = {
   DEFAULT_AUTHORIZATION_PATH,
   FINANCE_SLUGS,
+  G2_SLUGS,
   evaluateGuideAuthorization,
   loadFixture,
   main,

@@ -108,6 +108,8 @@ test('release plans compose FAQ, Guide, and variant checks with stable step IDs'
       'poc-30-day-design',
       'database-qa-integration-guide',
       'scheduled-report-automation',
+      'migrate-saas-to-selfhost',
+      'embed-ai-into-product',
       'finance-research-retrieval',
       'finance-daily-report-automation'
     ]

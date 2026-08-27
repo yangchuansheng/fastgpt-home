@@ -9,6 +9,7 @@ import {
   getTechArticleReviewParams
 } from '@/lib/tech-center-content';
 import { normalizeLocale } from '@/lib/locales';
+import { techPublishedLocaleCodes, type TechPublishedLocale } from '@/lib/publishedLocales';
 import { currentSiteVariant } from '@/lib/siteRouting';
 import { getTechnicalCanonicalUrl } from '@/lib/technicalRouting';
 
@@ -25,7 +26,9 @@ export default async function TechArticleRoute({
 }) {
   const { lang, section, slug } = await params;
   const locale = normalizeLocale(lang || defaultLocale);
-  const article = locale === 'zh' ? getTechArticle(section, slug) : null;
+  const article = techPublishedLocaleCodes.includes(locale as TechPublishedLocale)
+    ? getTechArticle(section, slug, locale as TechPublishedLocale)
+    : null;
 
   if (!article) notFound();
 
@@ -59,7 +62,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang, section, slug } = await params;
   const locale = normalizeLocale(lang || defaultLocale);
-  const article = locale === 'zh' ? getTechArticle(section, slug) : null;
+  const article = techPublishedLocaleCodes.includes(locale as TechPublishedLocale)
+    ? getTechArticle(section, slug, locale as TechPublishedLocale)
+    : null;
 
   if (!article) return {};
 
@@ -88,7 +93,7 @@ export async function generateMetadata({
       title,
       description: article.seoDescription,
       type: 'article',
-      locale: 'zh_CN',
+      locale: locale === 'zh' ? 'zh_CN' : 'en_US',
       url: canonical,
       ...(article.datePublished ? { publishedTime: article.datePublished } : {}),
       ...(article.dateModified ? { modifiedTime: article.dateModified } : {}),

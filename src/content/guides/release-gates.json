@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "entries": {
+    "migrate-saas-to-selfhost": {
+      "group": "G1",
+      "status": "publishable",
+      "blockers": []
+    },
+    "embed-ai-into-product": {
+      "group": "G1",
+      "status": "publishable",
+      "blockers": []
+    },
+    "soe-policy-qa-deployment": {
+      "group": "G2",
+      "status": "release-blocked",
+      "requiredApprovals": ["product", "legal"],
+      "signoff": {
+        "product": {"status": "pending", "reference": null, "digest": null},
+        "legal": {"status": "pending", "reference": null, "digest": null}
+      },
+      "blockers": ["Product and legal sign-off evidence are pending."]
+    }
+  }
+}

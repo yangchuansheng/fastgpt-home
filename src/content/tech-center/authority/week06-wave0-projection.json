@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "batch": "week06",
+  "wave": "wave-0",
+  "status": "empty",
+  "governanceStatus": "intake-review",
+  "publicationCount": 0,
+  "identities": [],
+  "registry": {
+    "path": "src/components/tech-center/entries.json",
+    "delta": 0
+  },
+  "search": {
+    "paths": [
+      "public/tech-center/search-index.json",
+      "public/tech-center/search-index.en.json"
+    ],
+    "delta": 0
+  },
+  "sitemap": {
+    "delta": 0
+  },
+  "staticExport": {
+    "status": "pending-release-build"
+  },
+  "rollback": "src/content/tech-center/authority/week06-rollback.json"
+}

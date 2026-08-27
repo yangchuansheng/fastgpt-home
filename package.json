@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "node scripts/verify-content-hygiene.js --mode source && node scripts/verify-technical-content.js && node scripts/verify-technical-authority.js && node scripts/verify-technical-wave.js && node scripts/verify-customers-data.js && node scripts/verify-customers-search.js && node scripts/generate-robots.js && node scripts/generate-llms.js",
+    "prebuild": "node scripts/verify-content-hygiene.js --mode source && node scripts/verify-technical-content.js && node scripts/verify-technical-authority.js && node scripts/verify-week06-technical-authority.js && node scripts/verify-technical-wave.js && node scripts/verify-customers-data.js && node scripts/verify-customers-search.js && node scripts/generate-robots.js && node scripts/generate-llms.js",
     "build": "next build && node scripts/clean-locale-output.js && node scripts/clean-faq-rsc.js && node scripts/verify-technical-center.js && node scripts/verify-customers-export.js && node scripts/fix-html-lang.js && node scripts/verify-technical-export.js && node scripts/verify-content-hygiene.js --mode html --root out",
     "start": "npx serve@latest out",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -50,6 +50,8 @@
     "verify:technical-content-regression": "node --test scripts/verify-technical-content.test.js",
     "verify:technical-authority": "node scripts/verify-technical-authority.js",
     "verify:technical-authority-regression": "node --test scripts/verify-technical-authority.test.js",
+    "verify:week06-authority": "node scripts/verify-week06-technical-authority.js",
+    "generate:week06-authority": "node scripts/generate-week06-technical-authority.js",
     "generate:technical-wave": "node scripts/generate-technical-wave.js --write",
     "verify:technical-wave": "node scripts/verify-technical-wave.js",
     "verify:technical-wave-regression": "node --test scripts/verify-technical-wave.test.js",
@@ -66,7 +68,8 @@
     "verify:contact": "node scripts/verify-contact-page.js",
     "verify:customers-data": "node scripts/verify-customers-data.js",
     "verify:customers-search": "node scripts/verify-customers-search.js",
-    "verify:customers-export": "node scripts/verify-customers-export.js"
+    "verify:customers-export": "node scripts/verify-customers-export.js",
+    "verify:llms": "node scripts/verify-llms.js"
   },
   "dependencies": {
     "@heroui/react": "^2.8.9",

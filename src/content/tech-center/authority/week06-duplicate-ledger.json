@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "batch": "week06",
+  "status": "intake-review",
+  "relationCount": 6,
+  "resolvedRelationCount": 0,
+  "unresolvedRelationCount": 6,
+  "relations": [
+    {
+      "id": "week06-duplicate-01",
+      "overlap": 0.545,
+      "paths": [
+        "/fastgpt-code-sandbox-env-config",
+        "/fastgpt-sandbox-env-changes"
+      ],
+      "disposition": "pending",
+      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
+      "candidateIds": [
+        "week06-0120",
+        "week06-0195"
+      ]
+    },
+    {
+      "id": "week06-duplicate-02",
+      "overlap": 0.499,
+      "paths": [
+        "/fastgpt-mcp-server-usage",
+        "/fastgpt-mcp-proxy-auth-headers"
+      ],
+      "disposition": "pending",
+      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
+      "candidateIds": [
+        "week06-0840",
+        "week06-0968",
+        "week06-2008"
+      ]
+    },
+    {
+      "id": "week06-duplicate-03",
+      "overlap": 0.475,
+      "paths": [
+        "/fastgpt-4141-upgrade-script",
+        "/fastgpt-4147-upgrade-script"
+      ],
+      "disposition": "pending",
+      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
+      "candidateIds": [
+        "week06-0063",
+        "week06-0079"
+      ]
+    },
+    {
+      "id": "week06-duplicate-04",
+      "overlap": 0.467,
+      "paths": [
+        "/fastgpt-4150-env-upgrade-changes",
+        "/fastgpt-sandbox-env-changes"
+      ],
+      "disposition": "pending",
+      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
+      "candidateIds": [
+        "week06-0087",
+        "week06-0195"
+      ]
+    },
+    {
+      "id": "week06-duplicate-05",
+      "overlap": 0.461,
+      "paths": [
+        "/fastgpt-plugin-update-4146",
+        "/fastgpt-system-plugins-upgrade"
+      ],
+      "disposition": "pending",
+      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
+      "candidateIds": [
+        "week06-0182",
+        "week06-0218"
+      ]
+    },
+    {
+      "id": "week06-duplicate-06",
+      "overlap": 0.453,
+      "paths": [
+        "/fastgpt-reinstall-system-tools-upgrade",
+        "/fastgpt-system-tools-reinstall"
+      ],
+      "disposition": "pending",
+      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
+      "candidateIds": [
+        "week06-0186",
+        "week06-0219"
+      ]
+    }
+  ]
+}

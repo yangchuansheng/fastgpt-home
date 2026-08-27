@@ -43,6 +43,13 @@ const EXPECTED_TECHNICAL_WAVE = {
 };
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
 const GUIDE_AUTHORIZATION_SLUGS = ['finance-research-retrieval', 'finance-daily-report-automation'];
+const GUIDE_RELEASE_GATES = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'src/content/guides/release-gates.json'), 'utf8')
+).entries;
+const GUIDE_RELEASE_BLOCKED_SLUGS = Object.entries(GUIDE_RELEASE_GATES)
+  .filter(([, gate]) => gate.status === 'release-blocked')
+  .map(([slug]) => slug);
+const GUIDE_RELEASE_BLOCKED_COUNT = GUIDE_RELEASE_BLOCKED_SLUGS.length;
 const GUIDE_ENTRY_COUNT = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'src/content/guides/policy.json'), 'utf8')
 ).entryCount;
@@ -50,6 +57,8 @@ const GUIDE_RELEASE_PAIRS = [
   { slug: GUIDE_TRACER_SLUG, locales: ['zh', 'en'] },
   { slug: 'database-qa-integration-guide', locales: ['zh', 'en'] },
   { slug: 'scheduled-report-automation', locales: ['zh', 'en'] },
+  { slug: 'migrate-saas-to-selfhost', locales: ['zh', 'en'] },
+  { slug: 'embed-ai-into-product', locales: ['zh', 'en'] },
   { slug: 'finance-research-retrieval', locales: ['zh', 'en'] },
   { slug: 'finance-daily-report-automation', locales: ['zh', 'en'] }
 ];
@@ -310,11 +319,11 @@ function finalizeReleaseRecord(record, failures, options) {
     guideAuthorization.source &&
     guideAuthorization.regression &&
     completeAuthorization?.status === 'publishable' &&
-    completeAuthorization.projectedEntries === GUIDE_ENTRY_COUNT &&
+    completeAuthorization.projectedEntries === GUIDE_ENTRY_COUNT - GUIDE_RELEASE_BLOCKED_COUNT &&
     completeAuthorization.financeSlugs?.length === GUIDE_AUTHORIZATION_SLUGS.length &&
     missingAuthorization?.status === 'release-blocked' &&
     missingAuthorization.projectedEntries ===
-      GUIDE_ENTRY_COUNT - GUIDE_AUTHORIZATION_SLUGS.length &&
+      GUIDE_ENTRY_COUNT - GUIDE_RELEASE_BLOCKED_COUNT - GUIDE_AUTHORIZATION_SLUGS.length &&
     missingAuthorization.financeSlugs?.length === 0 &&
     GUIDE_AUTHORIZATION_SLUGS.every((slug) => missingAuthorization.excludedSlugs?.includes(slug));
   guidePairs.releaseReady =

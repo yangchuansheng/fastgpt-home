@@ -16,7 +16,10 @@ const {
   resolveSiteVariant
 } = require('./lib/site-variant');
 const { locales } = require('../src/config/site-routing.json');
-const guideRegistry = require('../src/content/guides/registry.json').entries;
+const releaseGates = require('../src/content/guides/release-gates.json').entries;
+const guideRegistry = require('../src/content/guides/registry.json').entries.filter(
+  (entry) => releaseGates[entry.slug]?.status !== 'release-blocked'
+);
 
 const rootDir = path.join(__dirname, '..');
 const outDir = path.join(rootDir, 'out');

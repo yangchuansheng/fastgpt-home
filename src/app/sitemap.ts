@@ -2,16 +2,18 @@ import { MetadataRoute } from 'next';
 import { faqContentLocaleCodes, getFaqIds } from '@/faq';
 import {
   currentSiteVariant,
+  getLocaleOwner,
   getOwnedFaqUrl,
   getOwnedLocaleUrl,
   getPublishedLocaleCodes
 } from '@/lib/siteRouting';
-import { TECH_ENTRIES } from '@/components/tech-center/data';
+import { getTechEntriesForLocale } from '@/components/tech-center/data';
 import { getTechArticleLastModified, getTechCenterLastModified } from '@/lib/tech-center-content';
 import { getTechnicalSitemapUrl } from '@/lib/technicalRouting';
 import { getCompareCanonicalUrl, getCompareHubCanonicalUrl } from '@/lib/seo';
 import { getComparisonPagesForLocale } from '@/content/competitor';
 import { contactPublishedLocaleCodes } from '@/lib/publishedLocales';
+import { techPublishedLocaleCodes } from '@/lib/publishedLocales';
 import { guideEntries } from '@/content/guides/registry';
 import { getGuideCanonicalUrl } from '@/lib/guideSeo';
 import { getAllPublishedSolutionDetails, getCategories } from '@customers/lib/data';
@@ -62,10 +64,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  // Simplified Chinese technical content is owned and indexed by fastgpt.cn.
-  if (currentSiteVariant === 'cn') {
-    addEntry(getOwnedLocaleUrl('zh', '/tech-center'), getTechCenterLastModified());
-    for (const article of TECH_ENTRIES) {
+  for (const locale of techPublishedLocaleCodes) {
+    if (currentSiteVariant === 'preview' || getLocaleOwner(locale) !== currentSiteVariant) continue;
+    const localeEntries = getTechEntriesForLocale(locale);
+    if (!localeEntries.length) continue;
+    addEntry(getOwnedLocaleUrl(locale, '/tech-center'), getTechCenterLastModified(locale));
+    for (const article of localeEntries) {
       const url = getTechnicalSitemapUrl(article, currentSiteVariant);
       if (url) addEntry(url, getTechArticleLastModified(article));
     }

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "batch": "week06",
+  "wave": "wave-0",
+  "status": "release-blocked",
+  "governanceStatus": "intake-review",
+  "publicationCount": 0,
+  "baseline": {
+    "batch": "week05",
+    "pageCount": 1172,
+    "registryPath": "src/components/tech-center/entries.json",
+    "registrySha256": "802ed3c993004f52a858ac9ac2d7aa3c3d11224d6b3a77f28daf3513b724290e",
+    "releaseManifestPath": "src/content/tech-center/authority/week05-release-manifest.json",
+    "releaseManifestSha256": "a033816de864858f010811e2dc49eb91a9280672ac66e807f7c562b475973db7"
+  },
+  "sourceSetSha256": "b9a235e60640bd681217638e5fdc650b025aba84c4c814aea085e32b6abf5ae3",
+  "blockers": [
+    "Candidate dispositions, security review, operation-risk review, and duplicate review remain open."
+  ],
+  "artifacts": [
+    {
+      "path": "src/content/tech-center/authority/week06-candidate-manifest.json",
+      "sha256": "72f67fe68c9ecdeb517d44e63660c520944d6d9e508a60d3435b9890d20aa63e"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-disposition-ledger.json",
+      "sha256": "ae75eb11cc5d598e559ce8b727c117468969cde7c9455252cf9e47f1d506a5e3"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-identity-ledger.json",
+      "sha256": "a1b05fbcef692645079c0a0eba3eeb417e5ea0c85e5aa510fa44b1824f7a1aaf"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-security-ledger.json",
+      "sha256": "f5aa6178e69a4868025eb22c841e5b63d31ee3820132a14e231e4f4d1f007333"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-operation-risk-ledger.json",
+      "sha256": "2950f7757455612dc21cdc7f1278eb00613fbb807e412bc3b93b4a3a6152325f"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-duplicate-ledger.json",
+      "sha256": "f13f3669498f11f84bad1a67e5a7e1adefcd058507f0eac87d03c71f4d93229f"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-provenance.json",
+      "sha256": "1ac7e60427d7417d5fc7c26da1b01fffd7d9672d02fa1e165c7de9810247a9e6"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-wave0-content.json",
+      "sha256": "3a28a32431e7159332a800bd8cb5034b04e675ec880a9b459368e6f8f853581c"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-wave0-projection.json",
+      "sha256": "474fd4964e881c34d8475271ffa3b89e017850197c569d9d270f72f262a46bea"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-wave0-selection.json",
+      "sha256": "deb25048b02bb1008e6815e20cfa118708fa645f17a9e5dd60bbcba574df421e"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-rollback.json",
+      "sha256": "576975b4ec6dbc4eee5cc666d1a730b15432069c5135738433757fefe0b2c337"
+    }
+  ]
+}

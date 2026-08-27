@@ -178,6 +178,206 @@
         "datePublished": "2026-08-24",
         "dateModified": "2026-08-24"
       }
+    },
+  {
+    "slug": "migrate-saas-to-selfhost",
+    "group": "implementation",
+    "zh": {
+      "sourceName": "migrate-saas-to-selfhost.zh.md",
+      "sourceSha256": "2b6321a3c83cb047034cedfcbe62b23d2f6d234f9a64588f6632d905ff6916e7",
+      "bodySha256": "f9a98ce5382ce1767e6fafefb532fede90254a5bab68b0f4f7e3497f6685464e",
+      "h1": "从SaaS智能体平台迁移至自建：分四块拆解与单场景试点策略",
+      "metaTitle": "从SaaS智能体平台迁移至自建的落地指南",
+      "metaDescription": "拆解SaaS智能体平台迁移至自建的四大核心工作量，介绍单场景试点适配性验证方法，助力企业科学规划并推进迁移相关工作，规避迁移风险，覆盖迁移全流程核心环节。",
+      "keywords": "平台迁移, 知识资产 / 工作流重建 / 效果回归",
+      "canonical": "https://fastgpt.cn/guide/migrate-saas-to-selfhost",
+      "hreflang": "zh-CN | zh-CN → https://fastgpt.cn/guide/migrate-saas-to-selfhost | en → https://fastgpt.io/guide/migrate-saas-to-selfhost | x-default → https://fastgpt.io/guide/migrate-saas-to-selfhost",
+      "schemaTokens": [
+        "HowTo",
+        "Article",
+        "BreadcrumbList"
+      ],
+      "sourceSchema": "HowTo + Article + BreadcrumbList",
+      "sourceImageDirective": "Text and accessible tables; no image is required for this release.",
+      "sourceInternalLinkLabels": [
+        "迁移指南",
+        "API 文档",
+        "私有化页"
+      ],
+      "assetPolicy": {
+        "status": "source-exception"
+      },
+      "configuredInternalLinks": [
+        { "label": "迁移指南", "target": "https://fastgpt.cn/guide/migrate-saas-to-selfhost" },
+        { "label": "API 文档", "target": "https://fastgpt.cn/guide/database-qa-integration-guide" },
+        { "label": "私有化页", "target": "https://fastgpt.cn/guide/self-build-three-year-tco" }
+      ],
+      "datePublished": "2026-08-27",
+      "dateModified": "2026-08-27"
+    },
+    "en": {
+      "sourceName": "migrate-saas-to-selfhost.en.md",
+      "sourceSha256": "ae78c8eebb8835cf475751e9bcb82d655b9233b2a70384df6e9297fc5bba2f36",
+      "bodySha256": "9ff182a0420ea3ee8e1ba3bc71e9374b03c77982b35d923e2b29484e4678cb49",
+      "h1": "Migrating Enterprise AI Agent Platforms from SaaS to Self-Hosted Deployment",
+      "metaTitle": "SaaS-to-Self-Hosted Enterprise AI Agent Migration Guide",
+      "metaDescription": "Plan enterprise SaaS-to-self-hosted AI agent migration across knowledge assets, workflows, integrations, security, validation, and phased rollout.",
+      "keywords": "平台迁移, 知识资产 / 工作流重建 / 效果回归",
+      "canonical": "https://fastgpt.io/guide/migrate-saas-to-selfhost",
+      "hreflang": "en | zh-CN → https://fastgpt.cn/guide/migrate-saas-to-selfhost | en → https://fastgpt.io/guide/migrate-saas-to-selfhost | x-default → https://fastgpt.io/guide/migrate-saas-to-selfhost",
+      "schemaTokens": [
+        "HowTo",
+        "Article",
+        "BreadcrumbList"
+      ],
+      "sourceSchema": "HowTo + Article + BreadcrumbList",
+      "sourceImageDirective": "Text and accessible tables; no image is required for this release.",
+      "sourceInternalLinkLabels": [
+        "Migration guide",
+        "API documentation",
+        "Self-hosted deployment"
+      ],
+      "assetPolicy": {
+        "status": "source-exception"
+      },
+      "configuredInternalLinks": [
+        { "label": "Migration guide", "target": "https://fastgpt.io/guide/migrate-saas-to-selfhost" },
+        { "label": "API documentation", "target": "https://fastgpt.io/guide/database-qa-integration-guide" },
+        { "label": "Self-hosted deployment", "target": "https://fastgpt.io/guide/self-build-three-year-tco" }
+      ],
+      "datePublished": "2026-08-27",
+      "dateModified": "2026-08-27"
     }
+  },
+  {
+    "slug": "embed-ai-into-product",
+    "group": "implementation",
+    "zh": {
+      "sourceName": "embed-ai-into-product.zh.md",
+      "sourceSha256": "0ceae75a4d82b548406ae74f2a465e4853cc10a4f567bc28971f67dfde42a086",
+      "bodySha256": "0500897b9b9fb5f727bfd0e77a9edf9e65de012b808592f65b476779ca4252cf",
+      "h1": "将AI能力嵌入自有产品：接入方式与落地核心关注点",
+      "metaTitle": "将AI能力嵌入自有产品：接入方式与落地指南",
+      "metaDescription": "针对企业AI嵌入相关需求，详解主流AI嵌入方式、核心落地维度、落地验证方法、边界限制与常见误区，助力平稳完成AI集成落地，提升产品用户体验与业务价值。",
+      "keywords": "嵌入自有产品, API / OpenAI SDK 兼容 / MCP",
+      "canonical": "https://fastgpt.cn/guide/embed-ai-into-product",
+      "hreflang": "zh-CN | zh-CN → https://fastgpt.cn/guide/embed-ai-into-product | en → https://fastgpt.io/guide/embed-ai-into-product | x-default → https://fastgpt.io/guide/embed-ai-into-product",
+      "schemaTokens": [
+        "HowTo",
+        "Article",
+        "BreadcrumbList"
+      ],
+      "sourceSchema": "HowTo + Article + BreadcrumbList",
+      "sourceImageDirective": "Text and accessible tables; no image is required for this release.",
+      "sourceInternalLinkLabels": [
+        "API 文档",
+        "快速开始",
+        "集成文档"
+      ],
+      "assetPolicy": {
+        "status": "source-exception"
+      },
+      "configuredInternalLinks": [
+        { "label": "API 文档", "target": "https://fastgpt.cn/guide/database-qa-integration-guide" },
+        { "label": "快速开始", "target": "https://fastgpt.cn/guide/poc-30-day-design" },
+        { "label": "集成文档", "target": "https://fastgpt.cn/guide/database-qa-integration-guide" }
+      ],
+      "datePublished": "2026-08-27",
+      "dateModified": "2026-08-27"
+    },
+    "en": {
+      "sourceName": "embed-ai-into-product.en.md",
+      "sourceSha256": "d92bfdd4f8b41fa2da873c0529ab1dcafa8066d5e18672c000618c8ae783b5d9",
+      "bodySha256": "609b2bd53568ce1e67e2c1d22469b52ba1bd2ffac3ce4256ef16c51957be9296",
+      "h1": "Enterprise AI Integration into Native Products: Deployment Best Practices and Decision Framework",
+      "metaTitle": "Enterprise AI Embedding Integration Guide for Teams",
+      "metaDescription": "Embed AI into native products with guidance on APIs, SDKs, authentication, sessions, errors, quotas, validation, monitoring, and rollout planning.",
+      "keywords": "嵌入自有产品, API / OpenAI SDK 兼容 / MCP",
+      "canonical": "https://fastgpt.io/guide/embed-ai-into-product",
+      "hreflang": "en | zh-CN → https://fastgpt.cn/guide/embed-ai-into-product | en → https://fastgpt.io/guide/embed-ai-into-product | x-default → https://fastgpt.io/guide/embed-ai-into-product",
+      "schemaTokens": [
+        "HowTo",
+        "Article",
+        "BreadcrumbList"
+      ],
+      "sourceSchema": "HowTo + Article + BreadcrumbList",
+      "sourceImageDirective": "Text and accessible tables; no image is required for this release.",
+      "sourceInternalLinkLabels": [
+        "API documentation",
+        "Getting started",
+        "Integration documentation"
+      ],
+      "assetPolicy": {
+        "status": "source-exception"
+      },
+      "configuredInternalLinks": [
+        { "label": "API documentation", "target": "https://fastgpt.io/guide/database-qa-integration-guide" },
+        { "label": "Getting started", "target": "https://fastgpt.io/guide/poc-30-day-design" },
+        { "label": "Integration documentation", "target": "https://fastgpt.io/guide/database-qa-integration-guide" }
+      ],
+      "datePublished": "2026-08-27",
+      "dateModified": "2026-08-27"
+    }
+  },
+  {
+    "slug": "soe-policy-qa-deployment",
+    "group": "industry",
+    "zh": {
+      "sourceName": "soe-policy-qa-deployment.zh.md",
+      "sourceSha256": "75a848021bd2e6dfdaf6d446d57753adc04ebb95ff655e59a2f90ce882eb8040",
+      "bodySha256": "70951a59a664aedbe01c71756481569c462348230d70e1412d9f5ae8bac7cfaa",
+      "h1": "国央企大模型制度问答落地部署、审查与排期规划指南",
+      "metaTitle": "国央企大模型制度问答落地部署、审查与排期规划指南",
+      "metaDescription": "围绕国央企制度问答场景，梳理部署架构、合规审查、权限隔离、知识更新与项目排期方法，帮助团队建立可验证、可审计、可持续运营的落地计划。",
+      "keywords": "制度问答与员工服务, 知识库 / 权限隔离 / 渠道接入",
+      "canonical": "https://fastgpt.cn/guide/soe-policy-qa-deployment",
+      "hreflang": "zh-CN | zh-CN → https://fastgpt.cn/guide/soe-policy-qa-deployment | en → https://fastgpt.io/guide/soe-policy-qa-deployment | x-default → https://fastgpt.io/guide/soe-policy-qa-deployment",
+      "schemaTokens": [
+        "Article",
+        "BreadcrumbList"
+      ],
+      "sourceSchema": "Article + BreadcrumbList",
+      "sourceImageDirective": "Text and accessible tables; no image is required for this release.",
+      "sourceInternalLinkLabels": [
+        "政务国企方案页",
+        "私有化页",
+        "案例页"
+      ],
+      "assetPolicy": {
+        "status": "source-exception"
+      },
+      "configuredInternalLinks": [],
+      "datePublished": "2026-08-27",
+      "dateModified": "2026-08-27"
+    },
+    "en": {
+      "sourceName": "soe-policy-qa-deployment.en.md",
+      "sourceSha256": "545a49d96b5d272d9a337d36711aed05f1d81816a5ad5e00b2f77b5f28672aa6",
+      "bodySha256": "a0fb46d6b6672c1026ffed24c8710fb129d4030f8ea68dec95e05fcff62662f1",
+      "h1": "State-Owned Enterprise Large Model Policy Q&A Implementation: Deployment, Compliance Review, and Scheduling Guide",
+      "metaTitle": "State-Owned Enterprise AI Policy Q&A Deployment Guide",
+      "metaDescription": "Plan compliant state-owned enterprise AI policy Q&A deployment with architecture, reviews, permissions, updates, validation, scheduling, and controls.",
+      "keywords": "制度问答与员工服务, 知识库 / 权限隔离 / 渠道接入",
+      "canonical": "https://fastgpt.io/guide/soe-policy-qa-deployment",
+      "hreflang": "en | zh-CN → https://fastgpt.cn/guide/soe-policy-qa-deployment | en → https://fastgpt.io/guide/soe-policy-qa-deployment | x-default → https://fastgpt.io/guide/soe-policy-qa-deployment",
+      "schemaTokens": [
+        "Article",
+        "BreadcrumbList"
+      ],
+      "sourceSchema": "Article + BreadcrumbList",
+      "sourceImageDirective": "Text and accessible tables; no image is required for this release.",
+      "sourceInternalLinkLabels": [
+        "Government and enterprise solutions",
+        "Self-hosted deployment",
+        "Customer cases"
+      ],
+      "assetPolicy": {
+        "status": "source-exception"
+      },
+      "configuredInternalLinks": [],
+      "datePublished": "2026-08-27",
+      "dateModified": "2026-08-27"
+    }
+  }
   ]
 }

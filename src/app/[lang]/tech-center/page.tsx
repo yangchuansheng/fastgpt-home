@@ -1,11 +1,22 @@
 import TechCenterPage from '@/components/tech-center/TechCenterPage';
 import { TechCenterHubJsonLd } from '@/components/tech-center/TechCenterJsonLd';
-import { CATEGORY_META, FEATURED_ENTRY, TECH_ENTRIES } from '@/components/tech-center/data';
+import {
+  CATEGORY_META,
+  getCategoryMetaForLocale,
+  getFeaturedEntryForLocale,
+  getTechEntriesForLocale,
+  TECH_ENTRIES
+} from '@/components/tech-center/data';
 import { PAGE_SIZE } from '@/components/tech-center/constants';
 import { defaultLocale, getDictionary } from '@/lib/i18n';
 import { localeMap } from '@/lib/seo';
-import { currentSiteVariant, getOwnedLocaleUrl } from '@/lib/siteRouting';
+import {
+  currentSiteVariant,
+  getDefaultLocaleForSiteVariant,
+  getOwnedLocaleUrl
+} from '@/lib/siteRouting';
 import { normalizeLocale } from '@/lib/locales';
+import { techPublishedLocaleCodes, type TechPublishedLocale } from '@/lib/publishedLocales';
 import { toTechSearchEntry } from '@/components/tech-center/types';
 import { Metadata } from 'next';
 
@@ -39,21 +50,39 @@ export default async function TechCenterRoute({ params }: { params: Promise<{ la
   const dict = await getDictionary(locale);
   const title = titleMap[locale] || titleMap.en;
   const description = descriptionMap[locale] || descriptionMap.en;
+  const localeEntries = getTechEntriesForLocale(locale);
+  const initialEntries =
+    locale === 'zh'
+      ? TECH_ENTRIES.slice(0, PAGE_SIZE).map(toTechSearchEntry)
+      : localeEntries.slice(0, PAGE_SIZE).map(toTechSearchEntry);
+  const categoryMeta = locale === 'zh' ? CATEGORY_META : getCategoryMetaForLocale(locale);
+  const featuredEntry = getFeaturedEntryForLocale(locale);
 
   return (
     <>
-      {locale === 'zh' && (
-        <TechCenterHubJsonLd schema={dict.JsonLd} title={title} description={description} />
-      )}
+      {techPublishedLocaleCodes.includes(locale as TechPublishedLocale) &&
+        localeEntries.length > 0 && (
+          <TechCenterHubJsonLd
+            schema={dict.JsonLd}
+            title={title}
+            description={description}
+            locale={locale}
+          />
+        )}
       <TechCenterPage
         locale={locale}
         links={dict.links}
         navCta={dict.Home.navCta}
         footer={dict.Home.footer}
-        initialEntries={TECH_ENTRIES.slice(0, PAGE_SIZE).map(toTechSearchEntry)}
-        featuredEntry={FEATURED_ENTRY}
-        categoryMeta={CATEGORY_META}
-        totalEntries={TECH_ENTRIES.length}
+        initialEntries={initialEntries}
+        featuredEntry={featuredEntry}
+        categoryMeta={categoryMeta}
+        totalEntries={localeEntries.length}
+        searchIndexPath={
+          locale === 'zh'
+            ? '/tech-center/search-index.json'
+            : `/tech-center/search-index.${locale}.json`
+        }
       />
     </>
   );
@@ -68,9 +97,13 @@ export async function generateMetadata({
   const locale = normalizeLocale(lang || defaultLocale);
   const title = titleMap[locale] || titleMap.en;
   const description = descriptionMap[locale] || descriptionMap.en;
+  const hasPublishedEntries = getTechEntriesForLocale(locale).length > 0;
   const canonical = getOwnedLocaleUrl(locale, '/tech-center');
   const baseUrl = new URL(canonical).origin;
-  const indexable = locale === 'zh' && currentSiteVariant !== 'preview';
+  const indexable =
+    techPublishedLocaleCodes.includes(locale as TechPublishedLocale) &&
+    hasPublishedEntries &&
+    currentSiteVariant !== 'preview';
 
   return {
     title,
@@ -98,7 +131,9 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  return [{ lang: 'zh' }];
+  return currentSiteVariant === 'preview'
+    ? techPublishedLocaleCodes.map((lang) => ({ lang }))
+    : [{ lang: getDefaultLocaleForSiteVariant(currentSiteVariant) }];
 }
 
 export const dynamicParams = false;

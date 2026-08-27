@@ -123,16 +123,18 @@ export default function TechCenterPage({
   initialEntries,
   featuredEntry,
   categoryMeta,
-  totalEntries
+  totalEntries,
+  searchIndexPath = '/tech-center/search-index.json'
 }: {
   locale: string;
   links: NavLink[];
   navCta: NavCta;
   footer: HomeFooter;
   initialEntries: TechSearchEntry[];
-  featuredEntry: TechEntry;
+  featuredEntry?: TechEntry;
   categoryMeta: CategoryMeta[];
   totalEntries: number;
+  searchIndexPath?: string;
 }) {
   const resultsTitleRef = useRef<HTMLHeadingElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -151,7 +153,7 @@ export default function TechCenterPage({
 
   useEffect(() => {
     let active = true;
-    fetch('/tech-center/search-index.json')
+    fetch(searchIndexPath)
       .then((response) => {
         if (!response.ok) throw new Error('Technical search projection request failed');
         return response.json() as Promise<unknown>;
@@ -169,7 +171,7 @@ export default function TechCenterPage({
     return () => {
       active = false;
     };
-  }, [totalEntries]);
+  }, [searchIndexPath, totalEntries]);
 
   const filteredEntries = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('zh-CN');
@@ -377,60 +379,62 @@ export default function TechCenterPage({
           </div>
         </section>
 
-        <section
-          className={`${styles.container} ${styles.featured}`}
-          aria-labelledby="featured-title"
-        >
-          <div
-            className={styles.flowCanvas}
-            role="img"
-            aria-label="API 调用经过身份鉴权、应用编排并返回流式响应的 FastGPT 工作流示意图"
+        {featuredEntry && (
+          <section
+            className={`${styles.container} ${styles.featured}`}
+            aria-labelledby="featured-title"
           >
-            <div className={styles.canvasLabel}>API 调用路径</div>
-            <div className={styles.flowStage}>
-              <div className={styles.flowLine} aria-hidden="true" />
-              {FLOW_NODES.map((node) => (
-                <div className={styles.flowNode} key={node.number}>
-                  <span className={styles.nodeIcon}>{node.number}</span>
-                  <span className={styles.nodeTitle}>{node.title}</span>
-                  <span className={styles.nodeKind}>{node.kind}</span>
-                </div>
-              ))}
+            <div
+              className={styles.flowCanvas}
+              role="img"
+              aria-label="API 调用经过身份鉴权、应用编排并返回流式响应的 FastGPT 工作流示意图"
+            >
+              <div className={styles.canvasLabel}>API 调用路径</div>
+              <div className={styles.flowStage}>
+                <div className={styles.flowLine} aria-hidden="true" />
+                {FLOW_NODES.map((node) => (
+                  <div className={styles.flowNode} key={node.number}>
+                    <span className={styles.nodeIcon}>{node.number}</span>
+                    <span className={styles.nodeTitle}>{node.title}</span>
+                    <span className={styles.nodeKind}>{node.kind}</span>
+                  </div>
+                ))}
+              </div>
+              <div className={styles.canvasNote}>可追溯来源 · 可执行步骤 · 可验证结果</div>
             </div>
-            <div className={styles.canvasNote}>可追溯来源 · 可执行步骤 · 可验证结果</div>
-          </div>
 
-          <div className={styles.featuredCopy}>
-            <div className={styles.featuredEyebrow}>推荐入口</div>
-            <div className={styles.metaRow}>
-              <span className={styles.badge}>{featuredEntry.categoryLabel}</span>
-              <span className={`${styles.badge} ${styles.sourceBadge}`}>
-                {featuredEntry.sourceType}
-              </span>
-              <span>{featuredEntry.minutes} 分钟阅读</span>
+            <div className={styles.featuredCopy}>
+              <div className={styles.featuredEyebrow}>推荐入口</div>
+              <div className={styles.metaRow}>
+                <span className={styles.badge}>{featuredEntry.categoryLabel}</span>
+                <span className={`${styles.badge} ${styles.sourceBadge}`}>
+                  {featuredEntry.sourceType}
+                </span>
+                <span>{featuredEntry.minutes} 分钟阅读</span>
+              </div>
+              <h2 className={styles.featuredTitle} id="featured-title">
+                {featuredEntry.title}
+              </h2>
+              <p className={styles.featuredSummary}>{featuredEntry.summary}</p>
+              <div className={styles.featuredActions}>
+                <a
+                  className={styles.primaryLink}
+                  href={getDefaultLocalePath(locale, getTechEntryPath(featuredEntry))}
+                >
+                  阅读 API 指南 <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
+                </a>
+                <a
+                  className={styles.textLink}
+                  href={featuredEntry.source}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  查看官方文档 <ExternalLink size={14} strokeWidth={1.8} aria-hidden="true" />
+                </a>
+              </div>
             </div>
-            <h2 className={styles.featuredTitle} id="featured-title">
-              {featuredEntry.title}
-            </h2>
-            <p className={styles.featuredSummary}>{featuredEntry.summary}</p>
-            <div className={styles.featuredActions}>
-              <a
-                className={styles.primaryLink}
-                href={getDefaultLocalePath(locale, getTechEntryPath(featuredEntry))}
-              >
-                阅读 API 指南 <ArrowRight size={16} strokeWidth={1.8} aria-hidden="true" />
-              </a>
-              <a
-                className={styles.textLink}
-                href={featuredEntry.source}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                查看官方文档 <ExternalLink size={14} strokeWidth={1.8} aria-hidden="true" />
-              </a>
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         <section
           className={`${styles.container} ${styles.library}`}
@@ -560,7 +564,9 @@ export default function TechCenterPage({
                         <span className={styles.badge}>
                           {getCategoryLabel(entry.category, categoryMeta)}
                         </span>
-                        <span className={styles.cardSource}>{getSourceLabel(entry.sourceType)}</span>
+                        <span className={styles.cardSource}>
+                          {getSourceLabel(entry.sourceType)}
+                        </span>
                       </div>
                       <h3 className={styles.cardTitle}>
                         <a href={getDefaultLocalePath(entry.locale, entry.publicPath)}>
