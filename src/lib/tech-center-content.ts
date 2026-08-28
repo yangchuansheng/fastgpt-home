@@ -238,7 +238,8 @@ export function getTechArticleReviewParams(
 ): TechArticleParams[] {
   const params = getTechArticleParams();
   if (variant === 'preview') return params;
-  return params.filter((param) => getLocaleOwner(param.lang) === variant);
+  const ownerParams = params.filter((param) => getLocaleOwner(param.lang) === variant);
+  return ownerParams.length ? ownerParams : params.slice(0, 1);
 }
 
 export function getTechArticleOwnerParams(

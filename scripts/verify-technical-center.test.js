@@ -148,7 +148,11 @@ test('the route passes only a bounded projection and the client owns no registry
   assert.match(articleSource, /getTechnicalReviewPath/);
   assert.match(rootArticleSource, /getDefaultLocaleForSiteVariant\(currentSiteVariant\)/);
   assert.match(rootArticleSource, /getTechArticle\(section, slug, preferredLocale\)/);
-  assert.match(contentSource, /ownerParams\.length \? ownerParams : params\.slice\(0, 1\)/);
+  assert.equal(
+    (contentSource.match(/ownerParams\.length \? ownerParams : params\.slice\(0, 1\)/g) || [])
+      .length,
+    2
+  );
   assert.match(clientSource, /value\.length !== expectedLength/);
   assert.match(clientSource, /new Set\(value\.map/);
 });
