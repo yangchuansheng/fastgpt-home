@@ -132,6 +132,7 @@ test('the route passes only a bounded projection and the client owns no registry
     path.join(root, 'src/app/tech-article-route.tsx'),
     'utf8'
   );
+  const contentSource = fs.readFileSync(path.join(root, 'src/lib/tech-center-content.ts'), 'utf8');
   const articleSource = fs.readFileSync(
     path.join(root, 'src/components/tech-center/TechArticlePage.tsx'),
     'utf8'
@@ -145,8 +146,9 @@ test('the route passes only a bounded projection and the client owns no registry
   assert.match(clientSource, /getTechnicalReviewPath/);
   assert.match(articleSource, /ARTICLE_COPY/);
   assert.match(articleSource, /getTechnicalReviewPath/);
-  assert.match(rootArticleSource, /currentSiteVariant === 'preview'/);
   assert.match(rootArticleSource, /getDefaultLocaleForSiteVariant\(currentSiteVariant\)/);
+  assert.match(rootArticleSource, /getTechArticle\(section, slug, preferredLocale\)/);
+  assert.match(contentSource, /ownerParams\.length \? ownerParams : params\.slice\(0, 1\)/);
   assert.match(clientSource, /value\.length !== expectedLength/);
   assert.match(clientSource, /new Set\(value\.map/);
 });

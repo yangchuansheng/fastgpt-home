@@ -247,8 +247,10 @@ export function getTechArticleOwnerParams(
 ) {
   const params = getTechArticleParams().filter((param) => param.section === section);
   if (variant === 'preview') return params.slice(0, 1).map(({ slug }) => ({ slug }));
-  const slugs = params
-    .filter((param) => getLocaleOwner(param.lang) === variant)
-    .map((param) => param.slug);
+  const ownerParams = params.filter((param) => getLocaleOwner(param.lang) === variant);
+  // Static export requires one seed param when this variant owns no route in the section.
+  const slugs = (ownerParams.length ? ownerParams : params.slice(0, 1)).map(
+    (param) => param.slug
+  );
   return [...new Set(slugs)].map((slug) => ({ slug }));
 }

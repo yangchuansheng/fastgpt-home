@@ -8,16 +8,19 @@ import { currentSiteVariant, getDefaultLocaleForSiteVariant } from '@/lib/siteRo
 type RootTechArticleParams = { slug: string };
 
 function getLocalizedParams(params: Promise<RootTechArticleParams>, section: string) {
-  return params.then(({ slug }) => ({
-    lang:
-      currentSiteVariant === 'preview'
-        ? getTechArticle(section, slug, 'en')
-          ? 'en'
-          : 'zh'
-        : getDefaultLocaleForSiteVariant(currentSiteVariant),
-    section,
-    slug
-  }));
+  return params.then(({ slug }) => {
+    const defaultLocale = getDefaultLocaleForSiteVariant(currentSiteVariant);
+    const preferredLocale = defaultLocale === 'zh' ? 'zh' : 'en';
+    return {
+      lang: getTechArticle(section, slug, preferredLocale)
+        ? preferredLocale
+        : preferredLocale === 'en'
+          ? 'zh'
+          : 'en',
+      section,
+      slug
+    };
+  });
 }
 
 export function createRootTechArticleRoute(section: string) {

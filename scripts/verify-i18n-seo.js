@@ -330,7 +330,7 @@ function verifyPublishedRoutes() {
     variant === 'io' || variant === 'preview'
   );
   assert.equal(Boolean(resolveHtmlPath('/tech-center')), variant === 'cn');
-  assert.equal(Boolean(resolveHtmlPath('/zh/tech-center')), variant === 'cn' || variant === 'preview');
+  assert.equal(Boolean(resolveHtmlPath('/zh/tech-center')), variant === 'preview');
   assert.equal(Boolean(resolveHtmlPath(techPath)), variant === 'cn');
   assert.equal(Boolean(resolveHtmlPath(`/zh${techPath}`)), variant === 'preview');
 }
