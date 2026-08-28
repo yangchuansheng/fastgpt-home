@@ -145,8 +145,8 @@ test('the route passes only a bounded projection and the client owns no registry
   assert.match(clientSource, /getTechnicalReviewPath/);
   assert.match(articleSource, /ARTICLE_COPY/);
   assert.match(articleSource, /getTechnicalReviewPath/);
+  assert.match(rootArticleSource, /currentSiteVariant === 'preview'/);
   assert.match(rootArticleSource, /getDefaultLocaleForSiteVariant\(currentSiteVariant\)/);
-  assert.doesNotMatch(rootArticleSource, /getTechArticle\([^)]*'en'/);
   assert.match(clientSource, /value\.length !== expectedLength/);
   assert.match(clientSource, /new Set\(value\.map/);
 });

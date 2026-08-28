@@ -246,7 +246,7 @@ export function getTechArticleOwnerParams(
   variant: SiteVariant = currentSiteVariant
 ) {
   const params = getTechArticleParams().filter((param) => param.section === section);
-  if (variant === 'preview') return [];
+  if (variant === 'preview') return params.slice(0, 1).map(({ slug }) => ({ slug }));
   const slugs = params
     .filter((param) => getLocaleOwner(param.lang) === variant)
     .map((param) => param.slug);
