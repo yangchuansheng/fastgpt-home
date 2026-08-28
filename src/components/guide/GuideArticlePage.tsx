@@ -127,9 +127,11 @@ export default function GuideArticlePage({
                 </div>
               </section>
             )}
-            <p className={techStyles.returnLink}>
-              <Link href={getGuideOwnedPath(locale)}>{labels.back}</Link>
-            </p>
+            <nav aria-label={labels.back}>
+              <p className={techStyles.returnLink}>
+                <Link href={getGuideOwnedPath(locale)}>{labels.back}</Link>
+              </p>
+            </nav>
           </article>
           {headings.length > 0 && (
             <aside className={guideStyles.toc} aria-label={labels.onThisPage}>
