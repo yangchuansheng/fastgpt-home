@@ -5,6 +5,7 @@ const path = require('node:path');
 const {
   buildRedirects,
   getTechIdentities,
+  getTechRoutesToRemove,
   writeCloudflareWorker,
   writeNginxRedirectMap
 } = require('./lib/redirects');
@@ -13,18 +14,12 @@ const {
   getUrlAliasAuthoritySummary,
   readUrlAliasAuthority
 } = require('./lib/url-alias-authority');
-const {
-  getDefaultLocale,
-  getPublishedLocaleCodes,
-  localeCodes,
-  resolveSiteVariant
-} = require('./lib/site-variant');
+const { getPublishedLocaleCodes, localeCodes, resolveSiteVariant } = require('./lib/site-variant');
 
 const rootDir = path.join(__dirname, '..');
 const outDir = path.join(rootDir, 'out');
 const nextDir = path.join(rootDir, '.next');
 const variant = resolveSiteVariant();
-const defaultLocale = getDefaultLocale(variant);
 const allowedLocales = new Set(getPublishedLocaleCodes(variant));
 const techIdentities = getTechIdentities(rootDir);
 const aliasAuthority = readUrlAliasAuthority(rootDir);
@@ -92,28 +87,8 @@ for (const locale of localeCodes) {
   removed += removePath(path.join(outDir, `${locale}.txt`));
 }
 
-const technicalLocales = new Set(techIdentities.map((identity) => identity.locale));
-if (variant === 'preview') {
-  // Preview keeps both published locale hubs for route and canonical review.
-} else if (defaultLocale === 'zh' && !technicalLocales.has('zh')) {
-  removed += removeRoute('/tech-center');
-  removed += removeRoute('/zh/tech-center');
-} else if (defaultLocale !== 'zh' && !technicalLocales.has('en')) {
-  removed += removeRoute('/tech-center');
-  removed += removeRoute('/en/tech-center');
-}
-for (const identity of techIdentities) {
-  const owner = identity.locale === 'zh' ? 'cn' : identity.locale === 'en' ? 'io' : null;
-  if (variant === 'preview') {
-    removed += removeRoute(identity.canonicalPath);
-  } else if (variant === 'cn' && owner === 'cn') {
-    removed += removeRoute(identity.sourcePath);
-  } else if (variant === 'io' && owner === 'io') {
-    removed += removeRoute(identity.sourcePath);
-  } else {
-    removed += removeRoute(identity.sourcePath);
-    removed += removeRoute(identity.canonicalPath);
-  }
+for (const route of getTechRoutesToRemove(techIdentities, variant)) {
+  removed += removeRoute(route);
 }
 
 const { cnRedirects, ioRedirects } = buildRedirects(rootDir);

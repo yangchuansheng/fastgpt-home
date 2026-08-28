@@ -7,6 +7,7 @@ const test = require('node:test');
 const {
   buildRedirects,
   getTechIdentities,
+  getTechRoutesToRemove,
   parseNginxRedirectMap,
   writeCloudflareWorker,
   writeNginxRedirectMap
@@ -24,6 +25,48 @@ test('technical identities are unique and retain their owner-relative paths', ()
   assert.equal(new Set(identities.map((identity) => identity.key)).size, identities.length);
   assert.equal(identities[0].sourcePath, '/zh/tutorial/private-deployment-topology');
   assert.equal(identities[0].canonicalPath, '/tutorial/private-deployment-topology');
+});
+
+test('same-slug technical identities keep only the active production owner route', () => {
+  const identities = [
+    {
+      key: 'zh|/api/shared-guide',
+      locale: 'zh',
+      canonicalPath: '/api/shared-guide',
+      sourcePath: '/zh/api/shared-guide'
+    },
+    {
+      key: 'en|/api/shared-guide',
+      locale: 'en',
+      canonicalPath: '/api/shared-guide',
+      sourcePath: '/en/api/shared-guide'
+    },
+    {
+      key: 'en|/api/english-only',
+      locale: 'en',
+      canonicalPath: '/api/english-only',
+      sourcePath: '/en/api/english-only'
+    }
+  ];
+
+  const cn = getTechRoutesToRemove(identities, 'cn');
+  assert(cn.has('/zh/api/shared-guide'));
+  assert(cn.has('/en/api/shared-guide'));
+  assert(!cn.has('/api/shared-guide'));
+  assert(cn.has('/api/english-only'));
+
+  const io = getTechRoutesToRemove(identities, 'io');
+  assert(io.has('/zh/api/shared-guide'));
+  assert(io.has('/en/api/shared-guide'));
+  assert(!io.has('/api/shared-guide'));
+  assert(!io.has('/api/english-only'));
+
+  const preview = getTechRoutesToRemove(identities, 'preview');
+  assert(preview.has('/tech-center'));
+  assert(preview.has('/api/shared-guide'));
+  assert(preview.has('/api/english-only'));
+  assert(!preview.has('/zh/api/shared-guide'));
+  assert(!preview.has('/en/api/shared-guide'));
 });
 
 test('technical export verifier accepts a complete China projection', () => {

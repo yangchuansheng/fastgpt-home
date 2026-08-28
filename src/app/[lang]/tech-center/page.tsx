@@ -1,11 +1,9 @@
 import TechCenterPage from '@/components/tech-center/TechCenterPage';
 import { TechCenterHubJsonLd } from '@/components/tech-center/TechCenterJsonLd';
 import {
-  CATEGORY_META,
   getCategoryMetaForLocale,
   getFeaturedEntryForLocale,
-  getTechEntriesForLocale,
-  TECH_ENTRIES
+  getTechEntriesForLocale
 } from '@/components/tech-center/data';
 import { PAGE_SIZE } from '@/components/tech-center/constants';
 import { defaultLocale, getDictionary } from '@/lib/i18n';
@@ -33,7 +31,6 @@ const titleMap: Record<string, string> = {
 };
 
 const descriptionMap: Record<string, string> = {
-  zh: `面向开发与部署人员的 FastGPT 技术中心，按任务搜索 ${TECH_ENTRIES.length} 篇部署升级、知识库、工作流、集成与 API 内容。`,
   'zh-hant': '瀏覽 FastGPT 部署升級、故障排查、知識庫、工作流節點、第三方整合與 API 技術指南。',
   en: 'Browse FastGPT guides for deployment, troubleshooting, knowledge bases, workflow nodes, integrations, and APIs.',
   ja: 'FastGPT のデプロイ、トラブルシューティング、RAG、ワークフロー、連携、API ガイドを閲覧できます。',
@@ -44,18 +41,22 @@ const descriptionMap: Record<string, string> = {
   ms: 'Terokai panduan FastGPT untuk deployment, penyelesaian masalah, knowledge base, aliran kerja, integrasi dan API.'
 };
 
+function getDescription(locale: string, totalEntries: number) {
+  if (locale === 'zh') {
+    return `面向开发与部署人员的 FastGPT 技术中心，按任务搜索 ${totalEntries} 篇部署升级、知识库、工作流、集成与 API 内容。`;
+  }
+  return descriptionMap[locale] || descriptionMap.en;
+}
+
 export default async function TechCenterRoute({ params }: { params: Promise<{ lang?: string }> }) {
   const { lang } = await params;
   const locale = normalizeLocale(lang || defaultLocale);
   const dict = await getDictionary(locale);
   const title = titleMap[locale] || titleMap.en;
-  const description = descriptionMap[locale] || descriptionMap.en;
   const localeEntries = getTechEntriesForLocale(locale);
-  const initialEntries =
-    locale === 'zh'
-      ? TECH_ENTRIES.slice(0, PAGE_SIZE).map(toTechSearchEntry)
-      : localeEntries.slice(0, PAGE_SIZE).map(toTechSearchEntry);
-  const categoryMeta = locale === 'zh' ? CATEGORY_META : getCategoryMetaForLocale(locale);
+  const description = getDescription(locale, localeEntries.length);
+  const initialEntries = localeEntries.slice(0, PAGE_SIZE).map(toTechSearchEntry);
+  const categoryMeta = getCategoryMetaForLocale(locale);
   const featuredEntry = getFeaturedEntryForLocale(locale);
 
   return (
@@ -96,8 +97,9 @@ export async function generateMetadata({
   const { lang } = await params;
   const locale = normalizeLocale(lang || defaultLocale);
   const title = titleMap[locale] || titleMap.en;
-  const description = descriptionMap[locale] || descriptionMap.en;
-  const hasPublishedEntries = getTechEntriesForLocale(locale).length > 0;
+  const totalEntries = getTechEntriesForLocale(locale).length;
+  const description = getDescription(locale, totalEntries);
+  const hasPublishedEntries = totalEntries > 0;
   const canonical = getOwnedLocaleUrl(locale, '/tech-center');
   const baseUrl = new URL(canonical).origin;
   const indexable =

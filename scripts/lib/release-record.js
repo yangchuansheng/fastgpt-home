@@ -9,6 +9,7 @@ const {
   normalizeSolutionsEvidence
 } = require('./release-readiness');
 const { collectSourceProvenance, redactReleaseOptions } = require('./release-cross-project');
+const { evaluateReleaseGate } = require('../verify-guide-authorization');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RETAIN_DIR = path.join(ROOT, '.release-artifacts');
@@ -47,7 +48,7 @@ const GUIDE_RELEASE_GATES = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'src/content/guides/release-gates.json'), 'utf8')
 ).entries;
 const GUIDE_RELEASE_BLOCKED_SLUGS = Object.entries(GUIDE_RELEASE_GATES)
-  .filter(([, gate]) => gate.status === 'release-blocked')
+  .filter(([slug, gate]) => !evaluateReleaseGate(slug, gate).eligible)
   .map(([slug]) => slug);
 const GUIDE_RELEASE_BLOCKED_COUNT = GUIDE_RELEASE_BLOCKED_SLUGS.length;
 const GUIDE_ENTRY_COUNT = JSON.parse(

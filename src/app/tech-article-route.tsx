@@ -2,14 +2,14 @@ import type { Metadata } from 'next';
 import TechArticleRoute, {
   generateMetadata as generateTechArticleMetadata
 } from '@/app/[lang]/[section]/[slug]/page';
-import { getTechArticle, getTechArticleOwnerParams } from '@/lib/tech-center-content';
-import { currentSiteVariant } from '@/lib/siteRouting';
+import { getTechArticleOwnerParams } from '@/lib/tech-center-content';
+import { currentSiteVariant, getDefaultLocaleForSiteVariant } from '@/lib/siteRouting';
 
 type RootTechArticleParams = { slug: string };
 
 function getLocalizedParams(params: Promise<RootTechArticleParams>, section: string) {
   return params.then(({ slug }) => ({
-    lang: getTechArticle(section, slug, 'en') ? 'en' : 'zh',
+    lang: getDefaultLocaleForSiteVariant(currentSiteVariant),
     section,
     slug
   }));

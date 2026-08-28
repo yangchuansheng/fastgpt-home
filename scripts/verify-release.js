@@ -297,6 +297,11 @@ function getSourceNpmSteps() {
       'technical export regression',
       ['verify:technical-export-regression']
     ],
+    [
+      'guide-import.regression',
+      'Week06 Guide import regression',
+      ['verify:guide-import-regression']
+    ],
     ['url-alias.regression', 'URL Alias Authority regression', ['verify:url-alias-regression']],
     ['case-only.regression', 'case-only slice regression', ['verify:case-only-regression']],
     [

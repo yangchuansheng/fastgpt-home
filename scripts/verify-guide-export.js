@@ -12,9 +12,10 @@ const REGISTRY_PATH = path.join(ROOT, 'src/content/guides/registry.json');
 const POLICY_PATH = path.join(ROOT, 'src/content/guides/policy.json');
 const RELEASE_GATES_PATH = path.join(ROOT, 'src/content/guides/release-gates.json');
 const GUIDE_ENTRY_COUNT = JSON.parse(fs.readFileSync(POLICY_PATH, 'utf8')).entryCount;
+const { evaluateReleaseGate } = require('./verify-guide-authorization');
 const RELEASE_BLOCKED_SLUGS = new Set(
   Object.entries(JSON.parse(fs.readFileSync(RELEASE_GATES_PATH, 'utf8')).entries || {})
-    .filter(([, gate]) => gate.status === 'release-blocked')
+    .filter(([slug, gate]) => !evaluateReleaseGate(slug, gate).eligible)
     .map(([slug]) => slug)
 );
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';

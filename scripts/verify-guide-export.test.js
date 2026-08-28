@@ -7,8 +7,9 @@ const test = require('node:test');
 
 const registry = require('../src/content/guides/registry.json');
 const releaseGates = require('../src/content/guides/release-gates.json');
+const { evaluateReleaseGate } = require('./verify-guide-authorization');
 const projectedRegistry = registry.entries.filter(
-  (entry) => releaseGates.entries[entry.slug]?.status !== 'release-blocked'
+  (entry) => evaluateReleaseGate(entry.slug, releaseGates.entries[entry.slug]).eligible
 );
 const { assertNoCaseFoldCollisions, parseArgs, verifyGuideExport } = require('./verify-guide-export');
 

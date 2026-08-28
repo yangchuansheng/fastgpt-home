@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { guideEntries, type GuidePublicationGroup } from '@/content/guides/registry';
+import { guideBuildEntries, type GuidePublicationGroup } from '@/content/guides/registry';
 import { getGuidePath, type GuidePublishedLocale } from '@/lib/guideSeo';
 import { getOwnedLocalePath } from '@/lib/siteRouting';
 import styles from './GuideHubPage.module.css';
@@ -87,7 +87,7 @@ export default function GuideHubPage({ locale }: { locale: GuidePublishedLocale 
         </header>
         {HUB_GROUPS.map((group, groupIndex) => {
           const groupCopy = copy.groups[group];
-          const cards = guideEntries.filter((entry) => entry.group === group);
+          const cards = guideBuildEntries.filter((entry) => entry.group === group);
 
           return (
             <section aria-labelledby={`guide-group-${group}`} className={styles.group} key={group}>

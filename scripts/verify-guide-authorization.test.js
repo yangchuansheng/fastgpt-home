@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
@@ -6,6 +7,7 @@ const test = require('node:test');
 const ROOT = path.resolve(__dirname, '..');
 const {
   evaluateGuideAuthorization,
+  evaluateReleaseGate,
   loadFixture,
   projectGuideEntries,
   verifyAuthorizationFixtures
@@ -67,4 +69,36 @@ test('projection accepts an explicit authority decision map', () => {
   assert.equal(projected.length, 15);
   assert(projected.some((entry) => entry.slug === 'finance-research-retrieval'));
   assert(projected.some((entry) => entry.slug === 'finance-daily-report-automation'));
+});
+
+test('G2 release-owner evidence remains fail-closed until its digest is valid', () => {
+  const slug = 'soe-policy-qa-deployment';
+  const missing = evaluateReleaseGate(slug, null);
+  assert.equal(missing.eligible, false);
+  assert.match(missing.blockers.join('\n'), /classification is missing/);
+
+  const pending = evaluateReleaseGate(slug, {
+    group: 'G2',
+    ownerApproval: { status: 'pending', reference: null, digest: null }
+  });
+  assert.equal(pending.eligible, false);
+
+  const reference = 'release-owner-approval-2026-08-28-soe-policy-qa-deployment';
+  const invalid = evaluateReleaseGate(slug, {
+    group: 'G2',
+    ownerApproval: { status: 'valid', reference, digest: '0'.repeat(64) }
+  });
+  assert.equal(invalid.eligible, false);
+  assert.match(invalid.blockers.join('\n'), /does not match/);
+
+  const valid = evaluateReleaseGate(slug, {
+    group: 'G2',
+    ownerApproval: {
+      status: 'valid',
+      reference,
+      digest: crypto.createHash('sha256').update(reference).digest('hex')
+    }
+  });
+  assert.equal(valid.eligible, true);
+  assert.equal(valid.status, 'publishable');
 });

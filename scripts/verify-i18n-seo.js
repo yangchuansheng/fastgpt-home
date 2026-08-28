@@ -17,8 +17,9 @@ const {
 } = require('./lib/site-variant');
 const { locales } = require('../src/config/site-routing.json');
 const releaseGates = require('../src/content/guides/release-gates.json').entries;
+const { evaluateReleaseGate } = require('./verify-guide-authorization');
 const guideRegistry = require('../src/content/guides/registry.json').entries.filter(
-  (entry) => releaseGates[entry.slug]?.status !== 'release-blocked'
+  (entry) => evaluateReleaseGate(entry.slug, releaseGates[entry.slug]).eligible
 );
 
 const rootDir = path.join(__dirname, '..');

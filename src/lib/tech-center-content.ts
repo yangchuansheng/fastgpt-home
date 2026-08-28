@@ -238,8 +238,7 @@ export function getTechArticleReviewParams(
 ): TechArticleParams[] {
   const params = getTechArticleParams();
   if (variant === 'preview') return params;
-  const owned = params.filter((param) => getLocaleOwner(param.lang) === variant);
-  return (owned.length ? owned : params).slice(0, 1);
+  return params.filter((param) => getLocaleOwner(param.lang) === variant);
 }
 
 export function getTechArticleOwnerParams(
@@ -247,9 +246,9 @@ export function getTechArticleOwnerParams(
   variant: SiteVariant = currentSiteVariant
 ) {
   const params = getTechArticleParams().filter((param) => param.section === section);
-  const owned =
-    variant === 'preview'
-      ? params
-      : params.filter((param) => getLocaleOwner(param.lang) === variant);
-  return (owned.length ? owned : params).map(({ slug }) => ({ slug }));
+  if (variant === 'preview') return [];
+  const slugs = params
+    .filter((param) => getLocaleOwner(param.lang) === variant)
+    .map((param) => param.slug);
+  return [...new Set(slugs)].map((slug) => ({ slug }));
 }

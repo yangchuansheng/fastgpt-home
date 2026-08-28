@@ -51,7 +51,7 @@ export function TechCenterHubJsonLd({
             '@type': 'BreadcrumbList',
             itemListElement: breadcrumbItems([
               { name: schema.breadcrumbHome, url: homeUrl },
-              { name: '技术中心', url: hubUrl }
+              { name: locale === 'zh' ? '技术中心' : 'Technical Center', url: hubUrl }
             ])
           }
         ]
@@ -121,7 +121,7 @@ export function TechArticleJsonLd({
             '@type': 'BreadcrumbList',
             itemListElement: breadcrumbItems([
               { name: schema.breadcrumbHome, url: homeUrl },
-              { name: '技术中心', url: hubUrl },
+              { name: locale === 'zh' ? '技术中心' : 'Technical Center', url: hubUrl },
               { name: article.title, url: articleUrl }
             ])
           }

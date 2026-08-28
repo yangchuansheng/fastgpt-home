@@ -18,10 +18,16 @@ const FIXTURE_ROOT = path.join(ROOT, 'scripts/fixtures/guides');
 const policy = JSON.parse(fs.readFileSync(POLICY_PATH, 'utf8'));
 const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
 const FINANCE_SLUGS = ['finance-research-retrieval', 'finance-daily-report-automation'];
+const EXPECTED_G2_SLUGS = ['soe-policy-qa-deployment'];
 const releaseGates = JSON.parse(fs.readFileSync(RELEASE_GATES_PATH, 'utf8'));
-const G2_SLUGS = Object.entries(releaseGates.entries || {})
-  .filter(([, gate]) => gate.group === 'G2' && gate.status === 'release-blocked')
-  .map(([slug]) => slug);
+const G2_SLUGS = [
+  ...new Set([
+    ...EXPECTED_G2_SLUGS,
+    ...Object.entries(releaseGates.entries || {})
+      .filter(([, gate]) => gate.group === 'G2')
+      .map(([slug]) => slug)
+  ])
+];
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const SAFE_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -78,17 +84,36 @@ function validateEvidence(evidence, category, id, blockers) {
   }
 }
 
-function evaluateGuideAuthorization(slug, record) {
-  if (G2_SLUGS.includes(slug)) {
+function evaluateReleaseGate(slug, gate = releaseGates.entries?.[slug]) {
+  if (!G2_SLUGS.includes(slug)) {
     return {
       slug,
-      status: 'release-blocked',
-      eligible: false,
-      blockers: ['release gate: owner sign-off and compliance evidence are pending'],
+      status: 'publishable',
+      eligible: true,
+      blockers: [],
       requiredCases: 0,
       requiredAssets: 0
     };
   }
+
+  const blockers = [];
+  if (!gate || gate.group !== 'G2') {
+    addBlocker(blockers, 'release gate', slug, 'G2 classification is missing');
+  } else {
+    validateEvidence(gate.ownerApproval, 'release owner', slug, blockers);
+  }
+  return {
+    slug,
+    status: blockers.length ? 'release-blocked' : 'publishable',
+    eligible: blockers.length === 0,
+    blockers,
+    requiredCases: 0,
+    requiredAssets: 0
+  };
+}
+
+function evaluateGuideAuthorization(slug, record) {
+  if (G2_SLUGS.includes(slug)) return evaluateReleaseGate(slug);
   if (!FINANCE_SLUGS.includes(slug)) {
     return {
       slug,
@@ -197,16 +222,38 @@ function validateFixtureShape(fixture) {
 }
 
 function validateReleaseGates() {
+  if (releaseGates.schemaVersion !== 1 || !releaseGates.entries) {
+    throw new Error('Guide release gates must use schemaVersion 1 with entries');
+  }
+  const configuredG2Slugs = Object.entries(releaseGates.entries)
+    .filter(([, gate]) => gate.group === 'G2')
+    .map(([slug]) => slug)
+    .sort();
+  if (configuredG2Slugs.join('\u0000') !== EXPECTED_G2_SLUGS.slice().sort().join('\u0000')) {
+    throw new Error(`G2 release gates must be ${EXPECTED_G2_SLUGS.join(', ')}`);
+  }
   for (const slug of G2_SLUGS) {
     const gate = releaseGates.entries?.[slug];
-    if (!gate || gate.status !== 'release-blocked') {
-      throw new Error(`${slug}: G2 release gate must remain release-blocked until sign-off`);
+    if (
+      Object.keys(gate || {})
+        .sort()
+        .join(',') !== 'group,ownerApproval'
+    ) {
+      throw new Error(`${slug}: G2 release gate must contain only group and ownerApproval`);
     }
-    for (const approval of gate.requiredApprovals || []) {
-      const evidence = gate.signoff?.[approval];
-      if (!evidence || !['pending', 'valid'].includes(evidence.status)) {
-        throw new Error(`${slug}: ${approval} sign-off evidence is missing`);
-      }
+    const evidence = gate.ownerApproval;
+    if (
+      Object.keys(evidence || {})
+        .sort()
+        .join(',') !== 'digest,reference,status'
+    ) {
+      throw new Error(`${slug}: ownerApproval must contain status, reference, and digest`);
+    }
+    if (!['pending', 'valid'].includes(evidence.status)) {
+      throw new Error(`${slug}: ownerApproval status must be pending or valid`);
+    }
+    if (evidence.status === 'valid' && !evaluateReleaseGate(slug, gate).eligible) {
+      throw new Error(`${slug}: valid ownerApproval has invalid evidence`);
     }
   }
 }
@@ -236,8 +283,13 @@ function verifyFixture(fixture) {
     .map((entry) => entry.slug);
   const blocked = [...decisions.values()].filter((decision) => !decision.eligible);
   const fixtureName = fixture.fixtureName || 'custom';
+  const blockedG2Slugs = G2_SLUGS.filter(
+    (slug) => !evaluateReleaseGate(slug, releaseGates.entries?.[slug]).eligible
+  );
   const expectedProjectedEntries =
-    policy.entryCount - G2_SLUGS.length - (fixtureName === 'missing' ? FINANCE_SLUGS.length : 0);
+    policy.entryCount -
+    blockedG2Slugs.length -
+    (fixtureName === 'missing' ? FINANCE_SLUGS.length : 0);
   if (registry.entries.length !== policy.entryCount) {
     throw new Error(
       `registry count ${registry.entries.length} does not match policy ${policy.entryCount}`
@@ -264,7 +316,7 @@ function verifyFixture(fixture) {
       `missing authorization fixture projected blocked slugs: ${financeEntries.join(', ')}`
     );
   }
-  if (projectedEntries.some((entry) => G2_SLUGS.includes(entry.slug))) {
+  if (projectedEntries.some((entry) => blockedG2Slugs.includes(entry.slug))) {
     throw new Error('G2 release-blocked Guides entered the public projection');
   }
   return {
@@ -348,9 +400,11 @@ if (require.main === module) {
 
 module.exports = {
   DEFAULT_AUTHORIZATION_PATH,
+  EXPECTED_G2_SLUGS,
   FINANCE_SLUGS,
   G2_SLUGS,
   evaluateGuideAuthorization,
+  evaluateReleaseGate,
   loadFixture,
   main,
   parseArgs,

@@ -1,7 +1,40 @@
 import entries from './entries.json';
 import policy from '@/lib/technical-content-policy.json';
 import { CATEGORY_DEFINITIONS } from './constants';
-import { getTechnicalPageIdentity, type CategoryMeta, type TechEntry } from './types';
+import {
+  getTechnicalPageIdentity,
+  type CategoryMeta,
+  type TechCategory,
+  type TechEntry,
+  type TechSource
+} from './types';
+
+const EN_CATEGORY_LABELS = {
+  api: 'API',
+  dataset: 'Knowledge bases',
+  deploy: 'Deployment and upgrades',
+  integration: 'Integrations',
+  node: 'Workflow nodes',
+  reference: 'Technical reference',
+  model: 'Model guides',
+  glossary: 'Glossary',
+  troubleshoot: 'Troubleshooting',
+  tutorial: 'Tutorials'
+} as const;
+
+const EN_SOURCE_LABELS: Record<TechSource, string> = {
+  官方文档: 'Official documentation',
+  'GitHub issue': 'GitHub issue',
+  深度场景内容: 'In-depth scenario content'
+};
+
+export function getTechCategoryLabelForLocale(category: TechCategory, locale: string) {
+  return locale === 'zh' ? policy.categories[category] : EN_CATEGORY_LABELS[category];
+}
+
+export function getTechSourceLabelForLocale(source: TechSource, locale: string) {
+  return locale === 'zh' ? source : EN_SOURCE_LABELS[source];
+}
 
 export type {
   CategoryMeta,
@@ -33,7 +66,7 @@ export function getCategoryMetaForLocale(locale: string): CategoryMeta[] {
   const localeEntries = getTechEntriesForLocale(locale);
   return CATEGORY_DEFINITIONS.map(({ key, icon }) => ({
     key,
-    label: policy.categories[key],
+    label: getTechCategoryLabelForLocale(key, locale),
     icon,
     count: localeEntries.filter((entry) => entry.category === key).length
   }));

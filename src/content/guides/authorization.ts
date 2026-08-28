@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import authorization from './authorization.json';
 import releaseGates from './release-gates.json';
 import type { GuideEntry } from './registry';
@@ -6,6 +7,7 @@ export const GUIDE_AUTHORIZATION_REQUIRED_SLUGS = [
   'finance-research-retrieval',
   'finance-daily-report-automation'
 ] as const;
+export const GUIDE_G2_REQUIRED_SLUGS = ['soe-policy-qa-deployment'] as const;
 
 export type GuideAuthorizationStatus = 'publishable' | 'release-blocked';
 
@@ -60,11 +62,7 @@ const RELEASE_GATES = releaseGates as {
     {
       group?: string;
       status?: string;
-      requiredApprovals?: string[];
-      signoff?: Record<
-        string,
-        { status?: string; reference?: string | null; digest?: string | null }
-      >;
+      ownerApproval?: { status?: string; reference?: string | null; digest?: string | null };
       blockers?: string[];
     }
   >;
@@ -80,6 +78,10 @@ function isRequiredSlug(slug: string): boolean {
   return GUIDE_AUTHORIZATION_REQUIRED_SLUGS.includes(
     slug as (typeof GUIDE_AUTHORIZATION_REQUIRED_SLUGS)[number]
   );
+}
+
+function isG2Slug(slug: string): boolean {
+  return GUIDE_G2_REQUIRED_SLUGS.includes(slug as (typeof GUIDE_G2_REQUIRED_SLUGS)[number]);
 }
 
 function releaseGateFor(slug: string) {
@@ -108,7 +110,55 @@ function validateEvidence(
   }
   if (typeof evidence.digest !== 'string' || !SHA256_PATTERN.test(evidence.digest)) {
     addBlocker(blockers, category, id, 'evidence digest must be a SHA-256 value');
+  } else if (
+    typeof evidence.reference === 'string' &&
+    evidence.reference.trim() &&
+    evidence.digest !== createHash('sha256').update(evidence.reference.trim()).digest('hex')
+  ) {
+    addBlocker(blockers, category, id, 'evidence digest does not match its reference');
   }
+}
+
+export function evaluateGuideReleaseGate(
+  slug: string,
+  gate: ReturnType<typeof releaseGateFor> = releaseGateFor(slug)
+): GuideAuthorizationDecision {
+  if (!isG2Slug(slug)) {
+    return {
+      slug,
+      status: 'publishable',
+      eligible: true,
+      blockers: [],
+      requiredCases: 0,
+      requiredAssets: 0
+    };
+  }
+
+  const blockers: string[] = [];
+  if (!gate || gate.group !== 'G2') {
+    addBlocker(blockers, 'release gate', slug, 'G2 classification is missing');
+  } else {
+    validateEvidence(
+      gate.ownerApproval
+        ? {
+            status: gate.ownerApproval.status,
+            reference: gate.ownerApproval.reference || '',
+            digest: gate.ownerApproval.digest || ''
+          }
+        : undefined,
+      'release owner',
+      slug,
+      blockers
+    );
+  }
+  return {
+    slug,
+    status: blockers.length ? 'release-blocked' : 'publishable',
+    eligible: blockers.length === 0,
+    blockers,
+    requiredCases: 0,
+    requiredAssets: 0
+  };
 }
 
 /** Evaluate the case and asset evidence required before a finance Guide is projected. */
@@ -116,19 +166,7 @@ export function evaluateGuideAuthorization(
   slug: string,
   record: Partial<GuideAuthorizationRecord> | undefined
 ): GuideAuthorizationDecision {
-  const releaseGate = releaseGateFor(slug);
-  if (releaseGate?.status === 'release-blocked') {
-    return {
-      slug,
-      status: 'release-blocked',
-      eligible: false,
-      blockers: releaseGate.blockers?.length
-        ? releaseGate.blockers.map((blocker) => `release gate: ${blocker}`)
-        : ['release gate is blocked'],
-      requiredCases: 0,
-      requiredAssets: 0
-    };
-  }
+  if (isG2Slug(slug)) return evaluateGuideReleaseGate(slug);
   if (!isRequiredSlug(slug)) {
     return {
       slug,
@@ -212,7 +250,7 @@ export function projectGuideEntries(
 ): GuideEntry[] {
   return entries.filter(
     (entry) =>
-      (!isRequiredSlug(entry.slug) && !releaseGateFor(entry.slug)) ||
+      (!isRequiredSlug(entry.slug) && !isG2Slug(entry.slug)) ||
       (decisionFor(decisions, entry.slug) || evaluateGuideAuthorization(entry.slug, undefined))
         ?.eligible === true
   );
@@ -220,7 +258,7 @@ export function projectGuideEntries(
 
 export const guideAuthorizationDecisions: Record<string, GuideAuthorizationDecision> =
   Object.fromEntries(
-    GUIDE_AUTHORIZATION_REQUIRED_SLUGS.map((slug) => [
+    [...GUIDE_AUTHORIZATION_REQUIRED_SLUGS, ...GUIDE_G2_REQUIRED_SLUGS].map((slug) => [
       slug,
       evaluateGuideAuthorization(
         slug,

@@ -6,6 +6,7 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const registryPath = path.join(root, 'src/content/guides/registry.json');
+const policyPath = path.join(root, 'src/content/guides/policy.json');
 const guideRoot = path.join(root, 'src/content/guides');
 
 const specs = [
@@ -25,6 +26,18 @@ const specs = [
     enH1: 'Migrating Enterprise AI Agent Platforms from SaaS to Self-Hosted Deployment',
     zhLinks: ['迁移指南', 'API 文档', '私有化页'],
     enLinks: ['Migration guide', 'API documentation', 'Self-hosted deployment'],
+    configuredInternalLinks: {
+      zh: [
+        ['迁移指南', 'https://fastgpt.cn/guide/migrate-saas-to-selfhost'],
+        ['API 文档', 'https://fastgpt.cn/guide/database-qa-integration-guide'],
+        ['私有化页', 'https://fastgpt.cn/guide/self-build-three-year-tco']
+      ],
+      en: [
+        ['Migration guide', 'https://fastgpt.io/guide/migrate-saas-to-selfhost'],
+        ['API documentation', 'https://fastgpt.io/guide/database-qa-integration-guide'],
+        ['Self-hosted deployment', 'https://fastgpt.io/guide/self-build-three-year-tco']
+      ]
+    },
     schema: 'HowTo + Article + BreadcrumbList',
     references: [
       ['FastGPT self-hosted deployment documentation', 'https://doc.fastgpt.io/en/self-host/'],
@@ -48,6 +61,18 @@ const specs = [
     enH1: 'Enterprise AI Integration into Native Products: Deployment Best Practices and Decision Framework',
     zhLinks: ['API 文档', '快速开始', '集成文档'],
     enLinks: ['API documentation', 'Getting started', 'Integration documentation'],
+    configuredInternalLinks: {
+      zh: [
+        ['API 文档', 'https://fastgpt.cn/guide/database-qa-integration-guide'],
+        ['快速开始', 'https://fastgpt.cn/guide/poc-30-day-design'],
+        ['集成文档', 'https://fastgpt.cn/guide/database-qa-integration-guide']
+      ],
+      en: [
+        ['API documentation', 'https://fastgpt.io/guide/database-qa-integration-guide'],
+        ['Getting started', 'https://fastgpt.io/guide/poc-30-day-design'],
+        ['Integration documentation', 'https://fastgpt.io/guide/database-qa-integration-guide']
+      ]
+    },
     schema: 'HowTo + Article + BreadcrumbList',
     references: [
       ['FastGPT API documentation', 'https://doc.fastgpt.io/en/api/'],
@@ -71,6 +96,7 @@ const specs = [
     enH1: 'State-Owned Enterprise Large Model Policy Q&A Implementation: Deployment, Compliance Review, and Scheduling Guide',
     zhLinks: ['政务国企方案页', '私有化页', '案例页'],
     enLinks: ['Government and enterprise solutions', 'Self-hosted deployment', 'Customer cases'],
+    configuredInternalLinks: { zh: [], en: [] },
     schema: 'Article + BreadcrumbList',
     references: [
       ['FastGPT self-hosted deployment documentation', 'https://doc.fastgpt.io/en/self-host/'],
@@ -90,26 +116,44 @@ function readSource(sourceRoot, file) {
 
 function cleanBody(source) {
   const withoutComment = source.replace(/^<!--[\s\S]*?-->\n*/, '');
-  const beforeMetadata = withoutComment.split('\n---\n', 1)[0];
+  const withoutInlineProvenance = withoutComment.replace(
+    /\s+All product capabilities and version boundaries are sourced from official public documentation, verified as of \d{4}-\d{2}-\d{2}\./gi,
+    ''
+  );
+  const beforeMetadata = withoutInlineProvenance.split('\n---\n', 1)[0];
   const lines = beforeMetadata.split('\n');
   const kept = [];
   let skipQuoteMetadata = false;
   for (const line of lines) {
-    if (/^>\s*(?:\*{0,2})?(?:Fact Source|Source of facts|事实来源|Verification Date|Verified on|Version(?: and| &) Package|Editions|Revision|Update Record|Update Log|核验日期|版本与套餐|更新记录)/i.test(line)) {
+    if (
+      /^>\s*(?:\*{0,2})?(?:Fact Source|Source of facts|事实来源|Verification Date|Verified on|Version(?: and| &) Package|Editions|Revision|Update Record|Update Log|核验日期|版本与套餐|更新记录)/i.test(
+        line
+      )
+    ) {
       skipQuoteMetadata = true;
       continue;
     }
     if (skipQuoteMetadata && /^>/.test(line)) continue;
     skipQuoteMetadata = false;
-    if (/^(?:文中产品能力与版本边界来自客户官方公开资料|Product capabilities and version boundaries in this article come from the vendor's published material)/i.test(line.trim())) continue;
+    if (
+      /^(?:文中产品能力与版本边界来自客户官方公开资料|Product capabilities and version boundaries in this article come from the vendor's published material)/i.test(
+        line.trim()
+      )
+    )
+      continue;
     kept.push(line);
   }
-  return kept.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return kept
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 function renderDocument(spec, locale, source) {
   const h1 = locale === 'zh' ? spec.zhH1 : spec.enH1;
-  const cleaned = cleanBody(source).replace(/^# [^\n]+\n*/, '').trimStart();
+  const cleaned = cleanBody(source)
+    .replace(/^# [^\n]+\n*/, '')
+    .trimStart();
   const canonical = `https://fastgpt.${locale === 'zh' ? 'cn' : 'io'}/guide/${spec.slug}`;
   const hreflang =
     locale === 'zh'
@@ -118,7 +162,10 @@ function renderDocument(spec, locale, source) {
   const links = locale === 'zh' ? spec.zhLinks : spec.enLinks;
   const title = locale === 'zh' ? spec.zhTitle : spec.enTitle;
   const description = locale === 'zh' ? spec.zhDescription : spec.enDescription;
-  if (locale === 'en' && (title.length < 50 || title.length > 60 || description.length < 140 || description.length > 160)) {
+  if (
+    locale === 'en' &&
+    (title.length < 50 || title.length > 60 || description.length < 140 || description.length > 160)
+  ) {
     throw new Error(`${spec.slug}: English metadata length is outside the guide contract`);
   }
   const references = spec.references.map(([label, url]) => `- [${label}](${url})`).join('\n');
@@ -155,37 +202,114 @@ function renderDocument(spec, locale, source) {
     sourceImageDirective: 'Text and accessible tables; no image is required for this release.',
     sourceInternalLinkLabels: links,
     assetPolicy: { status: 'source-exception' },
-    configuredInternalLinks: [],
+    configuredInternalLinks: spec.configuredInternalLinks[locale].map(([label, target]) => ({
+      label,
+      target
+    })),
     datePublished: '2026-08-27',
     dateModified: '2026-08-27'
   };
   return { document: normalized, snapshot };
 }
 
-function main() {
-  const sourceRoot = process.argv[2];
-  if (!sourceRoot) throw new Error('Usage: node scripts/import-week06-guides.js <Week06 guide root>');
-  const zhRoot = path.join(sourceRoot, '深度内容-第4批3篇');
-  const enRoot = path.join(sourceRoot, '深度内容-英文版3篇');
-  const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-  const existing = new Set(registry.entries.map((entry) => entry.slug));
-  const newEntries = [];
-  for (const spec of specs) {
-    if (existing.has(spec.slug)) throw new Error(`Guide ${spec.slug} already exists`);
-    const zh = renderDocument(spec, 'zh', readSource(zhRoot, spec.zh));
-    const en = renderDocument(spec, 'en', readSource(enRoot, spec.en));
-    fs.writeFileSync(path.join(guideRoot, 'zh', `${spec.slug}.zh.md`), zh.document);
-    fs.writeFileSync(path.join(guideRoot, 'en', `${spec.slug}.en.md`), en.document);
-    newEntries.push({ slug: spec.slug, group: spec.group, zh: zh.snapshot, en: en.snapshot });
+function parseArgs(argv) {
+  const check = argv.includes('--check');
+  const positional = argv.filter((token) => token !== '--check');
+  if (
+    positional.length !== 1 ||
+    argv.filter((token) => token === '--check').length > 1 ||
+    argv.some((token) => token.startsWith('--') && token !== '--check')
+  ) {
+    throw new Error('Usage: node scripts/import-week06-guides.js <Week06 guide root> [--check]');
   }
-  const insertAt = registryPath && fs.readFileSync(registryPath, 'utf8').lastIndexOf('\n  ]\n}');
-  if (insertAt < 0) throw new Error('Guide registry shape changed; refusing to rewrite it');
-  const sourceText = fs.readFileSync(registryPath, 'utf8');
-  const insertion = `${sourceText.slice(0, insertAt)},\n${newEntries
-    .map((entry) => JSON.stringify(entry, null, 2).replace(/^/gm, '  '))
-    .join(',\n')}${sourceText.slice(insertAt)}`;
-  fs.writeFileSync(registryPath, insertion.replace('"entryCount": 13', '"entryCount": 16'));
-  console.log(`Imported ${newEntries.length} Week06 Guide pairs`);
+  return { sourceRoot: path.resolve(positional[0]), check };
 }
 
-main();
+function buildImport(sourceRoot) {
+  const zhRoot = path.join(sourceRoot, '深度内容-第4批3篇');
+  const enRoot = path.join(sourceRoot, '深度内容-英文版3篇');
+  return specs.map((spec) => {
+    const zh = renderDocument(spec, 'zh', readSource(zhRoot, spec.zh));
+    const en = renderDocument(spec, 'en', readSource(enRoot, spec.en));
+    return {
+      entry: { slug: spec.slug, group: spec.group, zh: zh.snapshot, en: en.snapshot },
+      documents: { zh: zh.document, en: en.document }
+    };
+  });
+}
+
+function verifyImport(generated, registry, targetRoot = guideRoot) {
+  for (const item of generated) {
+    const { slug } = item.entry;
+    const existing = registry.entries.find((entry) => entry.slug === slug);
+    if (!existing || JSON.stringify(existing) !== JSON.stringify(item.entry)) {
+      throw new Error(`${slug}: registry snapshot differs from the Week06 source`);
+    }
+    for (const locale of ['zh', 'en']) {
+      const filePath = path.join(targetRoot, locale, `${slug}.${locale}.md`);
+      if (
+        !fs.existsSync(filePath) ||
+        fs.readFileSync(filePath, 'utf8') !== item.documents[locale]
+      ) {
+        throw new Error(`${slug}:${locale}: generated document differs from the Week06 source`);
+      }
+    }
+  }
+}
+
+function main(argv = process.argv.slice(2)) {
+  const { sourceRoot, check } = parseArgs(argv);
+  const generated = buildImport(sourceRoot);
+  const registrySource = fs.readFileSync(registryPath, 'utf8');
+  const registry = JSON.parse(registrySource);
+  const policySource = fs.readFileSync(policyPath, 'utf8');
+  const policy = JSON.parse(policySource);
+  if (policy.entryCount !== registry.entries.length) {
+    throw new Error('Guide policy entryCount differs from the registry');
+  }
+  const existingCount = generated.filter((item) =>
+    registry.entries.some((entry) => entry.slug === item.entry.slug)
+  ).length;
+
+  if (existingCount === generated.length) {
+    verifyImport(generated, registry);
+    console.log(`[import-week06-guides] check passed for ${generated.length} Guide pairs`);
+    return;
+  }
+  if (check || existingCount > 0) {
+    throw new Error('Week06 Guide registry is incomplete; refusing a partial import');
+  }
+
+  const insertAt = registrySource.lastIndexOf('\n  ]\n}');
+  if (insertAt < 0) throw new Error('Guide registry shape changed; refusing to rewrite it');
+  for (const item of generated) {
+    for (const locale of ['zh', 'en']) {
+      fs.writeFileSync(
+        path.join(guideRoot, locale, `${item.entry.slug}.${locale}.md`),
+        item.documents[locale]
+      );
+    }
+  }
+  const insertion = `${registrySource.slice(0, insertAt)},\n${generated
+    .map(({ entry }) => JSON.stringify(entry, null, 2).replace(/^/gm, '  '))
+    .join(',\n')}${registrySource.slice(insertAt)}`;
+  fs.writeFileSync(registryPath, insertion);
+
+  const nextCount = registry.entries.length + generated.length;
+  fs.writeFileSync(
+    policyPath,
+    policySource.replace(/"entryCount":\s*\d+/, `"entryCount": ${nextCount}`)
+  );
+  console.log(`[import-week06-guides] imported ${generated.length} Guide pairs`);
+}
+
+if (require.main === module) {
+  try {
+    main();
+  } catch (error) {
+    console.error(`[import-week06-guides] ${error.message}`);
+    process.exitCode = 1;
+  }
+}
+
+module.exports = { buildImport, main, parseArgs, renderDocument, verifyImport };
