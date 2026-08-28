@@ -88,7 +88,7 @@ for (const locale of localeCodes) {
 }
 
 for (const route of getTechRoutesToRemove(techIdentities, variant)) {
-  removed += removeRoute(route);
+  removed += route === '/tech-center' ? removeRouteDocuments(route) : removeRoute(route);
 }
 
 const { cnRedirects, ioRedirects } = buildRedirects(rootDir);
