@@ -96,6 +96,34 @@ The verifier retains the issue #261 English tracer baseline and keeps the 1,372-
 registry byte-stable while Week06 Wave 0 remains a zero-publication dry run. This evidence is
 tracked with [issue #264](https://github.com/labring/fastgpt-home/issues/264).
 
+## Week06 bilingual Technical Wave 0 readiness
+
+`npm run verify:week06-wave0-readiness` closes the issue #265 dry-run record by composing the
+closed Week06 authority with the real issue #261 and #264 tracer verifiers. It freezes the
+authority release digest, requires zero unresolved identity, duplicate, evidence, credential,
+privacy, operation-risk, comparison-routing, and hygiene findings, and verifies CN, IO, and
+Preview owner routing, canonical, robots, sitemap, structured data, isolation, localized hubs,
+search projections, and bounded fallbacks.
+
+The contract records the 1,372-page pre-Wave 1 registry, the approved initial-JavaScript baseline,
+both locale search projection sizes, and the deterministic completed-tracer export file count,
+bytes, digest, and reference build duration. The duration points to a frozen five-sample measurement
+with its command, environment, measurement ID, median, and export digest. Registry, search, sitemap,
+static-export, internal-link, and release-record deltas stay at zero through byte-stable repository
+artifacts and reproducible completed-tracer sitemap and HTML outputs. Its release and rollback
+manifests share one baseline digest and the staged write regression proves that a partial write
+restores the real bytes for every mapped artifact.
+
+Run the mutation coverage with:
+
+```bash
+npm run verify:week06-wave0-readiness-regression
+```
+
+The top-level release coordinator runs both commands and records `source-verified`,
+`export-verified`, `governance-complete`, and publication count zero. Wave 0 keeps publication
+count at zero and preserves the production registry byte-for-byte.
+
 ## Week06 comparison candidate gate
 
 `npm run verify:week06-compare-disposition` validates the three Week06 comparison candidates

@@ -52,6 +52,19 @@ const EXPECTED_TECHNICAL_WAVE2 = {
   acceptedUpdate: 0,
   resultingPageCount: 1372
 };
+const EXPECTED_WEEK06_WAVE0_READINESS = {
+  issue: 265,
+  wave: 'wave-0',
+  sourceVerified: true,
+  exportVerified: true,
+  governanceStatus: 'governance-complete',
+  publicationCount: 0,
+  publicPageDelta: 0,
+  tracerCount: 4,
+  ownerLeaks: 0,
+  capacityBaseline: 'recorded',
+  rollback: 'atomic'
+};
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
 const GUIDE_AUTHORIZATION_SLUGS = ['finance-research-retrieval', 'finance-daily-report-automation'];
 const GUIDE_RELEASE_GATES = JSON.parse(
@@ -124,6 +137,7 @@ function createReleaseRecord(options) {
       technicalAuthority: { ...EXPECTED_TECHNICAL_AUTHORITY },
       technicalWave: { ...EXPECTED_TECHNICAL_WAVE },
       technicalWave2: { ...EXPECTED_TECHNICAL_WAVE2 },
+      week06Wave0Readiness: { ...EXPECTED_WEEK06_WAVE0_READINESS },
       faqMetadata: {
         candidates: EXPECTED_FAQ_METADATA_CANDIDATES,
         identities: EXPECTED_FAQ_METADATA_IDENTITIES,
@@ -183,6 +197,13 @@ function createReleaseRecord(options) {
           searchSha256: undefined
         },
         variants: {},
+        releaseReady: false
+      },
+      week06Wave0Readiness: {
+        expected: { ...EXPECTED_WEEK06_WAVE0_READINESS },
+        source: false,
+        regression: false,
+        observed: undefined,
         releaseReady: false
       },
       faqMetadata: {
@@ -317,6 +338,24 @@ function collectTechnicalWave2Evidence(record, stepId, variant, status, output) 
       };
     }
     if (variant) evidence.variants[variant] = observed;
+  } catch (error) {
+    evidence.observed = { status: 'invalid', error: error.message };
+  }
+}
+
+function collectWeek06Wave0ReadinessEvidence(record, stepId, status, output) {
+  const evidenceKey = {
+    'week06-wave0-readiness.source': 'source',
+    'week06-wave0-readiness.regression': 'regression'
+  }[stepId];
+  if (!record || !evidenceKey) return;
+  const evidence = record.evidence.week06Wave0Readiness;
+  evidence[evidenceKey] = status === 'passed';
+  const marker = output.match(/WEEK06_WAVE0_READINESS_RESULT=(\{[^\n]+\})/);
+  if (!marker) return;
+  try {
+    evidence.observed = JSON.parse(marker[1]);
+    record.counts.week06Wave0ReadinessObserved = evidence.observed;
   } catch (error) {
     evidence.observed = { status: 'invalid', error: error.message };
   }
@@ -486,6 +525,16 @@ function finalizeReleaseRecord(record, failures, options) {
         /^[a-f0-9]{64}$/.test(observed.baselineSearchSha256 || '')
       );
     });
+  const week06Wave0Readiness = record.evidence.week06Wave0Readiness;
+  week06Wave0Readiness.releaseReady =
+    week06Wave0Readiness.source &&
+    week06Wave0Readiness.regression &&
+    Object.entries(week06Wave0Readiness.expected).every(
+      ([key, expected]) => week06Wave0Readiness.observed?.[key] === expected
+    ) &&
+    ['cn', 'io', 'preview'].every(
+      (variant) => week06Wave0Readiness.observed?.variants?.[variant] === 'verified'
+    );
   const releaseGate = !options.sourceOnly && !options.variant && failures.length === 0;
   record.evidence.releaseEligible =
     releaseGate &&
@@ -496,6 +545,7 @@ function finalizeReleaseRecord(record, failures, options) {
     technicalAuthority.releaseReady &&
     technicalWave.releaseReady &&
     technicalWave2.releaseReady &&
+    week06Wave0Readiness.releaseReady &&
     guideAuthorization.releaseReady &&
     guidePairs.releaseReady;
   record.status = record.evidence.releaseEligible
@@ -552,6 +602,7 @@ function recordStep(record, stepId, label, command, variant, status, output, evi
   collectTechnicalAuthorityEvidence(record, stepId, status, output);
   collectTechnicalWaveEvidence(record, stepId, variant, status, output);
   collectTechnicalWave2Evidence(record, stepId, variant, status, output);
+  collectWeek06Wave0ReadinessEvidence(record, stepId, status, output);
   collectCaseOnlyEvidence(record, stepId, variant, status, output);
   collectAliasContractEvidence(record, stepId, variant, status, output);
   collectFaqMetadataEvidence(record, stepId, variant, status, output);

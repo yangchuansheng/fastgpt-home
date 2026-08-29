@@ -127,10 +127,15 @@ test('release coordinator gates technical content and every site variant', () =>
     'verify:technical-content-regression',
     'verify:technical-center-regression',
     'verify:technical-export-regression',
-    'verify:release-readiness'
+    'verify:release-readiness',
+    'verify:week06-wave0-readiness-regression'
   ]) {
     assert(sourceCommands.includes(command), command);
   }
+  const readinessStep = getSourceNodeSteps().find(
+    ([stepId]) => stepId === 'week06-wave0-readiness.source'
+  );
+  assert.equal(readinessStep[2], 'scripts/verify-week06-wave0-readiness.js');
   for (const variant of ['cn', 'io', 'preview']) {
     const variantIds = getVariantExecutionOrder(variant);
     assert(variantIds.includes('technical-center.export'));
@@ -327,6 +332,18 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
   );
   assert.equal(record.evidence.technicalWave2.baseline.pageCount, 1172);
   assert.match(record.evidence.technicalWave2.baseline.registrySha256, /^[a-f0-9]{64}$/);
+  recordStep(
+    record,
+    'week06-wave0-readiness.source',
+    'Week06 Wave 0 readiness evidence',
+    'node scripts/verify-week06-wave0-readiness.js',
+    undefined,
+    'passed',
+    'WEEK06_WAVE0_READINESS_RESULT={"issue":265,"wave":"wave-0","sourceVerified":true,"exportVerified":true,"governanceStatus":"governance-complete","publicationCount":0,"publicPageDelta":0,"tracerCount":4,"variants":{"cn":"verified","io":"verified","preview":"verified"},"ownerLeaks":0,"capacityBaseline":"recorded","rollback":"atomic"}'
+  );
+  assert.equal(record.evidence.week06Wave0Readiness.source, true);
+  assert.equal(record.evidence.week06Wave0Readiness.observed.publicationCount, 0);
+  assert.equal(record.evidence.week06Wave0Readiness.observed.exportVerified, true);
   assert.equal(
     packageJson.scripts['verify:release-readiness'],
     'node --test scripts/lib/release-readiness.test.js'
@@ -338,6 +355,10 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
   assert.equal(
     packageJson.scripts['verify:solutions-preview-regression'],
     'node --test scripts/lib/solutions-preview-http.test.js'
+  );
+  assert.equal(
+    packageJson.scripts['verify:week06-wave0-readiness'],
+    'node scripts/verify-week06-wave0-readiness.js'
   );
 });
 

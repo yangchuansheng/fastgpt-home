@@ -1,9 +1,11 @@
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 
+const { SCAN_PATH, verifyWeek06PrivacyScan } = require('./lib/week06-privacy-scan');
 const { verifyWeek06TechnicalAuthority } = require('./verify-week06-technical-authority');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -32,7 +34,18 @@ test('closed Week06 authority preserves the exact candidate and exclusion contra
     relationPages: 11,
     failed: 137,
     projection: 0,
-    baseline: 1172
+    baseline: 1172,
+    unresolved: {
+      identity: 0,
+      duplicate: 0,
+      evidence: 0,
+      credential: 0,
+      privacy: 0,
+      operationRisk: 0,
+      comparisonRouting: 0,
+      hygiene: 0
+    },
+    privacyScanSha256: '413870b1ec15c1e6958be214a0eb06ccf3a00d9138e49c41dbac1914ab1309cc'
   });
   assert.equal(manifest.candidates.length, 2034);
   assert.equal(duplicate.relationCount, 6);
@@ -54,5 +67,28 @@ test('Week06 release evidence remains byte-stable and matches every artifact dig
   for (const artifact of release.artifacts) {
     const artifactPath = path.join(ROOT, artifact.path);
     assert.equal(sha256(fs.readFileSync(artifactPath)), artifact.sha256, `${artifact.path} drift`);
+  }
+});
+
+test('Week06 privacy evidence rejects an unresolved reviewed finding', () => {
+  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'week06-privacy-scan-'));
+  try {
+    const scan = JSON.parse(fs.readFileSync(SCAN_PATH, 'utf8'));
+    scan.findings[0].disposition = 'pending-review';
+    scan.unresolvedCount = 1;
+    const scanPath = path.join(temporaryRoot, 'privacy-scan.json');
+    fs.writeFileSync(scanPath, JSON.stringify(scan));
+    assert.throws(() => verifyWeek06PrivacyScan(ROOT, scanPath), /unresolved privacy disposition/);
+
+    const escaped = JSON.parse(fs.readFileSync(SCAN_PATH, 'utf8'));
+    escaped.input.path = '../candidate-manifest.json';
+    const escapedPath = path.join(temporaryRoot, 'escaped-privacy-scan.json');
+    fs.writeFileSync(escapedPath, JSON.stringify(escaped));
+    assert.throws(
+      () => verifyWeek06PrivacyScan(ROOT, escapedPath),
+      /privacy scan input escapes repository root/
+    );
+  } finally {
+    fs.rmSync(temporaryRoot, { recursive: true, force: true });
   }
 });

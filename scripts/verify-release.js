@@ -279,6 +279,12 @@ function getSourceNodeSteps() {
       'technical wave 2 source verification',
       'scripts/verify-technical-wave2.js',
       []
+    ],
+    [
+      'week06-wave0-readiness.source',
+      'Week06 bilingual Technical Wave 0 readiness verification',
+      'scripts/verify-week06-wave0-readiness.js',
+      []
     ]
   ];
 }
@@ -304,6 +310,11 @@ function getSourceNpmSteps() {
       'technical-wave2.regression',
       'technical wave 2 regression',
       ['verify:technical-wave2-regression']
+    ],
+    [
+      'week06-wave0-readiness.regression',
+      'Week06 bilingual Technical Wave 0 readiness regression',
+      ['verify:week06-wave0-readiness-regression']
     ],
     [
       'technical-content.regression',
@@ -402,6 +413,17 @@ function runSourceChecks(failures, env, record) {
     technicalAuthority.observed.publicationCount === 0
   ) {
     console.log('[verify-release] Wave 0 governance-complete; publication-count=0');
+  }
+  const week06Wave0 = record?.evidence.week06Wave0Readiness?.observed;
+  if (
+    week06Wave0?.sourceVerified === true &&
+    week06Wave0.exportVerified === true &&
+    week06Wave0.governanceStatus === 'governance-complete' &&
+    week06Wave0.publicationCount === 0
+  ) {
+    console.log(
+      '[verify-release] Week06 bilingual Wave 0 source-verified; export-verified; governance-complete; publication-count=0'
+    );
   }
 }
 
@@ -770,6 +792,12 @@ function main() {
     record,
     'src/content/tech-center/authority/week05-wave2-rollback.json',
     'technical-wave2-rollback',
+    record.startedAt
+  );
+  addRollbackFile(
+    record,
+    'scripts/fixtures/technical-authority/week06-wave0-readiness.json',
+    'week06-wave0-release-rollback-contract',
     record.startedAt
   );
   for (const [relativePath, role] of [

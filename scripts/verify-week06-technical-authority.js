@@ -8,6 +8,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { loadTechnicalAuthority, stableJson } = require('./lib/technical-authority');
 const { readWave2IdentityKeys } = require('./lib/technical-wave-baseline');
+const { verifyWeek06PrivacyScan } = require('./lib/week06-privacy-scan');
 
 const ROOT = path.resolve(__dirname, '..');
 const EXPECTED = {
@@ -186,6 +187,7 @@ function verifyWeek06TechnicalAuthority(rootDir = ROOT) {
   const comparison = readJson('week06-compare-disposition.json', rootDir);
   const release = readJson('week06-wave0-release-manifest.json', rootDir);
   const canonicalRelease = readJson('week06-release-manifest.json', rootDir);
+  const privacy = verifyWeek06PrivacyScan(rootDir);
 
   assert.equal(manifest.schemaVersion, 1);
   assert.equal(manifest.batch, 'week06');
@@ -210,6 +212,15 @@ function verifyWeek06TechnicalAuthority(rootDir = ROOT) {
     mergedRetirees: EXPECTED.retirees,
     unsupportedGlossary: EXPECTED.unsupportedGlossary
   });
+  assert.deepEqual(manifest.summary.checks, {
+    identity: 0,
+    duplicate: 0,
+    credential: 0,
+    privacy: 0,
+    operationRisk: 0,
+    evidence: 0,
+    readerBodyHygiene: 0
+  });
   assert.equal(manifest.summary.projectionCount, 0);
   assert.equal(manifest.summary.publicationCount, 0);
   assert.equal(manifest.summary.yaml.pass, 2028);
@@ -217,6 +228,8 @@ function verifyWeek06TechnicalAuthority(rootDir = ROOT) {
   assert.equal(manifest.summary.yaml.resolved, 6);
   assert.equal(manifest.automatedGates.closure, 'governance-complete');
   assert.equal(manifest.automatedGates.securityScan, 'passed');
+  assert.equal(manifest.automatedGates.privacyScan, 'passed');
+  assert.equal(manifest.summary.checks.privacy, privacy.unresolvedCount);
   assert.equal(manifest.automatedGates.operationRiskScan, 'passed');
   assert.equal(manifest.automatedGates.duplicateRetrieval, 'passed');
   assert.equal(manifest.automatedGates.readerBodyHygiene, 'passed');
@@ -379,6 +392,23 @@ function verifyWeek06TechnicalAuthority(rootDir = ROOT) {
   assert.equal(release.baseline.releaseManifestSha256, manifest.baseline.releaseManifestSha256);
   assert.equal(release.baseline.authoritySha256, manifest.baseline.authoritySha256);
 
+  const unresolved = {
+    identity: manifest.summary.checks.identity,
+    duplicate: manifest.summary.checks.duplicate,
+    evidence: manifest.summary.checks.evidence,
+    credential: manifest.summary.checks.credential,
+    privacy: privacy.unresolvedCount,
+    operationRisk: manifest.summary.checks.operationRisk,
+    comparisonRouting: comparison.candidates.filter(
+      (candidate) => candidate.disposition !== 'excluded'
+    ).length,
+    hygiene: manifest.summary.checks.readerBodyHygiene
+  };
+  assert(
+    Object.values(unresolved).every((count) => count === 0),
+    'Week06 authority has unresolved governance state'
+  );
+
   return {
     candidates: EXPECTED.candidates,
     locales: EXPECTED.locales,
@@ -387,7 +417,9 @@ function verifyWeek06TechnicalAuthority(rootDir = ROOT) {
     relationPages: EXPECTED.relationPages,
     failed: EXPECTED.failed,
     projection: projection.publicationCount,
-    baseline: EXPECTED.baselinePages
+    baseline: EXPECTED.baselinePages,
+    unresolved,
+    privacyScanSha256: privacy.sha256
   };
 }
 
