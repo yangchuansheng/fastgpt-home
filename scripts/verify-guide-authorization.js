@@ -19,6 +19,11 @@ const policy = JSON.parse(fs.readFileSync(POLICY_PATH, 'utf8'));
 const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
 const FINANCE_SLUGS = ['finance-research-retrieval', 'finance-daily-report-automation'];
 const EXPECTED_G2_SLUGS = ['soe-policy-qa-deployment'];
+const G2_APPROVALS = ['product', 'legalCompliance'];
+const G2_APPROVAL_SCOPES = {
+  product: ['deployment', 'data-flow', 'review', 'audit', 'operations'],
+  legalCompliance: ['soe-use', 'data-export', 'regulatory-review', 'private-deployment']
+};
 const releaseGates = JSON.parse(fs.readFileSync(RELEASE_GATES_PATH, 'utf8'));
 const G2_SLUGS = [
   ...new Set([
@@ -63,7 +68,16 @@ function addBlocker(blockers, category, id, reason) {
   blockers.push(`${category} ${id}: ${reason}`);
 }
 
-function validateEvidence(evidence, category, id, blockers) {
+function isIsoDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return (
+    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+  );
+}
+
+function validateEvidence(evidence, category, id, blockers, options = {}) {
   if (!evidence || typeof evidence !== 'object') {
     addBlocker(blockers, category, id, 'missing evidence record');
     return;
@@ -82,9 +96,36 @@ function validateEvidence(evidence, category, id, blockers) {
       addBlocker(blockers, category, id, 'evidence digest does not match its reference');
     }
   }
+  if (options.expiresOn) {
+    if (!isIsoDate(evidence.expiresOn)) {
+      addBlocker(blockers, category, id, 'evidence expiry must be a valid ISO date');
+    } else if (evidence.expiresOn < (options.asOf || new Date().toISOString().slice(0, 10))) {
+      addBlocker(blockers, category, id, 'evidence has expired');
+    }
+  }
+  if (
+    options.scope &&
+    (!Array.isArray(evidence.scope) || options.scope.some((item) => !evidence.scope.includes(item)))
+  ) {
+    addBlocker(blockers, category, id, 'evidence scope is incomplete');
+  }
 }
 
-function evaluateReleaseGate(slug, gate = releaseGates.entries?.[slug]) {
+function releaseEvidenceFor(gate, approval) {
+  const source = gate?.approvals || gate?.evidence || gate?.signoff;
+  if (source?.[approval]) return source[approval];
+  if (approval === 'product' && gate?.productEvidence) return gate.productEvidence;
+  if (approval === 'legalCompliance') {
+    return gate?.legalComplianceEvidence || source?.legal || source?.compliance;
+  }
+  return undefined;
+}
+
+function evaluateReleaseGate(
+  slug,
+  gate = releaseGates.entries?.[slug],
+  { asOf = new Date().toISOString().slice(0, 10) } = {}
+) {
   if (!G2_SLUGS.includes(slug)) {
     return {
       slug,
@@ -100,7 +141,13 @@ function evaluateReleaseGate(slug, gate = releaseGates.entries?.[slug]) {
   if (!gate || gate.group !== 'G2') {
     addBlocker(blockers, 'release gate', slug, 'G2 classification is missing');
   } else {
-    validateEvidence(gate.ownerApproval, 'release owner', slug, blockers);
+    for (const approval of G2_APPROVALS) {
+      validateEvidence(releaseEvidenceFor(gate, approval), 'release approval', approval, blockers, {
+        expiresOn: true,
+        scope: G2_APPROVAL_SCOPES[approval],
+        asOf
+      });
+    }
   }
   return {
     slug,
@@ -237,23 +284,33 @@ function validateReleaseGates() {
     if (
       Object.keys(gate || {})
         .sort()
-        .join(',') !== 'group,ownerApproval'
+        .join(',') !== 'approvals,group'
     ) {
-      throw new Error(`${slug}: G2 release gate must contain only group and ownerApproval`);
+      throw new Error(`${slug}: G2 release gate must contain only approvals and group`);
     }
-    const evidence = gate.ownerApproval;
+    const approvals = gate.approvals;
     if (
-      Object.keys(evidence || {})
+      Object.keys(approvals || {})
         .sort()
-        .join(',') !== 'digest,reference,status'
+        .join(',') !== 'legalCompliance,product'
     ) {
-      throw new Error(`${slug}: ownerApproval must contain status, reference, and digest`);
+      throw new Error(`${slug}: G2 approvals must contain product and legalCompliance`);
     }
-    if (!['pending', 'valid'].includes(evidence.status)) {
-      throw new Error(`${slug}: ownerApproval status must be pending or valid`);
+    for (const approval of G2_APPROVALS) {
+      const evidence = approvals[approval];
+      if (
+        Object.keys(evidence || {})
+          .sort()
+          .join(',') !== 'digest,expiresOn,reference,scope,status'
+      ) {
+        throw new Error(`${slug}: ${approval} evidence shape differs`);
+      }
+      if (evidence.status !== 'valid') {
+        throw new Error(`${slug}: ${approval} evidence must be valid for the committed release`);
+      }
     }
-    if (evidence.status === 'valid' && !evaluateReleaseGate(slug, gate).eligible) {
-      throw new Error(`${slug}: valid ownerApproval has invalid evidence`);
+    if (!evaluateReleaseGate(slug, gate).eligible) {
+      throw new Error(`${slug}: complete G2 approval evidence is invalid or expired`);
     }
   }
 }

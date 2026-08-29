@@ -10,7 +10,7 @@ const {
 } = require('./release-readiness');
 const { collectSourceProvenance, redactReleaseOptions } = require('./release-cross-project');
 const { evaluateReleaseGate } = require('../verify-guide-authorization');
-const { G1_GUIDE_SLUGS } = require('./guide-release');
+const { G1_GUIDE_SLUGS, G2_GUIDE_SLUGS } = require('./guide-release');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RETAIN_DIR = path.join(ROOT, '.release-artifacts');
@@ -54,6 +54,8 @@ const GUIDE_RELEASE_BLOCKED_SLUGS = Object.entries(GUIDE_RELEASE_GATES)
 const GUIDE_RELEASE_BLOCKED_COUNT = GUIDE_RELEASE_BLOCKED_SLUGS.length;
 const GUIDE_G1_MANIFEST_PATH = 'src/content/guides/g1-release-manifest.json';
 const GUIDE_G1_ROLLBACK_PATH = 'src/content/guides/g1-rollback.json';
+const GUIDE_G2_MANIFEST_PATH = 'src/content/guides/g2-release-manifest.json';
+const GUIDE_G2_ROLLBACK_PATH = 'src/content/guides/g2-rollback.json';
 const GUIDE_ENTRY_COUNT = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'src/content/guides/policy.json'), 'utf8')
 ).entryCount;
@@ -63,6 +65,7 @@ const GUIDE_RELEASE_PAIRS = [
   { slug: 'scheduled-report-automation', locales: ['zh', 'en'] },
   { slug: 'migrate-saas-to-selfhost', locales: ['zh', 'en'] },
   { slug: 'embed-ai-into-product', locales: ['zh', 'en'] },
+  { slug: 'soe-policy-qa-deployment', locales: ['zh', 'en'] },
   { slug: 'finance-research-retrieval', locales: ['zh', 'en'] },
   { slug: 'finance-daily-report-automation', locales: ['zh', 'en'] }
 ];
@@ -190,6 +193,15 @@ function createReleaseRecord(options) {
         expectedSlugs: [...G1_GUIDE_SLUGS],
         manifestPath: GUIDE_G1_MANIFEST_PATH,
         rollbackPath: GUIDE_G1_ROLLBACK_PATH,
+        source: false,
+        regression: false,
+        result: undefined,
+        releaseReady: false
+      },
+      guideG2: {
+        expectedSlugs: [...G2_GUIDE_SLUGS],
+        manifestPath: GUIDE_G2_MANIFEST_PATH,
+        rollbackPath: GUIDE_G2_ROLLBACK_PATH,
         source: false,
         regression: false,
         result: undefined,
@@ -325,6 +337,7 @@ function finalizeReleaseRecord(record, failures, options) {
     });
   const guidePairs = record.evidence.guidePairs;
   const guideG1 = record.evidence.guideG1;
+  const guideG2 = record.evidence.guideG2;
   const guideAuthorization = record.evidence.guideAuthorization;
   const technicalAuthority = record.evidence.technicalAuthority;
   const completeAuthorization = guideAuthorization.result?.complete;
@@ -348,9 +361,19 @@ function finalizeReleaseRecord(record, failures, options) {
     guideG1.result?.ownerPages?.cn === G1_GUIDE_SLUGS.length &&
     guideG1.result?.ownerPages?.io === G1_GUIDE_SLUGS.length &&
     guideG1.result?.g2ExcludedSlugs?.length === 1;
+  guideG2.releaseReady =
+    guideG2.source &&
+    guideG2.regression &&
+    guideG2.result?.status === 'source-verified' &&
+    JSON.stringify(guideG2.result?.g2Slugs) === JSON.stringify(G2_GUIDE_SLUGS) &&
+    guideG2.result?.g2IdentityCount === G2_GUIDE_SLUGS.length &&
+    guideG2.result?.ownerPages?.cn === G2_GUIDE_SLUGS.length &&
+    guideG2.result?.ownerPages?.io === G2_GUIDE_SLUGS.length &&
+    guideG2.result?.sourceDocumentCount === G2_GUIDE_SLUGS.length * 2;
   guidePairs.releaseReady =
     guidePairs.source &&
     guideG1.releaseReady &&
+    guideG2.releaseReady &&
     guideAuthorization.releaseReady &&
     ['cn', 'io', 'preview'].every((variant) => {
       const evidence = guidePairs.variants[variant];
@@ -451,6 +474,7 @@ function recordStep(record, stepId, label, command, variant, status, output, evi
   collectFaqMetadataEvidence(record, stepId, variant, status, output);
   collectGuideAuthorizationEvidence(record, stepId, status, output);
   collectGuideG1Evidence(record, stepId, status, output);
+  collectGuideG2Evidence(record, stepId, status, output);
   collectGuidePairEvidence(record, stepId, variant, status, output);
 }
 
@@ -463,6 +487,23 @@ function collectGuideG1Evidence(record, stepId, status, output) {
   const evidence = record.evidence.guideG1;
   evidence[evidenceKey] = status === 'passed';
   const marker = output.match(/GUIDE_G1_RESULT=(\{[^\n]+\})/);
+  if (!marker) return;
+  try {
+    evidence.result = JSON.parse(marker[1]);
+  } catch (error) {
+    evidence.result = { status: 'invalid', error: error.message };
+  }
+}
+
+function collectGuideG2Evidence(record, stepId, status, output) {
+  const evidenceKey = {
+    'guide-g2-release.source': 'source',
+    'guide-g2-release.regression': 'regression'
+  }[stepId];
+  if (!record || !evidenceKey) return;
+  const evidence = record.evidence.guideG2;
+  evidence[evidenceKey] = status === 'passed';
+  const marker = output.match(/GUIDE_G2_RESULT=(\{[^\n]+\})/);
   if (!marker) return;
   try {
     evidence.result = JSON.parse(marker[1]);

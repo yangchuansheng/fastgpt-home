@@ -308,14 +308,8 @@ function verifyManifest(rootDir, manifest, registry, gates) {
       verifySource(rootDir, registry.entries, findEntry(registry.entries, slug), locale);
   }
   const g2Gate = gates.entries?.[G2_GUIDE_SLUGS[0]];
-  if (
-    !g2Gate ||
-    g2Gate.group !== 'G2' ||
-    g2Gate.ownerApproval?.status !== 'pending' ||
-    g2Gate.ownerApproval?.reference !== null ||
-    g2Gate.ownerApproval?.digest !== null
-  ) {
-    fail('SOE G2 gate is not independently blocked');
+  if (!g2Gate || g2Gate.group !== 'G2') {
+    fail('SOE G2 gate is not independently classified');
   }
   return {
     status: manifest.status,

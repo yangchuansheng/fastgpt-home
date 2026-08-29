@@ -1,5 +1,4 @@
 const assert = require('node:assert/strict');
-const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
@@ -22,7 +21,7 @@ test('complete authorization fixture publishes both finance pairs', () => {
   const result = verifyAuthorizationFixtures({ fixture });
 
   assert.equal(result.status, 'passed');
-  assert.equal(result.complete.projectedEntries, 15);
+  assert.equal(result.complete.projectedEntries, 16);
   assert.deepEqual(result.complete.financeSlugs, [
     'finance-research-retrieval',
     'finance-daily-report-automation'
@@ -35,7 +34,7 @@ test('missing authorization fixture blocks and excludes both finance pairs', () 
   const result = verifyAuthorizationFixtures({ fixture });
 
   assert.equal(result.status, 'passed');
-  assert.equal(result.missing.projectedEntries, 13);
+  assert.equal(result.missing.projectedEntries, 14);
   assert.deepEqual(result.missing.financeSlugs, []);
   assert.equal(result.missing.decisions.length, 2);
   assert(result.missing.decisions.every((decision) => decision.status === 'release-blocked'));
@@ -66,12 +65,12 @@ test('projection accepts an explicit authority decision map', () => {
   );
 
   const projected = projectGuideEntries(registry.entries, decisions);
-  assert.equal(projected.length, 15);
+  assert.equal(projected.length, 16);
   assert(projected.some((entry) => entry.slug === 'finance-research-retrieval'));
   assert(projected.some((entry) => entry.slug === 'finance-daily-report-automation'));
 });
 
-test('G2 release-owner evidence remains fail-closed until its digest is valid', () => {
+test('G2 product and legal/compliance evidence remains fail-closed until both records are valid', () => {
   const slug = 'soe-policy-qa-deployment';
   const missing = evaluateReleaseGate(slug, null);
   assert.equal(missing.eligible, false);
@@ -82,23 +81,61 @@ test('G2 release-owner evidence remains fail-closed until its digest is valid', 
     ownerApproval: { status: 'pending', reference: null, digest: null }
   });
   assert.equal(pending.eligible, false);
+  assert.match(pending.blockers.join('\n'), /release approval product.*missing/i);
 
-  const reference = 'release-owner-approval-2026-08-28-soe-policy-qa-deployment';
-  const invalid = evaluateReleaseGate(slug, {
-    group: 'G2',
-    ownerApproval: { status: 'valid', reference, digest: '0'.repeat(64) }
-  });
-  assert.equal(invalid.eligible, false);
-  assert.match(invalid.blockers.join('\n'), /does not match/);
+  const gate = require('../src/content/guides/release-gates.json').entries[slug];
+  const invalid = structuredClone(gate);
+  invalid.approvals.product.digest = '0'.repeat(64);
+  const invalidDecision = evaluateReleaseGate(slug, invalid);
+  assert.equal(invalidDecision.eligible, false);
+  assert.match(invalidDecision.blockers.join('\n'), /product.*does not match/i);
 
-  const valid = evaluateReleaseGate(slug, {
-    group: 'G2',
-    ownerApproval: {
-      status: 'valid',
-      reference,
-      digest: crypto.createHash('sha256').update(reference).digest('hex')
-    }
-  });
+  const valid = evaluateReleaseGate(slug, gate);
   assert.equal(valid.eligible, true);
   assert.equal(valid.status, 'publishable');
+});
+
+test('G2 product and legal/compliance evidence requires scope and an unexpired digest', () => {
+  const slug = 'soe-policy-qa-deployment';
+  const gate = require('../src/content/guides/release-gates.json').entries[slug];
+  const valid = evaluateReleaseGate(slug, structuredClone(gate), { asOf: '2026-08-29' });
+  assert.equal(valid.eligible, true);
+
+  const expired = structuredClone(gate);
+  expired.approvals.product.expiresOn = '2026-08-28';
+  const expiredDecision = evaluateReleaseGate(slug, expired, { asOf: '2026-08-29' });
+  assert.equal(expiredDecision.eligible, false);
+  assert.match(expiredDecision.blockers.join('\n'), /product.*expired/i);
+
+  const incomplete = structuredClone(gate);
+  incomplete.approvals.legalCompliance.scope = ['soe-use'];
+  const incompleteDecision = evaluateReleaseGate(slug, incomplete, { asOf: '2026-08-29' });
+  assert.equal(incompleteDecision.eligible, false);
+  assert.match(incompleteDecision.blockers.join('\n'), /legalCompliance.*incomplete/i);
+});
+
+test('expired G2 evidence excludes both localized owner pages from the public projection', () => {
+  const slug = 'soe-policy-qa-deployment';
+  const expiredGate = structuredClone(
+    require('../src/content/guides/release-gates.json').entries[slug]
+  );
+  expiredGate.approvals.legalCompliance.expiresOn = '2026-08-28';
+  const decision = evaluateReleaseGate(slug, expiredGate, { asOf: '2026-08-29' });
+  const projected = projectGuideEntries(registry.entries, new Map([[slug, decision]]));
+
+  assert.equal(decision.status, 'release-blocked');
+  assert.equal(
+    projected.some((entry) => entry.slug === slug),
+    false
+  );
+  const ownerPages = registry.entries.find((entry) => entry.slug === slug);
+  assert(ownerPages);
+  assert.equal(
+    projected.some((entry) => entry.zh.canonical === ownerPages.zh.canonical),
+    false
+  );
+  assert.equal(
+    projected.some((entry) => entry.en.canonical === ownerPages.en.canonical),
+    false
+  );
 });

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/** Verify the seven bilingual Guide pairs emitted by the Preview static export. */
+/** Verify the eight bilingual Guide pairs emitted by the Preview static export. */
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -16,7 +16,8 @@ const REQUIRED_SLUGS = [
   'finance-research-retrieval',
   'finance-daily-report-automation',
   'migrate-saas-to-selfhost',
-  'embed-ai-into-product'
+  'embed-ai-into-product',
+  'soe-policy-qa-deployment'
 ];
 
 function fail(message) {
@@ -161,7 +162,7 @@ function verifyPage(outDir, slug, locale) {
   }
 }
 
-/** Verify every exported Guide route and the seven Week06 bilingual pairs. */
+/** Verify every exported Guide route and the eight Week06 bilingual pairs. */
 function verifyGuidePreview({ outDir }) {
   const safeOutDir = path.resolve(outDir || '');
   if (!outDir || !fs.existsSync(safeOutDir)) fail(`output directory does not exist: ${safeOutDir}`);

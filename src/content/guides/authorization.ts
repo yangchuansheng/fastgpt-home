@@ -8,6 +8,11 @@ export const GUIDE_AUTHORIZATION_REQUIRED_SLUGS = [
   'finance-daily-report-automation'
 ] as const;
 export const GUIDE_G2_REQUIRED_SLUGS = ['soe-policy-qa-deployment'] as const;
+export const GUIDE_G2_APPROVALS = ['product', 'legalCompliance'] as const;
+export const GUIDE_G2_APPROVAL_SCOPES = {
+  product: ['deployment', 'data-flow', 'review', 'audit', 'operations'],
+  legalCompliance: ['soe-use', 'data-export', 'regulatory-review', 'private-deployment']
+} as const;
 
 export type GuideAuthorizationStatus = 'publishable' | 'release-blocked';
 
@@ -15,6 +20,19 @@ export interface GuideAuthorizationEvidence {
   status: string;
   reference: string;
   digest: string;
+}
+
+export interface GuideReleaseEvidence extends GuideAuthorizationEvidence {
+  expiresOn: string;
+  scope: string[];
+}
+
+interface GuideGateEvidence {
+  status?: string;
+  reference?: string | null;
+  digest?: string | null;
+  expiresOn?: string | null;
+  scope?: string[];
 }
 
 export interface GuideAuthorizationCase {
@@ -62,7 +80,11 @@ const RELEASE_GATES = releaseGates as {
     {
       group?: string;
       status?: string;
-      ownerApproval?: { status?: string; reference?: string | null; digest?: string | null };
+      approvals?: Record<string, GuideGateEvidence>;
+      evidence?: Record<string, GuideGateEvidence>;
+      ownerApproval?: GuideGateEvidence;
+      productEvidence?: GuideGateEvidence;
+      legalComplianceEvidence?: GuideGateEvidence;
       blockers?: string[];
     }
   >;
@@ -88,15 +110,29 @@ function releaseGateFor(slug: string) {
   return RELEASE_GATES.schemaVersion === 1 ? RELEASE_GATES.entries?.[slug] : undefined;
 }
 
+function currentUtcDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function isGuideIsoDate(value: unknown): value is `${number}-${number}-${number}` {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return (
+    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+  );
+}
+
 function addBlocker(blockers: string[], category: string, id: string, reason: string) {
   blockers.push(`${category} ${id}: ${reason}`);
 }
 
 function validateEvidence(
-  evidence: Partial<GuideAuthorizationEvidence> | undefined,
+  evidence: GuideGateEvidence | GuideAuthorizationEvidence | undefined,
   category: string,
   id: string,
-  blockers: string[]
+  blockers: string[],
+  options: { expiresOn?: boolean; scope?: readonly string[]; asOf?: string } = {}
 ) {
   if (!evidence || typeof evidence !== 'object') {
     addBlocker(blockers, category, id, 'missing evidence record');
@@ -117,11 +153,36 @@ function validateEvidence(
   ) {
     addBlocker(blockers, category, id, 'evidence digest does not match its reference');
   }
+  if (options.expiresOn) {
+    if (!isGuideIsoDate((evidence as GuideGateEvidence)?.expiresOn)) {
+      addBlocker(blockers, category, id, 'evidence expiry must be a valid ISO date');
+    } else if ((evidence as GuideGateEvidence).expiresOn! < (options.asOf || currentUtcDate())) {
+      addBlocker(blockers, category, id, 'evidence has expired');
+    }
+  }
+  if (options.scope) {
+    const scope = (evidence as GuideGateEvidence)?.scope;
+    if (!Array.isArray(scope) || options.scope.some((item) => !scope.includes(item))) {
+      addBlocker(blockers, category, id, 'evidence scope is incomplete');
+    }
+  }
+}
+
+function releaseEvidenceFor(
+  gate: ReturnType<typeof releaseGateFor>,
+  approval: (typeof GUIDE_G2_APPROVALS)[number]
+) {
+  const source = gate?.approvals || gate?.evidence;
+  if (source?.[approval]) return source[approval];
+  if (approval === 'product' && gate?.productEvidence) return gate.productEvidence;
+  if (approval === 'legalCompliance') return gate?.legalComplianceEvidence || source?.legal;
+  return undefined;
 }
 
 export function evaluateGuideReleaseGate(
   slug: string,
-  gate: ReturnType<typeof releaseGateFor> = releaseGateFor(slug)
+  gate: ReturnType<typeof releaseGateFor> = releaseGateFor(slug),
+  { asOf = currentUtcDate() }: { asOf?: string } = {}
 ): GuideAuthorizationDecision {
   if (!isG2Slug(slug)) {
     return {
@@ -138,18 +199,13 @@ export function evaluateGuideReleaseGate(
   if (!gate || gate.group !== 'G2') {
     addBlocker(blockers, 'release gate', slug, 'G2 classification is missing');
   } else {
-    validateEvidence(
-      gate.ownerApproval
-        ? {
-            status: gate.ownerApproval.status,
-            reference: gate.ownerApproval.reference || '',
-            digest: gate.ownerApproval.digest || ''
-          }
-        : undefined,
-      'release owner',
-      slug,
-      blockers
-    );
+    for (const approval of GUIDE_G2_APPROVALS) {
+      validateEvidence(releaseEvidenceFor(gate, approval), 'release approval', approval, blockers, {
+        expiresOn: true,
+        scope: GUIDE_G2_APPROVAL_SCOPES[approval],
+        asOf
+      });
+    }
   }
   return {
     slug,

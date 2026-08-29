@@ -110,6 +110,7 @@ test('release plans compose FAQ, Guide, and variant checks with stable step IDs'
       'scheduled-report-automation',
       'migrate-saas-to-selfhost',
       'embed-ai-into-product',
+      'soe-policy-qa-deployment',
       'finance-research-retrieval',
       'finance-daily-report-automation'
     ]
@@ -162,6 +163,14 @@ test('release coordinator records and gates the case-only alias slice independen
   assert.equal(
     packageJson.scripts['verify:guide-authorization-regression'],
     'node --test scripts/verify-guide-authorization.test.js'
+  );
+  assert.equal(
+    packageJson.scripts['verify:guide-g2-release'],
+    'node scripts/verify-guide-g2-release.js'
+  );
+  assert.equal(
+    packageJson.scripts['verify:guide-g2-release-regression'],
+    'node --test scripts/verify-guide-g2-release.test.js'
   );
 });
 
