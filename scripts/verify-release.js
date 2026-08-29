@@ -273,6 +273,12 @@ function getSourceNodeSteps() {
       'technical wave source verification',
       'scripts/verify-technical-wave.js',
       []
+    ],
+    [
+      'technical-wave2.source',
+      'technical wave 2 source verification',
+      'scripts/verify-technical-wave2.js',
+      []
     ]
   ];
 }
@@ -293,6 +299,11 @@ function getSourceNpmSteps() {
       'technical-wave.regression',
       'technical wave regression',
       ['verify:technical-wave-regression']
+    ],
+    [
+      'technical-wave2.regression',
+      'technical wave 2 regression',
+      ['verify:technical-wave2-regression']
     ],
     [
       'technical-content.regression',
@@ -462,6 +473,12 @@ function getVariantSteps(variant) {
       id: 'technical-wave.export',
       label: `technical wave export verification (${variant})`,
       args: ['verify:technical-wave', '--', '--export', '--variant', variant, '--out-dir', 'out']
+    },
+    {
+      runner: 'npm',
+      id: 'technical-wave2.export',
+      label: `technical wave 2 export verification (${variant})`,
+      args: ['verify:technical-wave2', '--', '--export', '--variant', variant, '--out-dir', 'out']
     },
     ...(variant === 'preview'
       ? []
@@ -741,6 +758,18 @@ function main() {
     record,
     'src/content/tech-center/authority/week05-wave1-rollback.json',
     'technical-wave-rollback',
+    record.startedAt
+  );
+  addRollbackFile(
+    record,
+    'src/content/tech-center/authority/week05-wave2-release-manifest.json',
+    'technical-wave2-release-manifest',
+    record.startedAt
+  );
+  addRollbackFile(
+    record,
+    'src/content/tech-center/authority/week05-wave2-rollback.json',
+    'technical-wave2-rollback',
     record.startedAt
   );
   for (const [relativePath, role] of [

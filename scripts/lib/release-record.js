@@ -43,6 +43,15 @@ const EXPECTED_TECHNICAL_WAVE = {
   acceptedUpdate: 0,
   resultingPageCount: 1172
 };
+const EXPECTED_TECHNICAL_WAVE2 = {
+  wave: 'wave-2',
+  baselineWave: 'wave-1',
+  baselinePageCount: 1172,
+  selectedCount: 200,
+  acceptedAdd: 200,
+  acceptedUpdate: 0,
+  resultingPageCount: 1372
+};
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
 const GUIDE_AUTHORIZATION_SLUGS = ['finance-research-retrieval', 'finance-daily-report-automation'];
 const GUIDE_RELEASE_GATES = JSON.parse(
@@ -114,6 +123,7 @@ function createReleaseRecord(options) {
       expectedTechnicalPages: EXPECTED_TECHNICAL_PAGE_COUNT,
       technicalAuthority: { ...EXPECTED_TECHNICAL_AUTHORITY },
       technicalWave: { ...EXPECTED_TECHNICAL_WAVE },
+      technicalWave2: { ...EXPECTED_TECHNICAL_WAVE2 },
       faqMetadata: {
         candidates: EXPECTED_FAQ_METADATA_CANDIDATES,
         identities: EXPECTED_FAQ_METADATA_IDENTITIES,
@@ -155,6 +165,14 @@ function createReleaseRecord(options) {
       },
       technicalWave: {
         expected: { ...EXPECTED_TECHNICAL_WAVE },
+        source: false,
+        regression: false,
+        observed: undefined,
+        variants: {},
+        releaseReady: false
+      },
+      technicalWave2: {
+        expected: { ...EXPECTED_TECHNICAL_WAVE2 },
         source: false,
         regression: false,
         observed: undefined,
@@ -260,6 +278,30 @@ function collectTechnicalWaveEvidence(record, stepId, variant, status, output) {
     const observed = JSON.parse(marker[1]);
     evidence.observed = observed;
     record.counts.technicalWaveObserved = observed;
+    if (variant) evidence.variants[variant] = observed;
+  } catch (error) {
+    evidence.observed = { status: 'invalid', error: error.message };
+  }
+}
+
+function collectTechnicalWave2Evidence(record, stepId, variant, status, output) {
+  if (
+    !record ||
+    !['technical-wave2.source', 'technical-wave2.regression', 'technical-wave2.export'].includes(
+      stepId
+    )
+  ) {
+    return;
+  }
+  const evidence = record.evidence.technicalWave2;
+  if (stepId === 'technical-wave2.source') evidence.source = status === 'passed';
+  if (stepId === 'technical-wave2.regression') evidence.regression = status === 'passed';
+  const marker = output.match(/WAVE2_RESULT=(\{[^\n]+\})/);
+  if (!marker) return;
+  try {
+    const observed = JSON.parse(marker[1]);
+    evidence.observed = observed;
+    record.counts.technicalWave2Observed = observed;
     if (variant) evidence.variants[variant] = observed;
   } catch (error) {
     evidence.observed = { status: 'invalid', error: error.message };
@@ -405,6 +447,25 @@ function finalizeReleaseRecord(record, failures, options) {
         observed?.releaseEligible === true
       );
     });
+  const technicalWave2 = record.evidence.technicalWave2;
+  technicalWave2.releaseReady =
+    technicalWave2.source &&
+    technicalWave2.regression &&
+    Object.entries(technicalWave2.expected).every(
+      ([key, expected]) => technicalWave2.observed?.[key] === expected
+    ) &&
+    /^[a-f0-9]{64}$/.test(technicalWave2.observed?.baselineRegistrySha256 || '') &&
+    /^[a-f0-9]{64}$/.test(technicalWave2.observed?.baselineSearchSha256 || '') &&
+    ['cn', 'io', 'preview'].every((variant) => {
+      const observed = technicalWave2.variants[variant];
+      return (
+        observed?.sourceVerified === true &&
+        observed?.exportVerified === true &&
+        observed?.releaseEligible === true &&
+        /^[a-f0-9]{64}$/.test(observed.baselineRegistrySha256 || '') &&
+        /^[a-f0-9]{64}$/.test(observed.baselineSearchSha256 || '')
+      );
+    });
   const releaseGate = !options.sourceOnly && !options.variant && failures.length === 0;
   record.evidence.releaseEligible =
     releaseGate &&
@@ -414,6 +475,7 @@ function finalizeReleaseRecord(record, failures, options) {
     faqMetadata.releaseReady &&
     technicalAuthority.releaseReady &&
     technicalWave.releaseReady &&
+    technicalWave2.releaseReady &&
     guideAuthorization.releaseReady &&
     guidePairs.releaseReady;
   record.status = record.evidence.releaseEligible
@@ -469,6 +531,7 @@ function recordStep(record, stepId, label, command, variant, status, output, evi
   collectCountEvidence(record, output);
   collectTechnicalAuthorityEvidence(record, stepId, status, output);
   collectTechnicalWaveEvidence(record, stepId, variant, status, output);
+  collectTechnicalWave2Evidence(record, stepId, variant, status, output);
   collectCaseOnlyEvidence(record, stepId, variant, status, output);
   collectAliasContractEvidence(record, stepId, variant, status, output);
   collectFaqMetadataEvidence(record, stepId, variant, status, output);
@@ -636,6 +699,7 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
   const findStep = (stepId) => commands.find((step) => step.id === stepId);
   const technicalExportStep = findStep('technical-export.export');
   const technicalCenterStep = findStep('technical-center.export');
+  const technicalWave2Step = findStep('technical-wave2.export');
   const guideStep = findStep('guide.export');
   const p1Step = findStep('p1.export');
   const faqMetadataStep = findStep('faq-metadata.html');
@@ -684,6 +748,13 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
       ? 'passed'
       : 'failed',
     technicalExport: technicalExportStep?.status === 'passed',
+    technicalWave2: {
+      status: artifactStatus(technicalWave2Step),
+      baselineRegistrySha256:
+        record.evidence.technicalWave2.variants[variant]?.baselineRegistrySha256,
+      baselineSearchSha256: record.evidence.technicalWave2.variants[variant]?.baselineSearchSha256,
+      resultingPageCount: record.evidence.technicalWave2.variants[variant]?.resultingPageCount
+    },
     technicalPageCount: EXPECTED_TECHNICAL_PAGE_COUNT,
     caseOnly: {
       status: caseOnlyStep?.status || 'skipped',

@@ -23,6 +23,7 @@ const {
   buildNormalizedTechnicalPage,
   buildSearchProjection
 } = require('../import-technical-content');
+const { filterWave2Projection } = require('./technical-wave-baseline');
 
 const WAVE_ID = 'wave-1';
 const WAVE_MIN_CANDIDATES = 25;
@@ -606,6 +607,15 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
   if (authority.projection.wave !== 'wave-0' || authority.projection.publicationCount !== 0) {
     throw new Error('Wave 0 baseline must remain a zero-publication projection');
   }
+  const historical = filterWave2Projection(
+    repoRoot,
+    authority,
+    entries,
+    search,
+    parseEntryIdentity
+  );
+  const historicalEntries = historical.entries;
+  const historicalSearch = historical.search;
   const manifest = readWaveArtifact(repoRoot, WAVE_MANIFEST_RELATIVE_PATH, 'Wave 1 manifest');
   const content = readWaveArtifact(repoRoot, WAVE_CONTENT_RELATIVE_PATH, 'Wave 1 content manifest');
   const projection = readWaveArtifact(repoRoot, WAVE_PROJECTION_RELATIVE_PATH, 'Wave 1 projection');
@@ -619,7 +629,7 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
     WAVE_RELEASE_MANIFEST_RELATIVE_PATH,
     'Wave 1 release manifest'
   );
-  const selection = chooseWaveCandidates(authority, entries, approvedSelection);
+  const selection = chooseWaveCandidates(authority, historicalEntries, approvedSelection);
   if (
     manifest.wave !== WAVE_ID ||
     manifest.selection?.selectedCount !== selection.candidates.length
@@ -666,14 +676,19 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
     if (manifest.counts?.[key] !== expected)
       throw new Error(`Wave 1 count invariant drift: ${key}`);
   }
-  if (entries.length !== WAVE_BASELINE_PAGE_COUNT + manifest.counts.acceptedAdd) {
+  if (historicalEntries.length !== WAVE_BASELINE_PAGE_COUNT + manifest.counts.acceptedAdd) {
     throw new Error('Wave 1 registry count does not equal baseline plus accepted add');
   }
-  if (search.length !== entries.length) throw new Error('Wave 1 search count drift');
+  if (historicalSearch.length !== historicalEntries.length)
+    throw new Error('Wave 1 search count drift');
   const expectedSearch = buildSearchProjection(entries);
   if (JSON.stringify(search) !== JSON.stringify(expectedSearch))
     throw new Error('Wave 1 search projection drift');
-  const expectedProjection = buildWaveProjection({ authority, entries, selection });
+  const expectedProjection = buildWaveProjection({
+    authority,
+    entries: historicalEntries,
+    selection
+  });
   if (JSON.stringify(projection) !== JSON.stringify(expectedProjection)) {
     throw new Error('Wave 1 deterministic projection drift');
   }
@@ -735,7 +750,11 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
       throw new Error(`Wave 1 rollback surface identity drift: ${surface}`);
     }
   }
-  const expectedRollback = buildWaveRollback({ entries, search, projection });
+  const expectedRollback = buildWaveRollback({
+    entries: historicalEntries,
+    search: historicalSearch,
+    projection
+  });
   if (JSON.stringify(rollback) !== JSON.stringify(expectedRollback))
     throw new Error('Wave 1 rollback artifact drift');
   const expectedArtifactPaths = [
@@ -764,7 +783,15 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
   releaseManifest.artifacts.forEach((artifact) => {
     assertDigest(artifact.sha256, `Wave 1 release artifact ${artifact.path}`);
     const artifactPath = path.join(repoRoot, artifact.path);
-    if (!fs.existsSync(artifactPath) || fileSha256(artifactPath) !== artifact.sha256) {
+    const artifactDigest =
+      artifact.path === REGISTRY_RELATIVE_PATH
+        ? sha256(stableJson(historicalEntries))
+        : artifact.path === SEARCH_RELATIVE_PATH
+        ? sha256(stableJson(historicalSearch))
+        : fs.existsSync(artifactPath)
+        ? fileSha256(artifactPath)
+        : undefined;
+    if (!artifactDigest || artifactDigest !== artifact.sha256) {
       throw new Error(`Wave 1 release artifact SHA-256 drift: ${artifact.path}`);
     }
   });

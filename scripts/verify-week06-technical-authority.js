@@ -6,6 +6,8 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const { loadTechnicalAuthority, stableJson } = require('./lib/technical-authority');
+const { readWave2IdentityKeys } = require('./lib/technical-wave-baseline');
 
 const ROOT = path.resolve(__dirname, '..');
 const EXPECTED = {
@@ -79,6 +81,12 @@ function assertNoCredentialShape(value, label) {
 
 function identityKey(identity) {
   return `${identity.locale}|${identity.canonicalPath}`;
+}
+
+function parseTechnicalEntryIdentity(entry) {
+  const match = entry.slug?.match(/^\/([^/]+)(\/.*)$/);
+  assert(match, `Invalid technical registry slug: ${entry.slug}`);
+  return { locale: match[1], canonicalPath: match[2] };
 }
 
 function verifyCandidate(candidate, index, relationByCandidate) {
@@ -344,11 +352,13 @@ function verifyWeek06TechnicalAuthority(rootDir = ROOT) {
   assert.equal(rollback.baseline.registrySha256, manifest.baseline.registrySha256);
 
   const baselineRegistry = path.join(rootDir, 'src/components/tech-center/entries.json');
-  assert.equal(
-    JSON.parse(fs.readFileSync(baselineRegistry, 'utf8')).length,
-    EXPECTED.baselinePages
+  const deployedRegistry = JSON.parse(fs.readFileSync(baselineRegistry, 'utf8'));
+  const wave2IdentityKeys = readWave2IdentityKeys(rootDir, loadTechnicalAuthority(rootDir));
+  const historicalRegistry = deployedRegistry.filter(
+    (entry) => !wave2IdentityKeys.has(identityKey(parseTechnicalEntryIdentity(entry)))
   );
-  assert.equal(sha256(fs.readFileSync(baselineRegistry)), manifest.baseline.registrySha256);
+  assert.equal(historicalRegistry.length, EXPECTED.baselinePages);
+  assert.equal(sha256(stableJson(historicalRegistry)), manifest.baseline.registrySha256);
   assert.equal(manifest.baseline.pageCount, EXPECTED.baselinePages);
   assert.equal(manifest.baseline.status, 'deployed-registry');
   assert.equal(
