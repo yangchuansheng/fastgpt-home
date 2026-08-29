@@ -55,6 +55,92 @@ function normalizeQuery(value) {
   return `?${query}`;
 }
 
+function normalizeExpectedStatus(value, label) {
+  const status = value ?? 200;
+  if (!Number.isInteger(status) || status < 100 || status > 599) {
+    throw new Error(`${label} expectedStatus must be an HTTP status`);
+  }
+  return status;
+}
+
+function normalizeBodyMarkers(value, label) {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || value.some((marker) => typeof marker !== 'string' || !marker)) {
+    throw new Error(`${label} body markers must be non-empty strings`);
+  }
+  return [...value];
+}
+
+function normalizeHeaderAssertions(value, label) {
+  if (value === undefined) return {};
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`${label} headers must be an object`);
+  }
+  return Object.fromEntries(
+    Object.entries(value).map(([name, expected]) => {
+      if (!name || typeof expected !== 'string' || !expected) {
+        throw new Error(`${label} headers must contain non-empty string values`);
+      }
+      return [name.toLowerCase(), expected];
+    })
+  );
+}
+
+function normalizeLegacyDiscovery(discovery, terminalOrigin) {
+  if (!discovery || typeof discovery !== 'object' || Array.isArray(discovery)) {
+    throw new Error('Customer HTTP legacyDiscovery must be an object');
+  }
+  const defaults = {
+    robots: {
+      path: '/robots.txt',
+      expectedStatus: 200,
+      headers: { 'content-type': 'text/plain' },
+      bodyIncludes: ['User-agent: *', 'Allow: /', `Sitemap: ${terminalOrigin.origin}/sitemap.xml`],
+      bodyExcludes: ['Disallow: /']
+    },
+    sitemap: {
+      path: '/sitemap.xml',
+      expectedStatus: 301,
+      locationPath: '/sitemap.xml'
+    },
+    llms: {
+      path: '/llms.txt',
+      expectedStatus: 301,
+      locationPath: '/llms.txt'
+    }
+  };
+  return Object.fromEntries(
+    Object.entries(defaults).map(([name, fallback]) => {
+      const input = discovery[name];
+      if (input !== undefined && (!input || typeof input !== 'object' || Array.isArray(input))) {
+        throw new Error(`Customer HTTP legacyDiscovery.${name} must be an object`);
+      }
+      const value = { ...fallback, ...(input || {}) };
+      const path = validatePath(value.path, `Customer HTTP legacyDiscovery.${name}.path`);
+      const expectedStatus = normalizeExpectedStatus(
+        value.expectedStatus,
+        `Customer HTTP legacyDiscovery.${name}`
+      );
+      const headers = normalizeHeaderAssertions(
+        value.headers,
+        `Customer HTTP legacyDiscovery.${name}`
+      );
+      const bodyIncludes = normalizeBodyMarkers(
+        value.bodyIncludes,
+        `Customer HTTP legacyDiscovery.${name}`
+      );
+      const bodyExcludes = normalizeBodyMarkers(
+        value.bodyExcludes,
+        `Customer HTTP legacyDiscovery.${name}`
+      );
+      const locationPath = value.locationPath
+        ? validatePath(value.locationPath, `Customer HTTP legacyDiscovery.${name}.locationPath`)
+        : undefined;
+      return [name, { path, expectedStatus, headers, bodyIncludes, bodyExcludes, locationPath }];
+    })
+  );
+}
+
 function normalizeRepository(value) {
   if (!value || typeof value !== 'object') return {};
   const repository = {};
@@ -126,6 +212,18 @@ function validateContract(contract, authority, legacyOrigin, terminalOrigin) {
     contract.sitemapPath || '/sitemap.xml',
     'Customer HTTP sitemapPath'
   );
+  const legacyDiscovery = contract.legacyDiscovery
+    ? normalizeLegacyDiscovery(contract.legacyDiscovery, terminalOrigin)
+    : undefined;
+  const llmsPath = contract.llmsPath
+    ? validatePath(contract.llmsPath, 'Customer HTTP llmsPath')
+    : undefined;
+  const llmsBodyIncludes = normalizeBodyMarkers(contract.llmsBodyIncludes, 'Customer HTTP llms');
+  const llmsBodyExcludes = normalizeBodyMarkers(contract.llmsBodyExcludes, 'Customer HTTP llms');
+  const llmsHeaders = normalizeHeaderAssertions(
+    contract.llmsPath ? contract.llmsHeaders || { 'content-type': 'text/plain' } : undefined,
+    'Customer HTTP llms'
+  );
   const query = normalizeQuery(contract.query);
   const repository = normalizeRepository(contract.repository);
   const revision = typeof contract.revision === 'string' ? contract.revision.trim() : '';
@@ -136,7 +234,18 @@ function validateContract(contract, authority, legacyOrigin, terminalOrigin) {
     blockers.push({ code: 'customer-http-owner-revision-invalid' });
   if (contract.approvedTargets !== true)
     blockers.push({ code: 'customer-http-targets-unapproved' });
-  return { blockers, query, repository, revision, sitemapPath };
+  return {
+    blockers,
+    legacyDiscovery,
+    llmsBodyExcludes,
+    llmsBodyIncludes,
+    llmsHeaders,
+    llmsPath,
+    query,
+    repository,
+    revision,
+    sitemapPath
+  };
 }
 
 function canonicalInBody(body, expectedCanonical) {
@@ -160,10 +269,31 @@ function decodeXml(value) {
     .replaceAll('&apos;', "'");
 }
 
-function sitemapUrls(body) {
-  return new Set(
-    [...body.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/gi)].map((match) => decodeXml(match[1].trim()))
+function sitemapUrlList(body) {
+  return [...body.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/gi)].map((match) =>
+    decodeXml(match[1].trim())
   );
+}
+
+function sitemapUrls(body) {
+  return new Set(sitemapUrlList(body));
+}
+
+function bodyMarkers(body, markers, expected) {
+  return markers
+    .filter((marker) => (expected ? !body.includes(marker) : body.includes(marker)))
+    .map((marker) =>
+      expected ? `missing body marker: ${marker}` : `forbidden body marker: ${marker}`
+    );
+}
+
+function headerAssertions(headers, assertions) {
+  return Object.entries(assertions).flatMap(([name, expected]) => {
+    const actual = headers?.get?.(name);
+    return actual && actual.toLowerCase().includes(expected.toLowerCase())
+      ? []
+      : [`header ${name} did not include: ${expected}`];
+  });
 }
 
 function serializableHeaders(headers) {
@@ -179,6 +309,12 @@ function artifactName(role, index) {
   return `responses/${role}-${String(index + 1).padStart(3, '0')}.body`;
 }
 
+function responseName(role, index) {
+  return ['source', 'target'].includes(role)
+    ? `${role}-${String(index + 1).padStart(3, '0')}`
+    : role;
+}
+
 function persistArtifact(artifactDirectory, relativePath, bytes) {
   if (!artifactDirectory) return;
   const outputPath = path.join(artifactDirectory, relativePath);
@@ -189,7 +325,7 @@ function persistArtifact(artifactDirectory, relativePath, bytes) {
   fs.writeFileSync(outputPath, bytes);
 }
 
-async function fetchBody(url, role, index, artifactDirectory, capturedAt) {
+async function fetchBody(url, role, index, artifactDirectory, capturedAt, expectedStatus) {
   const requestUrl = url.href;
   try {
     const response = await fetch(url, { redirect: 'manual' });
@@ -200,9 +336,12 @@ async function fetchBody(url, role, index, artifactDirectory, capturedAt) {
       body: bytes.toString('utf8'),
       response,
       responseRecord: {
+        name: responseName(role, index),
         role,
+        requestPath: url.pathname,
         requestUrl,
         status: response.status,
+        expectedStatus,
         headers: serializableHeaders(response.headers),
         artifactPath: relativePath,
         bytes: bytes.length,
@@ -218,7 +357,18 @@ async function fetchBody(url, role, index, artifactDirectory, capturedAt) {
       }
     };
   } catch (error) {
-    return { error: error.message, responseRecord: { role, requestUrl, error: error.message } };
+    return {
+      error: error.message,
+      responseRecord: {
+        name: responseName(role, index),
+        role,
+        requestPath: url.pathname,
+        requestUrl,
+        expectedStatus,
+        capturedAt,
+        error: error.message
+      }
+    };
   }
 }
 
@@ -269,6 +419,89 @@ function verifyRedirect(response, location, record, expectedQuery, legacyOrigin,
   return details;
 }
 
+function verifyDiscoveryResponse(
+  response,
+  body,
+  location,
+  endpoint,
+  expectedQuery,
+  terminalOrigin
+) {
+  const details = [];
+  if (!response) return ['discovery request failed'];
+  if (response.status !== endpoint.expectedStatus) {
+    details.push(`expected HTTP ${endpoint.expectedStatus}, received ${response.status}`);
+  }
+  details.push(...headerAssertions(response.headers, endpoint.headers));
+  details.push(...bodyMarkers(body, endpoint.bodyIncludes, true));
+  details.push(...bodyMarkers(body, endpoint.bodyExcludes, false));
+  if (endpoint.locationPath) {
+    if (!location) {
+      details.push('missing Location header');
+      return details;
+    }
+    let target;
+    try {
+      target = new URL(location);
+    } catch (error) {
+      details.push(`Location is invalid: ${error.message}`);
+      return details;
+    }
+    if (target.protocol !== 'https:' || target.origin !== terminalOrigin.origin) {
+      details.push('Location must be an absolute HTTPS terminal-origin URL');
+    }
+    if (target.pathname !== endpoint.locationPath) {
+      details.push(`Location path must be ${endpoint.locationPath}`);
+    }
+    if (target.search !== expectedQuery) {
+      details.push('Location did not preserve the contract query');
+    }
+    if (target.hash) details.push('Location must not contain a fragment');
+  }
+  return details;
+}
+
+function verifyCustomerLlms(
+  body,
+  response,
+  origin,
+  authority,
+  headers,
+  bodyIncludes,
+  bodyExcludes
+) {
+  const details = [];
+  if (!response) return ['terminal llms request failed'];
+  if (response.status !== 200)
+    details.push(`expected terminal llms HTTP 200, received ${response.status}`);
+  details.push(...headerAssertions(response.headers, headers));
+  details.push(...bodyMarkers(body, bodyIncludes, true));
+  details.push(...bodyMarkers(body, bodyExcludes, false));
+  const expectedLinks = [
+    `${origin.origin}${authority.routeAuthority.hub}`,
+    ...authority.routeAuthority.details.map((detail) => `${origin.origin}${detail.path}`)
+  ];
+  const countExactUrl = (link) => {
+    const escaped = link.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return body.match(new RegExp(`${escaped}(?![/a-z0-9_-])`, 'gi'))?.length || 0;
+  };
+  expectedLinks.forEach((link) => {
+    const occurrences = countExactUrl(link);
+    if (occurrences !== 1) details.push(`terminal llms must contain ${link} once`);
+  });
+  if (/\/solutions\/|\/customers\/solution\/[^\s)]+\/markdown/.test(body)) {
+    details.push('terminal llms contains a legacy projection URL');
+  }
+  if (
+    /\b(?:evidenceSource|sourceSha256|sourceRow|sourceClass|rawTargetUrl|sourceUrl|provenance|disposition)\b/.test(
+      body
+    )
+  ) {
+    details.push('terminal llms contains internal migration metadata');
+  }
+  return details;
+}
+
 /** Run the two-origin customer migration contract against an approved preview edge. */
 async function runCustomerMigrationHttpContract({
   legacyTarget,
@@ -315,14 +548,40 @@ async function runCustomerMigrationHttpContract({
   const artifacts = [];
   const responses = [];
   const sitemapUrl = new URL(contractResult.sitemapPath, terminalOrigin);
-  const sitemapResult = await fetchBody(sitemapUrl, 'sitemap', 0, artifactDirectory, capturedAt);
+  const sitemapResult = await fetchBody(
+    sitemapUrl,
+    'sitemap',
+    0,
+    artifactDirectory,
+    capturedAt,
+    200
+  );
   if (sitemapResult.responseRecord) responses.push(sitemapResult.responseRecord);
   if (sitemapResult.artifact) artifacts.push(sitemapResult.artifact);
   const sitemapDetails = [];
-  const sitemapSet = sitemapResult.error ? new Set() : sitemapUrls(sitemapResult.body);
+  const sitemapList = sitemapResult.error ? [] : sitemapUrlList(sitemapResult.body);
+  const sitemapSet = new Set(sitemapList);
   if (sitemapResult.error) sitemapDetails.push(`request failed: ${sitemapResult.error}`);
   else if (sitemapResult.response.status !== 200)
     sitemapDetails.push(`expected HTTP 200, received ${sitemapResult.response.status}`);
+  const expectedSitemapSet = new Set(
+    authority.targetPaths.map((targetPath) => `${terminalOrigin.origin}${targetPath}`)
+  );
+  for (const expectedUrl of expectedSitemapSet) {
+    if (!sitemapSet.has(expectedUrl)) sitemapDetails.push(`sitemap is missing ${expectedUrl}`);
+  }
+  for (const actualUrl of sitemapSet) {
+    if (!expectedSitemapSet.has(actualUrl))
+      sitemapDetails.push(`sitemap contains unexpected ${actualUrl}`);
+  }
+  if (!sitemapResult.error && sitemapSet.size !== expectedSitemapSet.size) {
+    sitemapDetails.push(
+      `sitemap contains ${sitemapSet.size} URLs, expected ${expectedSitemapSet.size}`
+    );
+  }
+  if (!sitemapResult.error && sitemapList.length !== sitemapSet.size) {
+    sitemapDetails.push('sitemap contains duplicate URLs');
+  }
   checks.push({
     name: 'sitemap',
     status: sitemapDetails.length ? 'blocked' : 'passed',
@@ -331,6 +590,68 @@ async function runCustomerMigrationHttpContract({
       : `HTTP 200 ${contractResult.sitemapPath}`,
     requestPath: contractResult.sitemapPath
   });
+
+  if (contractResult.legacyDiscovery) {
+    for (const [name, endpoint] of Object.entries(contractResult.legacyDiscovery)) {
+      const requestUrl = sourceRequestUrl(legacyOrigin, endpoint.path, contractResult.query);
+      const result = await fetchBody(
+        requestUrl,
+        `legacy-${name}`,
+        0,
+        artifactDirectory,
+        capturedAt,
+        endpoint.expectedStatus
+      );
+      if (result.responseRecord) responses.push(result.responseRecord);
+      if (result.artifact) artifacts.push(result.artifact);
+      const location = result.response?.headers.get('location') || '';
+      const details = verifyDiscoveryResponse(
+        result.response,
+        result.body || '',
+        location,
+        endpoint,
+        contractResult.query,
+        terminalOrigin
+      );
+      checks.push({
+        name: `legacy-${name}`,
+        status: details.length ? 'blocked' : 'passed',
+        detail: details.length
+          ? details.join('; ')
+          : `HTTP ${endpoint.expectedStatus} ${endpoint.path}`,
+        requestPath: endpoint.path
+      });
+    }
+  }
+
+  if (contractResult.llmsPath) {
+    const requestUrl = new URL(contractResult.llmsPath, terminalOrigin);
+    const result = await fetchBody(
+      requestUrl,
+      'terminal-llms',
+      0,
+      artifactDirectory,
+      capturedAt,
+      200
+    );
+    if (result.responseRecord) responses.push(result.responseRecord);
+    if (result.artifact) artifacts.push(result.artifact);
+    const details = verifyCustomerLlms(
+      result.body || '',
+      result.response,
+      terminalOrigin,
+      authority,
+      contractResult.llmsHeaders,
+      contractResult.llmsBodyIncludes,
+      contractResult.llmsBodyExcludes
+    );
+    checks.push({
+      name: 'terminal-llms',
+      status: details.length ? 'blocked' : 'passed',
+      detail: details.length ? details.join('; ') : `HTTP 200 ${contractResult.llmsPath}`,
+      requestPath: contractResult.llmsPath
+    });
+  }
 
   const targetCache = new Map();
   const targetIndexByPath = new Map(
@@ -347,7 +668,8 @@ async function runCustomerMigrationHttpContract({
           'target',
           targetIndexByPath.get(targetPath) ?? targetCache.size,
           artifactDirectory,
-          capturedAt
+          capturedAt,
+          200
         )
       );
     }
@@ -355,7 +677,14 @@ async function runCustomerMigrationHttpContract({
   };
   const recordResults = await mapLimit(authority.records, concurrency, async (record, index) => {
     const sourceUrl = sourceRequestUrl(legacyOrigin, record.sourcePath, contractResult.query);
-    const sourceResult = await fetchBody(sourceUrl, 'source', index, artifactDirectory, capturedAt);
+    const sourceResult = await fetchBody(
+      sourceUrl,
+      'source',
+      index,
+      artifactDirectory,
+      capturedAt,
+      301
+    );
     if (sourceResult.responseRecord) responses.push(sourceResult.responseRecord);
     if (sourceResult.artifact) artifacts.push(sourceResult.artifact);
     const location = sourceResult.response?.headers.get('location') || '';
@@ -393,6 +722,7 @@ async function runCustomerMigrationHttpContract({
       sourceClass: record.sourceClass,
       sourcePath: record.sourcePath,
       targetPath: record.targetPath,
+      requestPath: record.sourcePath,
       status: details.length ? 'blocked' : 'passed',
       detail: details.length ? details.join('; ') : `301 -> 200 ${record.targetPath}`
     };
@@ -412,10 +742,16 @@ async function runCustomerMigrationHttpContract({
     classSummary[check.sourceClass] = summary;
   }
   const blockedChecks = checks.filter((check) => check.status !== 'passed');
+  responses.sort((left, right) => left.name.localeCompare(right.name));
+  artifacts.sort((left, right) => left.path.localeCompare(right.path));
+  const exitStatus = blockedChecks.length || blockers.length ? 1 : 0;
   return {
+    schemaVersion: CUSTOMER_HTTP_SCHEMA_VERSION,
+    kind: CUSTOMER_HTTP_KIND,
     producer: 'fastgpt-customer-migration-http-runner',
     runnerVersion: 1,
-    status: blockedChecks.length || blockers.length ? 'blocked' : 'passed',
+    status: exitStatus === 0 ? 'passed' : 'blocked',
+    exitStatus,
     authorityDigest: authority.authority.digest,
     sourceCount: authority.records.length,
     targetCount: authority.targetPaths.length,

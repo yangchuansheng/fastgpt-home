@@ -38,6 +38,8 @@
     "verify:solutions-preview-regression": "node --test scripts/lib/solutions-preview-http.test.js",
     "verify:customer-migration-http": "node scripts/verify-customer-migration-http.js",
     "verify:customer-migration-http-regression": "node --test scripts/lib/customer-migration-http.test.js",
+    "verify:customer-migration-release": "node scripts/verify-customer-migration-release.js",
+    "verify:customer-migration-release-regression": "node --test scripts/lib/customer-migration-release.test.js",
     "generate:customer-migration": "node scripts/generate-customer-migration.js",
     "verify:customer-migration": "node scripts/verify-customer-migration.js",
     "verify:customer-migration-regression": "node --test scripts/verify-customer-migration.test.js",

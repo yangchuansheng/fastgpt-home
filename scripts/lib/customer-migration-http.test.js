@@ -70,3 +70,80 @@ test('customer HTTP contract checks every source class and terminal route', asyn
     global.fetch = originalFetch;
   }
 });
+
+test('customer HTTP contract checks legacy crawl files and the canonical llms projection', async () => {
+  const authority = readCustomerMigrationAuthority(ROOT);
+  const contract = JSON.parse(
+    fs.readFileSync(
+      path.join(ROOT, 'scripts/fixtures/customer-migration-http-contract.json'),
+      'utf8'
+    )
+  );
+  const legacyOrigin = 'https://legacy.example.com';
+  const terminalOrigin = 'https://terminal.example.com';
+  const sitemap = authority.routeAuthority.paths
+    .map((routePath) => `<url><loc>${terminalOrigin}${routePath}</loc></url>`)
+    .join('');
+  const llms = [
+    '## Customer Case Center',
+    `- Customer Case Center: ${terminalOrigin}${authority.routeAuthority.hub}`,
+    ...authority.routeAuthority.details.map(
+      (detail) => `- ${detail.title}: ${terminalOrigin}${detail.path}`
+    )
+  ].join('\n');
+  const originalFetch = global.fetch;
+  global.fetch = async (input) => {
+    const url = new URL(input);
+    if (url.hostname === 'legacy.example.com') {
+      if (url.pathname === '/robots.txt') {
+        return new Response(`User-agent: *\nAllow: /\nSitemap: ${terminalOrigin}/sitemap.xml\n`, {
+          status: 200,
+          headers: { 'content-type': 'text/plain' }
+        });
+      }
+      if (url.pathname === '/sitemap.xml' || url.pathname === '/llms.txt') {
+        return new Response('', {
+          status: 301,
+          headers: { location: `${terminalOrigin}${url.pathname}${url.search}` }
+        });
+      }
+      const source = authority.records.find((record) => record.sourcePath === url.pathname);
+      assert(source, `unexpected source request: ${url.pathname}`);
+      return new Response('', {
+        status: 301,
+        headers: { location: `${terminalOrigin}${source.targetPath}${url.search}` }
+      });
+    }
+    if (url.pathname === '/sitemap.xml') return new Response(`<urlset>${sitemap}</urlset>`);
+    if (url.pathname === '/llms.txt') {
+      return new Response(llms, { status: 200, headers: { 'content-type': 'text/plain' } });
+    }
+    return new Response(`<link rel="canonical" href="${terminalOrigin}${url.pathname}">`, {
+      status: 200
+    });
+  };
+  contract.legacyOrigin = legacyOrigin;
+  contract.terminalOrigin = terminalOrigin;
+  contract.legacyDiscovery = {};
+  contract.llmsPath = '/llms.txt';
+  try {
+    const result = await runCustomerMigrationHttpContract({
+      legacyTarget: legacyOrigin,
+      terminalTarget: terminalOrigin,
+      approvedLegacyTarget: legacyOrigin,
+      approvedTerminalTarget: terminalOrigin,
+      contract,
+      rootDir: ROOT,
+      concurrency: 4
+    });
+    assert.equal(result.status, 'passed');
+    assert.equal(result.checks.length, 236);
+    assert.equal(result.responses.length, 343);
+    assert.equal(result.checks.find((check) => check.name === 'legacy-robots').status, 'passed');
+    assert.equal(result.checks.find((check) => check.name === 'legacy-sitemap').status, 'passed');
+    assert.equal(result.checks.find((check) => check.name === 'legacy-llms').status, 'passed');
+    assert.equal(result.checks.find((check) => check.name === 'terminal-llms').status, 'passed');
+  } finally {
+    global.fetch = originalFetch;
+  }
+});

@@ -45,3 +45,16 @@ lives at `.release-artifacts/release-verification.json`.
 Pull-request CI adds `--allow-missing-solutions-evidence` so source and export verification
 can complete with a release-ineligible record. Manual release runs remain strict and require
 approved Solutions evidence.
+
+## Customer migration release evidence
+
+`npm run verify:customer-migration-release -- --contract <json> --output <json>` runs the
+manifest-derived 231-source contract against both the approved preview and production origins.
+The release contract records the repository revision, approved origin pair for each environment,
+the tested previous ingress revision and migration digest, and a 72-hour observation containing
+404, 5xx, redirect, canonical, and crawl-file metrics. The runner retains response headers and
+metadata in the JSON output and response bodies in `<output-basename>-responses/<environment>/`.
+
+Use `scripts/fixtures/customer-migration-release-contract.json` as the reproducible contract
+shape. Replace its environment targets and observation values with the release-approved inputs,
+then retain the JSON output and response directories as the production evidence bundle.
