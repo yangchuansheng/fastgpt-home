@@ -77,6 +77,8 @@
     "generate:technical-wave2": "node scripts/generate-technical-wave2.js --write",
     "verify:technical-wave2": "node scripts/verify-technical-wave2.js",
     "verify:technical-wave2-regression": "node --test scripts/verify-technical-wave2.test.js",
+    "verify:technical-wave-observation": "node scripts/verify-technical-wave-observation.js",
+    "verify:technical-wave-observation-regression": "node --test scripts/verify-technical-wave-observation.test.js",
     "verify:technical-center": "node scripts/verify-technical-center.js",
     "verify:technical-center-regression": "node --test scripts/verify-technical-center.test.js",
     "verify:technical-export": "node scripts/verify-technical-export.js",

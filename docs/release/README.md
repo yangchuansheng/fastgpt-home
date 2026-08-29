@@ -92,6 +92,26 @@ Run the focused regression suite with:
 npm run verify:week06-compare-disposition-regression
 ```
 
+## Week05 Wave 2 observation gate
+
+`npm run verify:technical-wave-observation` validates the retained production, search,
+capacity, rollback, and next-slice evidence for issue #263. The authority record freezes the
+1,372-page candidate baseline and the exact 200-identity rollback surface. It currently exits
+nonzero because the full-wave production probe observed 200 HTTP 404 responses, zero sitemap
+memberships, an incomplete 72-hour window, absent 14-day search evidence, and incomplete
+capacity measurements.
+
+The next 200 accepted official-source candidates remain recorded as a candidate-only slice.
+Issue creation stays gated until the observation verifier passes; the retained slice contract
+requires the new issue to carry `ready-for-agent` and the native block edge
+`{ issue: 263, nativeEdge: "blocks" }`.
+
+Run the mutation coverage with:
+
+```bash
+npm run verify:technical-wave-observation-regression
+```
+
 ## Customer migration release evidence
 
 `npm run verify:customer-migration-release -- --contract <json> --output <json>` runs the
