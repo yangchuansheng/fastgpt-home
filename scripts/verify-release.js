@@ -778,6 +778,7 @@ function main() {
     ['src/faq/generated-en-metadata-authority.json', 'faq-metadata-authority'],
     ['src/content/guides/registry.json', 'guide-registry'],
     ['src/content/guides/policy.json', 'guide-release-policy'],
+    ['src/content/guides/g2-approval-policy.json', 'guide-g2-approval-policy'],
     ['src/content/guides/authorization.json', 'guide-authorization'],
     ['src/content/guides/g1-release-manifest.json', 'guide-g1-release-manifest'],
     ['src/content/guides/g1-rollback.json', 'guide-g1-rollback'],

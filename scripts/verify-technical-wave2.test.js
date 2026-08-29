@@ -78,6 +78,16 @@ test('Wave 2 package and source verification preserve one identity set', () => {
       surface
     );
   }
+  for (const artifact of [
+    wavePackage.content.identitySet,
+    wavePackage.manifest.identitySet,
+    wavePackage.manifest.selection.identitySet,
+    wavePackage.releaseManifest.identitySet,
+    wavePackage.rollback.identitySet,
+    wavePackage.rollback.waveIdentitySet
+  ]) {
+    assert.deepEqual([...artifact].sort(), expectedKeys);
+  }
   assert.equal(wavePackage.entries.length, 1372);
   assert.equal(wavePackage.search.length, 1372);
 });

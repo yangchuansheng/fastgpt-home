@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import authorization from './authorization.json';
+import g2ApprovalPolicy from './g2-approval-policy.json';
 import releaseGates from './release-gates.json';
 import type { GuideEntry } from './registry';
 
@@ -8,11 +9,13 @@ export const GUIDE_AUTHORIZATION_REQUIRED_SLUGS = [
   'finance-daily-report-automation'
 ] as const;
 export const GUIDE_G2_REQUIRED_SLUGS = ['soe-policy-qa-deployment'] as const;
-export const GUIDE_G2_APPROVALS = ['product', 'legalCompliance'] as const;
-export const GUIDE_G2_APPROVAL_SCOPES = {
-  product: ['deployment', 'data-flow', 'review', 'audit', 'operations'],
-  legalCompliance: ['soe-use', 'data-export', 'regulatory-review', 'private-deployment']
-} as const;
+type GuideG2Approval = 'product' | 'legalCompliance';
+const GUIDE_G2_APPROVAL_POLICY = g2ApprovalPolicy as {
+  approvals: readonly GuideG2Approval[];
+  scopes: Readonly<Record<GuideG2Approval, readonly string[]>>;
+};
+export const GUIDE_G2_APPROVALS = GUIDE_G2_APPROVAL_POLICY.approvals;
+export const GUIDE_G2_APPROVAL_SCOPES = GUIDE_G2_APPROVAL_POLICY.scopes;
 
 export type GuideAuthorizationStatus = 'publishable' | 'release-blocked';
 

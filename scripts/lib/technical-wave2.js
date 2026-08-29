@@ -95,7 +95,11 @@ function parseEntryIdentity(entry) {
 function readJson(repoRoot, relativePath) {
   const filePath = path.join(repoRoot, relativePath);
   if (!fs.existsSync(filePath)) throw new Error(`Missing Wave 2 artifact: ${relativePath}`);
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    throw new Error(`Unable to parse Wave 2 artifact ${relativePath}: ${error.message}`);
+  }
 }
 
 function containsCredentialShape(value) {
@@ -330,13 +334,41 @@ function buildBaseline(repoRoot, entries, search) {
       `Wave 2 baseline registry count drift: expected ${wave1Projection.resultingPageCount}, found ${entries.length}`
     );
   }
+  if (wave1Release.resultingPageCount !== entries.length) {
+    throw new Error(
+      `Wave 2 deployed baseline count drift: expected ${wave1Release.resultingPageCount}, found ${entries.length}`
+    );
+  }
+  if (wave1Rollback.resultingPageCount !== entries.length) {
+    throw new Error(
+      `Wave 2 rollback baseline count drift: expected ${wave1Rollback.resultingPageCount}, found ${entries.length}`
+    );
+  }
   if (search.length !== entries.length) throw new Error('Wave 2 baseline search count drift');
+  const wave1Artifacts = new Map(
+    (Array.isArray(wave1Release.artifacts) ? wave1Release.artifacts : []).map((artifact) => [
+      artifact.path,
+      artifact.sha256
+    ])
+  );
+  const deployedRegistrySha256 = wave1Artifacts.get(REGISTRY_RELATIVE_PATH);
+  const deployedSearchSha256 = wave1Artifacts.get(SEARCH_RELATIVE_PATH);
+  assertDigest(deployedRegistrySha256, 'Wave 1 deployed registry digest');
+  assertDigest(deployedSearchSha256, 'Wave 1 deployed search digest');
+  const registrySha256 = sha256(stableJson(entries));
+  const searchSha256 = sha256(stableJson(search));
+  if (registrySha256 !== deployedRegistrySha256) {
+    throw new Error('Wave 2 actual baseline registry does not match the deployed Wave 1 artifact');
+  }
+  if (searchSha256 !== deployedSearchSha256) {
+    throw new Error('Wave 2 actual baseline search does not match the deployed Wave 1 artifact');
+  }
   return {
     wave: BASELINE_WAVE,
     pageCount: entries.length,
     publicationCount: wave1Projection.publicationCount,
-    registrySha256: sha256(stableJson(entries)),
-    searchSha256: sha256(stableJson(search)),
+    registrySha256,
+    searchSha256,
     projectionSha256: fileSha256(path.join(repoRoot, WAVE1_PROJECTION_RELATIVE_PATH)),
     releaseManifestSha256: fileSha256(path.join(repoRoot, WAVE1_RELEASE_MANIFEST_RELATIVE_PATH)),
     rollbackSha256: fileSha256(path.join(repoRoot, WAVE1_ROLLBACK_RELATIVE_PATH)),
@@ -412,6 +444,7 @@ function buildWaveProjection({ authority, entries, selection, baseline }) {
     publicPageDelta: selected.length,
     publicationCount: selected.length,
     resultingPageCount: baseline.pageCount + selected.length,
+    identitySet: identities.map((identity) => identity.key),
     surfaces: WAVE_SURFACES,
     identities,
     registry,
@@ -474,6 +507,7 @@ function buildWaveContentManifest({ selection, entries, readerDocuments }) {
     readerContentContract: READER_CONTENT_CONTRACT,
     sourceSetSha256,
     readerCount: sources.length,
+    identitySet: sources.map((source) => identityKey(source.identity)),
     sources
   };
 }
@@ -499,6 +533,7 @@ function buildWaveRollback({ entries, search, projection, baseline }) {
     status: 'ready',
     baseline,
     resultingPageCount: projection.resultingPageCount,
+    identitySet: projection.identities.map((identity) => identity.key),
     waveIdentitySet: projection.identities.map((identity) => identity.key),
     publicSurfaces: [
       REGISTRY_RELATIVE_PATH,
@@ -577,12 +612,14 @@ function buildWavePackage(repoRoot) {
     batch: 'week05',
     wave: WAVE_ID,
     status: 'source-verified',
+    identitySet: projection.identities.map((identity) => identity.key),
     baseline,
     selection: {
       criteria: selection.criteria,
       selectedCount: selection.candidates.length,
       eligibleCount: selection.eligibleCount,
       candidateIds: selection.candidates.map((candidate) => candidate.id),
+      identitySet: projection.identities.map((identity) => identity.key),
       approval: selection.approval
     },
     counts: {
@@ -596,17 +633,20 @@ function buildWavePackage(repoRoot) {
     content: {
       path: WAVE_CONTENT_RELATIVE_PATH,
       sha256: sha256(stableJson(content)),
-      readerCount: content.readerCount
+      readerCount: content.readerCount,
+      identitySet: content.identitySet
     },
     projection: {
       path: WAVE_PROJECTION_RELATIVE_PATH,
       sha256: sha256(stableJson(projection)),
-      identityCount: projection.identities.length
+      identityCount: projection.identities.length,
+      identitySet: projection.identitySet
     },
     rollback: {
       path: WAVE_ROLLBACK_RELATIVE_PATH,
       sha256: sha256(stableJson(rollback)),
-      identityCount: rollback.waveIdentitySet.length
+      identityCount: rollback.waveIdentitySet.length,
+      identitySet: rollback.identitySet
     },
     provenance: {
       authorityArtifact: 'src/content/tech-center/authority/week05-authority.json',
@@ -636,6 +676,7 @@ function buildWavePackage(repoRoot) {
     sourceSetSha256: content.sourceSetSha256,
     baseline,
     resultingPageCount: projection.resultingPageCount,
+    identitySet: projection.identities.map((identity) => identity.key),
     writeStrategy: 'rollback-on-error',
     postWriteVerification: 'required',
     artifacts: [...artifactBytes.entries()].map(([relativePath, bytes]) => ({
@@ -793,6 +834,22 @@ function verifyWave2Source(repoRoot = path.resolve(__dirname, '../..')) {
     JSON.stringify(selection.candidates.map((candidate) => candidate.id))
   ) {
     throw new Error('Wave 2 content identity set drift');
+  }
+  const expectedIdentitySet = selection.candidates.map((candidate) =>
+    identityKey(candidate.identity)
+  );
+  for (const [label, identitySet] of [
+    ['content', content.identitySet],
+    ['projection', projection.identitySet],
+    ['rollback', rollback.identitySet],
+    ['rollback wave', rollback.waveIdentitySet],
+    ['manifest', manifest.identitySet],
+    ['manifest selection', manifest.selection?.identitySet],
+    ['release manifest', releaseManifest.identitySet]
+  ]) {
+    if (JSON.stringify(identitySet) !== JSON.stringify(expectedIdentitySet)) {
+      throw new Error(`Wave 2 ${label} identity set drift`);
+    }
   }
   if (
     manifest.counts.baselinePageCount !== baseline.pageCount ||

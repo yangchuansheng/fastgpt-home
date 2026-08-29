@@ -13,17 +13,16 @@ const ROOT = path.resolve(__dirname, '..');
 const REGISTRY_PATH = path.join(ROOT, 'src/content/guides/registry.json');
 const POLICY_PATH = path.join(ROOT, 'src/content/guides/policy.json');
 const DEFAULT_AUTHORIZATION_PATH = path.join(ROOT, 'src/content/guides/authorization.json');
+const G2_APPROVAL_POLICY_PATH = path.join(ROOT, 'src/content/guides/g2-approval-policy.json');
 const RELEASE_GATES_PATH = path.join(ROOT, 'src/content/guides/release-gates.json');
 const FIXTURE_ROOT = path.join(ROOT, 'scripts/fixtures/guides');
 const policy = JSON.parse(fs.readFileSync(POLICY_PATH, 'utf8'));
 const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
 const FINANCE_SLUGS = ['finance-research-retrieval', 'finance-daily-report-automation'];
 const EXPECTED_G2_SLUGS = ['soe-policy-qa-deployment'];
-const G2_APPROVALS = ['product', 'legalCompliance'];
-const G2_APPROVAL_SCOPES = {
-  product: ['deployment', 'data-flow', 'review', 'audit', 'operations'],
-  legalCompliance: ['soe-use', 'data-export', 'regulatory-review', 'private-deployment']
-};
+const G2_APPROVAL_POLICY = JSON.parse(fs.readFileSync(G2_APPROVAL_POLICY_PATH, 'utf8'));
+const G2_APPROVALS = G2_APPROVAL_POLICY.approvals;
+const G2_APPROVAL_SCOPES = G2_APPROVAL_POLICY.scopes;
 const releaseGates = JSON.parse(fs.readFileSync(RELEASE_GATES_PATH, 'utf8'));
 const G2_SLUGS = [
   ...new Set([

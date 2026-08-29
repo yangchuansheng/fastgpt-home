@@ -1,0 +1,7 @@
+{
+  "approvals": ["product", "legalCompliance"],
+  "scopes": {
+    "product": ["deployment", "data-flow", "review", "audit", "operations"],
+    "legalCompliance": ["soe-use", "data-export", "regulatory-review", "private-deployment"]
+  }
+}

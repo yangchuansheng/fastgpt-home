@@ -176,6 +176,12 @@ function createReleaseRecord(options) {
         source: false,
         regression: false,
         observed: undefined,
+        baseline: {
+          wave: EXPECTED_TECHNICAL_WAVE2.baselineWave,
+          pageCount: EXPECTED_TECHNICAL_WAVE2.baselinePageCount,
+          registrySha256: undefined,
+          searchSha256: undefined
+        },
         variants: {},
         releaseReady: false
       },
@@ -302,6 +308,14 @@ function collectTechnicalWave2Evidence(record, stepId, variant, status, output) 
     const observed = JSON.parse(marker[1]);
     evidence.observed = observed;
     record.counts.technicalWave2Observed = observed;
+    if (observed.baselineRegistrySha256 || observed.baselineSearchSha256) {
+      evidence.baseline = {
+        wave: observed.baselineWave,
+        pageCount: observed.baselinePageCount,
+        registrySha256: observed.baselineRegistrySha256,
+        searchSha256: observed.baselineSearchSha256
+      };
+    }
     if (variant) evidence.variants[variant] = observed;
   } catch (error) {
     evidence.observed = { status: 'invalid', error: error.message };
@@ -454,6 +468,12 @@ function finalizeReleaseRecord(record, failures, options) {
     Object.entries(technicalWave2.expected).every(
       ([key, expected]) => technicalWave2.observed?.[key] === expected
     ) &&
+    technicalWave2.baseline?.wave === technicalWave2.expected.baselineWave &&
+    technicalWave2.baseline?.pageCount === technicalWave2.expected.baselinePageCount &&
+    /^[a-f0-9]{64}$/.test(technicalWave2.baseline?.registrySha256 || '') &&
+    /^[a-f0-9]{64}$/.test(technicalWave2.baseline?.searchSha256 || '') &&
+    technicalWave2.baseline.registrySha256 === technicalWave2.observed?.baselineRegistrySha256 &&
+    technicalWave2.baseline.searchSha256 === technicalWave2.observed?.baselineSearchSha256 &&
     /^[a-f0-9]{64}$/.test(technicalWave2.observed?.baselineRegistrySha256 || '') &&
     /^[a-f0-9]{64}$/.test(technicalWave2.observed?.baselineSearchSha256 || '') &&
     ['cn', 'io', 'preview'].every((variant) => {

@@ -316,6 +316,17 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
   assert.equal(record.commands.at(-1).id, 'technical-authority.source');
   assert.equal(record.evidence.technicalAuthority.source, true);
   assert.equal(record.evidence.technicalAuthority.observed.publicationCount, 0);
+  recordStep(
+    record,
+    'technical-wave2.source',
+    'Wave 2 source evidence',
+    'node scripts/verify-technical-wave2.js',
+    undefined,
+    'passed',
+    'WAVE2_RESULT={"baselineWave":"wave-1","baselinePageCount":1172,"baselineRegistrySha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","baselineSearchSha256":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}'
+  );
+  assert.equal(record.evidence.technicalWave2.baseline.pageCount, 1172);
+  assert.match(record.evidence.technicalWave2.baseline.registrySha256, /^[a-f0-9]{64}$/);
   assert.equal(
     packageJson.scripts['verify:release-readiness'],
     'node --test scripts/lib/release-readiness.test.js'
