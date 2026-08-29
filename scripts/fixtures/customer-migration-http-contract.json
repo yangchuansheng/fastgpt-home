@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "kind": "customer-migration-http",
+  "authority": "customer-migration",
+  "authorityPath": "src/config/customer-migration-authority.json",
+  "authorityDigest": "2d5a07d086c55a94fa9c923c1256d9444e3b6b967befb381ea876d57aae8681d",
+  "sourceHost": "solutions.fastgpt.cn",
+  "targetHost": "fastgpt.cn",
+  "legacyOrigin": "https://solutions.fastgpt.cn",
+  "terminalOrigin": "https://fastgpt.cn",
+  "sitemapPath": "/sitemap.xml",
+  "query": "customer-migration-contract=1",
+  "repository": {
+    "url": "https://github.com/labring/fastgpt-home"
+  },
+  "revision": "2209656",
+  "approvedTargets": true
+}

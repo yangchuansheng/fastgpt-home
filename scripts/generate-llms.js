@@ -5,6 +5,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { getCustomerRouteAuthority } = require('./lib/customer-migration');
 
 const baseUrl = (process.env.NEXT_PUBLIC_HOME_URL || 'https://fastgpt.io').replace(/\/$/, '');
 const isCn = new URL(baseUrl).hostname.endsWith('.cn');
@@ -20,35 +21,20 @@ const chineseLlmUrl = `${cnBaseUrl}/llms.txt`;
 const traditionalLlmUrl = `${ioBaseUrl}/zh-hant/llms.txt`;
 
 function loadCustomerDirectory() {
-  const solutionsRoot = path.join(__dirname, '../content/customers/solutions');
-  const entries = [];
-  const walk = (directory) => {
-    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-      const filePath = path.join(directory, entry.name);
-      if (entry.isDirectory()) walk(filePath);
-      else if (entry.isFile() && entry.name.endsWith('.json')) {
-        const solution = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        entries.push({
-          slug: solution.slug,
-          categorySlug: solution.categorySlug,
-          title: solution.title
-        });
-      }
-    }
-  };
-  walk(solutionsRoot);
-  return entries.sort((a, b) =>
-    `${a.categorySlug}/${a.slug}`.localeCompare(`${b.categorySlug}/${b.slug}`)
-  );
+  const routeAuthority = getCustomerRouteAuthority(path.join(__dirname, '..'));
+  return routeAuthority.details.map((detail) => ({
+    categorySlug: detail.categorySlug,
+    path: detail.path,
+    slug: detail.slug,
+    title: detail.title
+  }));
 }
 
 const customerDirectoryEntries = loadCustomerDirectory();
 const customerDirectory = [
   '## Customer Case Center',
   `- Customer Case Center: ${cnBaseUrl}/customers`,
-  ...customerDirectoryEntries.map(
-    (entry) => `- ${entry.title}: ${cnBaseUrl}/customers/${entry.categorySlug}/${entry.slug}`
-  )
+  ...customerDirectoryEntries.map((entry) => `- ${entry.title}: ${cnBaseUrl}${entry.path}`)
 ].join('\n');
 
 const links = {
