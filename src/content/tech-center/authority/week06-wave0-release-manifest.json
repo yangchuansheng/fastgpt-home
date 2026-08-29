@@ -2,65 +2,81 @@
   "schemaVersion": 1,
   "batch": "week06",
   "wave": "wave-0",
-  "status": "release-blocked",
-  "governanceStatus": "intake-review",
+  "status": "closed",
+  "governanceStatus": "governance-complete",
   "publicationCount": 0,
   "baseline": {
     "batch": "week05",
+    "status": "deployed-registry",
     "pageCount": 1172,
     "registryPath": "src/components/tech-center/entries.json",
     "registrySha256": "802ed3c993004f52a858ac9ac2d7aa3c3d11224d6b3a77f28daf3513b724290e",
     "releaseManifestPath": "src/content/tech-center/authority/week05-release-manifest.json",
-    "releaseManifestSha256": "a033816de864858f010811e2dc49eb91a9280672ac66e807f7c562b475973db7"
+    "releaseManifestSha256": "a033816de864858f010811e2dc49eb91a9280672ac66e807f7c562b475973db7",
+    "authorityPath": "src/content/tech-center/authority/week05-authority.json",
+    "authoritySha256": "fe8d1c8e5d22b044272620c3d67df1ef1f94d2f15a6ac6af8cbbd2c08323c41d"
   },
   "sourceSetSha256": "b9a235e60640bd681217638e5fdc650b025aba84c4c814aea085e32b6abf5ae3",
-  "blockers": [
-    "Candidate dispositions, security review, operation-risk review, and duplicate review remain open."
-  ],
+  "blockers": [],
+  "projection": {
+    "mode": "dry-run",
+    "publicPageDelta": 0,
+    "publicationCount": 0,
+    "acceptedCandidateCount": 2031,
+    "excludedCandidateCount": 3
+  },
   "artifacts": [
     {
       "path": "src/content/tech-center/authority/week06-candidate-manifest.json",
-      "sha256": "72f67fe68c9ecdeb517d44e63660c520944d6d9e508a60d3435b9890d20aa63e"
+      "sha256": "7803bad860bb15d46529a0f7a1b0109122f93529b085afe6718fc2ffa09d81a8"
     },
     {
       "path": "src/content/tech-center/authority/week06-disposition-ledger.json",
-      "sha256": "ae75eb11cc5d598e559ce8b727c117468969cde7c9455252cf9e47f1d506a5e3"
+      "sha256": "d6faa0dd99335ceecdf3a9e211fb5d3df8654542a7a1940d1ce63fd686254efa"
     },
     {
       "path": "src/content/tech-center/authority/week06-identity-ledger.json",
-      "sha256": "a1b05fbcef692645079c0a0eba3eeb417e5ea0c85e5aa510fa44b1824f7a1aaf"
+      "sha256": "ff8ae3aabc09260fc8e8033753b81491855d6240820d8c11e041fb26dc323053"
     },
     {
       "path": "src/content/tech-center/authority/week06-security-ledger.json",
-      "sha256": "f5aa6178e69a4868025eb22c841e5b63d31ee3820132a14e231e4f4d1f007333"
+      "sha256": "e48908e4387d845b1f9e88e30909694dc02747f530f7a6cd848486e184855dd1"
     },
     {
       "path": "src/content/tech-center/authority/week06-operation-risk-ledger.json",
-      "sha256": "2950f7757455612dc21cdc7f1278eb00613fbb807e412bc3b93b4a3a6152325f"
+      "sha256": "f7509b0eac535f8b33b4b6c7c5a4ed275848e9feb61624714abd0456e5dbdaec"
     },
     {
       "path": "src/content/tech-center/authority/week06-duplicate-ledger.json",
-      "sha256": "f13f3669498f11f84bad1a67e5a7e1adefcd058507f0eac87d03c71f4d93229f"
+      "sha256": "df5d214628f8ebf41ee973b436546cced72931548f013d5d99558e5b73e83f1b"
     },
     {
       "path": "src/content/tech-center/authority/week06-provenance.json",
-      "sha256": "1ac7e60427d7417d5fc7c26da1b01fffd7d9672d02fa1e165c7de9810247a9e6"
+      "sha256": "68aa081deb6f429541d57dcaa76f1ed08ce23012651da53bc9f7d8e5eb6afaad"
     },
     {
       "path": "src/content/tech-center/authority/week06-wave0-content.json",
-      "sha256": "3a28a32431e7159332a800bd8cb5034b04e675ec880a9b459368e6f8f853581c"
+      "sha256": "3bcb9a173d90e3e26c1fbcc4178a75e95a553458cac4f87e8501c2d14de41246"
     },
     {
       "path": "src/content/tech-center/authority/week06-wave0-projection.json",
-      "sha256": "474fd4964e881c34d8475271ffa3b89e017850197c569d9d270f72f262a46bea"
+      "sha256": "8dd5747743e8c41395d947737ed9e0c06c86f42fa260da9c696733ed02c34cc1"
     },
     {
       "path": "src/content/tech-center/authority/week06-wave0-selection.json",
-      "sha256": "deb25048b02bb1008e6815e20cfa118708fa645f17a9e5dd60bbcba574df421e"
+      "sha256": "cda7963fd25c310eac7c74bc676456c4788d8bd9bc1356d2a6a210f32c5ad63c"
     },
     {
       "path": "src/content/tech-center/authority/week06-rollback.json",
-      "sha256": "576975b4ec6dbc4eee5cc666d1a730b15432069c5135738433757fefe0b2c337"
+      "sha256": "5b2aa2270ee923b10bec554d2609351f5389dd523def752eb23b9b0bcecd5486"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-exclusion-ledger.json",
+      "sha256": "2376ccd7b42b7fb4cf72fd1f00ddef55081fb79b54e38a91ee325d7dbb667f82"
+    },
+    {
+      "path": "src/content/tech-center/authority/week06-compare-disposition.json",
+      "sha256": "74fd331e02f34fc2543fdeef51cf280bfe3dd3450fee34def8a959c6d7438d7b"
     }
   ]
 }

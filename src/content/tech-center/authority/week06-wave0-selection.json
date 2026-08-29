@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "batch": "week06",
   "wave": "wave-0",
-  "status": "empty",
+  "status": "closed",
   "reviewer": "technical-governance",
   "criteria": [
     "authority-input",
@@ -13,5 +13,8 @@
   ],
   "selected": [],
   "projection": [],
+  "acceptedCandidateCount": 2031,
+  "excludedCandidateCount": 3,
+  "publicationCount": 0,
   "rollback": "week06-rollback.json"
 }

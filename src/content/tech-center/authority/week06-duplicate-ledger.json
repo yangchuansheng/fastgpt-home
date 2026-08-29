@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "batch": "week06",
-  "status": "intake-review",
+  "status": "closed",
   "relationCount": 6,
-  "resolvedRelationCount": 0,
-  "unresolvedRelationCount": 6,
+  "resolvedRelationCount": 6,
+  "unresolvedRelationCount": 0,
   "relations": [
     {
       "id": "week06-duplicate-01",
@@ -13,11 +13,34 @@
         "/fastgpt-code-sandbox-env-config",
         "/fastgpt-sandbox-env-changes"
       ],
-      "disposition": "pending",
-      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
-      "candidateIds": [
+      "resolution": "distinct",
+      "resolutionReason": "The retained delivery pages cover distinct documented entry points.",
+      "relatedCandidateIds": [
         "week06-0120",
         "week06-0195"
+      ],
+      "evidence": "https://doc.fastgpt.cn/zh-CN/guide",
+      "candidates": [
+        {
+          "candidateId": "week06-0120",
+          "identity": {
+            "locale": "en",
+            "owner": "io",
+            "canonicalPath": "/deploy/fastgpt-code-sandbox-env-config",
+            "sourcePath": "/en/deploy/fastgpt-code-sandbox-env-config"
+          },
+          "disposition": "accepted"
+        },
+        {
+          "candidateId": "week06-0195",
+          "identity": {
+            "locale": "en",
+            "owner": "io",
+            "canonicalPath": "/deploy/fastgpt-sandbox-env-changes",
+            "sourcePath": "/en/deploy/fastgpt-sandbox-env-changes"
+          },
+          "disposition": "accepted"
+        }
       ]
     },
     {
@@ -27,12 +50,34 @@
         "/fastgpt-mcp-server-usage",
         "/fastgpt-mcp-proxy-auth-headers"
       ],
-      "disposition": "pending",
-      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
-      "candidateIds": [
-        "week06-0840",
-        "week06-0968",
-        "week06-2008"
+      "resolution": "distinct",
+      "resolutionReason": "The retained delivery pages cover distinct documented entry points.",
+      "relatedCandidateIds": [
+        "week06-2008",
+        "week06-0968"
+      ],
+      "evidence": "https://doc.fastgpt.cn/zh-CN/guide",
+      "candidates": [
+        {
+          "candidateId": "week06-2008",
+          "identity": {
+            "locale": "zh",
+            "owner": "cn",
+            "canonicalPath": "/tutorial/fastgpt-mcp-server-usage",
+            "sourcePath": "/zh/tutorial/fastgpt-mcp-server-usage"
+          },
+          "disposition": "accepted"
+        },
+        {
+          "candidateId": "week06-0968",
+          "identity": {
+            "locale": "zh",
+            "owner": "cn",
+            "canonicalPath": "/integration/fastgpt-mcp-proxy-auth-headers",
+            "sourcePath": "/zh/integration/fastgpt-mcp-proxy-auth-headers"
+          },
+          "disposition": "accepted"
+        }
       ]
     },
     {
@@ -42,11 +87,34 @@
         "/fastgpt-4141-upgrade-script",
         "/fastgpt-4147-upgrade-script"
       ],
-      "disposition": "pending",
-      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
-      "candidateIds": [
+      "resolution": "distinct",
+      "resolutionReason": "The retained delivery pages cover distinct documented entry points.",
+      "relatedCandidateIds": [
         "week06-0063",
         "week06-0079"
+      ],
+      "evidence": "https://doc.fastgpt.cn/zh-CN/guide",
+      "candidates": [
+        {
+          "candidateId": "week06-0063",
+          "identity": {
+            "locale": "en",
+            "owner": "io",
+            "canonicalPath": "/deploy/fastgpt-4141-upgrade-script",
+            "sourcePath": "/en/deploy/fastgpt-4141-upgrade-script"
+          },
+          "disposition": "accepted"
+        },
+        {
+          "candidateId": "week06-0079",
+          "identity": {
+            "locale": "en",
+            "owner": "io",
+            "canonicalPath": "/deploy/fastgpt-4147-upgrade-script",
+            "sourcePath": "/en/deploy/fastgpt-4147-upgrade-script"
+          },
+          "disposition": "accepted"
+        }
       ]
     },
     {
@@ -56,11 +124,34 @@
         "/fastgpt-4150-env-upgrade-changes",
         "/fastgpt-sandbox-env-changes"
       ],
-      "disposition": "pending",
-      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
-      "candidateIds": [
+      "resolution": "distinct",
+      "resolutionReason": "The retained delivery pages cover distinct documented entry points.",
+      "relatedCandidateIds": [
         "week06-0087",
         "week06-0195"
+      ],
+      "evidence": "https://doc.fastgpt.cn/zh-CN/guide",
+      "candidates": [
+        {
+          "candidateId": "week06-0087",
+          "identity": {
+            "locale": "en",
+            "owner": "io",
+            "canonicalPath": "/deploy/fastgpt-4150-env-upgrade-changes",
+            "sourcePath": "/en/deploy/fastgpt-4150-env-upgrade-changes"
+          },
+          "disposition": "accepted"
+        },
+        {
+          "candidateId": "week06-0195",
+          "identity": {
+            "locale": "en",
+            "owner": "io",
+            "canonicalPath": "/deploy/fastgpt-sandbox-env-changes",
+            "sourcePath": "/en/deploy/fastgpt-sandbox-env-changes"
+          },
+          "disposition": "accepted"
+        }
       ]
     },
     {
@@ -70,11 +161,34 @@
         "/fastgpt-plugin-update-4146",
         "/fastgpt-system-plugins-upgrade"
       ],
-      "disposition": "pending",
-      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
-      "candidateIds": [
+      "resolution": "distinct",
+      "resolutionReason": "The retained delivery pages cover distinct documented entry points.",
+      "relatedCandidateIds": [
         "week06-0182",
         "week06-0218"
+      ],
+      "evidence": "https://doc.fastgpt.cn/zh-CN/guide",
+      "candidates": [
+        {
+          "candidateId": "week06-0182",
+          "identity": {
+            "locale": "en",
+            "owner": "io",
+            "canonicalPath": "/deploy/fastgpt-plugin-update-4146",
+            "sourcePath": "/en/deploy/fastgpt-plugin-update-4146"
+          },
+          "disposition": "accepted"
+        },
+        {
+          "candidateId": "week06-0218",
+          "identity": {
+            "locale": "en",
+            "owner": "io",
+            "canonicalPath": "/deploy/fastgpt-system-plugins-upgrade",
+            "sourcePath": "/en/deploy/fastgpt-system-plugins-upgrade"
+          },
+          "disposition": "accepted"
+        }
       ]
     },
     {
@@ -84,11 +198,34 @@
         "/fastgpt-reinstall-system-tools-upgrade",
         "/fastgpt-system-tools-reinstall"
       ],
-      "disposition": "pending",
-      "reason": "Near-duplicate intent requires reviewer disposition before a publication wave.",
-      "candidateIds": [
+      "resolution": "distinct",
+      "resolutionReason": "The retained delivery pages cover distinct documented entry points.",
+      "relatedCandidateIds": [
         "week06-0186",
         "week06-0219"
+      ],
+      "evidence": "https://doc.fastgpt.cn/zh-CN/guide",
+      "candidates": [
+        {
+          "candidateId": "week06-0186",
+          "identity": {
+            "locale": "en",
+            "owner": "io",
+            "canonicalPath": "/deploy/fastgpt-reinstall-system-tools-upgrade",
+            "sourcePath": "/en/deploy/fastgpt-reinstall-system-tools-upgrade"
+          },
+          "disposition": "accepted"
+        },
+        {
+          "candidateId": "week06-0219",
+          "identity": {
+            "locale": "en",
+            "owner": "io",
+            "canonicalPath": "/deploy/fastgpt-system-tools-reinstall",
+            "sourcePath": "/en/deploy/fastgpt-system-tools-reinstall"
+          },
+          "disposition": "accepted"
+        }
       ]
     }
   ]
