@@ -47,6 +47,8 @@
     "verify:guide-content-regression": "node --test scripts/verify-guide-content.test.js",
     "verify:guide-authorization": "node scripts/verify-guide-authorization.js",
     "verify:guide-authorization-regression": "node --test scripts/verify-guide-authorization.test.js",
+    "verify:guide-release": "node scripts/verify-guide-release.js",
+    "verify:guide-release-regression": "node --test scripts/verify-guide-release.test.js",
     "verify:guide-import-regression": "node --test scripts/import-week06-guides.test.js",
     "verify:guide-markdown-regression": "node --test scripts/verify-guide-markdown.test.js",
     "verify:content-hygiene": "node scripts/verify-content-hygiene.js --mode source",

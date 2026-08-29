@@ -196,6 +196,12 @@ function getSourceNodeSteps() {
       ['--mode', 'source']
     ],
     [
+      'guide-release.source',
+      'G1 Guide release evidence source verification',
+      'scripts/verify-guide-release.js',
+      []
+    ],
+    [
       'faq-route-registry.source',
       'route registry check',
       'scripts/generate-faq-route-registry.js',
@@ -301,6 +307,11 @@ function getSourceNpmSteps() {
       'guide-import.regression',
       'Week06 Guide import regression',
       ['verify:guide-import-regression']
+    ],
+    [
+      'guide-release.regression',
+      'G1 Guide release evidence regression',
+      ['verify:guide-release-regression']
     ],
     ['url-alias.regression', 'URL Alias Authority regression', ['verify:url-alias-regression']],
     ['case-only.regression', 'case-only slice regression', ['verify:case-only-regression']],
@@ -727,7 +738,9 @@ function main() {
     ['src/faq/generated-en-metadata-authority.json', 'faq-metadata-authority'],
     ['src/content/guides/registry.json', 'guide-registry'],
     ['src/content/guides/policy.json', 'guide-release-policy'],
-    ['src/content/guides/authorization.json', 'guide-authorization']
+    ['src/content/guides/authorization.json', 'guide-authorization'],
+    ['src/content/guides/g1-release-manifest.json', 'guide-g1-release-manifest'],
+    ['src/content/guides/g1-rollback.json', 'guide-g1-rollback']
   ]) {
     addRollbackFile(record, relativePath, role, record.startedAt);
   }

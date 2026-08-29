@@ -184,8 +184,8 @@
     "group": "implementation",
     "zh": {
       "sourceName": "migrate-saas-to-selfhost.zh.md",
-      "sourceSha256": "2b6321a3c83cb047034cedfcbe62b23d2f6d234f9a64588f6632d905ff6916e7",
-      "bodySha256": "f9a98ce5382ce1767e6fafefb532fede90254a5bab68b0f4f7e3497f6685464e",
+      "sourceSha256": "8d5c289f2fe8eea3a6db0c286514f30ecad6b6cb37c9b5f1389fd08c019a0006",
+      "bodySha256": "a6477c856e690eb9d27770a000bd4387dbabb7804ebd1ef9f459eb49e717184e",
       "h1": "从SaaS智能体平台迁移至自建：分四块拆解与单场景试点策略",
       "metaTitle": "从SaaS智能体平台迁移至自建的落地指南",
       "metaDescription": "拆解SaaS智能体平台迁移至自建的四大核心工作量，介绍单场景试点适配性验证方法，助力企业科学规划并推进迁移相关工作，规避迁移风险，覆盖迁移全流程核心环节。",
@@ -217,8 +217,8 @@
     },
     "en": {
       "sourceName": "migrate-saas-to-selfhost.en.md",
-      "sourceSha256": "ae78c8eebb8835cf475751e9bcb82d655b9233b2a70384df6e9297fc5bba2f36",
-      "bodySha256": "9ff182a0420ea3ee8e1ba3bc71e9374b03c77982b35d923e2b29484e4678cb49",
+      "sourceSha256": "d92ea74099c0bb6e9570993f6924365aef7d794be64b8cba7ecc4a09330b4737",
+      "bodySha256": "663d5a2a8c96a237b100c001ec895b1356354bbcf4dde9f509df9feaa9a8a0e7",
       "h1": "Migrating Enterprise AI Agent Platforms from SaaS to Self-Hosted Deployment",
       "metaTitle": "SaaS-to-Self-Hosted Enterprise AI Agent Migration Guide",
       "metaDescription": "Plan enterprise SaaS-to-self-hosted AI agent migration across knowledge assets, workflows, integrations, security, validation, and phased rollout.",
@@ -254,8 +254,8 @@
     "group": "implementation",
     "zh": {
       "sourceName": "embed-ai-into-product.zh.md",
-      "sourceSha256": "0ceae75a4d82b548406ae74f2a465e4853cc10a4f567bc28971f67dfde42a086",
-      "bodySha256": "0500897b9b9fb5f727bfd0e77a9edf9e65de012b808592f65b476779ca4252cf",
+      "sourceSha256": "0ac8a86ab588e7011346be6b6c648a8940687e3bbea541f09e817319c519012b",
+      "bodySha256": "5a00fd9ad2075c5091430166941d9ca327c15dc90065dd0ca4016a7030859de2",
       "h1": "将AI能力嵌入自有产品：接入方式与落地核心关注点",
       "metaTitle": "将AI能力嵌入自有产品：接入方式与落地指南",
       "metaDescription": "针对企业AI嵌入相关需求，详解主流AI嵌入方式、核心落地维度、落地验证方法、边界限制与常见误区，助力平稳完成AI集成落地，提升产品用户体验与业务价值。",
@@ -287,8 +287,8 @@
     },
     "en": {
       "sourceName": "embed-ai-into-product.en.md",
-      "sourceSha256": "d92bfdd4f8b41fa2da873c0529ab1dcafa8066d5e18672c000618c8ae783b5d9",
-      "bodySha256": "609b2bd53568ce1e67e2c1d22469b52ba1bd2ffac3ce4256ef16c51957be9296",
+      "sourceSha256": "c6e25c848e61c446580ea44a30754c46e6af13c2ea88df8affd3550de4656edb",
+      "bodySha256": "8fca88b4248edf722cd3f5684d65eed71ef2790b12a194f00d9d2fe5a5341bd3",
       "h1": "Enterprise AI Integration into Native Products: Deployment Best Practices and Decision Framework",
       "metaTitle": "Enterprise AI Embedding Integration Guide for Teams",
       "metaDescription": "Embed AI into native products with guidance on APIs, SDKs, authentication, sessions, errors, quotas, validation, monitoring, and rollout planning.",

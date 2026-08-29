@@ -10,6 +10,7 @@ const {
 } = require('./release-readiness');
 const { collectSourceProvenance, redactReleaseOptions } = require('./release-cross-project');
 const { evaluateReleaseGate } = require('../verify-guide-authorization');
+const { G1_GUIDE_SLUGS } = require('./guide-release');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RETAIN_DIR = path.join(ROOT, '.release-artifacts');
@@ -51,6 +52,8 @@ const GUIDE_RELEASE_BLOCKED_SLUGS = Object.entries(GUIDE_RELEASE_GATES)
   .filter(([slug, gate]) => !evaluateReleaseGate(slug, gate).eligible)
   .map(([slug]) => slug);
 const GUIDE_RELEASE_BLOCKED_COUNT = GUIDE_RELEASE_BLOCKED_SLUGS.length;
+const GUIDE_G1_MANIFEST_PATH = 'src/content/guides/g1-release-manifest.json';
+const GUIDE_G1_ROLLBACK_PATH = 'src/content/guides/g1-rollback.json';
 const GUIDE_ENTRY_COUNT = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'src/content/guides/policy.json'), 'utf8')
 ).entryCount;
@@ -183,6 +186,15 @@ function createReleaseRecord(options) {
         variants: {},
         releaseReady: false
       },
+      guideG1: {
+        expectedSlugs: [...G1_GUIDE_SLUGS],
+        manifestPath: GUIDE_G1_MANIFEST_PATH,
+        rollbackPath: GUIDE_G1_ROLLBACK_PATH,
+        source: false,
+        regression: false,
+        result: undefined,
+        releaseReady: false
+      },
       guideAuthorization: {
         expectedSlugs: GUIDE_AUTHORIZATION_SLUGS,
         source: false,
@@ -312,6 +324,7 @@ function finalizeReleaseRecord(record, failures, options) {
       return faqMetadata.observed?.[key] === expected;
     });
   const guidePairs = record.evidence.guidePairs;
+  const guideG1 = record.evidence.guideG1;
   const guideAuthorization = record.evidence.guideAuthorization;
   const technicalAuthority = record.evidence.technicalAuthority;
   const completeAuthorization = guideAuthorization.result?.complete;
@@ -327,8 +340,17 @@ function finalizeReleaseRecord(record, failures, options) {
       GUIDE_ENTRY_COUNT - GUIDE_RELEASE_BLOCKED_COUNT - GUIDE_AUTHORIZATION_SLUGS.length &&
     missingAuthorization.financeSlugs?.length === 0 &&
     GUIDE_AUTHORIZATION_SLUGS.every((slug) => missingAuthorization.excludedSlugs?.includes(slug));
+  guideG1.releaseReady =
+    guideG1.source &&
+    guideG1.regression &&
+    guideG1.result?.status === 'source-verified' &&
+    JSON.stringify(guideG1.result?.g1Slugs) === JSON.stringify(G1_GUIDE_SLUGS) &&
+    guideG1.result?.ownerPages?.cn === G1_GUIDE_SLUGS.length &&
+    guideG1.result?.ownerPages?.io === G1_GUIDE_SLUGS.length &&
+    guideG1.result?.g2ExcludedSlugs?.length === 1;
   guidePairs.releaseReady =
     guidePairs.source &&
+    guideG1.releaseReady &&
     guideAuthorization.releaseReady &&
     ['cn', 'io', 'preview'].every((variant) => {
       const evidence = guidePairs.variants[variant];
@@ -428,7 +450,25 @@ function recordStep(record, stepId, label, command, variant, status, output, evi
   collectAliasContractEvidence(record, stepId, variant, status, output);
   collectFaqMetadataEvidence(record, stepId, variant, status, output);
   collectGuideAuthorizationEvidence(record, stepId, status, output);
+  collectGuideG1Evidence(record, stepId, status, output);
   collectGuidePairEvidence(record, stepId, variant, status, output);
+}
+
+function collectGuideG1Evidence(record, stepId, status, output) {
+  const evidenceKey = {
+    'guide-release.source': 'source',
+    'guide-release.regression': 'regression'
+  }[stepId];
+  if (!record || !evidenceKey) return;
+  const evidence = record.evidence.guideG1;
+  evidence[evidenceKey] = status === 'passed';
+  const marker = output.match(/GUIDE_G1_RESULT=(\{[^\n]+\})/);
+  if (!marker) return;
+  try {
+    evidence.result = JSON.parse(marker[1]);
+  } catch (error) {
+    evidence.result = { status: 'invalid', error: error.message };
+  }
 }
 
 function collectGuideAuthorizationEvidence(record, stepId, status, output) {

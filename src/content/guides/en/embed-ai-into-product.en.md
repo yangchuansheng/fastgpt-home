@@ -27,9 +27,9 @@ Three primary AI embedding approaches are currently available, each with distinc
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | iframe | Low | None | Low | Rapid validation of basic AI capabilities such as chat or question answering, or lightweight display of AI functions | Native product supports embedding third-party pages | Frontend Developers | Embedded AI function pages load normally, with no abnormalities in basic interaction logic |
 | API Call | Medium | Medium | Medium | Business scenarios requiring flexible control of interaction logic, with full custom UI and workflow support | Development environment supporting HTTP requests | Backend Developers | Can normally initiate and receive AI service requests and responses, with returned results matching expectations |
-| SDK Integration | High | Low | High | Scenarios requiring deep integration of AI capabilities into product kernels, with reuse of underlying logic encapsulated by SDKs | Development language supporting the corresponding SDK | Full-Stack Developers | Can normally call SDK interfaces, with no conflicts between AI capabilities and original business logic |
+| SDK-Compatible Client | Medium | Low to medium | High | Scenarios requiring deep integration of AI capabilities into product kernels, with reuse of an OpenAI SDK-style client | Development language supporting the corresponding SDK and FastGPT request contract | Full-Stack Developers | Client calls succeed after request fields, authentication, streaming, and error handling are validated |
 
-Both API calls and SDK integrations support streaming responses for real-time AI content output, making them suitable for interactive chat scenarios. The iframe approach requires no code modifications but has limited customization options, making it only suitable for rapid validation or lightweight integration, and unable to meet deeply customized business requirements.
+Both API calls and SDK-compatible clients can request streaming responses for real-time AI content output, making them suitable for interactive chat scenarios when the deployed endpoint supports the requested mode. An iframe can embed a published FastGPT chat surface with little application-side code, but the team must validate the target URL, authentication flow, Content Security Policy, and cross-origin behavior. Its customization is limited, so it fits rapid validation or lightweight integration better than deeply customized workflows.
 
 ## 3. Four Critical Deployment Dimensions
 Organizations embedding AI capabilities must focus on four core dimensions to ensure stable and controllable deployment results:
@@ -47,7 +47,7 @@ Reasonable timeout thresholds must be set to avoid product freezes caused by slo
 Teams must monitor AI service call volume and resource usage to avoid exceeding service provider quota limits. Rate limiting rules must be configured at the product level, with threshold limits divided by user, interface, or business dimensions to prevent service overload from sudden traffic. Alert rules must be set to trigger notifications when call volume approaches thresholds, enabling proactive adjustment. Deployment owners include operations and backend developers, with validation standards confirming the system correctly triggers rate limiting logic during simulated high-concurrency requests, returns compliant rate limit prompts, does not trigger service provider quota overrun restrictions, and maintains stable operation.
 
 ## 4. OpenAI SDK Compatibility for Existing Codebases
-Integrations supporting OpenAI SDK compatibility can significantly reduce code remodeling costs. Developers can directly reuse existing code based on the OpenAI SDK, only needing to replace API endpoints and authentication keys to access target AI services, with no modifications to business logic required. Specific modification steps are detailed in the table below:
+FastGPT's v1 chat API follows the GPT-style interface and supports OpenAI SDK-style authentication. Existing clients can often reuse their transport layer after changing the base URL and credential, while the request and response contract still needs review. In particular, pass the app identifier as documented, check chat and message fields, and validate streaming and error handling; model and temperature behavior follows the FastGPT workflow configuration, and direct file uploads are not supported by this endpoint. Specific modification steps are detailed in the table below:
 
 | Modification Step | Action Content | Notes | Deployment Owner | Validation Steps |
 | --- | --- | --- | --- | --- |
@@ -60,7 +60,7 @@ Integrations supporting OpenAI SDK compatibility can significantly reduce code r
 Note that some models have parameter differences from OpenAI standards, which must be adjusted per actual service documentation, with specific discrepancies confirmed based on actual deployment. This compatibility approach can significantly shorten development cycles, especially suitable for teams with existing OpenAI-related businesses to quickly migrate.
 
 ## 5. Extended Usage: Publishing as MCP Server
-FastGPT supports a plugin system that allows packaged AI capabilities to be published as an MCP Server for invocation by other internal or third-party services. The specific process involves first completing AI capability customization per FastGPT’s plugin development specifications, such as custom knowledge base parsing logic, adjusting agent-loop rules, or integrating third-party tools. The service is then published as an MCP Server, with access protocols and ports configured. Other products can invoke the service via standard protocols, enabling cross-service reuse of AI capabilities. This approach reduces duplicate development costs for multi-product AI integration and improves team collaboration efficiency. Deployment owners include plugin developers, operations staff, and architects, with validation standards confirming other services can normally invoke the MCP Server, custom plugin logic takes effect, and service availability meets business requirements. This extended capability aligns with FastGPT’s plugin system roadmap, with future support for additional capabilities such as plugin-integrated knowledge base sources and file parsing methods, enabling proactive adaptation to future feature updates.
+FastGPT MCP Server can expose selected FastGPT applications to MCP clients for cross-service reuse. The current public documentation describes an SSE-based service; self-hosted deployments require the documented FastGPT MCP Server setup and version prerequisites. Treat MCP as an optional publishing path: configure the endpoint and access controls, validate the client-server connection, and confirm the selected application's permissions and output before reuse. MCP exposure does not turn every application plugin or arbitrary custom parser into a public service automatically.
 
 ## 6. Standardized Deployment Effect Validation Workflow
 Organizations can use a standardized workflow to validate AI embedding deployment effectiveness, with steps as follows:
@@ -105,6 +105,7 @@ E --> F[Launch and Monitoring]
 
 ## References
 
-- [FastGPT API documentation](https://doc.fastgpt.io/en/api/)
-- [FastGPT integration documentation](https://doc.fastgpt.io/en/integration/)
+- [FastGPT OpenAPI chat documentation](https://doc.fastgpt.io/en/openapi/chat)
+- [FastGPT API publishing guide](https://doc.fastgpt.io/en/guide/build/publish/openapi)
+- [FastGPT MCP Server documentation](https://doc.fastgpt.io/en/guide/build/publish/mcp_server)
 - [FastGPT getting started guide](https://doc.fastgpt.io/en/guide/getting-started)
