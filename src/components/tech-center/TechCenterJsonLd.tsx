@@ -1,5 +1,6 @@
 import type { JsonLdCopy } from '@/components/JsonLd';
 import { JsonLdScript } from '@/components/JsonLd';
+import { getTechCategoryLabelForLocale } from '@/components/tech-center/data';
 import { getOwnedLocaleUrl } from '@/lib/siteRouting';
 import { getTechnicalCanonicalUrl } from '@/lib/technicalRouting';
 import type { TechArticle } from '@/lib/tech-center-content';
@@ -86,7 +87,7 @@ export function TechArticleJsonLd({
             headline: article.title,
             description: article.seoDescription,
             inLanguage: locale === 'zh' ? 'zh-CN' : locale,
-            articleSection: article.categoryLabel,
+            articleSection: getTechCategoryLabelForLocale(article.category, locale),
             ...(article.datePublished ? { datePublished: article.datePublished } : {}),
             ...(article.dateModified ? { dateModified: article.dateModified } : {}),
             ...(imageUrl ? { image: [imageUrl] } : {}),

@@ -78,6 +78,24 @@ Week06 Wave 0 remains a dry run with publication count and public-page delta at 
 production Technical Page registry remains at 1,372 entries and the tracer verifier records a
 registry delta of zero. The evidence fixture and verifier are tracked with [issue #261](https://github.com/labring/fastgpt-home/issues/261).
 
+## Week06 model and glossary tracer evidence
+
+`npm run verify:week06-model-glossary-tracers` validates one Simplified Chinese glossary tracer,
+one Simplified Chinese model tracer, and one English model tracer against the closed Week06
+authority. The dry-run fixtures prove localized category labels, CN/IO owner-relative routes,
+locale-prefixed Preview review routes, canonical/robots/structured-data signals, locale-scoped
+hub counts, search and fallback listings, sitemap ownership, content hygiene, and zero owner leaks.
+
+Run the mutation regression suite with:
+
+```bash
+npm run verify:week06-model-glossary-tracers-regression
+```
+
+The verifier retains the issue #261 English tracer baseline and keeps the 1,372-entry production
+registry byte-stable while Week06 Wave 0 remains a zero-publication dry run. This evidence is
+tracked with [issue #264](https://github.com/labring/fastgpt-home/issues/264).
+
 ## Week06 comparison candidate gate
 
 `npm run verify:week06-compare-disposition` validates the three Week06 comparison candidates
