@@ -301,13 +301,18 @@ function buildSecurity(source, sourceFile, sourceUrl) {
 function buildOperationRisk(source, sourceFile, sourceUrl) {
   const findings = scanPatterns(source, OPERATION_PATTERNS);
   const level = findings.some((finding) =>
-    ['docker-system-prune', 'docker-volume-removal', 'persistent-data-delete'].includes(finding.kind)
+    ['docker-system-prune', 'docker-volume-removal', 'persistent-data-delete'].includes(
+      finding.kind
+    )
   )
     ? 'D0'
     : findings.some((finding) =>
-        ['recursive-delete', 'permission-change', 'lockfile-delete', 'docker-builder-prune'].includes(
-          finding.kind
-        )
+        [
+          'recursive-delete',
+          'permission-change',
+          'lockfile-delete',
+          'docker-builder-prune'
+        ].includes(finding.kind)
       )
     ? 'D1'
     : findings.length
@@ -454,7 +459,8 @@ function readCandidate(filePath, sourceRoot, workbookRecord) {
     provenance: {
       sourceFile,
       sourceUrl:
-        sourceUrl || (/^https:\/\//.test(workbookRecord.sourceUrl || '') ? workbookRecord.sourceUrl : null),
+        sourceUrl ||
+        (/^https:\/\//.test(workbookRecord.sourceUrl || '') ? workbookRecord.sourceUrl : null),
       sourceReference: workbookRecord.sourceUrl || values.source || null,
       sourceSha256: sha256(source),
       sourceBodySha256: sha256(body),
@@ -462,13 +468,7 @@ function readCandidate(filePath, sourceRoot, workbookRecord) {
       workbookRow,
       workbookSha256: workbookRecord.workbookSha256
     },
-    evidence: buildEvidence(
-      title,
-      body,
-      sourceUrl,
-      sourceType,
-      workbookRecord.pageType
-    ),
+    evidence: buildEvidence(title, body, sourceUrl, sourceType, workbookRecord.pageType),
     security: buildSecurity(body, sourceFile, sourceUrl),
     operationRisk: buildOperationRisk(body, sourceFile, sourceUrl),
     input: {
@@ -583,10 +583,12 @@ function buildExclusionLedger(batchRoot) {
   const gateFailures = FAILED_LINE_COUNTS.flatMap(([line, count]) =>
     Array.from({ length: count }, (_, index) => ({
       id: `week06-failed-${String(
-        FAILED_LINE_COUNTS.slice(0, FAILED_LINE_COUNTS.findIndex(([candidateLine]) => candidateLine === line)).reduce(
-          (total, [, candidateCount]) => total + candidateCount,
-          0
-        ) + index + 1
+        FAILED_LINE_COUNTS.slice(
+          0,
+          FAILED_LINE_COUNTS.findIndex(([candidateLine]) => candidateLine === line)
+        ).reduce((total, [, candidateCount]) => total + candidateCount, 0) +
+          index +
+          1
       ).padStart(4, '0')}`,
       line,
       disposition: 'denied',
@@ -705,9 +707,7 @@ function closeManifest(manifest, batchRoot) {
   const accepted = candidates.filter((candidate) => candidate.state === 'accepted');
   const denied = candidates.filter((candidate) => candidate.state === 'denied');
   const sourceSetSha256 = sha256(
-    candidates
-      .map((candidate) => `${candidate.id}|${candidate.provenance.sourceSha256}`)
-      .join('\n')
+    candidates.map((candidate) => `${candidate.id}|${candidate.provenance.sourceSha256}`).join('\n')
   );
   const baseline = {
     batch: 'week05',
@@ -721,7 +721,9 @@ function closeManifest(manifest, batchRoot) {
     authoritySha256: sha256(fs.readFileSync(path.join(ROOT, WEEK05_AUTHORITY)))
   };
   if (baseline.pageCount !== WEEK05_PAGE_COUNT) {
-    throw new Error(`Expected deployed Week05 baseline ${WEEK05_PAGE_COUNT}, found ${baseline.pageCount}`);
+    throw new Error(
+      `Expected deployed Week05 baseline ${WEEK05_PAGE_COUNT}, found ${baseline.pageCount}`
+    );
   }
   const compare = denied.map((candidate) => ({
     candidateId: candidate.id,
@@ -734,7 +736,9 @@ function closeManifest(manifest, batchRoot) {
   }));
   const securityFindings = candidates.flatMap((candidate) => candidate.security.findings);
   const operationFindings = candidates.flatMap((candidate) => candidate.operationRisk.findings);
-  const yamlQuarantine = candidates.filter((candidate) => candidate.input.yamlStatus === 'quarantine');
+  const yamlQuarantine = candidates.filter(
+    (candidate) => candidate.input.yamlStatus === 'quarantine'
+  );
   manifest.status = 'closed';
   manifest.candidates = candidates;
   manifest.duplicateRelations = relations;

@@ -69,7 +69,11 @@ function assertHttps(value, label) {
 
 function assertNoCredentialShape(value, label) {
   assert.doesNotMatch(value, /\bsk-[A-Za-z0-9][A-Za-z0-9_-]{5,}\b/i, label);
-  assert.doesNotMatch(value, /\bBearer\s+(?!\[REDACTED_CREDENTIAL\])[A-Za-z0-9._~+/=-]{6,}/i, label);
+  assert.doesNotMatch(
+    value,
+    /\bBearer\s+(?!\[REDACTED_CREDENTIAL\])[A-Za-z0-9._~+/=-]{6,}/i,
+    label
+  );
   assert.doesNotMatch(value, /\beyJ[A-Za-z0-9._-]{20,}\b/, label);
 }
 
@@ -101,7 +105,10 @@ function verifyCandidate(candidate, index, relationByCandidate) {
     /^(?:中文-fastgpt\.cn|英文-fastgpt\.io)\/[a-z0-9]+(?:[/-][a-z0-9]+)*\.md$/
   );
   assert.equal(candidate.sourceClassification.sourceUrl, candidate.provenance.sourceUrl);
-  assert.equal(candidate.sourceClassification.sourceReference, candidate.provenance.sourceReference);
+  assert.equal(
+    candidate.sourceClassification.sourceReference,
+    candidate.provenance.sourceReference
+  );
   assert.equal(typeof candidate.provenance.sourceReference, 'string');
   assert.equal(candidate.gates.security, 'passed');
   assert.equal(candidate.gates.operationRisk, 'passed');
@@ -303,16 +310,18 @@ function verifyWeek06TechnicalAuthority(rootDir = ROOT) {
   assert.equal(exclusions.unsupportedGlossary.count, EXPECTED.unsupportedGlossary);
   assert(exclusions.failed.every((entry) => entry.disposition === 'denied'));
   assert(
-    exclusions.mergedRetirees.every(
-      (entry) => entry.reason === 'merged-into-retained-candidate'
-    )
+    exclusions.mergedRetirees.every((entry) => entry.reason === 'merged-into-retained-candidate')
   );
   assert.equal(comparison.candidateCount, EXPECTED.denied);
   assert.equal(comparison.candidates.length, EXPECTED.denied);
   assert(comparison.candidates.every((entry) => entry.action === 'route-to-comparison'));
   assert(comparison.candidates.every((entry) => entry.disposition === 'excluded'));
   assert(comparison.candidates.every((entry) => entry.reason === 'comparison-candidate'));
-  assert(comparison.candidates.every((entry) => entry.evidence === 'https://github.com/labring/fastgpt-home/issues/257'));
+  assert(
+    comparison.candidates.every(
+      (entry) => entry.evidence === 'https://github.com/labring/fastgpt-home/issues/257'
+    )
+  );
 
   assert.equal(content.status, 'governance-complete');
   assert.equal(content.readerCount, 0);
