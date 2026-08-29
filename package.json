@@ -36,6 +36,8 @@
     "verify:release": "node scripts/verify-release.js",
     "verify:solutions-preview": "node scripts/verify-solutions-preview-http.js",
     "verify:solutions-preview-regression": "node --test scripts/lib/solutions-preview-http.test.js",
+    "verify:documentation-host": "node scripts/verify-documentation-host.js",
+    "verify:documentation-host-regression": "node --test scripts/lib/documentation-host.test.js",
     "verify:customer-migration-http": "node scripts/verify-customer-migration-http.js",
     "verify:customer-migration-http-regression": "node --test scripts/lib/customer-migration-http.test.js",
     "verify:customer-migration-release": "node scripts/verify-customer-migration-release.js",

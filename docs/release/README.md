@@ -46,6 +46,19 @@ Pull-request CI adds `--allow-missing-solutions-evidence` so source and export v
 can complete with a release-ineligible record. Manual release runs remain strict and require
 approved Solutions evidence.
 
+## Documentation host owner-routing evidence
+
+`npm run verify:documentation-host -- --cn-target <https-url> --io-target <https-url> \
+  --contract scripts/fixtures/documentation-host-contract.json --output <json>` runs the
+external docs black-box contract with production targets supplied by the release operator. The
+contract checks owner HTTP 200/self-canonical pages, direct cross-host 301s with query
+preservation, reciprocal `zh-CN`/`en` hreflang, owner robots/sitemap signals, and the 203-path
+English audit sample. Responses are captured under `<output-basename>-responses/`.
+
+Pass `--rollback-input <json>` to provide the tested host-scoped rollback unit when it is kept in
+a separate release artifact. The contract fixture records the previous revision and restore paths;
+the runner never assumes an external docs production target.
+
 ## Customer migration release evidence
 
 `npm run verify:customer-migration-release -- --contract <json> --output <json>` runs the
