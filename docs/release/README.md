@@ -78,6 +78,20 @@ Week06 Wave 0 remains a dry run with publication count and public-page delta at 
 production Technical Page registry remains at 1,372 entries and the tracer verifier records a
 registry delta of zero. The evidence fixture and verifier are tracked with [issue #261](https://github.com/labring/fastgpt-home/issues/261).
 
+## Week06 comparison candidate gate
+
+`npm run verify:week06-compare-disposition` validates the three Week06 comparison candidates
+against the existing Dify, RAGFlow, MaxKB, and self-build identities. It records one merge into
+the existing bilingual MaxKB comparison and two denials, while keeping generic Technical Page,
+search, sitemap, and static-export deltas at zero. Official evidence is HTTPS-only and the
+release/rollback manifests retain the exact merged identities.
+
+Run the focused regression suite with:
+
+```bash
+npm run verify:week06-compare-disposition-regression
+```
+
 ## Customer migration release evidence
 
 `npm run verify:customer-migration-release -- --contract <json> --output <json>` runs the

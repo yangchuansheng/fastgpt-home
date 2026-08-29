@@ -68,6 +68,8 @@
     "verify:week06-authority-regression": "node --test scripts/verify-week06-technical-authority.test.js",
     "verify:week06-english-tracer": "node scripts/verify-week06-english-tracer.js",
     "verify:week06-english-tracer-regression": "node --test scripts/verify-week06-english-tracer.test.js",
+    "verify:week06-compare-disposition": "node scripts/verify-week06-compare-disposition.js",
+    "verify:week06-compare-disposition-regression": "node --test scripts/verify-week06-compare-disposition.test.js",
     "generate:week06-authority": "node scripts/generate-week06-technical-authority.js",
     "generate:technical-wave": "node scripts/generate-technical-wave.js --write",
     "verify:technical-wave": "node scripts/verify-technical-wave.js",
