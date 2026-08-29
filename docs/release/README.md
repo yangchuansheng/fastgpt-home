@@ -59,6 +59,25 @@ Pass `--rollback-input <json>` to provide the tested host-scoped rollback unit w
 a separate release artifact. The contract fixture records the previous revision and restore paths;
 the runner never assumes an external docs production target.
 
+## Week06 English Technical Page tracer evidence
+
+`npm run verify:week06-english-tracer` validates the accepted `week06-0006` English Technical Page
+tracer against the closed authority. The fixture covers source and decision provenance, the IO
+owner-relative route with HTTP-equivalent 200 and a self-canonical, CN owner isolation, the
+locale-prefixed Preview review route with the IO production canonical and `noindex, nofollow`,
+English hub/category/featured/search identities, deferred locale search data with the bounded
+initial-listing fallback, sitemap membership, and content hygiene.
+
+Run the focused regression suite with:
+
+```bash
+npm run verify:week06-english-tracer-regression
+```
+
+Week06 Wave 0 remains a dry run with publication count and public-page delta at zero. The
+production Technical Page registry remains at 1,372 entries and the tracer verifier records a
+registry delta of zero. The evidence fixture and verifier are tracked with [issue #261](https://github.com/labring/fastgpt-home/issues/261).
+
 ## Customer migration release evidence
 
 `npm run verify:customer-migration-release -- --contract <json> --output <json>` runs the
