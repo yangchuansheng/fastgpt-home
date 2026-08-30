@@ -17,6 +17,7 @@ const {
   WAVE_RELEASE_MANIFEST_RELATIVE_PATH,
   WAVE_ROLLBACK_RELATIVE_PATH
 } = require('./technical-wave2');
+const { filterWeek06Wave1Projection } = require('./technical-wave-baseline');
 
 const OBSERVATION_RELATIVE_PATH = 'src/content/tech-center/authority/week05-wave2-observation.json';
 const CAPACITY_RELATIVE_PATH = 'scripts/fixtures/technical-wave-observation-capacity.json';
@@ -53,8 +54,25 @@ function evaluateTechnicalWaveObservation(
   const block = (code, detail) => blockers.push(detail ? { code, detail } : { code });
   const release = readJson(repoRoot, WAVE_RELEASE_MANIFEST_RELATIVE_PATH);
   const rollback = readJson(repoRoot, WAVE_ROLLBACK_RELATIVE_PATH);
-  const entries = readJson(repoRoot, REGISTRY_RELATIVE_PATH);
-  const search = readJson(repoRoot, SEARCH_RELATIVE_PATH);
+  const currentEntries = readJson(repoRoot, REGISTRY_RELATIVE_PATH);
+  const currentSearch = [
+    ...readJson(repoRoot, SEARCH_RELATIVE_PATH),
+    ...(fs.existsSync(path.join(repoRoot, 'public/tech-center/search-index.en.json'))
+      ? readJson(repoRoot, 'public/tech-center/search-index.en.json')
+      : [])
+  ];
+  const historicalProjection = filterWeek06Wave1Projection(
+    repoRoot,
+    currentEntries,
+    currentSearch,
+    (entry) => {
+      const match = entry?.slug?.match(/^\/([^/]+)(\/.*)$/);
+      if (!match) throw new Error(`Invalid technical entry slug: ${entry?.slug}`);
+      return { locale: match[1], canonicalPath: match[2] };
+    }
+  );
+  const entries = historicalProjection.entries;
+  const search = historicalProjection.search;
   const authority = loadTechnicalAuthority(repoRoot);
   const identitySet = release.identitySet || [];
   const identitySetSha256 = sha256(stableJson(identitySet));
@@ -95,13 +113,17 @@ function evaluateTechnicalWaveObservation(
     block('deployed-registry-search-count-drift');
   }
   const artifacts = new Map(release.artifacts.map((artifact) => [artifact.path, artifact.sha256]));
+  const historicalProjectionBytes = {
+    [REGISTRY_RELATIVE_PATH]: stableJson(entries),
+    [SEARCH_RELATIVE_PATH]: stableJson(search)
+  };
   for (const [label, relativePath, expected] of [
     ['registry', REGISTRY_RELATIVE_PATH, deployed.registrySha256],
     ['search', SEARCH_RELATIVE_PATH, deployed.searchSha256]
   ]) {
     if (
       expected !== artifacts.get(relativePath) ||
-      expected !== fileSha256(path.join(repoRoot, relativePath))
+      expected !== sha256(historicalProjectionBytes[relativePath])
     ) {
       block(`deployed-${label}-digest-drift`);
     }
@@ -298,13 +320,18 @@ function evaluateTechnicalWaveObservation(
   ) {
     block('capacity-initial-javascript-limit-drift');
   }
-  const artifactBytes = release.artifacts.reduce(
-    (total, artifact) => total + fs.statSync(path.join(repoRoot, artifact.path)).size,
-    0
-  );
+  const artifactBytes = release.artifacts.reduce((total, artifact) => {
+    const historicalBytes = historicalProjectionBytes[artifact.path];
+    return (
+      total +
+      (historicalBytes === undefined
+        ? fs.statSync(path.join(repoRoot, artifact.path)).size
+        : Buffer.byteLength(historicalBytes))
+    );
+  }, 0);
   const expectedCapacity = {
-    registryBytes: fs.statSync(path.join(repoRoot, REGISTRY_RELATIVE_PATH)).size,
-    searchProjectionBytes: fs.statSync(path.join(repoRoot, SEARCH_RELATIVE_PATH)).size,
+    registryBytes: Buffer.byteLength(historicalProjectionBytes[REGISTRY_RELATIVE_PATH]),
+    searchProjectionBytes: Buffer.byteLength(historicalProjectionBytes[SEARCH_RELATIVE_PATH]),
     waveArtifactBytes: artifactBytes
   };
   for (const [name, value] of Object.entries(expectedCapacity)) {
