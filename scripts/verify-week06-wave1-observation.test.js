@@ -31,6 +31,7 @@ test('Week06 Wave 1 observation records the unavailable deployment and blocks ex
   assert(result.blockers.some(({ code }) => code === 'production-404-observed'));
   assert(result.blockers.some(({ code }) => code === 'search-source-not-provided'));
   assert(result.blockers.some(({ code }) => code === 'capacity-static-file-count-missing'));
+  assert(!result.blockers.some(({ code }) => code === 'blocker-disposition-missing'));
   assert.equal(record.nextSlice.status, 'candidate-only');
   assert.equal(record.nextSlice.ticket, null);
 });
