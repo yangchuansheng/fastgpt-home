@@ -124,6 +124,51 @@ The top-level release coordinator runs both commands and records `source-verifie
 `export-verified`, `governance-complete`, and publication count zero. Wave 0 keeps publication
 count at zero and preserves the production registry byte-for-byte.
 
+## Week06 bilingual Technical Wave 1
+
+Issue #266 publishes one approved 50-identity unit from the closed Week06 authority: 25 Chinese
+pages owned by CN and 25 English pages owned by IO. The contract is
+`scripts/fixtures/technical-authority/week06-wave1-contract.json`; the selection and generated
+content, projection, release, and rollback records use the `week06-wave1-*` prefix. The retained
+Week05 Wave 1/Wave 2 and Week06 Wave 0 artifacts remain historical evidence for their original
+page counts.
+
+Run the source, mutation, staged-export, and byte-exact rollback gates with:
+
+```bash
+npm run verify:week06-wave1
+npm run verify:week06-wave1-regression
+npm run verify:week06-wave1-fixtures
+npm run verify:week06-wave1-rollback
+```
+
+The source gate requires exactly 25 `zh` and 25 `en` accepted identities, approved official,
+error-code, model, and glossary cohorts, public HTTPS sources, stable source digests, clean reader
+bodies, and one identity set across registry, locale search, sitemap, static export, release, and
+rollback surfaces. The staged export gate checks CN, IO, and Preview owner routes, self-canonical
+and hreflang metadata, robots, sitemap isolation, structured data, localized hubs, search and
+fallback links. The rollback gate injects a partial write across the three production projection
+files, 50 reader documents, and five release artifacts, then compares every restored byte and
+SHA-256 digest with the 1,372-page pre-Wave1 state. Static fixtures record export verification;
+live HTTP production observation remains false until the deployed owner URLs are checked with:
+
+```bash
+npm run verify:week06-wave1-live
+```
+
+The live gate requires HTTP 200, self-canonical, language, structured content, and exact owner
+sitemap membership for all 50 URLs. It also checks every opposite-owner URL and permits only an
+absent response, a redirect to the owner canonical, or a noindex copy with the owner canonical.
+The release coordinator keeps Wave 1 release readiness blocked until this independent live
+evidence passes.
+
+To regenerate the source package after an approved selection change, set
+`WEEK06_TECHNICAL_SOURCE_ROOT` to the Week06 batch directory and run
+`npm run generate:week06-wave1`, then rerun all four gates. Write mode reads all 50 approved
+source files and verifies each full-file and body SHA-256 before projection. Rollback removes the
+50 localized reader files and `week06-wave1-*` generated records while restoring the recorded
+1,372-page registry and both locale search projections as one atomic unit.
+
 ## Week06 comparison candidate gate
 
 `npm run verify:week06-compare-disposition` validates the three Week06 comparison candidates

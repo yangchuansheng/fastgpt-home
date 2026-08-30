@@ -20,6 +20,7 @@ const {
   buildNormalizedTechnicalPage,
   buildSearchProjection
 } = require('../import-technical-content');
+const { filterWeek06Wave1Projection } = require('./technical-wave-baseline');
 
 const WAVE_ID = 'wave-2';
 const WAVE_MIN_CANDIDATES = 1;
@@ -27,6 +28,7 @@ const WAVE_MAX_CANDIDATES = 200;
 const BASELINE_WAVE = 'wave-1';
 const REGISTRY_RELATIVE_PATH = 'src/components/tech-center/entries.json';
 const SEARCH_RELATIVE_PATH = 'public/tech-center/search-index.json';
+const EN_SEARCH_RELATIVE_PATH = 'public/tech-center/search-index.en.json';
 const AUTHORITY_DIR = 'src/content/tech-center/authority';
 const WAVE_SELECTION_RELATIVE_PATH = `${AUTHORITY_DIR}/week05-wave2-selection.json`;
 const WAVE_CONTENT_RELATIVE_PATH = `${AUTHORITY_DIR}/week05-wave2-content.json`;
@@ -163,13 +165,34 @@ function getSelectionIdentityKeys(authority, selection) {
   );
 }
 
-function removeWave2Projection(authority, entries, search, selection) {
+function normalizeSearchProjection(entries, search) {
+  const expected = buildSearchProjection(entries);
+  const observedByIdentity = new Map(search.map((entry) => [entry.identity, entry]));
+  if (observedByIdentity.size !== search.length || observedByIdentity.size !== expected.length) {
+    throw new Error('Wave 2 search projection identity set drift');
+  }
+  for (const entry of expected) {
+    if (JSON.stringify(observedByIdentity.get(entry.identity)) !== JSON.stringify(entry)) {
+      throw new Error(`Wave 2 search projection drift: ${entry.identity}`);
+    }
+  }
+  return expected;
+}
+
+function removeWave2Projection(repoRoot, authority, entries, search, selection) {
+  const deployed = filterWeek06Wave1Projection(repoRoot, entries, search, parseEntryIdentity);
   const selectedKeys = getSelectionIdentityKeys(authority, selection);
-  const baselineEntries = entries.filter(
+  const baselineEntries = deployed.entries.filter(
     (entry) => !selectedKeys.has(identityKey(parseEntryIdentity(entry)))
   );
-  const baselineSearch = search.filter((entry) => !selectedKeys.has(entry.identity));
-  return { baselineEntries, baselineSearch, selectedKeys };
+  const baselineSearch = deployed.search.filter((entry) => !selectedKeys.has(entry.identity));
+  return {
+    baselineEntries,
+    baselineSearch,
+    deployedEntries: deployed.entries,
+    deployedSearch: deployed.search,
+    selectedKeys
+  };
 }
 
 function candidateFailures(candidate, existingKeys, wave1Ids, selectedIds) {
@@ -560,14 +583,15 @@ function buildWaveRollback({ entries, search, projection, baseline }) {
 function buildWavePackage(repoRoot) {
   const authority = loadTechnicalAuthority(repoRoot);
   const entries = readJson(repoRoot, REGISTRY_RELATIVE_PATH);
-  const existingSearch = readJson(repoRoot, SEARCH_RELATIVE_PATH);
+  const existingSearch = normalizeSearchProjection(entries, [
+    ...readJson(repoRoot, SEARCH_RELATIVE_PATH),
+    ...readJson(repoRoot, EN_SEARCH_RELATIVE_PATH)
+  ]);
   if (!Array.isArray(entries) || !Array.isArray(existingSearch))
     throw new Error('Wave 2 registry and search must be arrays');
-  if (JSON.stringify(existingSearch) !== JSON.stringify(buildSearchProjection(entries))) {
-    throw new Error('Wave 2 registry/search drift before projection');
-  }
   const approvedSelection = loadWave2Selection(repoRoot);
   const { baselineEntries, baselineSearch } = removeWave2Projection(
+    repoRoot,
     authority,
     entries,
     existingSearch,
@@ -744,7 +768,10 @@ function verifyReaderDocument(repoRoot, source) {
 function verifyWave2Source(repoRoot = path.resolve(__dirname, '../..')) {
   const authority = loadTechnicalAuthority(repoRoot);
   const entries = readJson(repoRoot, REGISTRY_RELATIVE_PATH);
-  const search = readJson(repoRoot, SEARCH_RELATIVE_PATH);
+  const search = normalizeSearchProjection(entries, [
+    ...readJson(repoRoot, SEARCH_RELATIVE_PATH),
+    ...readJson(repoRoot, EN_SEARCH_RELATIVE_PATH)
+  ]);
   const manifest = readJson(repoRoot, WAVE_MANIFEST_RELATIVE_PATH);
   const content = readJson(repoRoot, WAVE_CONTENT_RELATIVE_PATH);
   const projection = readJson(repoRoot, WAVE_PROJECTION_RELATIVE_PATH);
@@ -752,15 +779,9 @@ function verifyWave2Source(repoRoot = path.resolve(__dirname, '../..')) {
   const releaseManifest = readJson(repoRoot, WAVE_RELEASE_MANIFEST_RELATIVE_PATH);
   validateTechnicalAuthority(authority, { repoRoot, verifyHistory: true, verifyArtifacts: true });
   verifyPersistedArtifacts(authority, repoRoot);
-  if (JSON.stringify(search) !== JSON.stringify(buildSearchProjection(entries)))
-    throw new Error('Wave 2 search projection drift');
   const approvedSelection = loadWave2Selection(repoRoot);
-  const { baselineEntries, baselineSearch } = removeWave2Projection(
-    authority,
-    entries,
-    search,
-    approvedSelection
-  );
+  const { baselineEntries, baselineSearch, deployedEntries, deployedSearch } =
+    removeWave2Projection(repoRoot, authority, entries, search, approvedSelection);
   const baseline = buildBaseline(repoRoot, baselineEntries, baselineSearch);
   if (JSON.stringify(manifest.baseline) !== JSON.stringify(baseline)) {
     throw new Error('Wave 2 actual deployed baseline drift');
@@ -869,8 +890,10 @@ function verifyWave2Source(repoRoot = path.resolve(__dirname, '../..')) {
     throw new Error('Wave 2 projection digest drift');
   if (manifest.rollback.sha256 !== sha256(stableJson(rollback)))
     throw new Error('Wave 2 rollback digest drift');
-  if (JSON.stringify(entries) !== JSON.stringify(projectedEntries))
+  if (JSON.stringify(deployedEntries) !== JSON.stringify(projectedEntries))
     throw new Error('Wave 2 registry projection drift');
+  if (JSON.stringify(deployedSearch) !== JSON.stringify(projectedSearch))
+    throw new Error('Wave 2 deployed search projection drift');
   if (
     releaseManifest.wave !== WAVE_ID ||
     releaseManifest.status !== 'source-verified' ||
@@ -899,7 +922,13 @@ function verifyWave2Source(repoRoot = path.resolve(__dirname, '../..')) {
     throw new Error('Wave 2 release artifact set drift');
   releaseManifest.artifacts.forEach((artifact) => {
     assertDigest(artifact.sha256, `Wave 2 release artifact ${artifact.path}`);
-    if (fileSha256(path.join(repoRoot, artifact.path)) !== artifact.sha256)
+    const artifactDigest =
+      artifact.path === REGISTRY_RELATIVE_PATH
+        ? sha256(stableJson(projectedEntries))
+        : artifact.path === SEARCH_RELATIVE_PATH
+        ? sha256(stableJson(projectedSearch))
+        : fileSha256(path.join(repoRoot, artifact.path));
+    if (artifactDigest !== artifact.sha256)
       throw new Error(`Wave 2 release artifact digest drift: ${artifact.path}`);
   });
   return {

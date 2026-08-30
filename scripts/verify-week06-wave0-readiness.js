@@ -8,6 +8,8 @@ const os = require('node:os');
 const path = require('node:path');
 const zlib = require('node:zlib');
 const { applyRollbackProjection } = require('./lib/technical-projection');
+const { identityKey, stableJson } = require('./lib/technical-authority');
+const { readWeek06Wave1IdentityKeys } = require('./lib/technical-wave-baseline');
 const {
   digestJson,
   directoryInventory,
@@ -58,6 +60,30 @@ function resolveArtifact(rootDir, relativePath) {
 
 function assertDigest(value, label) {
   assert.match(value, /^[a-f0-9]{64}$/, `${label} must be a SHA-256 digest`);
+}
+
+function readWave0ArtifactBytes(rootDir, relativePath) {
+  const artifactPath = resolveArtifact(rootDir, relativePath);
+  const bytes = fs.readFileSync(artifactPath);
+  if (
+    relativePath !== 'src/components/tech-center/entries.json' &&
+    relativePath !== 'public/tech-center/search-index.json' &&
+    relativePath !== 'public/tech-center/search-index.en.json'
+  ) {
+    return bytes;
+  }
+
+  const week06Wave1IdentityKeys = readWeek06Wave1IdentityKeys(rootDir);
+  const entries = JSON.parse(bytes);
+  const historical = entries.filter((entry) => {
+    if (relativePath.startsWith('public/')) {
+      return !week06Wave1IdentityKeys.has(entry.identity);
+    }
+    const match = entry.slug?.match(/^\/([^/]+)(\/.*)$/);
+    assert(match, `Invalid Technical Page slug: ${entry.slug}`);
+    return !week06Wave1IdentityKeys.has(identityKey({ locale: match[1], canonicalPath: match[2] }));
+  });
+  return Buffer.from(stableJson(historical));
 }
 
 function median(values) {
@@ -170,8 +196,8 @@ function verifyAuthorityClosure(rootDir, contract) {
 
 function artifactEvidence(rootDir, artifacts) {
   return artifacts.map((expected) => {
-    const observed = fileProvenance(resolveArtifact(rootDir, expected.path), { root: rootDir });
-    const stable = { path: observed.path, bytes: observed.bytes, sha256: observed.sha256 };
+    const bytes = readWave0ArtifactBytes(rootDir, expected.path);
+    const stable = { path: expected.path, bytes: bytes.length, sha256: sha256(bytes) };
     assert.deepEqual(stable, expected, `public baseline artifact drift: ${expected.path}`);
     return stable;
   });
@@ -274,9 +300,8 @@ function verifyCapacityBaseline(rootDir, contract) {
     artifactByPath.get('public/tech-center/search-index.json').bytes +
       artifactByPath.get('public/tech-center/search-index.en.json').bytes
   );
-  const registry = readJson(
-    resolveArtifact(rootDir, 'src/components/tech-center/entries.json'),
-    'production Technical Page registry'
+  const registry = JSON.parse(
+    readWave0ArtifactBytes(rootDir, 'src/components/tech-center/entries.json')
   );
   assert.equal(registry.length, capacity.productionPageCount, 'capacity page baseline drift');
 
@@ -349,9 +374,9 @@ function verifyAtomicRollback({ rootDir = ROOT, contract }) {
   const exportEvidence = verifyExportSurfaceEvidence(inventory, exportBaseline);
   const artifacts = [...repositoryArtifacts, ...exportEvidence.artifacts];
   const before = artifacts.map((artifact, index) =>
-    fs.readFileSync(
-      resolveArtifact(index < repositoryArtifacts.length ? rootDir : sourceRoot, artifact.path)
-    )
+    index < repositoryArtifacts.length
+      ? readWave0ArtifactBytes(rootDir, artifact.path)
+      : fs.readFileSync(resolveArtifact(sourceRoot, artifact.path))
   );
   const files = artifacts.map((artifact, index) => {
     const filePath = resolveArtifact(restoreRoot, artifact.path);

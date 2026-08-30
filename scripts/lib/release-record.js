@@ -65,6 +65,19 @@ const EXPECTED_WEEK06_WAVE0_READINESS = {
   capacityBaseline: 'recorded',
   rollback: 'atomic'
 };
+const EXPECTED_WEEK06_WAVE1 = {
+  issue: 266,
+  wave: 'wave-1',
+  selectedCount: 50,
+  publicationCount: 50,
+  baselinePageCount: 1372,
+  resultingPageCount: 1422,
+  sourceVerified: true,
+  exportVerified: true,
+  releaseEligible: true,
+  productionObserved: false,
+  rollback: 'ready'
+};
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
 const GUIDE_AUTHORIZATION_SLUGS = ['finance-research-retrieval', 'finance-daily-report-automation'];
 const GUIDE_RELEASE_GATES = JSON.parse(
@@ -138,6 +151,7 @@ function createReleaseRecord(options) {
       technicalWave: { ...EXPECTED_TECHNICAL_WAVE },
       technicalWave2: { ...EXPECTED_TECHNICAL_WAVE2 },
       week06Wave0Readiness: { ...EXPECTED_WEEK06_WAVE0_READINESS },
+      week06Wave1: { ...EXPECTED_WEEK06_WAVE1, localeCounts: { zh: 25, en: 25 } },
       faqMetadata: {
         candidates: EXPECTED_FAQ_METADATA_CANDIDATES,
         identities: EXPECTED_FAQ_METADATA_IDENTITIES,
@@ -204,6 +218,18 @@ function createReleaseRecord(options) {
         source: false,
         regression: false,
         observed: undefined,
+        releaseReady: false
+      },
+      week06Wave1: {
+        expected: { ...EXPECTED_WEEK06_WAVE1 },
+        expectedLocaleCounts: { zh: 25, en: 25 },
+        source: false,
+        regression: false,
+        rollbackVerified: false,
+        live: false,
+        liveObserved: undefined,
+        observed: undefined,
+        variants: {},
         releaseReady: false
       },
       faqMetadata: {
@@ -358,6 +384,39 @@ function collectWeek06Wave0ReadinessEvidence(record, stepId, status, output) {
     record.counts.week06Wave0ReadinessObserved = evidence.observed;
   } catch (error) {
     evidence.observed = { status: 'invalid', error: error.message };
+  }
+}
+
+function collectWeek06Wave1Evidence(record, stepId, variant, status, output) {
+  if (!record || !stepId.startsWith('week06-wave1.')) return;
+  const evidence = record.evidence.week06Wave1;
+  if (stepId === 'week06-wave1.source') evidence.source = status === 'passed';
+  if (stepId === 'week06-wave1.regression') evidence.regression = status === 'passed';
+  if (stepId === 'week06-wave1.rollback') evidence.rollbackVerified = status === 'passed';
+  if (stepId === 'week06-wave1.live') evidence.live = status === 'passed';
+  if (stepId === 'week06-wave1.rollback') return;
+  const marker = output.match(/WEEK06_WAVE1_RESULT=(\{[^\n]+\})/);
+  if (!marker) return;
+  try {
+    const observed = JSON.parse(marker[1]);
+    if (stepId === 'week06-wave1.live') {
+      evidence.liveObserved = observed;
+      record.counts.week06Wave1LiveObserved = observed;
+    } else if (variant) {
+      evidence.variants[variant] = observed;
+      record.counts.week06Wave1Variants = {
+        ...(record.counts.week06Wave1Variants || {}),
+        [variant]: observed
+      };
+    } else {
+      evidence.observed = observed;
+      record.counts.week06Wave1Observed = observed;
+    }
+  } catch (error) {
+    const invalid = { status: 'invalid', error: error.message };
+    if (stepId === 'week06-wave1.live') evidence.liveObserved = invalid;
+    else if (variant) evidence.variants[variant] = invalid;
+    else evidence.observed = invalid;
   }
 }
 
@@ -535,6 +594,43 @@ function finalizeReleaseRecord(record, failures, options) {
     ['cn', 'io', 'preview'].every(
       (variant) => week06Wave0Readiness.observed?.variants?.[variant] === 'verified'
     );
+  const week06Wave1 = record.evidence.week06Wave1;
+  week06Wave1.releaseReady =
+    week06Wave1.source &&
+    week06Wave1.regression &&
+    week06Wave1.rollbackVerified &&
+    Object.entries(week06Wave1.expected).every(
+      ([key, expected]) => week06Wave1.observed?.[key] === expected
+    ) &&
+    JSON.stringify(week06Wave1.observed?.localeCounts) ===
+      JSON.stringify(week06Wave1.expectedLocaleCounts) &&
+    ['cn', 'io', 'preview'].every((variant) => {
+      const observed = week06Wave1.variants[variant];
+      const expectedOwnerPages = variant === 'preview' ? 50 : 25;
+      const expectedProductionObserved = 0;
+      return (
+        observed?.sourceVerified === true &&
+        observed?.exportVerified === true &&
+        observed?.releaseEligible === true &&
+        observed?.ownerPages === expectedOwnerPages &&
+        observed?.productionObserved === expectedProductionObserved &&
+        observed?.ownerLeaks === 0 &&
+        observed?.localeDrift === 0 &&
+        observed?.sitemapDrift === 0 &&
+        observed?.searchDrift === 0 &&
+        observed?.brokenInternalLinks === 0
+      );
+    }) &&
+    week06Wave1.live &&
+    week06Wave1.liveObserved?.liveHttpVerified === true &&
+    week06Wave1.liveObserved?.productionObserved === 50 &&
+    week06Wave1.liveObserved?.http200 === 50 &&
+    week06Wave1.liveObserved?.canonicalVerified === 50 &&
+    week06Wave1.liveObserved?.languageVerified === 50 &&
+    week06Wave1.liveObserved?.sitemapVerified === 50 &&
+    week06Wave1.liveObserved?.nonOwnerChecked === 50 &&
+    week06Wave1.liveObserved?.nonOwnerIndexable === 0 &&
+    week06Wave1.liveObserved?.ownerLeaks === 0;
   const releaseGate = !options.sourceOnly && !options.variant && failures.length === 0;
   record.evidence.releaseEligible =
     releaseGate &&
@@ -546,6 +642,7 @@ function finalizeReleaseRecord(record, failures, options) {
     technicalWave.releaseReady &&
     technicalWave2.releaseReady &&
     week06Wave0Readiness.releaseReady &&
+    week06Wave1.releaseReady &&
     guideAuthorization.releaseReady &&
     guidePairs.releaseReady;
   record.status = record.evidence.releaseEligible
@@ -603,6 +700,7 @@ function recordStep(record, stepId, label, command, variant, status, output, evi
   collectTechnicalWaveEvidence(record, stepId, variant, status, output);
   collectTechnicalWave2Evidence(record, stepId, variant, status, output);
   collectWeek06Wave0ReadinessEvidence(record, stepId, status, output);
+  collectWeek06Wave1Evidence(record, stepId, variant, status, output);
   collectCaseOnlyEvidence(record, stepId, variant, status, output);
   collectAliasContractEvidence(record, stepId, variant, status, output);
   collectFaqMetadataEvidence(record, stepId, variant, status, output);
@@ -771,6 +869,7 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
   const technicalExportStep = findStep('technical-export.export');
   const technicalCenterStep = findStep('technical-center.export');
   const technicalWave2Step = findStep('technical-wave2.export');
+  const week06Wave1Step = findStep('week06-wave1.export');
   const guideStep = findStep('guide.export');
   const p1Step = findStep('p1.export');
   const faqMetadataStep = findStep('faq-metadata.html');
@@ -826,6 +925,12 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
       baselineSearchSha256: record.evidence.technicalWave2.variants[variant]?.baselineSearchSha256,
       resultingPageCount: record.evidence.technicalWave2.variants[variant]?.resultingPageCount
     },
+    week06Wave1: {
+      status: artifactStatus(week06Wave1Step),
+      ownerPages: record.evidence.week06Wave1.variants[variant]?.ownerPages,
+      productionObserved: record.evidence.week06Wave1.variants[variant]?.productionObserved,
+      publicationCount: record.evidence.week06Wave1.variants[variant]?.publicationCount
+    },
     technicalPageCount: EXPECTED_TECHNICAL_PAGE_COUNT,
     caseOnly: {
       status: caseOnlyStep?.status || 'skipped',
@@ -847,6 +952,7 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
       htmlHygiene: artifactStatus(findStep('content-hygiene.html')),
       technicalCenter: artifactStatus(technicalCenterStep),
       technicalExport: artifactStatus(technicalExportStep),
+      week06Wave1: artifactStatus(week06Wave1Step),
       faqMetadata: artifactStatus(faqMetadataStep),
       guide: artifactStatus(guideStep),
       guideTracer: {

@@ -78,13 +78,13 @@ test('technical export verifier accepts a complete China projection', () => {
   try {
     const identities = getTechIdentities(root);
     const sitemap = [];
-    for (const identity of identities) {
+    for (const identity of identities.filter((entry) => entry.locale === 'zh')) {
       const canonical = `${baseUrls.cn}${identity.canonicalPath}`;
       const routePath = path.join(outDir, `${identity.canonicalPath.slice(1)}.html`);
       fs.mkdirSync(path.dirname(routePath), { recursive: true });
       fs.writeFileSync(
         routePath,
-        `<link rel="canonical" href="${canonical}"><meta name="robots" content="index, follow"><script>{"url":"${canonical}"}</script>`
+        `<link rel="canonical" href="${canonical}"><link rel="alternate" hreflang="zh-CN" href="${canonical}"><meta name="robots" content="index, follow"><script>{"url":"${canonical}"}</script>`
       );
       sitemap.push(`<url><loc>${canonical}</loc></url>`);
     }

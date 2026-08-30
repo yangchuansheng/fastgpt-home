@@ -31,6 +31,7 @@ const WAVE_MAX_CANDIDATES = 50;
 const WAVE_BASELINE_PAGE_COUNT = PUBLIC_TECHNICAL_PAGE_COUNT;
 const REGISTRY_RELATIVE_PATH = 'src/components/tech-center/entries.json';
 const SEARCH_RELATIVE_PATH = 'public/tech-center/search-index.json';
+const EN_SEARCH_RELATIVE_PATH = 'public/tech-center/search-index.en.json';
 const WAVE_MANIFEST_RELATIVE_PATH = 'src/content/tech-center/authority/week05-wave1-manifest.json';
 const WAVE_SELECTION_RELATIVE_PATH =
   'src/content/tech-center/authority/week05-wave1-selection.json';
@@ -553,13 +554,17 @@ function loadWaveInputs(repoRoot = path.resolve(__dirname, '../..')) {
   const authority = loadTechnicalAuthority(repoRoot);
   const entriesPath = path.join(repoRoot, REGISTRY_RELATIVE_PATH);
   const searchPath = path.join(repoRoot, SEARCH_RELATIVE_PATH);
+  const enSearchPath = path.join(repoRoot, EN_SEARCH_RELATIVE_PATH);
   if (!fs.existsSync(entriesPath) || !fs.existsSync(searchPath)) {
     throw new Error('Wave 1 registry or search projection is missing');
   }
+  const enSearch = fs.existsSync(enSearchPath)
+    ? JSON.parse(fs.readFileSync(enSearchPath, 'utf8'))
+    : [];
   return {
     authority,
     entries: JSON.parse(fs.readFileSync(entriesPath, 'utf8')),
-    search: JSON.parse(fs.readFileSync(searchPath, 'utf8')),
+    search: [...JSON.parse(fs.readFileSync(searchPath, 'utf8')), ...enSearch],
     approvedSelection: loadWaveSelection(repoRoot)
   };
 }
@@ -682,8 +687,15 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
   if (historicalSearch.length !== historicalEntries.length)
     throw new Error('Wave 1 search count drift');
   const expectedSearch = buildSearchProjection(entries);
-  if (JSON.stringify(search) !== JSON.stringify(expectedSearch))
-    throw new Error('Wave 1 search projection drift');
+  const searchByIdentity = new Map(search.map((entry) => [entry.identity, entry]));
+  if (searchByIdentity.size !== search.length || searchByIdentity.size !== expectedSearch.length) {
+    throw new Error('Wave 1 search projection identity set drift');
+  }
+  for (const entry of expectedSearch) {
+    if (JSON.stringify(searchByIdentity.get(entry.identity)) !== JSON.stringify(entry)) {
+      throw new Error(`Wave 1 search projection drift: ${entry.identity}`);
+    }
+  }
   const expectedProjection = buildWaveProjection({
     authority,
     entries: historicalEntries,

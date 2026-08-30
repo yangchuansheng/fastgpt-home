@@ -10,7 +10,7 @@ import {
 } from '@/lib/tech-center-content';
 import { normalizeLocale } from '@/lib/locales';
 import { techPublishedLocaleCodes, type TechPublishedLocale } from '@/lib/publishedLocales';
-import { currentSiteVariant } from '@/lib/siteRouting';
+import { currentSiteVariant, getLocaleHreflang } from '@/lib/siteRouting';
 import { getTechnicalCanonicalUrl } from '@/lib/technicalRouting';
 
 type TechArticleRouteParams = {
@@ -88,7 +88,7 @@ export async function generateMetadata({
       currentSiteVariant === 'preview'
         ? { index: false, follow: false }
         : { index: true, follow: true },
-    alternates: { canonical },
+    alternates: { canonical, languages: { [getLocaleHreflang(locale)]: canonical } },
     openGraph: {
       title,
       description: article.seoDescription,

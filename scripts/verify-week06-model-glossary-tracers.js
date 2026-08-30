@@ -9,6 +9,8 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { buildNormalizedTechnicalPage } = require('./import-technical-content');
+const { stableJson } = require('./lib/technical-authority');
+const { readWeek06Wave1IdentityKeys } = require('./lib/technical-wave-baseline');
 const { verifyProjectionConsistency } = require('./lib/technical-projection');
 const { verifyTechnicalCenter } = require('./verify-technical-center');
 const { verifyWeek06EnglishTracer } = require('./verify-week06-english-tracer');
@@ -20,15 +22,9 @@ const CONTRACT_PATH = path.join(
 );
 const CONTENT_HYGIENE_SCRIPT = path.join(__dirname, 'verify-content-hygiene.js');
 const TECH_CENTER_ROUTE_SOURCE = path.join(ROOT, 'src/app/[lang]/tech-center/page.tsx');
-const TECH_CENTER_CLIENT_SOURCE = path.join(
-  ROOT,
-  'src/components/tech-center/TechCenterPage.tsx'
-);
+const TECH_CENTER_CLIENT_SOURCE = path.join(ROOT, 'src/components/tech-center/TechCenterPage.tsx');
 const TECHNICAL_ROUTE_SOURCE = path.join(ROOT, 'src/app/[lang]/[section]/[slug]/page.tsx');
-const TECHNICAL_JSON_LD_SOURCE = path.join(
-  ROOT,
-  'src/components/tech-center/TechCenterJsonLd.tsx'
-);
+const TECHNICAL_JSON_LD_SOURCE = path.join(ROOT, 'src/components/tech-center/TechCenterJsonLd.tsx');
 const TECHNICAL_CONTENT_SOURCE = path.join(ROOT, 'src/lib/tech-center-content.ts');
 const TECHNICAL_ROUTING_SOURCE = path.join(ROOT, 'src/lib/technicalRouting.ts');
 const OWNER_ORIGINS = { cn: 'https://fastgpt.cn', io: 'https://fastgpt.io' };
@@ -235,7 +231,10 @@ function loadAuthorityCandidates(rootDir, contract) {
     assert.deepEqual(candidate.decision.evidence, [tracer.sourceUrl]);
     const related = candidateById.get(tracer.relatedCandidateId);
     assert(related, `Week06 authority is missing related candidate ${tracer.relatedCandidateId}`);
-    assert.equal(`${related.identity.locale}|${related.identity.canonicalPath}`, tracer.relatedIdentity);
+    assert.equal(
+      `${related.identity.locale}|${related.identity.canonicalPath}`,
+      tracer.relatedIdentity
+    );
     assert.equal(related.identity.locale, tracer.identity.locale);
     assert.equal(related.category, tracer.category);
     assert.equal(related.finalDisposition, 'accepted');
@@ -258,8 +257,16 @@ function verifyWave0(rootDir, contract) {
 
 function verifyProductionRegistry(rootDir, contract, registryPath) {
   const filePath = registryPath || resolveRelative(rootDir, contract.productionRegistry.path);
-  const raw = fs.readFileSync(filePath);
-  const registry = JSON.parse(raw);
+  const deployedRegistry = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  const week06Wave1IdentityKeys = registryPath ? new Set() : readWeek06Wave1IdentityKeys(rootDir);
+  const registry = registryPath
+    ? deployedRegistry
+    : deployedRegistry.filter((entry) => {
+        const match = entry.slug?.match(/^\/([^/]+)(\/.*)$/);
+        assert(match, `Invalid Technical Page slug: ${entry.slug}`);
+        return !week06Wave1IdentityKeys.has(`${match[1]}|${match[2]}`);
+      });
+  const raw = Buffer.from(registryPath ? fs.readFileSync(filePath) : stableJson(registry));
   assert.equal(
     registry.length,
     contract.productionRegistry.count,
@@ -299,13 +306,16 @@ function htmlDocument({ locale, title, canonical, robots, body, structuredData, 
     structuredData
       ? `<script type="application/ld+json">${JSON.stringify(structuredData)}</script>`
       : ''
-  }${script ? '<script src="/_next/static/chunks/technical-center.js"></script>' : ''}</body></html>`;
+  }${
+    script ? '<script src="/_next/static/chunks/technical-center.js"></script>' : ''
+  }</body></html>`;
 }
 
 function renderArticle(tracer, variant, projection) {
   const review = variant === 'preview';
   const canonical = canonicalUrl(tracer);
-  const citationLabel = tracer.identity.locale === 'zh' ? 'FastGPT 官方文档' : 'FastGPT documentation';
+  const citationLabel =
+    tracer.identity.locale === 'zh' ? 'FastGPT 官方文档' : 'FastGPT documentation';
   const readerSummary = tracer.body
     .split(/\n>\s*(?:来源|Source)\s*[:：]/i)[0]
     .replace(/^#{1,6}\s+.*$/m, '')
@@ -366,9 +376,13 @@ function renderHub(locale, variant, tracers, categoryLabels) {
     title: locale === 'zh' ? 'FastGPT 技术中心' : 'FastGPT Technical Center',
     canonical: `${OWNER_ORIGINS[owner]}/tech-center`,
     robots: variant === 'preview' ? 'noindex, nofollow' : 'index, follow',
-    body: `<main data-locale="${locale}" data-total-entries="${tracers.length}" data-category-model-count="${categoryCounts.model}" data-category-glossary-count="${categoryCounts.glossary}" data-featured-identity="${identityKey(
-      tracers[0]
-    )}"><h1>${locale === 'zh' ? '技术中心' : 'Technical Center'}</h1>${categories}${articles}</main>`,
+    body: `<main data-locale="${locale}" data-total-entries="${
+      tracers.length
+    }" data-category-model-count="${categoryCounts.model}" data-category-glossary-count="${
+      categoryCounts.glossary
+    }" data-featured-identity="${identityKey(tracers[0])}"><h1>${
+      locale === 'zh' ? '技术中心' : 'Technical Center'
+    }</h1>${categories}${articles}</main>`,
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
@@ -410,8 +424,12 @@ function writeVariantFixture(fixtureRoot, variant, contract, normalizedById) {
       renderHub(locale, variant, tracers, contract.categoryContract.localizedLabels)
     );
     for (const tracer of tracers) {
-      const route = variant === 'preview' ? tracer.identity.sourcePath : tracer.identity.canonicalPath;
-      writeFile(routeFile(variantRoot, route), renderArticle(tracer, variant, normalizedById.get(tracer.candidateId).projection));
+      const route =
+        variant === 'preview' ? tracer.identity.sourcePath : tracer.identity.canonicalPath;
+      writeFile(
+        routeFile(variantRoot, route),
+        renderArticle(tracer, variant, normalizedById.get(tracer.candidateId).projection)
+      );
     }
   }
   if (variant !== 'preview') {
@@ -425,7 +443,11 @@ function writeVariantFixture(fixtureRoot, variant, contract, normalizedById) {
   }
 }
 
-function writeTracerExportFixture({ rootDir = ROOT, fixtureRoot, contractPath = CONTRACT_PATH } = {}) {
+function writeTracerExportFixture({
+  rootDir = ROOT,
+  fixtureRoot,
+  contractPath = CONTRACT_PATH
+} = {}) {
   assert(fixtureRoot, 'fixtureRoot is required');
   const contract = loadTracerContract(rootDir, contractPath);
   const normalizedById = new Map(
@@ -508,10 +530,19 @@ function verifyHub(variantRoot, variant, locale, tracers, categoryLabels) {
     glossary: tracers.filter((tracer) => tracer.category === 'glossary').length
   };
   assert.equal(metadataValue(html, /data-locale="([^"]+)"/, 'hub locale'), locale);
-  assert.equal(Number(metadataValue(html, /data-total-entries="([^"]+)"/, 'hub count')), tracers.length);
+  assert.equal(
+    Number(metadataValue(html, /data-total-entries="([^"]+)"/, 'hub count')),
+    tracers.length
+  );
   for (const [category, count] of Object.entries(categoryCounts)) {
     assert.equal(
-      Number(metadataValue(html, new RegExp(`data-category-${category}-count="([^"]+)"`), `${category} count`)),
+      Number(
+        metadataValue(
+          html,
+          new RegExp(`data-category-${category}-count="([^"]+)"`),
+          `${category} count`
+        )
+      ),
       count
     );
     assert.match(
@@ -548,10 +579,7 @@ function verifyHub(variantRoot, variant, locale, tracers, categoryLabels) {
     search.every((entry) => entry.locale === locale && entry.identity.startsWith(`${locale}|`)),
     `${locale} search projection crosses locale`
   );
-  assert.deepEqual(
-    search.map((entry) => entry.identity).sort(),
-    tracers.map(identityKey).sort()
-  );
+  assert.deepEqual(search.map((entry) => entry.identity).sort(), tracers.map(identityKey).sort());
   const initialJavaScript = fs.readFileSync(
     path.join(variantRoot, '_next/static/chunks/technical-center.js'),
     'utf8'
@@ -560,9 +588,12 @@ function verifyHub(variantRoot, variant, locale, tracers, categoryLabels) {
   assert(initialJavaScript.includes('fallback: "bounded-initial-listing"'));
   assert(
     !tracers.some((tracer) =>
-      [identityKey(tracer), tracer.identity.sourcePath, tracer.identity.canonicalPath, tracer.title].some(
-        (token) => initialJavaScript.includes(token)
-      )
+      [
+        identityKey(tracer),
+        tracer.identity.sourcePath,
+        tracer.identity.canonicalPath,
+        tracer.title
+      ].some((token) => initialJavaScript.includes(token))
     ),
     `${locale} search projection is embedded in initial JavaScript`
   );
@@ -573,7 +604,10 @@ function verifyHub(variantRoot, variant, locale, tracers, categoryLabels) {
     registryPath,
     searchIndexPath
   });
-  assert(result.initialEntries > 0 && result.initialEntries <= 12, 'bounded fallback listing drift');
+  assert(
+    result.initialEntries > 0 && result.initialEntries <= 12,
+    'bounded fallback listing drift'
+  );
   return result;
 }
 
@@ -600,7 +634,12 @@ function verifyOwnerIsolation(fixtureRoot, contract) {
           `${variant.toUpperCase()} owner leak at ${route}`
         );
       }
-      const tokens = [identityKey(tracer), tracer.identity.sourcePath, canonicalUrl(tracer), tracer.title];
+      const tokens = [
+        identityKey(tracer),
+        tracer.identity.sourcePath,
+        canonicalUrl(tracer),
+        tracer.title
+      ];
       const leaked = scanFiles(root).find((filePath) => {
         const source = fs.readFileSync(filePath, 'utf8');
         return tokens.some((token) => source.includes(token));
@@ -720,7 +759,9 @@ function runHygiene(mode, rootDir, variant) {
   assert.equal(
     result.status,
     0,
-    `${mode} content hygiene failed${variant ? ` for ${variant}` : ''}: ${result.stderr || result.stdout}`
+    `${mode} content hygiene failed${variant ? ` for ${variant}` : ''}: ${
+      result.stderr || result.stdout
+    }`
   );
 }
 
@@ -731,7 +772,13 @@ function verifyContentHygiene(fixtureRoot, contract) {
       const normalized = normalizeTracer(tracer);
       const [, category, slug] = tracer.identity.canonicalPath.split('/');
       writeFile(
-        path.join(sourceRoot, 'src/content/tech-center', tracer.identity.locale, category, `${slug}.md`),
+        path.join(
+          sourceRoot,
+          'src/content/tech-center',
+          tracer.identity.locale,
+          category,
+          `${slug}.md`
+        ),
         normalized.document
       );
     }

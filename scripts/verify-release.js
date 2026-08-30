@@ -285,6 +285,18 @@ function getSourceNodeSteps() {
       'Week06 bilingual Technical Wave 0 readiness verification',
       'scripts/verify-week06-wave0-readiness.js',
       []
+    ],
+    [
+      'week06-wave1.source',
+      'Week06 bilingual Technical Wave 1 source verification',
+      'scripts/verify-week06-wave1.js',
+      []
+    ],
+    [
+      'week06-wave1.rollback',
+      'Week06 bilingual Technical Wave 1 atomic rollback verification',
+      'scripts/verify-week06-wave1.js',
+      ['--atomic-rollback']
     ]
   ];
 }
@@ -315,6 +327,11 @@ function getSourceNpmSteps() {
       'week06-wave0-readiness.regression',
       'Week06 bilingual Technical Wave 0 readiness regression',
       ['verify:week06-wave0-readiness-regression']
+    ],
+    [
+      'week06-wave1.regression',
+      'Week06 bilingual Technical Wave 1 regression',
+      ['verify:week06-wave1-regression']
     ],
     [
       'technical-content.regression',
@@ -502,6 +519,22 @@ function getVariantSteps(variant) {
       label: `technical wave 2 export verification (${variant})`,
       args: ['verify:technical-wave2', '--', '--export', '--variant', variant, '--out-dir', 'out']
     },
+    {
+      runner: 'npm',
+      id: 'week06-wave1.export',
+      label: `Week06 bilingual Technical Wave 1 export verification (${variant})`,
+      args: ['verify:week06-wave1', '--', '--export', '--variant', variant, '--out-dir', 'out']
+    },
+    ...(variant === 'io'
+      ? [
+          {
+            runner: 'npm',
+            id: 'week06-wave1.live',
+            label: 'Week06 bilingual Technical Wave 1 live owner verification',
+            args: ['verify:week06-wave1-live']
+          }
+        ]
+      : []),
     ...(variant === 'preview'
       ? []
       : [

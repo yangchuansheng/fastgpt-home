@@ -13718,5 +13718,255 @@
     "publicPath": "/troubleshoot/fastgpt-glm-answer-quality-troubleshooting",
     "sourceType": "GitHub issue",
     "minutes": 3
+  },
+  {
+    "identity": "zh|/deploy/deploy-ollama-docker-fastgpt",
+    "title": "通过Docker安装Ollama并配置FastGPT可正常访问的服务",
+    "description": "通过Docker安装Ollama并配置FastGPT可正常访问的服务 使用Ollama官方Docker镜像可一键完成Ollama服务的安装与启动，该部署方式无需手动处理复杂的依赖配置。部署前需确保目标机器已安装Docker环境。执行以下命令即可完成基础的镜像拉取与服务启动： 适配FastGPT Docker…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/deploy-ollama-docker-fastgpt",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-beijing-oneclick-deploy",
+    "title": "提供FastGPT北京区一键部署的具体详细操作指引",
+    "description": "提供FastGPT北京区一键部署的具体详细操作指引 北京区作为FastGPT的可选部署区域，服务提供商为火山云，国内用户可以稳定访问该区域的相关资源，但无法访问OpenAI等境外服务，部署价格约为新加坡区的1/4。该区域的网络环境适配国内主流的网络运营商，能够为用户提供稳定的FastGPT运行基础，适合有国…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-beijing-oneclick-deploy",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-bge-rerank-code-download",
+    "title": "为FastGPT部署提供BGE重排序模型的代码下载相关资源",
+    "description": "为FastGPT部署提供BGE重排序模型的代码下载相关资源 在FastGPT的自托管部署流程中，自定义BGE重排序模型的代码获取是重要环节。本页提供官方维护的三款BGE重排序模型的代码仓库地址，帮助技术人员与选型人员完成自定义重排序模型的配置与部署。 可用BGE重排序模型代码仓库 FastGPT官方提供三款…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-bge-rerank-code-download",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-bge-rerank-download",
+    "title": "介绍FastGPT源码部署中下载BGE重排序模型的操作步骤",
+    "description": "介绍FastGPT源码部署中下载BGE重排序模型的操作步骤 可用BGE重排序模型仓库 FastGPT源码部署环节中，可使用的BGE重排序模型共有三个，对应的Hugging Face仓库地址如下： 1. https://huggingface.co/BAAI/bge-reranker-base 2. http…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-bge-rerank-download",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-chatglm2-deployment-config",
+    "title": "FastGPT中ChatGLM2自定义模型的部署配置说明",
+    "description": "FastGPT中ChatGLM2自定义模型的部署配置说明 量化显存占用说明 依据官方数据，生成8192长度的内容时，不同量化等级的显存占用情况存在差异。FP16量化等级需占用12.8GB显存，int8量化等级需占用8.1GB显存，int4量化等级需占用5.1GB显存。量化操作会对性能产生轻微影响，影响程度有…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-chatglm2-deployment-config",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/deploy/upgrade-v4-0",
+    "title": "FastGPT V4.0从旧版本升级的完整操作指引",
+    "description": "FastGPT V4.0从旧版本升级的完整操作指引 这个版本改了什么 FastGPT V4.0版本对MongoDB数据库表结构和字段进行了较大调整，同时新增了专用初始化API接口，用于完成旧版本数据向V4.0版本的适配迁移。 升级前要确认的事 需提前连接目标MongoDB数据库。MongoDB会自动创建空表…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/upgrade-v4-0",
+    "sourceType": "官方文档",
+    "minutes": 4
+  },
+  {
+    "identity": "zh|/deploy/upgrade-v4-1",
+    "title": "FastGPT V4.1版本从旧版本升级的操作与验证说明",
+    "description": "FastGPT V4.1版本从旧版本升级的操作与验证说明 这个版本改了什么 V4.1版本优化了PostgreSQL和MongoDB的连接配置，仅需填写单个URL即可完成数据库连接。同时重新设置了对话存储结构，从旧版本升级至该版本时，需初始化原有存储内容。 升级前要确认的事 需确认原有MongoDB的数据库名…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/upgrade-v4-1",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/deploy/upgrade-v4-10-0",
+    "title": "FastGPT V4.10.0版本升级操作与新增内容说明",
+    "description": "FastGPT V4.10.0版本升级操作与新增内容说明 这个版本改了什么 本版本新增独立系统工具服务，支持系统工具独立开发和调试。同步更新系统工具开发指南与插件系统说明文档。 升级前要确认的事 使用Docker部署的用户，需参考最新docker-compose.yml文件配置fastgpt-plugin和…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/upgrade-v4-10-0",
+    "sourceType": "官方文档",
+    "minutes": 4
+  },
+  {
+    "identity": "zh|/deploy/upgrade-v4-10-1",
+    "title": "FastGPT V4.10.1 版本升级内容说明与操作指南",
+    "description": "FastGPT V4.10.1 版本升级内容说明与操作指南 这个版本改了什么 本版本的更新涵盖新增功能、优化项、问题修复及工具更新。新增功能包括系统工具支持流输出，商业版第三方知识库定时同步支持全量同步并可同步整个目录。优化内容包含定时任务报错日志记录到对话日志、封装应用动态form渲染组件、目录面包屑导航…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/upgrade-v4-10-1",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/deploy/upgrade-v4-11-0",
+    "title": "FastGPT V4.11.0版本升级内容与操作说明",
+    "description": "FastGPT V4.11.0版本升级内容与操作说明 这个版本改了什么 项目调整包括移除所有开源功能的限制，包含应用数量和知识库数量上限；调整RoadMap，增加上下文管理、AI生成工作流、高级编排DeBug调试模式等计划；国际版域名将 fastgpt.io 调整成 fastgpt.io。新增功能包含商业版…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/upgrade-v4-11-0",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-cannot-edit-admin-permission",
+    "title": "FastGPT app模块canNotEditAdminPermission错误码详细说明",
+    "description": "FastGPT app模块canNotEditAdminPermission错误码详细说明 这个错误是什么 该错误属于FastGPT app模块的错误码体系，枚举名为canNotEditAdminPermission，对应状态文本为canNotEditAdminPermission，错误码为502004，关…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-cannot-edit-admin-permission",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-invalidapptype-error",
+    "title": "FastGPT app模块invalidAppType错误码的说明与处理指南",
+    "description": "FastGPT app模块invalidAppType错误码的说明与处理指南 这个错误是什么 该错误属于FastGPT的app模块，枚举名为invalidAppType，对应状态文本为invalidAppType，错误码为502003，对应的文案键为common:codeerror.apperror.inv…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-invalidapptype-error",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-invalidowner-error",
+    "title": "FastGPT app模块invalidOwner错误码的说明与处理方法",
+    "description": "FastGPT app模块invalidOwner错误码的说明与处理方法 这个错误是什么 该错误属于FastGPT的app模块，枚举名为invalidOwner，状态文本为invalidOwner，错误码为502002，对应国际化文案键为common:codeerror.apperror.invalidow…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-invalidowner-error",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-unauth-error-guide",
+    "title": "FastGPT app模块unAuthApp错误码的说明与排查",
+    "description": "FastGPT app模块unAuthApp错误码的说明与排查 这个错误是什么 这是FastGPT app模块下的unAuthApp错误，对应错误码为502001，错误标识statusText为unAuthApp，国际化文案键为common:codeerror.apperror.unauthapp。该错误表…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-unauth-error-guide",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-unexist-error-guide",
+    "title": "FastGPT应用模块unExist错误码的说明与处理指南",
+    "description": "FastGPT应用模块unExist错误码的说明与处理指南 这个错误是什么 该错误属于FastGPT应用模块的预定义枚举错误，枚举名为unExist，对应状态文本为appUnExist，错误码为502000，错误提示信息对应国际化文案键common:codeerror.apperror.notexist，用…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-unexist-error-guide",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/glossary/agent-sandbox-config-migration",
+    "title": "FastGPT Agent沙箱的配置、镜像源设置及迁移流程说明",
+    "description": "FastGPT Agent沙箱的配置、镜像源设置及迁移流程说明 一句话定义 Agent沙箱是FastGPT中运行Agent任务的隔离运行环境，支持配置依赖源与执行数据迁移。 在 FastGPT 里怎么用 依赖源配置 环境变量AGENTSANDBOXPYPIINDEXURL适用于所有运行态镜像。AGENTSA…",
+    "category": "glossary",
+    "locale": "zh",
+    "publicPath": "/glossary/agent-sandbox-config-migration",
+    "sourceType": "官方文档",
+    "minutes": 4
+  },
+  {
+    "identity": "zh|/glossary/chat-title-model-env-var",
+    "title": "FastGPT中CHAT_TITLE_MODEL环境变量的配置说明",
+    "description": "FastGPT中CHATTITLEMODEL环境变量的配置说明 一句话定义 CHATTITLEMODEL是FastGPT用于自动生成对话标题的环境变量。 在 FastGPT 里怎么用（参数 / 位置 / 步骤） 需在fastgpt和fastgpt-pro的部署环境中配置该变量，示例配置为CHATTITLEM…",
+    "category": "glossary",
+    "locale": "zh",
+    "publicPath": "/glossary/chat-title-model-env-var",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/glossary/chatglm2-deployment-fastgpt",
+    "title": "FastGPT中ChatGLM2自定义模型的部署配置与启动方法",
+    "description": "FastGPT中ChatGLM2自定义模型的部署配置与启动方法 一句话定义 ChatGLM2部署是FastGPT中通过源码方式配置并启动ChatGLM2自定义大语言模型的操作流程。 在 FastGPT 里怎么用 首先完成环境配置，相关配置教程可通过GPT获取。下载指定的openaiapi.py文件，执行pi…",
+    "category": "glossary",
+    "locale": "zh",
+    "publicPath": "/glossary/chatglm2-deployment-fastgpt",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/glossary/deerapi-fastgpt-provider-config",
+    "title": "FastGPT中DeerAPI大语言模型提供商的配置说明",
+    "description": "FastGPT中DeerAPI大语言模型提供商的配置说明 一句话定义 DeerAPI是FastGPT可接入的第三方大语言模型服务提供商。 在FastGPT里怎么用 配置DeerAPI提供商时，需通过https://api.deerapi.com/token获取API密钥，设置基础请求地址为https://a…",
+    "category": "glossary",
+    "locale": "zh",
+    "publicPath": "/glossary/deerapi-fastgpt-provider-config",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/glossary/disable-chatbot-window-menu-button",
+    "title": "介绍在FastGPT中禁用聊天窗口功能菜单按钮的方法",
+    "description": "介绍在FastGPT中禁用聊天窗口功能菜单按钮的方法 一句话定义 FastGPT聊天窗口功能菜单按钮是FastGPT聊天窗口内用于提供操作选项的界面元素，其功能可能在特定场景下与网站智能客服对话产生冲突，可通过禁用或隐藏操作限制用户对该按钮的访问，避免功能冲突问题。 在 FastGPT 里怎么用（参数 /…",
+    "category": "glossary",
+    "locale": "zh",
+    "publicPath": "/glossary/disable-chatbot-window-menu-button",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/model/fastgpt-aiproxy-channelid-setup",
+    "title": "正确获取并配置FastGPT对接AIProxy协议所需的channelId参数",
+    "description": "正确获取并配置FastGPT对接AIProxy协议所需的channelId参数 channelId的核心要求 对接AIProxy协议时，FastGPT所需的channelId参数，必须与AIProxy仓库core/model/chtype.go文件中定义的ChannelType数值完全一致。不得根据供应商名…",
+    "category": "model",
+    "locale": "zh",
+    "publicPath": "/model/fastgpt-aiproxy-channelid-setup",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/model/fastgpt-model-preset-directories",
+    "title": "FastGPT模型预设相关目录的结构与各文件的作用说明",
+    "description": "FastGPT模型预设相关目录的结构与各文件的作用说明 目录基础信息 该目录为FastGPT模型预设的核心存储目录，完整路径为packages/infrastructure/src/static-data/models/，包含核心配置文件与多类子目录，用于统一管理所有模型供应商的预设参数与相关资源。 目录与…",
+    "category": "model",
+    "locale": "zh",
+    "publicPath": "/model/fastgpt-model-preset-directories",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/model/fastgpt-model-preset-guidelines",
+    "title": "FastGPT模型预设的配置规则与维护注意事项",
+    "description": "FastGPT模型预设的配置规则与维护注意事项 模型配置的合规依据 新增或修改模型前，需以官方模型文档、官方模型列表API或官方价格/模型页为判断依据。不宜仅根据搜索结果、第三方博客或聚合站判断模型是否存在。此类官方渠道的信息可确保模型的有效性与合规性，避免因非官方渠道的内容导致配置出现偏差。 模型维护的通…",
+    "category": "model",
+    "locale": "zh",
+    "publicPath": "/model/fastgpt-model-preset-guidelines",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/model/fastgpt-plugin-core-concepts",
+    "title": "FastGPT插件核心概念与操作使用说明",
+    "description": "FastGPT插件核心概念与操作使用说明 插件核心概念总览 FastGPT的插件体系包含多个标准化核心概念，用于实现功能模块化与复用。插件是独立可复用的功能模块，可分为工具、模型预设、知识库来源等类型。插件包为插件打包后的.pkg文件，是不同类型插件完成安装、更新与管理的统一载体。工具是一类插件，通常封装第…",
+    "category": "model",
+    "locale": "zh",
+    "publicPath": "/model/fastgpt-plugin-core-concepts",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/model/fastgpt-plugin-dev-setup",
+    "title": "FastGPT插件开发的本地环境搭建步骤说明",
+    "description": "FastGPT插件开发的本地环境搭建步骤说明 基础开发环境要求 开发FastGPT系统工具前，需配置以下基础环境： - Node.js 版本需匹配目标插件仓库的版本要求，确保项目依赖的兼容性。 - 安装 pnpm，当前 fastgpt-plugin 仓库采用 pnpm workspace 进行多包依赖管理，…",
+    "category": "model",
+    "locale": "zh",
+    "publicPath": "/model/fastgpt-plugin-dev-setup",
+    "sourceType": "官方文档",
+    "minutes": 2
   }
 ]

@@ -11,6 +11,7 @@ import { localeMap } from '@/lib/seo';
 import {
   currentSiteVariant,
   getDefaultLocaleForSiteVariant,
+  getLocaleHreflang,
   getOwnedLocaleUrl
 } from '@/lib/siteRouting';
 import { normalizeLocale } from '@/lib/locales';
@@ -114,7 +115,15 @@ export async function generateMetadata({
       currentSiteVariant === 'preview'
         ? { index: false, follow: false }
         : { index: indexable, follow: true },
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      languages: Object.fromEntries(
+        techPublishedLocaleCodes.map((publishedLocale) => [
+          getLocaleHreflang(publishedLocale),
+          getOwnedLocaleUrl(publishedLocale, '/tech-center')
+        ])
+      )
+    },
     openGraph: {
       title,
       description,

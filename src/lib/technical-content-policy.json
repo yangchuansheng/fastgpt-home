@@ -1,5 +1,5 @@
 {
-  "expectedPageCount": 1372,
+  "expectedPageCount": 1422,
   "expectedAcceptedCount": 454,
   "expectedDeniedCount": 6,
   "expectedAddCount": 450,
@@ -19,6 +19,7 @@
   "sourceTypes": {
     "官方文档": "官方文档",
     "官方文档小节": "官方文档",
+    "Official documentation": "官方文档",
     "GitHub issue": "GitHub issue",
     "GitHub Issue": "GitHub issue",
     "深度场景内容": "深度场景内容"

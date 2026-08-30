@@ -7,7 +7,10 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { loadTechnicalAuthority, stableJson } = require('./lib/technical-authority');
-const { readWave2IdentityKeys } = require('./lib/technical-wave-baseline');
+const {
+  readWeek06Wave1IdentityKeys,
+  readWave2IdentityKeys
+} = require('./lib/technical-wave-baseline');
 const { verifyWeek06PrivacyScan } = require('./lib/week06-privacy-scan');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -366,10 +369,12 @@ function verifyWeek06TechnicalAuthority(rootDir = ROOT) {
 
   const baselineRegistry = path.join(rootDir, 'src/components/tech-center/entries.json');
   const deployedRegistry = JSON.parse(fs.readFileSync(baselineRegistry, 'utf8'));
+  const week06Wave1IdentityKeys = readWeek06Wave1IdentityKeys(rootDir);
   const wave2IdentityKeys = readWave2IdentityKeys(rootDir, loadTechnicalAuthority(rootDir));
-  const historicalRegistry = deployedRegistry.filter(
-    (entry) => !wave2IdentityKeys.has(identityKey(parseTechnicalEntryIdentity(entry)))
-  );
+  const historicalRegistry = deployedRegistry.filter((entry) => {
+    const key = identityKey(parseTechnicalEntryIdentity(entry));
+    return !week06Wave1IdentityKeys.has(key) && !wave2IdentityKeys.has(key);
+  });
   assert.equal(historicalRegistry.length, EXPECTED.baselinePages);
   assert.equal(sha256(stableJson(historicalRegistry)), manifest.baseline.registrySha256);
   assert.equal(manifest.baseline.pageCount, EXPECTED.baselinePages);

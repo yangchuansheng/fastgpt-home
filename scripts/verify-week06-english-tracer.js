@@ -9,6 +9,8 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { buildNormalizedTechnicalPage } = require('./import-technical-content');
+const { identityKey, stableJson } = require('./lib/technical-authority');
+const { readWeek06Wave1IdentityKeys } = require('./lib/technical-wave-baseline');
 const { verifyProjectionConsistency } = require('./lib/technical-projection');
 const { verifyTechnicalCenter } = require('./verify-technical-center');
 const { verifyWeek06TechnicalAuthority } = require('./verify-week06-technical-authority');
@@ -18,10 +20,7 @@ const CONTRACT_RELATIVE_PATH = 'scripts/fixtures/technical-authority/week06-engl
 const DEFAULT_BODY_RELATIVE_PATH = 'scripts/fixtures/technical-authority/week06-english-tracer.md';
 const CONTENT_HYGIENE_SCRIPT = path.join(__dirname, 'verify-content-hygiene.js');
 const TECH_CENTER_ROUTE_SOURCE = path.join(ROOT, 'src/app/[lang]/tech-center/page.tsx');
-const TECH_CENTER_CLIENT_SOURCE = path.join(
-  ROOT,
-  'src/components/tech-center/TechCenterPage.tsx'
-);
+const TECH_CENTER_CLIENT_SOURCE = path.join(ROOT, 'src/components/tech-center/TechCenterPage.tsx');
 const TECHNICAL_ROUTE_SOURCE = path.join(ROOT, 'src/app/[lang]/[section]/[slug]/page.tsx');
 const TECHNICAL_ROUTING_SOURCE = path.join(ROOT, 'src/lib/technicalRouting.ts');
 
@@ -59,7 +58,13 @@ function parseFrontMatter(source, label) {
     assert(separator > 0, `${label} has an invalid front matter line`);
     metadata[line.slice(0, separator).trim()] = line.slice(separator + 1).trim();
   }
-  return { metadata, body: normalized.slice(end + 4).replace(/^\n/, '').trim() };
+  return {
+    metadata,
+    body: normalized
+      .slice(end + 4)
+      .replace(/^\n/, '')
+      .trim()
+  };
 }
 
 function loadTracerContract(rootDir = ROOT) {
@@ -74,7 +79,10 @@ function loadTracerContract(rootDir = ROOT) {
     canonicalPath: '/api/fastgpt-chat-api-reference',
     sourcePath: '/en/api/fastgpt-chat-api-reference'
   });
-  assert.equal(contract.source.authorityPath, 'src/content/tech-center/authority/week06-candidate-manifest.json');
+  assert.equal(
+    contract.source.authorityPath,
+    'src/content/tech-center/authority/week06-candidate-manifest.json'
+  );
   assert.equal(contract.source.fixturePath, DEFAULT_BODY_RELATIVE_PATH);
   assert.equal(contract.source.sourceReference, contract.source.sourceUrl);
   assert.match(contract.source.sourceUrl, /^https:\/\/[^\s/]+(?:\/|$)/);
@@ -87,7 +95,8 @@ function loadTracerContract(rootDir = ROOT) {
   assert.deepEqual(contract.decision, {
     disposition: 'accepted',
     operation: 'add',
-    reason: 'Identity, source, evidence, security, operation-risk, duplicate, and hygiene checks passed.',
+    reason:
+      'Identity, source, evidence, security, operation-risk, duplicate, and hygiene checks passed.',
     evidence: [contract.source.sourceUrl],
     reviewer: 'technical-governance'
   });
@@ -136,7 +145,11 @@ function loadAuthorityCandidate(rootDir, contract) {
     'workbookRow',
     'workbookSha256'
   ]) {
-    assert.equal(candidate.provenance[key], contract.source[key], `Source provenance drift: ${key}`);
+    assert.equal(
+      candidate.provenance[key],
+      contract.source[key],
+      `Source provenance drift: ${key}`
+    );
   }
   assert.deepEqual(candidate.decision, contract.decision, 'Decision provenance drift');
   assert.equal(candidate.evidence.status, 'verified');
@@ -164,9 +177,20 @@ function verifyWave0(rootDir, contract) {
 }
 
 function verifyProductionRegistry(rootDir, contract, registryPath) {
-  const filePath = registryPath || resolveRelative(rootDir, contract.expected.productionRegistry.path);
-  const raw = fs.readFileSync(filePath);
-  const entries = JSON.parse(raw);
+  const filePath =
+    registryPath || resolveRelative(rootDir, contract.expected.productionRegistry.path);
+  const deployedEntries = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  const week06Wave1IdentityKeys = registryPath ? new Set() : readWeek06Wave1IdentityKeys(rootDir);
+  const entries = registryPath
+    ? deployedEntries
+    : deployedEntries.filter((entry) => {
+        const match = entry.slug?.match(/^\/([^/]+)(\/.*)$/);
+        assert(match, `Invalid Technical Page slug: ${entry.slug}`);
+        return !week06Wave1IdentityKeys.has(
+          identityKey({ locale: match[1], canonicalPath: match[2] })
+        );
+      });
+  const raw = Buffer.from(registryPath ? fs.readFileSync(filePath) : stableJson(entries));
   assert(Array.isArray(entries), 'Production Technical Page registry must be an array');
   assert.equal(
     entries.length,
@@ -179,7 +203,9 @@ function verifyProductionRegistry(rootDir, contract, registryPath) {
     'Production Technical Page registry digest drift; expected Wave0 delta=0'
   );
   assert(
-    !entries.some((entry) => entry.slug === `/${contract.identity.locale}${contract.identity.canonicalPath}`),
+    !entries.some(
+      (entry) => entry.slug === `/${contract.identity.locale}${contract.identity.canonicalPath}`
+    ),
     'Production Technical Page registry contains the Week06 tracer'
   );
   return entries.length;
@@ -234,11 +260,15 @@ function renderArticle(contract, variant, normalized) {
     .replace(/^#{1,6}\s+/gm, '')
     .replace(/\s+/g, ' ')
     .trim();
-  const body = `<main><article data-identity="${contract.candidateId}"><h1>${projection.title}</h1><p>${
+  const body = `<main><article data-identity="${contract.candidateId}"><h1>${
+    projection.title
+  }</h1><p>${
     review
       ? 'Review representation for the English Technical Page tracer.'
       : readerBody || 'FastGPT Chat API reference.'
-  }</p><p>Source: <a href="${contract.source.sourceUrl}">FastGPT Chat API documentation</a></p></article></main>`;
+  }</p><p>Source: <a href="${
+    contract.source.sourceUrl
+  }">FastGPT Chat API documentation</a></p></article></main>`;
   return htmlDocument({
     locale: 'en',
     title: projection.title,
@@ -298,10 +328,7 @@ function writeVariantFixture(fixtureRoot, variant, contract, source) {
 
   const search = searchProjection(source.normalized.projection);
   writeFile(path.join(variantRoot, 'entries.json'), JSON.stringify([source.normalized.projection]));
-  writeFile(
-    path.join(variantRoot, 'tech-center', 'search-index.en.json'),
-    JSON.stringify(search)
-  );
+  writeFile(path.join(variantRoot, 'tech-center', 'search-index.en.json'), JSON.stringify(search));
   writeFile(
     path.join(variantRoot, '_next', 'static', 'chunks', 'technical-center.js'),
     'window.__TECHNICAL_CENTER__ = "bounded-initial-listing";'
@@ -337,7 +364,9 @@ function staticRouteCandidates(outDir, route) {
 }
 
 function readHtml(outDir, route, label) {
-  const htmlPath = staticRouteCandidates(outDir, route).find((candidate) => fs.existsSync(candidate));
+  const htmlPath = staticRouteCandidates(outDir, route).find((candidate) =>
+    fs.existsSync(candidate)
+  );
   assert(htmlPath, `${label} is missing HTTP-equivalent 200 route ${route}`);
   return { htmlPath, html: fs.readFileSync(htmlPath, 'utf8') };
 }
@@ -411,7 +440,10 @@ function verifyCnIsolation(fixtureRoot, contract) {
 
 function verifySitemaps(fixtureRoot, contract) {
   const ioSitemap = fs.readFileSync(path.join(fixtureRoot, 'io', 'sitemap.xml'), 'utf8');
-  assert(ioSitemap.includes(`<loc>${contract.expected.io.canonical}</loc>`), 'IO sitemap omits the tracer');
+  assert(
+    ioSitemap.includes(`<loc>${contract.expected.io.canonical}</loc>`),
+    'IO sitemap omits the tracer'
+  );
   const cnSitemap = fs.readFileSync(path.join(fixtureRoot, 'cn', 'sitemap.xml'), 'utf8');
   assert(!cnSitemap.includes(contract.expected.io.canonical), 'CN sitemap contains the tracer');
   assert(!fs.existsSync(path.join(fixtureRoot, 'preview', 'sitemap.xml')), 'Preview has a sitemap');
@@ -463,11 +495,9 @@ function verifyEnglishHub(fixtureRoot, contract) {
     'utf8'
   );
   assert(
-    ![
-      contract.identity.canonicalPath,
-      contract.identity.sourcePath,
-      contract.content.title
-    ].some((token) => initialJavaScript.includes(token)),
+    ![contract.identity.canonicalPath, contract.identity.sourcePath, contract.content.title].some(
+      (token) => initialJavaScript.includes(token)
+    ),
     'English Technical registry identity is embedded in initial JavaScript'
   );
 
@@ -506,7 +536,9 @@ function runHygiene(mode, rootDir, variant) {
   assert.equal(
     result.status,
     0,
-    `${mode} content hygiene failed${variant ? ` for ${variant}` : ''}: ${result.stderr || result.stdout}`
+    `${mode} content hygiene failed${variant ? ` for ${variant}` : ''}: ${
+      result.stderr || result.stdout
+    }`
   );
 }
 
@@ -522,15 +554,11 @@ function verifyContentHygiene(rootDir, fixtureRoot, contract) {
   } finally {
     fs.rmSync(sourceRoot, { recursive: true, force: true });
   }
-  for (const variant of ['io', 'cn', 'preview']) runHygiene('html', path.join(fixtureRoot, variant), variant);
+  for (const variant of ['io', 'cn', 'preview'])
+    runHygiene('html', path.join(fixtureRoot, variant), variant);
 }
 
-function verifyWeek06EnglishTracer({
-  rootDir = ROOT,
-  fixtureRoot,
-  outDir,
-  registryPath
-} = {}) {
+function verifyWeek06EnglishTracer({ rootDir = ROOT, fixtureRoot, outDir, registryPath } = {}) {
   const contract = loadTracerContract(rootDir);
   verifyWeek06TechnicalAuthority(rootDir);
   const candidate = loadAuthorityCandidate(rootDir, contract);

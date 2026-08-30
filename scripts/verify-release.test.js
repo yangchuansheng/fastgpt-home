@@ -11,6 +11,7 @@ const {
   appendP1HistoricalBaselineAdvisories,
   createReleaseRecord,
   extractP1SuccessMeasurement,
+  finalizeReleaseRecord,
   getSourceExecutionOrder,
   getSourceNodeSteps,
   getSourceNpmSteps,
@@ -128,7 +129,8 @@ test('release coordinator gates technical content and every site variant', () =>
     'verify:technical-center-regression',
     'verify:technical-export-regression',
     'verify:release-readiness',
-    'verify:week06-wave0-readiness-regression'
+    'verify:week06-wave0-readiness-regression',
+    'verify:week06-wave1-regression'
   ]) {
     assert(sourceCommands.includes(command), command);
   }
@@ -136,12 +138,22 @@ test('release coordinator gates technical content and every site variant', () =>
     ([stepId]) => stepId === 'week06-wave0-readiness.source'
   );
   assert.equal(readinessStep[2], 'scripts/verify-week06-wave0-readiness.js');
+  const wave1Step = getSourceNodeSteps().find(([stepId]) => stepId === 'week06-wave1.source');
+  assert.equal(wave1Step[2], 'scripts/verify-week06-wave1.js');
   for (const variant of ['cn', 'io', 'preview']) {
     const variantIds = getVariantExecutionOrder(variant);
     assert(variantIds.includes('technical-center.export'));
     assert(variantIds.includes('technical-export.export'));
     assert(variantIds.includes('technical-wave.export'));
+    assert(variantIds.includes('week06-wave1.export'));
   }
+  assert(getVariantExecutionOrder('io').includes('week06-wave1.live'));
+  assert.equal(getVariantExecutionOrder('cn').includes('week06-wave1.live'), false);
+  assert.equal(getVariantExecutionOrder('preview').includes('week06-wave1.live'), false);
+  assert.equal(
+    packageJson.scripts['verify:week06-wave1-live'],
+    'node scripts/verify-week06-wave1.js --live'
+  );
 });
 
 test('release coordinator records and gates the case-only alias slice independently', () => {
@@ -344,6 +356,79 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
   assert.equal(record.evidence.week06Wave0Readiness.source, true);
   assert.equal(record.evidence.week06Wave0Readiness.observed.publicationCount, 0);
   assert.equal(record.evidence.week06Wave0Readiness.observed.exportVerified, true);
+  recordStep(
+    record,
+    'week06-wave1.source',
+    'Week06 Wave 1 source evidence',
+    'node scripts/verify-week06-wave1.js',
+    undefined,
+    'passed',
+    'WEEK06_WAVE1_RESULT={"issue":266,"wave":"wave-1","selectedCount":50,"publicationCount":50,"localeCounts":{"zh":25,"en":25},"baselinePageCount":1372,"resultingPageCount":1422,"sourceVerified":true,"exportVerified":true,"releaseEligible":true,"productionObserved":false,"rollback":"ready"}'
+  );
+  assert.equal(record.evidence.week06Wave1.source, true);
+  assert.deepEqual(record.evidence.week06Wave1.observed.localeCounts, { zh: 25, en: 25 });
+  recordStep(
+    record,
+    'week06-wave1.regression',
+    'Week06 Wave 1 regression evidence',
+    'npm run verify:week06-wave1-regression',
+    undefined,
+    'passed',
+    'tests passed'
+  );
+  recordStep(
+    record,
+    'week06-wave1.rollback',
+    'Week06 Wave 1 rollback evidence',
+    'node scripts/verify-week06-wave1.js --atomic-rollback',
+    undefined,
+    'passed',
+    'WEEK06_WAVE1_RESULT={"restored":true,"surfaceCount":58,"byteDrift":0,"digestDrift":0}'
+  );
+  for (const variant of ['cn', 'io', 'preview']) {
+    recordStep(
+      record,
+      'week06-wave1.export',
+      `Week06 Wave 1 ${variant} export evidence`,
+      `node scripts/verify-week06-wave1.js --export --variant ${variant} --out-dir out`,
+      variant,
+      'passed',
+      `WEEK06_WAVE1_RESULT=${JSON.stringify({
+        issue: 266,
+        wave: 'wave-1',
+        selectedCount: 50,
+        publicationCount: 50,
+        localeCounts: { zh: 25, en: 25 },
+        baselinePageCount: 1372,
+        resultingPageCount: 1422,
+        sourceVerified: true,
+        exportVerified: true,
+        releaseEligible: true,
+        productionObserved: 0,
+        rollback: 'ready',
+        ownerPages: variant === 'preview' ? 50 : 25,
+        ownerLeaks: 0,
+        localeDrift: 0,
+        sitemapDrift: 0,
+        searchDrift: 0,
+        brokenInternalLinks: 0
+      })}`
+    );
+  }
+  finalizeReleaseRecord(record, [], { sourceOnly: false });
+  assert.equal(record.evidence.week06Wave1.releaseReady, false);
+  recordStep(
+    record,
+    'week06-wave1.live',
+    'Week06 Wave 1 live HTTP evidence',
+    'npm run verify:week06-wave1-live',
+    undefined,
+    'passed',
+    'WEEK06_WAVE1_RESULT={"issue":266,"wave":"wave-1","liveHttpVerified":true,"productionObserved":50,"http200":50,"canonicalVerified":50,"languageVerified":50,"sitemapVerified":50,"nonOwnerChecked":50,"nonOwnerIndexable":0,"ownerLeaks":0}'
+  );
+  finalizeReleaseRecord(record, [], { sourceOnly: false });
+  assert.equal(record.evidence.week06Wave1.releaseReady, true);
+  assert.equal(record.evidence.week06Wave1.observed.productionObserved, false);
   assert.equal(
     packageJson.scripts['verify:release-readiness'],
     'node --test scripts/lib/release-readiness.test.js'
@@ -360,6 +445,7 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
     packageJson.scripts['verify:week06-wave0-readiness'],
     'node scripts/verify-week06-wave0-readiness.js'
   );
+  assert.equal(packageJson.scripts['verify:week06-wave1'], 'node scripts/verify-week06-wave1.js');
 });
 
 test('preview release gates skip production-only FAQ artifacts and sitemap cardinality', () => {
