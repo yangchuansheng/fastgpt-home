@@ -78,6 +78,8 @@
     "verify:week06-wave1-regression": "node --test scripts/verify-week06-wave1.test.js",
     "verify:week06-wave1-fixtures": "node scripts/verify-week06-wave1.js --fixtures",
     "verify:week06-wave1-rollback": "node scripts/verify-week06-wave1.js --atomic-rollback",
+    "verify:week06-wave1-observation": "node scripts/verify-week06-wave1-observation.js",
+    "verify:week06-wave1-observation-regression": "node --test scripts/verify-week06-wave1-observation.test.js",
     "verify:week06-compare-disposition": "node scripts/verify-week06-compare-disposition.js",
     "verify:week06-compare-disposition-regression": "node --test scripts/verify-week06-compare-disposition.test.js",
     "generate:week06-authority": "node scripts/generate-week06-technical-authority.js",

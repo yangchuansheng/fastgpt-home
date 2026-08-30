@@ -124,6 +124,26 @@ The top-level release coordinator runs both commands and records `source-verifie
 `export-verified`, `governance-complete`, and publication count zero. Wave 0 keeps publication
 count at zero and preserves the production registry byte-for-byte.
 
+## Week06 Wave 1 observation and next official-source slice
+
+`npm run verify:week06-wave1-observation` validates the retained #266 bilingual Wave 1 baseline,
+its release and rollback artifact digests, the 50-URL production observation, the per-owner search
+record, the Wave 0 capacity boundary, and the deterministic follow-on candidate slice. The current
+record is truthfully `blocked`: all 50 live owner probes returned HTTP 404, both owner sitemaps
+omitted the Wave 1 identities, and no approved 14-day Search Console export or complete capacity
+measurement was available.
+
+The candidate-only follow-on record selects at most 200 remaining accepted low-risk official
+documentation identities in authority order. It preserves the 25/25 Wave 1 identity history and
+keeps glossary, GitHub troubleshooting, and comparison cohorts behind gates. The pending ticket
+uses `{ issue: 267, nativeEdge: "blocks" }`; issue creation waits for complete observation windows.
+
+Run the mutation coverage with:
+
+```bash
+npm run verify:week06-wave1-observation-regression
+```
+
 ## Week06 bilingual Technical Wave 1
 
 Issue #266 publishes one approved 50-identity unit from the closed Week06 authority: 25 Chinese
