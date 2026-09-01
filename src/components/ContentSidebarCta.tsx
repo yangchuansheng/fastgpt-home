@@ -23,7 +23,7 @@ type ContentSidebarCtaProps = {
   slug: string;
 };
 
-const headingId = 'content-sidebar-cta-title';
+const titleId = 'content-sidebar-cta-title';
 
 const primaryLinkClassName =
   'group inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[6px] bg-white px-5 py-2.5 text-[14px] font-semibold leading-5 text-[#070d1d] no-underline transition-[background-color,transform] duration-200 hover:-translate-y-0.5 hover:bg-[#f1f5f9] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#070d1d]';
@@ -45,7 +45,7 @@ export default function ContentSidebarCta({
   return (
     <section
       className="relative overflow-hidden rounded-[8px] bg-[#070d1d] px-6 pb-6 pt-7 text-white shadow-[0_20px_45px_rgba(15,23,42,0.16)]"
-      aria-labelledby={headingId}
+      aria-labelledby={titleId}
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.08]"
@@ -64,12 +64,12 @@ export default function ContentSidebarCta({
           <Workflow className="h-5 w-5" strokeWidth={1.7} aria-hidden="true" />
         </div>
         <p className="mb-3 text-[11px] font-semibold leading-4 text-white/60">{copy.eyebrow}</p>
-        <h2
-          id={headingId}
+        <p
+          id={titleId}
           className="mb-3 text-[24px] font-semibold leading-[32px] text-white [text-wrap:balance]"
         >
           {copy.title}
-        </h2>
+        </p>
         <p className="mb-6 text-[14px] leading-[22px] text-white/65 [text-wrap:pretty]">
           {copy.description}
         </p>
