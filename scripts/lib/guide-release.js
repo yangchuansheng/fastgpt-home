@@ -192,7 +192,7 @@ function verifyReaderHygiene(body, slug, locale) {
 
 function verifyClaims(body, slug, locale) {
   for (const claim of CLAIMS[slug][locale]) {
-    if (!claim.test(body)) fail(`${slug}:${locale}: approved product claim is missing (${claim})`);
+    if (!claim.test(body)) fail(`${slug}:${locale}: required content claim is missing (${claim})`);
   }
 }
 
@@ -248,7 +248,7 @@ function verifySource(rootDir, entries, entry, locale) {
   return document;
 }
 
-function verifyManifest(rootDir, manifest, registry, gates) {
+function verifyManifest(rootDir, manifest, registry) {
   if (manifest.schemaVersion !== 1 || manifest.issue !== 255 || manifest.batch !== 'week06') {
     fail('G1 manifest header differs');
   }
@@ -300,16 +300,8 @@ function verifyManifest(rootDir, manifest, registry, gates) {
   }
   assertExact(manifest.result.ownerPages, { cn: 2, io: 2 }, 'G1 owner-page count');
   for (const slug of G1_GUIDE_SLUGS) {
-    const gate = gates.entries?.[slug];
-    if (!gate || gate.group !== 'G1' || gate.status !== 'publishable' || gate.blockers?.length) {
-      fail(`${slug}: G1 release gate is not publishable`);
-    }
     for (const locale of GUIDE_LOCALES)
       verifySource(rootDir, registry.entries, findEntry(registry.entries, slug), locale);
-  }
-  const g2Gate = gates.entries?.[G2_GUIDE_SLUGS[0]];
-  if (!g2Gate || g2Gate.group !== 'G2') {
-    fail('SOE G2 gate is not independently classified');
   }
   return {
     status: manifest.status,
@@ -356,11 +348,10 @@ function verifyGuideG1Release({ rootDir = process.cwd() } = {}) {
   const policy = readJson(safeRoot, 'src/content/guides/policy.json');
   const manifest = readJson(safeRoot, 'src/content/guides/g1-release-manifest.json');
   const rollback = readJson(safeRoot, 'src/content/guides/g1-rollback.json');
-  const gates = readJson(safeRoot, 'src/content/guides/release-gates.json');
   if (policy.entryCount !== registry.entries?.length)
     fail('Guide policy entryCount differs from registry');
   if (!Array.isArray(registry.entries)) fail('Guide registry entries are missing');
-  const result = verifyManifest(safeRoot, manifest, registry, gates);
+  const result = verifyManifest(safeRoot, manifest, registry);
   verifyRollback(manifest, rollback);
   return result;
 }

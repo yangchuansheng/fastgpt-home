@@ -1,6 +1,7 @@
 {
   "authority": "customer-migration",
-  "digest": "2d5a07d086c55a94fa9c923c1256d9444e3b6b967befb381ea876d57aae8681d",
+  "digest": "7391b3b44d263cb1da1050b35477ad2776e4c6361c60ee7ce24ca1ad2d153c16",
+  "preservedAssetCount": 1,
   "recordCount": 231,
   "records": [
     {
@@ -1486,8 +1487,11 @@
       "targetPath": "/customers/legal-affairs-compliance/legal-due-diligence-assistant"
     },
     {
-      "disposition": "accepted",
+      "disposition": "preserve-temporarily",
       "evidenceSource": "FastGPT-solutions子域301映射表-V1.0-星触达-20260824.csv",
+      "expectedBodySha256": "0e8f5aa30056e0a4fe2fe2a05e53aef1050c315a7767e510e6c2515d0476bac8",
+      "expectedContentType": "application/manifest+json",
+      "expectedStatus": 200,
       "provenance": {
         "note": "1:1 路径不变，仅换 host + /solutions 前缀",
         "rawTargetUrl": "https://fastgpt.cn/solutions/manifest.webmanifest",
@@ -1497,12 +1501,27 @@
         "sourceStatus": "301",
         "sourceUrl": "https://solutions.fastgpt.cn/customers/manifest.webmanifest"
       },
-      "reason": "asset-to-hub",
+      "reason": "preserve-legacy-asset",
+      "referencedAssets": [
+        {
+          "expectedBodySha256": "244e479117a05646ef12d26ea8d4adf4f282978f3346b06d9111651cf3e99040",
+          "expectedContentType": "image/svg+xml",
+          "expectedStatus": 200,
+          "path": "/customers/icon.svg"
+        },
+        {
+          "expectedBodySha256": "37cfde2cedb731874f6ea4b8590b02c91bda5bd7f48257065d2265b4473d8c08",
+          "expectedContentType": "image/png",
+          "expectedStatus": 200,
+          "path": "/customers/apple-icon.png"
+        }
+      ],
+      "releaseUnit": "legacy-manifest",
+      "rollbackAction": "restore-legacy-manifest-and-referenced-assets",
       "sourceClass": "legacy-asset",
       "sourceHost": "solutions.fastgpt.cn",
       "sourcePath": "/customers/manifest.webmanifest",
-      "targetHost": "fastgpt.cn",
-      "targetPath": "/customers"
+      "trafficPolicy": "serve-from-legacy-origin"
     },
     {
       "disposition": "accepted",
@@ -4393,6 +4412,15 @@
       "targetPath": "/customers/transportation-logistics/yc-intelligent-customer-service"
     }
   ],
+  "redirectCount": 230,
+  "redirectSourceClassCounts": {
+    "legacy-category": 17,
+    "legacy-detail": 89,
+    "legacy-hub": 1,
+    "legacy-markdown": 89,
+    "legacy-root": 1,
+    "legacy-solutions-detail": 33
+  },
   "schemaVersion": 1,
   "sourceClassCounts": {
     "legacy-asset": 1,

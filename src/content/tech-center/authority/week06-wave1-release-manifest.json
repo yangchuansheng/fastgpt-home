@@ -3,8 +3,9 @@
   "issue": 266,
   "batch": "week06",
   "wave": "wave-1",
-  "status": "source-verified",
-  "sourceVerified": true,
+  "status": "repository-consistent",
+  "repositoryConsistent": true,
+  "sourceVerified": false,
   "fixtureVerified": true,
   "exportVerified": false,
   "releaseEligible": false,
@@ -300,15 +301,15 @@
     },
     {
       "path": "src/content/tech-center/authority/week06-wave1-content.json",
-      "sha256": "d378ab5bad134085d813c62c32618f7c690de97ea3ac9763bec38bbcf5cb917b"
+      "sha256": "9373523cd0836579700a71f7575ba6a8478558370b82b79e694e1c13c2bfe148"
     },
     {
       "path": "src/content/tech-center/authority/week06-wave1-manifest.json",
-      "sha256": "4832afcab9f61eb3895c2a1735e965e95b6e89005155409c8e71c21754e39b63"
+      "sha256": "9e8c212834b173e3bdf4348cfc681aa242769214989648b1932e7b74d677351a"
     },
     {
       "path": "src/content/tech-center/authority/week06-wave1-projection.json",
-      "sha256": "690591e6e969c429963455e6d7bf3490f18bc4d4d871d2fe25c48fe4f65459f8"
+      "sha256": "e59b00b4c4c5ba87a360317302d08a86e2c5c59bc0d3dde1cb98da619e632e1e"
     },
     {
       "path": "src/content/tech-center/authority/week06-wave1-rollback.json",

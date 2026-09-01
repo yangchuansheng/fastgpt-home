@@ -10,14 +10,7 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const REGISTRY_PATH = path.join(ROOT, 'src/content/guides/registry.json');
 const POLICY_PATH = path.join(ROOT, 'src/content/guides/policy.json');
-const RELEASE_GATES_PATH = path.join(ROOT, 'src/content/guides/release-gates.json');
 const GUIDE_ENTRY_COUNT = JSON.parse(fs.readFileSync(POLICY_PATH, 'utf8')).entryCount;
-const { evaluateReleaseGate } = require('./verify-guide-authorization');
-const RELEASE_BLOCKED_SLUGS = new Set(
-  Object.entries(JSON.parse(fs.readFileSync(RELEASE_GATES_PATH, 'utf8')).entries || {})
-    .filter(([slug, gate]) => !evaluateReleaseGate(slug, gate).eligible)
-    .map(([slug]) => slug)
-);
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
 const GUIDE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const VARIANTS = {
@@ -243,14 +236,12 @@ function loadRegistry(variant, entries) {
   let resolvedEntries = entries;
   if (!resolvedEntries) {
     try {
-      resolvedEntries = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8')).entries.filter(
-        (entry) => !RELEASE_BLOCKED_SLUGS.has(entry.slug)
-      );
+      resolvedEntries = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8')).entries;
     } catch (error) {
       fail(context, `unable to read registry: ${error.message}`);
     }
   }
-  const expectedEntryCount = entries ? entries.length : GUIDE_ENTRY_COUNT - RELEASE_BLOCKED_SLUGS.size;
+  const expectedEntryCount = entries ? entries.length : GUIDE_ENTRY_COUNT;
   if (!Array.isArray(resolvedEntries) || resolvedEntries.length !== expectedEntryCount) {
     fail(context, `registry must contain exactly ${expectedEntryCount} Guide entries`);
   }

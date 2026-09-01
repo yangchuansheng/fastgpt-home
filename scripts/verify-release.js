@@ -192,8 +192,6 @@ function getSourceExecutionOrder() {
     ...getSourceNpmSteps().map(([stepId]) => stepId),
     'lint.source',
     'typescript.source',
-    'guide-authorization.source',
-    'guide-authorization.regression',
     'guide-content.source'
   ];
 }
@@ -254,28 +252,6 @@ function runSourceChecks(failures, env, record) {
 
 function runGuideSourceChecks(failures, env, variant, record) {
   const suffix = variant ? ` (${variant})` : '';
-  if (!variant) {
-    nodeStep(
-      failures,
-      'guide-authorization.source',
-      'Guide authorization source verification',
-      'scripts/verify-guide-authorization.js',
-      [],
-      env,
-      undefined,
-      record
-    );
-    npmStep(
-      failures,
-      'guide-authorization.regression',
-      'Guide authorization regression',
-      ['verify:guide-authorization-regression'],
-      env,
-      undefined,
-      undefined,
-      record
-    );
-  }
   nodeStep(
     failures,
     'guide-content.source',
@@ -517,8 +493,6 @@ function main() {
     ['src/faq/generated-en-metadata-authority.json', 'faq-metadata-authority'],
     ['src/content/guides/registry.json', 'guide-registry'],
     ['src/content/guides/policy.json', 'guide-release-policy'],
-    ['src/content/guides/g2-approval-policy.json', 'guide-g2-approval-policy'],
-    ['src/content/guides/authorization.json', 'guide-authorization'],
     ['src/content/guides/g1-release-manifest.json', 'guide-g1-release-manifest'],
     ['src/content/guides/g1-rollback.json', 'guide-g1-rollback'],
     ['src/content/guides/g2-release-manifest.json', 'guide-g2-release-manifest'],

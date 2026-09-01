@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { localeConfigs, type LocaleCode } from '@/lib/locales';
 import { RYBBIT_EVENTS, rybbitClickAttrs } from '@/lib/rybbitEvents';
 import { getPublishedLocaleCodes } from '@/lib/siteRouting';
+import { getReviewLocalePath } from '@/lib/siteRouting';
 import { useContactUrl } from '@/components/home/hooks/useContactUrl';
 
 interface NavLink {
@@ -49,6 +50,7 @@ export default function Navbar({
   locale,
   variant = 'default',
   publishedLocales,
+  reviewLocalePaths = false,
   consultHref,
   onConsultClick
 }: {
@@ -57,6 +59,7 @@ export default function Navbar({
   locale?: string;
   variant?: NavbarVariant;
   publishedLocales?: readonly LocaleCode[];
+  reviewLocalePaths?: boolean;
   consultHref?: string;
   onConsultClick?: () => void;
 }) {
@@ -84,7 +87,10 @@ export default function Navbar({
   const pageLocaleCodes: readonly LocaleCode[] = publishedLocales ?? availableLocaleCodes;
   const languageKeys = pageLocaleCodes.filter((key) => availableLocaleCodes.includes(key));
   const hasLanguageSwitcher = languageKeys.length > 1;
-  const getLocalizedPath = (value: string) => getDefaultLocalePath(value, routeWithoutLang);
+  const getLocalizedPath = (value: string) =>
+    reviewLocalePaths
+      ? getReviewLocalePath(value, routeWithoutLang)
+      : getDefaultLocalePath(value, routeWithoutLang);
 
   const handleSwitchLanguage = (value: string) => {
     if (value === lang) return;
@@ -216,7 +222,12 @@ export default function Navbar({
           <div className="hidden md:flex items-center gap-4">
             {hasLanguageSwitcher && (
               <div className="home-lang">
-                <LangSwitcher iconOnly locale={lang} publishedLocales={publishedLocales} />
+                <LangSwitcher
+                  iconOnly
+                  locale={lang}
+                  publishedLocales={publishedLocales}
+                  reviewLocalePaths={reviewLocalePaths}
+                />
               </div>
             )}
             <a

@@ -6,7 +6,7 @@ import CloudEntryLink from '@/components/home/CloudEntryLink';
 import { RYBBIT_EVENTS, rybbitClickAttrs } from '@/lib/rybbitEvents';
 import { isContactHref } from '@/lib/consultation';
 import { getDefaultLocalePath } from '@/lib/clientNavigation';
-import { getGuideOwnedPath } from '@/lib/guideSeo';
+import { getGuideReviewPath } from '@/lib/guideSeo';
 import { normalizeLocale } from '@/lib/locales';
 import { getContactPublishedLocale } from '@/lib/publishedLocales';
 
@@ -77,7 +77,7 @@ function buildColumns(t: FooterT['columns'], locale?: string): Column[] {
         },
         {
           label: t.links.items.guide,
-          href: getGuideOwnedPath(guideLocale),
+          href: getGuideReviewPath(guideLocale),
           external: false
         },
         {

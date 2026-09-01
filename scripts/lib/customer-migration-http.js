@@ -310,7 +310,7 @@ function artifactName(role, index) {
 }
 
 function responseName(role, index) {
-  return ['source', 'target'].includes(role)
+  return ['source', 'target', 'preserved-asset', 'preserved-reference'].includes(role)
     ? `${role}-${String(index + 1).padStart(3, '0')}`
     : role;
 }
@@ -416,6 +416,24 @@ function verifyRedirect(response, location, record, expectedQuery, legacyOrigin,
     details.push(`Location path must be ${record.targetPath}`);
   if (target.search !== expectedQuery) details.push('Location did not preserve the contract query');
   if (target.hash) details.push('Location must not contain a fragment');
+  return details;
+}
+
+function verifyPreservedResponse(result, expected) {
+  const details = [];
+  if (result.error) return [`request failed: ${result.error}`];
+  if (result.response.status !== expected.expectedStatus) {
+    details.push(
+      `expected HTTP ${expected.expectedStatus}, received ${result.response.status}`
+    );
+  }
+  const contentType = result.response.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes(expected.expectedContentType.toLowerCase())) {
+    details.push(`Content-Type must include ${expected.expectedContentType}`);
+  }
+  if (result.artifact?.sha256 !== expected.expectedBodySha256) {
+    details.push(`body SHA-256 must be ${expected.expectedBodySha256}`);
+  }
   return details;
 }
 
@@ -653,6 +671,60 @@ async function runCustomerMigrationHttpContract({
     });
   }
 
+  const preservedChecks = [];
+  let referencedAssetIndex = 0;
+  for (const [index, preserved] of authority.preservedAssets.entries()) {
+    const result = await fetchBody(
+      new URL(preserved.sourcePath, legacyOrigin),
+      'preserved-asset',
+      index,
+      artifactDirectory,
+      capturedAt,
+      preserved.expectedStatus
+    );
+    if (result.responseRecord) responses.push(result.responseRecord);
+    if (result.artifact) artifacts.push(result.artifact);
+    const details = verifyPreservedResponse(result, preserved);
+    for (const referenced of preserved.referencedAssets) {
+      if (!result.body?.includes(referenced.path)) {
+        details.push(`manifest body does not reference ${referenced.path}`);
+      }
+      const referencedResult = await fetchBody(
+        new URL(referenced.path, legacyOrigin),
+        'preserved-reference',
+        referencedAssetIndex,
+        artifactDirectory,
+        capturedAt,
+        referenced.expectedStatus
+      );
+      if (referencedResult.responseRecord) responses.push(referencedResult.responseRecord);
+      if (referencedResult.artifact) artifacts.push(referencedResult.artifact);
+      const referencedDetails = verifyPreservedResponse(referencedResult, referenced);
+      preservedChecks.push({
+        name: responseName('preserved-reference', referencedAssetIndex),
+        releaseUnit: preserved.releaseUnit,
+        requestPath: referenced.path,
+        status: referencedDetails.length ? 'blocked' : 'passed',
+        detail: referencedDetails.length
+          ? referencedDetails.join('; ')
+          : `HTTP ${referenced.expectedStatus} preserved reference`
+      });
+      referencedAssetIndex += 1;
+    }
+    preservedChecks.push({
+      name: responseName('preserved-asset', index),
+      releaseUnit: preserved.releaseUnit,
+      sourceClass: preserved.sourceClass,
+      sourcePath: preserved.sourcePath,
+      requestPath: preserved.sourcePath,
+      status: details.length ? 'blocked' : 'passed',
+      detail: details.length
+        ? details.join('; ')
+        : `HTTP ${preserved.expectedStatus} preserved legacy manifest`
+    });
+  }
+  checks.push(...preservedChecks);
+
   const targetCache = new Map();
   const targetIndexByPath = new Map(
     authority.targetPaths.map((targetPath, index) => [targetPath, index])
@@ -754,6 +826,11 @@ async function runCustomerMigrationHttpContract({
     exitStatus,
     authorityDigest: authority.authority.digest,
     sourceCount: authority.records.length,
+    preservedAssetCount: authority.preservedAssets.length,
+    preservedReferencedAssetCount: authority.preservedAssets.reduce(
+      (count, asset) => count + asset.referencedAssets.length,
+      0
+    ),
     targetCount: authority.targetPaths.length,
     sourceClasses: classSummary,
     legacyTarget: legacyOrigin.href,

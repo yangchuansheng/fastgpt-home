@@ -8,6 +8,7 @@ const {
   runCustomerMigrationHttpContract
 } = require('./customer-migration-http');
 const { readCustomerMigrationAuthority } = require('./customer-migration');
+const legacyAssets = require('../fixtures/customer-migration-legacy-assets');
 
 const ROOT = path.resolve(__dirname, '../..');
 
@@ -29,6 +30,13 @@ test('customer HTTP contract checks every source class and terminal route', asyn
     calls.push(url.href);
     if (url.pathname === '/sitemap.xml') return new Response(`<urlset>${sitemap}</urlset>`);
     if (url.hostname === 'legacy.example.com') {
+      const asset = legacyAssets[url.pathname];
+      if (asset) {
+        return new Response(asset.body, {
+          status: 200,
+          headers: { 'content-type': asset.contentType }
+        });
+      }
       const source = authority.records.find((record) => record.sourcePath === url.pathname);
       assert(source, `unexpected source request: ${url.pathname}`);
       return new Response('', {
@@ -57,15 +65,15 @@ test('customer HTTP contract checks every source class and terminal route', asyn
       concurrency: 4
     });
     assert.equal(result.status, 'passed');
-    assert.equal(result.checks.length, 232);
-    assert.equal(result.responses.length, 339);
+    assert.equal(result.checks.length, 234);
+    assert.equal(result.responses.length, 341);
     assert.deepEqual(
       Object.fromEntries(
         Object.entries(result.sourceClasses).map(([name, summary]) => [name, summary.sources])
       ),
       authority.sourceClassCounts
     );
-    assert.equal(calls.length, 339);
+    assert.equal(calls.length, 341);
   } finally {
     global.fetch = originalFetch;
   }
@@ -107,6 +115,13 @@ test('customer HTTP contract checks legacy crawl files and the canonical llms pr
           headers: { location: `${terminalOrigin}${url.pathname}${url.search}` }
         });
       }
+      const asset = legacyAssets[url.pathname];
+      if (asset) {
+        return new Response(asset.body, {
+          status: 200,
+          headers: { 'content-type': asset.contentType }
+        });
+      }
       const source = authority.records.find((record) => record.sourcePath === url.pathname);
       assert(source, `unexpected source request: ${url.pathname}`);
       return new Response('', {
@@ -137,8 +152,8 @@ test('customer HTTP contract checks legacy crawl files and the canonical llms pr
       concurrency: 4
     });
     assert.equal(result.status, 'passed');
-    assert.equal(result.checks.length, 236);
-    assert.equal(result.responses.length, 343);
+    assert.equal(result.checks.length, 238);
+    assert.equal(result.responses.length, 345);
     assert.equal(result.checks.find((check) => check.name === 'legacy-robots').status, 'passed');
     assert.equal(result.checks.find((check) => check.name === 'legacy-sitemap').status, 'passed');
     assert.equal(result.checks.find((check) => check.name === 'legacy-llms').status, 'passed');

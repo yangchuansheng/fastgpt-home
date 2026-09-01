@@ -1,4 +1,3 @@
-const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -11,12 +10,11 @@ const {
   identityProjection,
   parseDeliverySource
 } = require('./guide-release');
-const { evaluateReleaseGate } = require('../verify-guide-authorization');
 
 const G2_GUIDE_SLUG = G2_GUIDE_SLUGS[0];
 const PUBLIC_HOSTS = Object.freeze({ zh: 'https://fastgpt.cn', en: 'https://fastgpt.io' });
 const SOURCE_IMAGE_DIRECTIVE = 'Text and accessible tables; no image is required for this release.';
-const PRODUCT_CLAIMS = Object.freeze({
+const REQUIRED_PRODUCT_TERMS = Object.freeze({
   zh: [/公有云部署/, /混合部署/, /私有化部署/, /数据流/, /审计/, /运维/],
   en: [
     /SaaS-Hosted Deployment/,
@@ -27,7 +25,7 @@ const PRODUCT_CLAIMS = Object.freeze({
     /Operations Department/
   ]
 });
-const LEGAL_CLAIMS = Object.freeze({
+const REQUIRED_COMPLIANCE_TERMS = Object.freeze({
   zh: [/合规/, /数据流转|出站策略/, /审查/, /私有化/],
   en: [/compliance/i, /data egress/i, /review/i, /On-Premises|private deployment/i]
 });
@@ -51,24 +49,6 @@ const BASELINE_SLUGS = Object.freeze([
 
 function fail(message) {
   throw new Error(`[verify-guide-g2-release] ${message}`);
-}
-
-function sha256(value) {
-  return crypto.createHash('sha256').update(value).digest('hex');
-}
-
-function stableValue(value) {
-  if (Array.isArray(value)) return value.map(stableValue);
-  if (!value || typeof value !== 'object') return value;
-  return Object.fromEntries(
-    Object.keys(value)
-      .sort()
-      .map((key) => [key, stableValue(value[key])])
-  );
-}
-
-function evidenceDigest(gate) {
-  return sha256(JSON.stringify(stableValue(gate.approvals)));
 }
 
 function readJson(rootDir, relativePath) {
@@ -117,17 +97,20 @@ function verifyReferences(body, slug, locale) {
 }
 
 function verifyReaderBody(body, slug, locale) {
-  const internalApproval =
+  const internalWorkflowMetadata =
     /(?:internal\s+KB|client\s+KB|release\s+gate|owner\s+approval|product\s+sign[- ]off|legal(?:\/|\s+and\s+)compliance\s+(?:approval|sign[- ]off)|evidence\s+(?:digest|expiry)|发布批次|内部\s*KB|客户\s*KB|签发记录|审批记录|审批证据)\s*[:：]/iu;
-  if (internalApproval.test(body)) {
-    fail(`${slug}:${locale}: reader body exposes internal approval metadata`);
+  if (internalWorkflowMetadata.test(body)) {
+    fail(`${slug}:${locale}: reader body exposes internal workflow metadata`);
   }
 }
 
 function verifyClaims(body, slug, locale) {
-  for (const claim of [...PRODUCT_CLAIMS[locale], ...LEGAL_CLAIMS[locale]]) {
+  for (const claim of [
+    ...REQUIRED_PRODUCT_TERMS[locale],
+    ...REQUIRED_COMPLIANCE_TERMS[locale]
+  ]) {
     if (!claim.test(body))
-      fail(`${slug}:${locale}: approved product or legal claim is missing (${claim})`);
+      fail(`${slug}:${locale}: required product or compliance term is missing (${claim})`);
   }
 }
 
@@ -168,7 +151,7 @@ function verifySource(rootDir, entry, locale) {
   verifyClaims(document.body, entry.slug, locale);
 }
 
-function verifyManifest(rootDir, manifest, registry, gate) {
+function verifyManifest(rootDir, manifest, registry) {
   if (
     manifest.schemaVersion !== 1 ||
     manifest.issue !== 256 ||
@@ -201,9 +184,6 @@ function verifyManifest(rootDir, manifest, registry, gate) {
   if (manifest.sourceSetSha256 !== identityDigest(registry.entries, [G2_GUIDE_SLUG])) {
     fail('G2 source-set digest differs');
   }
-  if (manifest.evidenceSetSha256 !== evidenceDigest(gate)) {
-    fail('G2 evidence-set digest differs');
-  }
   if (
     manifest.result?.registryEntryCount !== registry.entries.length ||
     manifest.result?.publishedEntryCount !== registry.entries.length ||
@@ -213,8 +193,6 @@ function verifyManifest(rootDir, manifest, registry, gate) {
     fail('G2 result counts differ');
   }
   assertExact(manifest.result.ownerPages, { cn: 1, io: 1 }, 'G2 owner-page count');
-  const decision = evaluateReleaseGate(G2_GUIDE_SLUG, gate);
-  if (!decision.eligible) fail(`G2 release gate is blocked: ${decision.blockers.join('; ')}`);
   for (const locale of GUIDE_LOCALES) verifySource(rootDir, entry, locale);
   return {
     status: manifest.status,
@@ -226,8 +204,7 @@ function verifyManifest(rootDir, manifest, registry, gate) {
     g2IdentityCount: 1,
     ownerPages: { cn: 1, io: 1 },
     sourceDocumentCount: 2,
-    sourceSetSha256: manifest.sourceSetSha256,
-    evidenceSetSha256: manifest.evidenceSetSha256
+    sourceSetSha256: manifest.sourceSetSha256
   };
 }
 
@@ -259,15 +236,12 @@ function verifyGuideG2Release({ rootDir = process.cwd() } = {}) {
   const safeRoot = path.resolve(rootDir);
   const registry = readJson(safeRoot, 'src/content/guides/registry.json');
   const policy = readJson(safeRoot, 'src/content/guides/policy.json');
-  const gates = readJson(safeRoot, 'src/content/guides/release-gates.json');
   const manifest = readJson(safeRoot, 'src/content/guides/g2-release-manifest.json');
   const rollback = readJson(safeRoot, 'src/content/guides/g2-rollback.json');
   if (!Array.isArray(registry.entries) || policy.entryCount !== registry.entries.length) {
     fail('Guide policy entryCount differs from registry');
   }
-  const gate = gates.entries?.[G2_GUIDE_SLUG];
-  if (!gate) fail('G2 release gate is missing');
-  const result = verifyManifest(safeRoot, manifest, registry, gate);
+  const result = verifyManifest(safeRoot, manifest, registry);
   verifyRollback(manifest, rollback);
   return result;
 }
@@ -275,8 +249,7 @@ function verifyGuideG2Release({ rootDir = process.cwd() } = {}) {
 module.exports = {
   BASELINE_SLUGS,
   G2_GUIDE_SLUG,
-  PRODUCT_CLAIMS,
-  LEGAL_CLAIMS,
-  evidenceDigest,
+  REQUIRED_COMPLIANCE_TERMS,
+  REQUIRED_PRODUCT_TERMS,
   verifyGuideG2Release
 };

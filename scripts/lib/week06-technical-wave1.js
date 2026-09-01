@@ -362,7 +362,7 @@ function buildContentManifest({ selectionEvidence, projectedEntries, readerDocum
       sourceBodySha256: candidate.provenance.sourceBodySha256,
       sourceSetSha256: selectionEvidence.sourceSetSha256,
       importedBodySha256: sha256(pageBody(document)),
-      sourceBinding: 'digest-verified-approved-source-import',
+      sourceBinding: 'recorded-approved-source-digests',
       evidence: {
         status: candidate.evidence.status,
         fingerprint: sanitizePublicText(candidate.evidence.fingerprint),
@@ -380,7 +380,9 @@ function buildContentManifest({ selectionEvidence, projectedEntries, readerDocum
     issue: 266,
     batch: 'week06',
     wave: 'wave-1',
-    status: 'source-verified',
+    status: 'repository-consistent',
+    repositoryConsistent: true,
+    sourceVerified: false,
     readerContentContract: READER_CONTENT_CONTRACT,
     sourceSetSha256: selectionEvidence.sourceSetSha256,
     readerCount: sources.length,
@@ -431,8 +433,9 @@ function buildProjection({ selectionEvidence, projectedEntries, projectedSearch 
   const releaseRecord = identities.map((identity) => ({
     candidateId: identity.candidateId,
     identity: identity.key,
-    status: 'source-verified',
-    sourceVerified: true,
+    status: 'repository-consistent',
+    repositoryConsistent: true,
+    sourceVerified: false,
     fixtureVerified: true,
     exportVerified: false,
     releaseEligible: false,
@@ -453,7 +456,8 @@ function buildProjection({ selectionEvidence, projectedEntries, projectedSearch 
     mode: 'publish',
     consistency: 'identity-set-verified',
     governanceStatus: 'governance-complete',
-    sourceVerified: true,
+    repositoryConsistent: true,
+    sourceVerified: false,
     fixtureVerified: true,
     exportVerified: false,
     releaseEligible: false,
@@ -582,7 +586,7 @@ function buildWeek06Wave1Package(repoRoot = path.resolve(__dirname, '../..'), { 
     issue: 266,
     batch: 'week06',
     wave: 'wave-1',
-    status: 'source-verified',
+    status: 'repository-consistent',
     identitySet: projection.identitySet,
     baseline: baselineRecord,
     selection: {
@@ -628,12 +632,13 @@ function buildWeek06Wave1Package(repoRoot = path.resolve(__dirname, '../..'), { 
       sourceSetSha256: selectionEvidence.sourceSetSha256
     },
     verification: {
-      sourceVerified: true,
+      repositoryConsistent: true,
+      sourceVerified: false,
       fixtureVerified: true,
       exportVerified: false,
       releaseEligible: false,
       productionObserved: false,
-      evidenceSource: 'staged-static-owner-fixture'
+      evidenceSource: 'repository-projection-and-staged-static-owner-fixture'
     }
   };
   const artifactBytes = new Map([
@@ -650,8 +655,9 @@ function buildWeek06Wave1Package(repoRoot = path.resolve(__dirname, '../..'), { 
     issue: 266,
     batch: 'week06',
     wave: 'wave-1',
-    status: 'source-verified',
-    sourceVerified: true,
+    status: 'repository-consistent',
+    repositoryConsistent: true,
+    sourceVerified: false,
     fixtureVerified: true,
     exportVerified: false,
     releaseEligible: false,
@@ -710,9 +716,9 @@ function writeWeek06Wave1Package(wavePackage, failAt) {
 
 function verifyWeek06Wave1Source(
   repoRoot = path.resolve(__dirname, '../..'),
-  { verifyExportFixtures = true } = {}
+  { verifyExportFixtures = true, sourceRoot } = {}
 ) {
-  const expected = buildWeek06Wave1Package(repoRoot);
+  const expected = buildWeek06Wave1Package(repoRoot, { sourceRoot });
   const artifacts = {
     entries: readJson(repoRoot, REGISTRY_RELATIVE_PATH),
     zhSearch: readJson(repoRoot, ZH_SEARCH_RELATIVE_PATH),
@@ -824,7 +830,9 @@ function verifyWeek06Wave1Source(
     projectionDrift: 0,
     ownerLeaks: 0,
     hygieneFindings: 0,
-    sourceVerified: true,
+    repositoryConsistent: true,
+    sourceVerified: expected.sourceDigestVerifiedCount === 50,
+    sourceDigestVerifiedCount: expected.sourceDigestVerifiedCount,
     fixtureVerified: verifyExportFixtures,
     exportVerified: false,
     releaseEligible: false,

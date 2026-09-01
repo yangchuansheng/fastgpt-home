@@ -77,7 +77,6 @@
     }
   ],
   "sourceSetSha256": "2977774a7c793b0e4c18c9b1936d4a3d5f78bf54c69dd77333c96726df8b1e65",
-  "evidenceSetSha256": "158756ae2fad3a4f41560d62358912ec45eb35d53d855b2c36a3411d2e39ee67",
   "result": {
     "registryEntryCount": 16,
     "publishedEntryCount": 16,

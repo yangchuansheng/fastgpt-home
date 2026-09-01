@@ -8,8 +8,12 @@ import Navbar from '@/components/home/Navbar';
 import { getGuideEntry } from '@/content/guides/registry';
 import { readGuideDocument } from '@/lib/guideContent';
 import { getDictionary } from '@/lib/i18n';
-import { getGuideCanonicalUrl, type GuidePublishedLocale } from '@/lib/guideSeo';
-import { getOwnedLocaleUrl } from '@/lib/siteRouting';
+import {
+  GUIDE_PUBLISHED_LOCALES,
+  getGuideCanonicalUrl,
+  type GuidePublishedLocale
+} from '@/lib/guideSeo';
+import { getOwnedLocaleUrl, isPreviewSite } from '@/lib/siteRouting';
 
 const articleLanguage: Record<GuidePublishedLocale, string> = { en: 'en-US', zh: 'zh-CN' };
 
@@ -64,7 +68,13 @@ export async function GuideArticleRoute({
         />
       )}
       <HomeThemeFix />
-      <Navbar links={dict.links} t={dict.Home.navCta} locale={locale} />
+      <Navbar
+        links={dict.links}
+        t={dict.Home.navCta}
+        locale={locale}
+        publishedLocales={GUIDE_PUBLISHED_LOCALES}
+        reviewLocalePaths={isPreviewSite}
+      />
       <GuideArticlePage document={document} locale={locale} />
       <Footer t={dict.Home.footer} locale={locale} />
     </div>

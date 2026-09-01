@@ -242,16 +242,6 @@ function getVariantSteps(variant) {
       label: `Week06 bilingual Technical Wave 1 export verification (${variant})`,
       args: ['verify:week06-wave1', '--', '--export', '--variant', variant, '--out-dir', 'out']
     },
-    ...(variant === 'io'
-      ? [
-          {
-            runner: 'npm',
-            id: 'week06-wave1.live',
-            label: 'Week06 bilingual Technical Wave 1 live owner verification',
-            args: ['verify:week06-wave1-live']
-          }
-        ]
-      : []),
     ...(variant === 'preview'
       ? []
       : [

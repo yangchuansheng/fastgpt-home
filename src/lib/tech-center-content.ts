@@ -177,7 +177,13 @@ function readTechArticle(entry: TechEntry): TechArticle {
           .map((keyword) => keyword.trim())
           .filter(Boolean)
       : [],
-    metaTitle: metadata.meta_title || `${entry.title}｜FastGPT 技术中心`,
+    metaTitle:
+      metadata.meta_title ||
+      `${entry.title}${
+        getTechnicalPageIdentity(entry).locale === 'en'
+          ? ' | FastGPT Technical Center'
+          : '｜FastGPT 技术中心'
+      }`,
     pageType: metadata.page_type || entry.categoryLabel,
     markdown: body,
     seoDescription: metadata.meta_description || getTechArticleDescription(entry, body)
@@ -250,8 +256,6 @@ export function getTechArticleOwnerParams(
   if (variant === 'preview') return params.slice(0, 1).map(({ slug }) => ({ slug }));
   const ownerParams = params.filter((param) => getLocaleOwner(param.lang) === variant);
   // Static export requires one seed param when this variant owns no route in the section.
-  const slugs = (ownerParams.length ? ownerParams : params.slice(0, 1)).map(
-    (param) => param.slug
-  );
+  const slugs = (ownerParams.length ? ownerParams : params.slice(0, 1)).map((param) => param.slug);
   return [...new Set(slugs)].map((slug) => ({ slug }));
 }

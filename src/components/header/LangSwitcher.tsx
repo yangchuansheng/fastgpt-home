@@ -10,6 +10,7 @@ import {
 } from '@/lib/clientNavigation';
 import { localeConfigs, type LocaleCode } from '@/lib/locales';
 import { getPublishedLocaleCodes } from '@/lib/siteRouting';
+import { getReviewLocalePath } from '@/lib/siteRouting';
 
 const langConfig = localeConfigs.reduce((acc, locale) => {
   acc[locale.code] = { flag: locale.flag, label: locale.name };
@@ -39,11 +40,13 @@ function TranslateIcon({ size = 20 }: { size?: number }) {
 export const LangSwitcher = ({
   iconOnly = false,
   locale,
-  publishedLocales
+  publishedLocales,
+  reviewLocalePaths = false
 }: {
   iconOnly?: boolean;
   locale?: string;
   publishedLocales?: readonly LocaleCode[];
+  reviewLocalePaths?: boolean;
 }) => {
   const params = useParams<{ lang: string }>();
   const lang = params.lang;
@@ -62,7 +65,10 @@ export const LangSwitcher = ({
   const availableLocaleCodes = getPublishedLocaleCodes();
   const pageLocaleCodes: readonly LocaleCode[] = publishedLocales ?? availableLocaleCodes;
   const languageKeys = pageLocaleCodes.filter((key) => availableLocaleCodes.includes(key));
-  const getLocalizedPath = (value: string) => getDefaultLocalePath(value, routeWithoutLang);
+  const getLocalizedPath = (value: string) =>
+    reviewLocalePaths
+      ? getReviewLocalePath(value, routeWithoutLang)
+      : getDefaultLocalePath(value, routeWithoutLang);
 
   const handleSwitchLanguage = (value: string) => {
     if (value === langName) return;

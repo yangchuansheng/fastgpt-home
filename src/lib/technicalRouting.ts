@@ -7,8 +7,8 @@ import { normalizeLocale } from '@/lib/locales';
 import {
   currentSiteVariant,
   getLocaleOwner,
-  getOwnedLocalePath,
   getOwnedLocaleUrl,
+  getReviewLocalePath,
   type SiteVariant
 } from '@/lib/siteRouting';
 
@@ -23,11 +23,7 @@ export function getTechnicalCanonicalUrl(entry: Pick<TechEntry, 'slug'>) {
 
 /** Keep locale-prefixed review routes in Preview and owner-relative routes in production. */
 export function getTechnicalReviewPath(locale: string, path: string) {
-  const normalizedLocale = normalizeLocale(locale);
-  const ownedPath = getOwnedLocalePath(normalizedLocale, path);
-  return currentSiteVariant === 'preview'
-    ? `/${normalizedLocale}${ownedPath === '/' ? '' : ownedPath}`
-    : ownedPath;
+  return getReviewLocalePath(normalizeLocale(locale), path);
 }
 
 /** Return the sitemap URL only when the current Site Variant owns the page. */

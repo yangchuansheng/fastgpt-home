@@ -105,7 +105,7 @@ test('Week06 Wave 1 builds bilingual reader content and one 50-identity projecti
   assert(
     wavePackage.content.sources.every(
       (source) =>
-        source.sourceBinding === 'digest-verified-approved-source-import' &&
+        source.sourceBinding === 'recorded-approved-source-digests' &&
         /^[a-f0-9]{64}$/.test(source.importedBodySha256)
     )
   );
@@ -120,7 +120,9 @@ test('Week06 Wave 1 committed source package preserves one exact identity set', 
   assert.equal(result.resultingPageCount, 1422);
   assert.equal(result.projectionDrift, 0);
   assert.equal(result.hygieneFindings, 0);
-  assert.equal(result.sourceVerified, true);
+  assert.equal(result.repositoryConsistent, true);
+  assert.equal(result.sourceVerified, false);
+  assert.equal(result.sourceDigestVerifiedCount, 0);
   assert.equal(result.fixtureVerified, true);
   assert.equal(result.exportVerified, false);
   assert.equal(result.releaseEligible, false);
@@ -287,7 +289,8 @@ test('Week06 Wave 1 rejects selection mutations and invalid CLI input', () => {
   assert.deepEqual(parseArgs([]), {
     mode: 'source',
     outDir: null,
-    variant: null
+    variant: null,
+    sourceRoot: null
   });
   assert.throws(() => parseArgs(['--export']), /requires --variant and --out-dir/);
   assert.throws(() => parseArgs(['--variant', 'other']), /cn, io, or preview/);
@@ -295,21 +298,25 @@ test('Week06 Wave 1 rejects selection mutations and invalid CLI input', () => {
   assert.deepEqual(parseArgs(['--live']), {
     mode: 'live',
     outDir: null,
-    variant: null
+    variant: null,
+    sourceRoot: null
   });
   assert.deepEqual(parseArgs(['--rollback-on-error']), {
     mode: 'rollback',
     outDir: null,
-    variant: null
+    variant: null,
+    sourceRoot: null
   });
   assert.deepEqual(parseArgs(['--atomic-rollback']), {
     mode: 'rollback',
     outDir: null,
-    variant: null
+    variant: null,
+    sourceRoot: null
   });
   assert.throws(
     () => parseGenerateArgs(['--write']),
     /requires --source-root for all 50 approved source files/
   );
   assert.equal(parseGenerateArgs(['--write', '--source-root', '.']).sourceRoot, ROOT);
+  assert.equal(parseGenerateArgs(['--check', '--source-root', '.']).sourceRoot, ROOT);
 });

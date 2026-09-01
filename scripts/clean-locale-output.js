@@ -91,6 +91,13 @@ for (const route of getTechRoutesToRemove(techIdentities, variant)) {
   removed += route === '/tech-center' ? removeRouteDocuments(route) : removeRoute(route);
 }
 
+if (variant === 'preview') {
+  removed += removeRoute('/guide');
+} else {
+  removed += removeRoute('/zh/guide');
+  removed += removeRoute('/en/guide');
+}
+
 const { cnRedirects, ioRedirects } = buildRedirects(rootDir);
 writeNginxRedirectMap(nextDir, variant === 'cn' ? cnRedirects : new Map(), aliasAuthorityMetadata);
 removePath(path.join(outDir, '_redirects'));

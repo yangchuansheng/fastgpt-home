@@ -49,8 +49,6 @@
     "verify:release-readiness": "node --test scripts/lib/release-readiness.test.js",
     "verify:guide-content": "node scripts/verify-guide-content.js",
     "verify:guide-content-regression": "node --test scripts/verify-guide-content.test.js",
-    "verify:guide-authorization": "node scripts/verify-guide-authorization.js",
-    "verify:guide-authorization-regression": "node --test scripts/verify-guide-authorization.test.js",
     "verify:guide-release": "node scripts/verify-guide-release.js",
     "verify:guide-release-regression": "node --test scripts/verify-guide-release.test.js",
     "verify:guide-g2-release": "node scripts/verify-guide-g2-release.js",

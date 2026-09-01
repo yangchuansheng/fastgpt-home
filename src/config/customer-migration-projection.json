@@ -1,7 +1,7 @@
 {
   "authority": "customer-migration",
-  "authorityDigest": "2d5a07d086c55a94fa9c923c1256d9444e3b6b967befb381ea876d57aae8681d",
-  "digest": "c82d7b4cdfcbd016997756c64b5a14a9420dc82da3614902078831f49db411d6",
+  "authorityDigest": "7391b3b44d263cb1da1050b35477ad2776e4c6361c60ee7ce24ca1ad2d153c16",
+  "digest": "c01cda88914d8d9d5e219889ac66528877ae8146dc4e208c5f365405433abcbe",
   "entries": [
     {
       "sourceClass": "legacy-root",
@@ -548,13 +548,6 @@
       "sourcePath": "/customers/legal-affairs-compliance/legal-due-diligence-assistant",
       "targetHost": "fastgpt.cn",
       "targetPath": "/customers/legal-affairs-compliance/legal-due-diligence-assistant"
-    },
-    {
-      "sourceClass": "legacy-asset",
-      "sourceHost": "solutions.fastgpt.cn",
-      "sourcePath": "/customers/manifest.webmanifest",
-      "targetHost": "fastgpt.cn",
-      "targetPath": "/customers"
     },
     {
       "sourceClass": "legacy-detail",
@@ -1623,7 +1616,6 @@
   ],
   "schemaVersion": 1,
   "sourceClassCounts": {
-    "legacy-asset": 1,
     "legacy-category": 17,
     "legacy-detail": 89,
     "legacy-hub": 1,
@@ -1631,7 +1623,7 @@
     "legacy-root": 1,
     "legacy-solutions-detail": 33
   },
-  "sourceCount": 231,
+  "sourceCount": 230,
   "sourceHost": "solutions.fastgpt.cn",
   "targetCount": 107,
   "targetHost": "fastgpt.cn"

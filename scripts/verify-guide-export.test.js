@@ -6,11 +6,7 @@ const path = require('node:path');
 const test = require('node:test');
 
 const registry = require('../src/content/guides/registry.json');
-const releaseGates = require('../src/content/guides/release-gates.json');
-const { evaluateReleaseGate } = require('./verify-guide-authorization');
-const projectedRegistry = registry.entries.filter(
-  (entry) => evaluateReleaseGate(entry.slug, releaseGates.entries[entry.slug]).eligible
-);
+const projectedRegistry = registry.entries;
 const {
   assertNoCaseFoldCollisions,
   parseArgs,

@@ -41,21 +41,20 @@ function parseArgs(argv = process.argv.slice(2)) {
   if (options.mode === 'write' && !options.sourceRoot) {
     throw new Error('--write requires --source-root for all 50 approved source files');
   }
-  if (options.mode === 'check' && options.sourceRoot) {
-    throw new Error('--source-root can only be used with --write');
-  }
   return options;
 }
 
 function main(argv = process.argv.slice(2)) {
   const options = parseArgs(argv);
-  if (options.mode === 'check') return verifyWeek06Wave1Source(ROOT);
+  if (options.mode === 'check') {
+    return verifyWeek06Wave1Source(ROOT, { sourceRoot: options.sourceRoot });
+  }
   const wavePackage = buildWeek06Wave1Package(ROOT, { sourceRoot: options.sourceRoot });
   if (wavePackage.sourceDigestVerifiedCount !== 50) {
     throw new Error('Approved source digest verification must cover all 50 pages');
   }
   writeWeek06Wave1Package(wavePackage, options.failAt);
-  const result = verifyWeek06Wave1Source(ROOT);
+  const result = verifyWeek06Wave1Source(ROOT, { sourceRoot: options.sourceRoot });
   console.log(
     `[generate-week06-wave1] written: zh=${result.localeCounts.zh} en=${result.localeCounts.en} total=${result.publicationCount}`
   );

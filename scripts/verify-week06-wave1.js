@@ -14,7 +14,7 @@ const {
 const ROOT = path.resolve(__dirname, '..');
 
 function parseArgs(argv = process.argv.slice(2)) {
-  const options = { mode: 'source', outDir: null, variant: null };
+  const options = { mode: 'source', outDir: null, variant: null, sourceRoot: null };
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
     if (token === '--export') {
@@ -40,6 +40,11 @@ function parseArgs(argv = process.argv.slice(2)) {
       if (!['cn', 'io', 'preview'].includes(options.variant)) {
         throw new Error('--variant must be cn, io, or preview');
       }
+    } else if (token === '--source-root') {
+      options.sourceRoot = argv[++index];
+      if (!options.sourceRoot || options.sourceRoot.startsWith('--')) {
+        throw new Error('--source-root requires a path');
+      }
     } else {
       throw new Error(`Unknown option: ${token}`);
     }
@@ -49,6 +54,9 @@ function parseArgs(argv = process.argv.slice(2)) {
   }
   if (options.mode !== 'export' && (options.variant || options.outDir)) {
     throw new Error('--variant and --out-dir require --export');
+  }
+  if (options.mode !== 'source' && options.sourceRoot) {
+    throw new Error('--source-root requires source verification mode');
   }
   return options;
 }
@@ -68,7 +76,9 @@ async function main(argv = process.argv.slice(2)) {
   } else if (options.mode === 'rollback') {
     result = verifyWeek06Wave1RollbackOnError(ROOT);
   } else {
-    result = verifyWeek06Wave1Source(ROOT);
+    result = verifyWeek06Wave1Source(ROOT, {
+      sourceRoot: options.sourceRoot ? path.resolve(ROOT, options.sourceRoot) : undefined
+    });
   }
   if (options.mode === 'source') {
     console.log(

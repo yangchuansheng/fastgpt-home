@@ -4,6 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const { readCustomerMigrationAuthority } = require('./customer-migration');
+const legacyAssets = require('../fixtures/customer-migration-legacy-assets');
 const {
   OBSERVATION_HOURS,
   runCustomerMigrationRelease,
@@ -32,6 +33,7 @@ function releaseContract(authority) {
       tested: true,
       previousIngressRevision: '1665072',
       migrationDigest: authority.authority.digest,
+      releaseUnits: { redirects: 'ready', legacyManifest: 'ready' },
       restorePaths: [
         'src/config/customer-migration-authority.json',
         'src/config/customer-migration-projection.json'
@@ -45,6 +47,7 @@ function releaseContract(authority) {
         notFound: 0,
         serverErrors: 0,
         redirects: authority.records.length,
+        preservedAssets: authority.preservedAssets.length,
         canonicalMismatches: 0
       },
       crawlFiles: { robots: 'passed', sitemap: 'passed', llms: 'passed' }
@@ -71,6 +74,13 @@ function mockFetchForAuthority(authority) {
         return new Response('', {
           status: 301,
           headers: { location: `${origin.replace('-legacy', '')}${url.pathname}${url.search}` }
+        });
+      }
+      const asset = legacyAssets[url.pathname];
+      if (asset) {
+        return new Response(asset.body, {
+          status: 200,
+          headers: { 'content-type': asset.contentType }
         });
       }
       const source = authority.records.find((record) => record.sourcePath === url.pathname);
@@ -120,7 +130,8 @@ test('release runner closes preview and production evidence with rollback and ob
     });
     assert.equal(result.status, 'passed');
     assert.equal(result.exitStatus, 0);
-    assert.equal(result.sourceCount, 231);
+    assert.equal(result.sourceCount, 230);
+    assert.equal(result.preservedAssetCount, 1);
     assert.equal(result.targetCount, 107);
     assert.deepEqual(result.routeSurface, {
       hub: '/customers',
@@ -132,6 +143,16 @@ test('release runner closes preview and production evidence with rollback and ob
     assert.equal(result.environments.production.status, 'passed');
     assert.equal(result.environments.preview.exitStatus, 0);
     assert.equal(result.rollback.tested, true);
+    assert.deepEqual(result.rollback.releaseUnits, {
+      redirects: 'ready',
+      legacyManifest: 'ready'
+    });
+    assert.deepEqual(result.releaseUnits.legacyManifest, {
+      count: 1,
+      referencedAssetCount: 2,
+      observationStatus: 'passed',
+      rollbackStatus: 'ready'
+    });
     assert.equal(result.observation.windowHours, OBSERVATION_HOURS * 1);
     assert.match(result.digest, /^[a-f0-9]{64}$/);
     assert.equal(result.environments.preview.responses[0].name, 'legacy-llms');

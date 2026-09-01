@@ -3,7 +3,7 @@
   "issue": 266,
   "batch": "week06",
   "wave": "wave-1",
-  "status": "source-verified",
+  "status": "repository-consistent",
   "identitySet": [
     "en|/api/fastgpt-chat-api-reference",
     "en|/api/fastgpt-api-dataset-collection-create-2",
@@ -207,7 +207,7 @@
   },
   "content": {
     "path": "src/content/tech-center/authority/week06-wave1-content.json",
-    "sha256": "d378ab5bad134085d813c62c32618f7c690de97ea3ac9763bec38bbcf5cb917b",
+    "sha256": "9373523cd0836579700a71f7575ba6a8478558370b82b79e694e1c13c2bfe148",
     "readerCount": 50,
     "identitySet": [
       "en|/api/fastgpt-chat-api-reference",
@@ -264,7 +264,7 @@
   },
   "projection": {
     "path": "src/content/tech-center/authority/week06-wave1-projection.json",
-    "sha256": "690591e6e969c429963455e6d7bf3490f18bc4d4d871d2fe25c48fe4f65459f8",
+    "sha256": "e59b00b4c4c5ba87a360317302d08a86e2c5c59bc0d3dde1cb98da619e632e1e",
     "identitySet": [
       "en|/api/fastgpt-chat-api-reference",
       "en|/api/fastgpt-api-dataset-collection-create-2",
@@ -382,11 +382,12 @@
     "sourceSetSha256": "9f509a7f3677e2d1924ef25dcee45b0f9ced9947da6fe315084eade1f91c551c"
   },
   "verification": {
-    "sourceVerified": true,
+    "repositoryConsistent": true,
+    "sourceVerified": false,
     "fixtureVerified": true,
     "exportVerified": false,
     "releaseEligible": false,
     "productionObserved": false,
-    "evidenceSource": "staged-static-owner-fixture"
+    "evidenceSource": "repository-projection-and-staged-static-owner-fixture"
   }
 }

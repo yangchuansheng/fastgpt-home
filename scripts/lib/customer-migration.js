@@ -6,7 +6,9 @@ const AUTHORITY_RELATIVE_PATH = path.join('src', 'config', 'customer-migration-a
 const PROJECTION_RELATIVE_PATH = path.join('src', 'config', 'customer-migration-projection.json');
 const LEGACY_HOST = 'solutions.fastgpt.cn';
 const TERMINAL_HOST = 'fastgpt.cn';
-const EXPECTED_SOURCE_COUNT = 231;
+const EXPECTED_AUTHORITY_RECORD_COUNT = 231;
+const EXPECTED_SOURCE_COUNT = 230;
+const EXPECTED_PRESERVED_ASSET_COUNT = 1;
 const EXPECTED_CATEGORY_COUNT = 17;
 const EXPECTED_DETAIL_COUNT = 89;
 const EXPECTED_ROUTE_COUNT = 107;
@@ -18,6 +20,40 @@ const SOURCE_CLASS_COUNTS = Object.freeze({
   'legacy-markdown': 89,
   'legacy-root': 1,
   'legacy-solutions-detail': 33
+});
+const REDIRECT_SOURCE_CLASS_COUNTS = Object.freeze({
+  'legacy-category': 17,
+  'legacy-detail': 89,
+  'legacy-hub': 1,
+  'legacy-markdown': 89,
+  'legacy-root': 1,
+  'legacy-solutions-detail': 33
+});
+const PRESERVED_LEGACY_MANIFEST = Object.freeze({
+  disposition: 'preserve-temporarily',
+  expectedBodySha256: '0e8f5aa30056e0a4fe2fe2a05e53aef1050c315a7767e510e6c2515d0476bac8',
+  expectedContentType: 'application/manifest+json',
+  expectedStatus: 200,
+  reason: 'preserve-legacy-asset',
+  releaseUnit: 'legacy-manifest',
+  rollbackAction: 'restore-legacy-manifest-and-referenced-assets',
+  sourceClass: 'legacy-asset',
+  sourcePath: '/customers/manifest.webmanifest',
+  trafficPolicy: 'serve-from-legacy-origin',
+  referencedAssets: [
+    {
+      path: '/customers/icon.svg',
+      expectedStatus: 200,
+      expectedContentType: 'image/svg+xml',
+      expectedBodySha256: '244e479117a05646ef12d26ea8d4adf4f282978f3346b06d9111651cf3e99040'
+    },
+    {
+      path: '/customers/apple-icon.png',
+      expectedStatus: 200,
+      expectedContentType: 'image/png',
+      expectedBodySha256: '37cfde2cedb731874f6ea4b8590b02c91bda5bd7f48257065d2265b4473d8c08'
+    }
+  ]
 });
 
 const SOURCE_FILES = Object.freeze([
@@ -309,7 +345,7 @@ function expectedRecordSemantics(record, routeAuthority) {
     return { sourceClass: 'legacy-hub', reason: 'hub-to-canonical', targetPath: '/customers' };
   }
   if (record.sourcePath === '/customers/manifest.webmanifest') {
-    return { sourceClass: 'legacy-asset', reason: 'asset-to-hub', targetPath: '/customers' };
+    return PRESERVED_LEGACY_MANIFEST;
   }
   if (record.sourcePath.startsWith('/customers/categories/')) {
     return {
@@ -342,6 +378,31 @@ function expectedRecordSemantics(record, routeAuthority) {
     };
   }
   return undefined;
+}
+
+function validatePreservedAssetRecord(record, index) {
+  if ('targetHost' in record || 'targetPath' in record) {
+    throw authorityError(`record ${index + 1} preserved manifest must not declare a redirect target`);
+  }
+  for (const field of [
+    'disposition',
+    'expectedBodySha256',
+    'expectedContentType',
+    'expectedStatus',
+    'reason',
+    'releaseUnit',
+    'rollbackAction',
+    'sourceClass',
+    'sourcePath',
+    'trafficPolicy'
+  ]) {
+    if (record[field] !== PRESERVED_LEGACY_MANIFEST[field]) {
+      throw authorityError(`record ${index + 1} preserved manifest ${field} drifted`);
+    }
+  }
+  if (stableJson(record.referencedAssets) !== stableJson(PRESERVED_LEGACY_MANIFEST.referencedAssets)) {
+    throw authorityError(`record ${index + 1} preserved manifest references drifted`);
+  }
 }
 
 function validateCustomerMigrationAuthority(input, options = {}) {
@@ -409,47 +470,51 @@ function validateCustomerMigrationAuthority(input, options = {}) {
     throw authorityError(`customer route authority must contain ${EXPECTED_ROUTE_COUNT} routes`);
   }
 
-  const normalizedRecords = [];
+  const redirectRecords = [];
+  const preservedAssets = [];
+  const sourceKeys = new Set();
   for (const [index, record] of authority.records.entries()) {
     if (!record || typeof record !== 'object')
       throw authorityError(`record ${index + 1} must be an object`);
-    for (const field of [
-      'sourceHost',
-      'sourcePath',
-      'targetHost',
-      'targetPath',
-      'sourceClass',
-      'reason'
-    ]) {
+    for (const field of ['sourceHost', 'sourcePath', 'sourceClass', 'reason', 'disposition']) {
       if (!(field in record)) throw authorityError(`record ${index + 1} is missing ${field}`);
     }
     validateHost(record.sourceHost, LEGACY_HOST, `record ${index + 1} sourceHost`);
-    validateHost(record.targetHost, TERMINAL_HOST, `record ${index + 1} targetHost`);
     validatePath(record.sourcePath, `record ${index + 1} sourcePath`);
-    validatePath(record.targetPath, `record ${index + 1} targetPath`);
+    const sourceKey = recordKey(record.sourceHost, record.sourcePath);
+    if (sourceKeys.has(sourceKey)) throw authorityError(`duplicate source record for ${sourceKey}`);
+    sourceKeys.add(sourceKey);
     validateProvenance(authority, record, index);
     if (!/^[a-z0-9-]+$/.test(record.sourceClass)) {
       throw authorityError(`record ${index + 1} has an invalid source class`);
     }
     const expected = expectedRecordSemantics(record, routeAuthority);
     if (!expected) throw authorityError(`record ${index + 1} has an unsupported source path`);
-    if (
-      record.sourceClass !== expected.sourceClass ||
-      record.reason !== expected.reason ||
-      record.targetPath !== expected.targetPath
-    ) {
+    if (record.sourceClass !== expected.sourceClass || record.reason !== expected.reason) {
       throw authorityError(`record ${index + 1} semantics disagree with the customer registry`);
     }
-
-    normalizedRecords.push(record);
+    if (expected.disposition === 'preserve-temporarily') {
+      validatePreservedAssetRecord(record, index);
+      preservedAssets.push(record);
+      continue;
+    }
+    for (const field of ['targetHost', 'targetPath']) {
+      if (!(field in record)) throw authorityError(`record ${index + 1} is missing ${field}`);
+    }
+    validateHost(record.targetHost, TERMINAL_HOST, `record ${index + 1} targetHost`);
+    validatePath(record.targetPath, `record ${index + 1} targetPath`);
+    if (record.disposition !== 'accepted' || record.targetPath !== expected.targetPath) {
+      throw authorityError(`record ${index + 1} redirect semantics disagree with the registry`);
+    }
+    redirectRecords.push(record);
   }
 
-  const migration = validateMigrationRecords(normalizedRecords, {
+  const migration = validateMigrationRecords(redirectRecords, {
     allowedTargetPaths: routeAuthority.paths
   });
   const { bySource, records: acceptedRecords, sourceClassCounts, targetPaths } = migration;
   for (const source of authority.sources) {
-    const count = acceptedRecords.filter((record) => record.evidenceSource === source.file).length;
+    const count = authority.records.filter((record) => record.evidenceSource === source.file).length;
     if (count !== source.recordCount) {
       throw authorityError(
         `source manifest count drift for ${source.file}: manifest=${source.recordCount}, records=${count}`
@@ -457,17 +522,42 @@ function validateCustomerMigrationAuthority(input, options = {}) {
     }
   }
 
-  if (stableJson(authority.sourceClassCounts) !== stableJson(sourceClassCounts)) {
+  const authoritySourceClassCounts = getSourceClassCounts(authority.records);
+  if (stableJson(authority.sourceClassCounts) !== stableJson(authoritySourceClassCounts)) {
     throw authorityError('sourceClassCounts does not match the records');
   }
+  if (stableJson(authority.redirectSourceClassCounts) !== stableJson(sourceClassCounts)) {
+    throw authorityError('redirectSourceClassCounts does not match the redirect records');
+  }
+  if (
+    authority.redirectCount !== acceptedRecords.length ||
+    authority.preservedAssetCount !== preservedAssets.length
+  ) {
+    throw authorityError('redirectCount or preservedAssetCount drifted');
+  }
   if (options.requireExpectedCounts) {
+    if (authority.records.length !== EXPECTED_AUTHORITY_RECORD_COUNT) {
+      throw authorityError(
+        `expected ${EXPECTED_AUTHORITY_RECORD_COUNT} authority records, found ${authority.records.length}`
+      );
+    }
     if (acceptedRecords.length !== EXPECTED_SOURCE_COUNT) {
       throw authorityError(
         `expected ${EXPECTED_SOURCE_COUNT} sources, found ${acceptedRecords.length}`
       );
     }
-    if (stableJson(sourceClassCounts) !== stableJson(SOURCE_CLASS_COUNTS)) {
-      throw authorityError(`source class counts drifted: ${JSON.stringify(sourceClassCounts)}`);
+    if (stableJson(authoritySourceClassCounts) !== stableJson(SOURCE_CLASS_COUNTS)) {
+      throw authorityError(
+        `authority source class counts drifted: ${JSON.stringify(authoritySourceClassCounts)}`
+      );
+    }
+    if (stableJson(sourceClassCounts) !== stableJson(REDIRECT_SOURCE_CLASS_COUNTS)) {
+      throw authorityError(`redirect source class counts drifted: ${JSON.stringify(sourceClassCounts)}`);
+    }
+    if (preservedAssets.length !== EXPECTED_PRESERVED_ASSET_COUNT) {
+      throw authorityError(
+        `expected ${EXPECTED_PRESERVED_ASSET_COUNT} preserved asset, found ${preservedAssets.length}`
+      );
     }
   }
 
@@ -494,9 +584,11 @@ function validateCustomerMigrationAuthority(input, options = {}) {
   return {
     authority,
     records: acceptedRecords,
+    preservedAssets,
     bySource,
     routeAuthority,
     sourceClassCounts,
+    authoritySourceClassCounts,
     targetPaths
   };
 }
@@ -615,7 +707,6 @@ function findDetailPath(routeAuthority, slug) {
 function deriveTargetPath(sourcePath, rawTargetPath, routeAuthority) {
   if (sourcePath === '/') return '/customers';
   if (sourcePath === '/customers') return '/customers';
-  if (sourcePath === '/customers/manifest.webmanifest') return '/customers';
   if (sourcePath.startsWith('/customers/categories/')) {
     if (!routeAuthority.categories.includes(sourcePath)) {
       throw authorityError(`legacy category has no terminal target: ${sourcePath}`);
@@ -649,7 +740,7 @@ function classifySourcePath(sourcePath, sourceFileIndex) {
   if (sourcePath === '/') return { sourceClass: 'legacy-root', reason: 'root-to-hub' };
   if (sourcePath === '/customers') return { sourceClass: 'legacy-hub', reason: 'hub-to-canonical' };
   if (sourcePath === '/customers/manifest.webmanifest') {
-    return { sourceClass: 'legacy-asset', reason: 'asset-to-hub' };
+    return PRESERVED_LEGACY_MANIFEST;
   }
   if (sourcePath.startsWith('/customers/categories/')) {
     return { sourceClass: 'legacy-category', reason: 'category-to-canonical' };
@@ -695,16 +786,28 @@ function buildAuthorityFromCsv(inputDir, rootDir = process.cwd()) {
       }
       const sourcePath = validatePath(sourceUrl.pathname, `source row ${rowIndex + 1} source path`);
       const classification = classifySourcePath(sourcePath, sourceFileIndex);
-      const targetPath = deriveTargetPath(sourcePath, rawTargetUrl.pathname, routeAuthority);
+      const preserved = sourcePath === PRESERVED_LEGACY_MANIFEST.sourcePath;
+      const targetPath = preserved
+        ? undefined
+        : deriveTargetPath(sourcePath, rawTargetUrl.pathname, routeAuthority);
       source.recordCount += 1;
       records.push({
         sourceHost: LEGACY_HOST,
         sourcePath,
-        targetHost: TERMINAL_HOST,
-        targetPath,
-        sourceClass: classification.sourceClass,
-        reason: classification.reason,
-        disposition: 'accepted',
+        ...(preserved
+          ? {
+              ...PRESERVED_LEGACY_MANIFEST,
+              referencedAssets: PRESERVED_LEGACY_MANIFEST.referencedAssets.map((asset) => ({
+                ...asset
+              }))
+            }
+          : {
+              targetHost: TERMINAL_HOST,
+              targetPath,
+              sourceClass: classification.sourceClass,
+              reason: classification.reason,
+              disposition: 'accepted'
+            }),
         evidenceSource: file,
         provenance: {
           sourceFile: file,
@@ -724,6 +827,10 @@ function buildAuthorityFromCsv(inputDir, rootDir = process.cwd()) {
     authority: 'customer-migration',
     sourceCount: records.length,
     recordCount: records.length,
+    redirectCount: records.filter((record) => record.disposition === 'accepted').length,
+    preservedAssetCount: records.filter(
+      (record) => record.disposition === 'preserve-temporarily'
+    ).length,
     targetCount: routeAuthority.routeCount,
     targetAuthority: {
       host: TERMINAL_HOST,
@@ -734,6 +841,9 @@ function buildAuthorityFromCsv(inputDir, rootDir = process.cwd()) {
       digest: routeAuthority.digest
     },
     sourceClassCounts: getSourceClassCounts(records),
+    redirectSourceClassCounts: getSourceClassCounts(
+      records.filter((record) => record.disposition === 'accepted')
+    ),
     sources,
     records: records.sort((left, right) =>
       compareStrings(
@@ -763,7 +873,7 @@ function writeCustomerMigrationFiles(rootDir, authority, options = {}) {
   fs.writeFileSync(projectionPath, stableJson(projection));
   if (options.log !== false) {
     console.log(
-      `[generate-customer-migration] wrote ${validated.records.length} sources, ${validated.targetPaths.length} targets, digest=${validated.authority.digest}`
+      `[generate-customer-migration] wrote ${validated.records.length} redirects, ${validated.preservedAssets.length} preserved assets, ${validated.targetPaths.length} targets, digest=${validated.authority.digest}`
     );
   }
   return { authority: validated, projection };
@@ -771,12 +881,16 @@ function writeCustomerMigrationFiles(rootDir, authority, options = {}) {
 
 module.exports = {
   AUTHORITY_RELATIVE_PATH,
+  EXPECTED_AUTHORITY_RECORD_COUNT,
   EXPECTED_CATEGORY_COUNT,
   EXPECTED_DETAIL_COUNT,
   EXPECTED_ROUTE_COUNT,
   EXPECTED_SOURCE_COUNT,
+  EXPECTED_PRESERVED_ASSET_COUNT,
   LEGACY_HOST,
   PROJECTION_RELATIVE_PATH,
+  PRESERVED_LEGACY_MANIFEST,
+  REDIRECT_SOURCE_CLASS_COUNTS,
   SOURCE_CLASS_COUNTS,
   SOURCE_FILES,
   TERMINAL_HOST,

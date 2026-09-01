@@ -54,6 +54,25 @@ function indexedName(role, index) {
   return `${role}-${String(index + 1).padStart(3, '0')}`;
 }
 
+function preservedDescriptors(authority) {
+  let referenceIndex = 0;
+  return authority.preservedAssets.flatMap((asset, assetIndex) => [
+    {
+      name: indexedName('preserved-asset', assetIndex),
+      releaseUnit: asset.releaseUnit,
+      requestPath: asset.sourcePath,
+      sourceClass: asset.sourceClass,
+      status: asset.expectedStatus
+    },
+    ...asset.referencedAssets.map((reference) => ({
+      name: indexedName('preserved-reference', referenceIndex++),
+      releaseUnit: asset.releaseUnit,
+      requestPath: reference.path,
+      status: reference.expectedStatus
+    }))
+  ]);
+}
+
 function normalizeRepository(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   const repository = {};
@@ -175,10 +194,17 @@ function normalizeRollback(value, authority) {
   if (Array.isArray(restorePaths) && normalizedRestorePaths.length !== restorePaths.length) {
     blockers.push({ code: 'customer-migration-rollback-restore-path-invalid' });
   }
+  const releaseUnits = value.releaseUnits || {};
+  for (const unit of ['redirects', 'legacyManifest']) {
+    if (releaseUnits[unit] !== 'ready') {
+      blockers.push({ code: `customer-migration-rollback-${unit}-not-ready` });
+    }
+  }
   return {
     blockers,
     migrationDigest: normalizedMigrationDigest,
     previousIngressRevision,
+    releaseUnits,
     restorePaths: normalizedRestorePaths,
     status: blockers.length ? 'blocked' : 'ready',
     tested: blockers.length === 0
@@ -196,7 +222,7 @@ function metricValue(metrics, names, label) {
   return numberMetric(value, label);
 }
 
-function normalizeObservation(value, sourceCount) {
+function normalizeObservation(value, sourceCount, preservedAssetCount) {
   const blockers = [];
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return {
@@ -233,6 +259,11 @@ function normalizeObservation(value, sourceCount) {
         ['redirects', 'redirectCount'],
         'observation redirects'
       ),
+      preservedAssets: metricValue(
+        metrics || {},
+        ['preservedAssets', 'preservedAssetCount'],
+        'observation preservedAssets'
+      ),
       canonicalMismatches: metricValue(
         metrics || {},
         ['canonicalMismatches', 'canonicalMismatch'],
@@ -244,7 +275,13 @@ function normalizeObservation(value, sourceCount) {
       code: 'customer-migration-observation-metrics-invalid',
       detail: error.message
     });
-    normalizedMetrics = { notFound: 0, serverErrors: 0, redirects: 0, canonicalMismatches: 0 };
+    normalizedMetrics = {
+      notFound: 0,
+      serverErrors: 0,
+      redirects: 0,
+      preservedAssets: 0,
+      canonicalMismatches: 0
+    };
   }
   if (normalizedMetrics.notFound !== 0)
     blockers.push({ code: 'customer-migration-observation-404s' });
@@ -252,6 +289,9 @@ function normalizeObservation(value, sourceCount) {
     blockers.push({ code: 'customer-migration-observation-5xx' });
   if (normalizedMetrics.redirects !== sourceCount) {
     blockers.push({ code: 'customer-migration-observation-redirect-count' });
+  }
+  if (normalizedMetrics.preservedAssets !== preservedAssetCount) {
+    blockers.push({ code: 'customer-migration-observation-preserved-asset-count' });
   }
   if (normalizedMetrics.canonicalMismatches !== 0) {
     blockers.push({ code: 'customer-migration-observation-canonical-mismatch' });
@@ -308,7 +348,11 @@ function validateReleaseContract(contract, authority) {
     ENVIRONMENTS.map((name) => [name, normalizeEnvironment(contract.environments?.[name], name)])
   );
   const rollback = normalizeRollback(contract.rollback, authority);
-  const observation = normalizeObservation(contract.observation, authority.records.length);
+  const observation = normalizeObservation(
+    contract.observation,
+    authority.records.length,
+    authority.preservedAssets.length
+  );
   if (rollback.blockers.length || observation.blockers.length) {
     throw new Error(
       `Customer migration release contract is blocked: ${[
@@ -376,6 +420,8 @@ function normalizeEnvironmentResult(result, environment) {
     revision: result.revision,
     sourceClasses: result.sourceClasses,
     sourceCount: result.sourceCount,
+    preservedAssetCount: result.preservedAssetCount,
+    preservedReferencedAssetCount: result.preservedReferencedAssetCount,
     status: result.status,
     targetCount: result.targetCount,
     terminalTarget: result.terminalTarget
@@ -416,6 +462,16 @@ function verifyEnvironmentEvidence(environment, name, authority, evidenceRoot) {
   if (environment.sourceCount !== authority.records.length) {
     blockers.push(`${name} environment source count drifted`);
   }
+  if (environment.preservedAssetCount !== authority.preservedAssets.length) {
+    blockers.push(`${name} environment preserved asset count drifted`);
+  }
+  const expectedReferencedAssetCount = authority.preservedAssets.reduce(
+    (count, asset) => count + asset.referencedAssets.length,
+    0
+  );
+  if (environment.preservedReferencedAssetCount !== expectedReferencedAssetCount) {
+    blockers.push(`${name} environment preserved reference count drifted`);
+  }
   if (environment.targetCount !== authority.targetPaths.length) {
     blockers.push(`${name} environment target count drifted`);
   }
@@ -431,7 +487,9 @@ function verifyEnvironmentEvidence(environment, name, authority, evidenceRoot) {
   const checks = Array.isArray(environment.checks) ? environment.checks : [];
   const responses = Array.isArray(environment.responses) ? environment.responses : [];
   const artifacts = Array.isArray(environment.artifacts) ? environment.artifacts : [];
-  const expectedCheckCount = REQUIRED_DISCOVERY_CHECKS.length + authority.records.length;
+  const preserved = preservedDescriptors(authority);
+  const expectedCheckCount =
+    REQUIRED_DISCOVERY_CHECKS.length + authority.records.length + preserved.length;
   if (checks.length !== expectedCheckCount) {
     blockers.push(`${name} check count drifted`);
   }
@@ -469,6 +527,20 @@ function verifyEnvironmentEvidence(environment, name, authority, evidenceRoot) {
       check.sourceClass !== record.sourceClass
     ) {
       blockers.push(`${name} ${indexedName('source', index)} mapping drifted`);
+    }
+  }
+  for (const descriptor of preserved) {
+    const check = checksByName.get(descriptor.name);
+    if (!check) {
+      blockers.push(`${name} is missing ${descriptor.name} check`);
+      continue;
+    }
+    if (
+      check.requestPath !== descriptor.requestPath ||
+      check.releaseUnit !== descriptor.releaseUnit ||
+      (descriptor.sourceClass && check.sourceClass !== descriptor.sourceClass)
+    ) {
+      blockers.push(`${name} ${descriptor.name} preserved asset drifted`);
     }
   }
   const artifactByPath = new Map();
@@ -514,6 +586,7 @@ function verifyEnvironmentEvidence(environment, name, authority, evidenceRoot) {
       requestPath: record.sourcePath,
       status: 301
     })),
+    ...preserved,
     ...authority.targetPaths.map((targetPath, index) => ({
       name: indexedName('target', index),
       requestPath: targetPath,
@@ -610,6 +683,11 @@ async function runCustomerMigrationRelease({
         revision: validated.revision,
         sourceClasses: {},
         sourceCount: authority.records.length,
+        preservedAssetCount: authority.preservedAssets.length,
+        preservedReferencedAssetCount: authority.preservedAssets.reduce(
+          (count, asset) => count + asset.referencedAssets.length,
+          0
+        ),
         status: 'blocked',
         targetCount: authority.targetPaths.length,
         terminalTarget: environment.terminalTarget
@@ -637,6 +715,7 @@ async function runCustomerMigrationRelease({
       routes: authority.routeAuthority.routeCount
     },
     sourceCount: authority.records.length,
+    preservedAssetCount: authority.preservedAssets.length,
     targetCount: authority.targetPaths.length,
     repository: validated.repository,
     revision: validated.revision,
@@ -644,6 +723,22 @@ async function runCustomerMigrationRelease({
     environments,
     rollback: validated.rollback,
     observation: validated.observation,
+    releaseUnits: {
+      redirects: {
+        count: authority.records.length,
+        observationStatus: validated.observation.status,
+        rollbackStatus: validated.rollback.releaseUnits.redirects
+      },
+      legacyManifest: {
+        count: authority.preservedAssets.length,
+        referencedAssetCount: authority.preservedAssets.reduce(
+          (count, asset) => count + asset.referencedAssets.length,
+          0
+        ),
+        observationStatus: validated.observation.status,
+        rollbackStatus: validated.rollback.releaseUnits.legacyManifest
+      }
+    },
     status: blockers.length ? 'blocked' : 'passed',
     exitStatus: blockers.length ? 1 : 0,
     blockers
@@ -692,9 +787,29 @@ function verifyCustomerMigrationReleaseEvidence(input, authority, options = {}) 
   }
   if (
     input.sourceCount !== authority.records.length ||
+    input.preservedAssetCount !== authority.preservedAssets.length ||
     input.targetCount !== authority.targetPaths.length
   ) {
     throw new Error('Customer migration release evidence counts drifted');
+  }
+  const expectedReleaseUnits = {
+    redirects: {
+      count: authority.records.length,
+      observationStatus: 'passed',
+      rollbackStatus: 'ready'
+    },
+    legacyManifest: {
+      count: authority.preservedAssets.length,
+      referencedAssetCount: authority.preservedAssets.reduce(
+        (count, asset) => count + asset.referencedAssets.length,
+        0
+      ),
+      observationStatus: 'passed',
+      rollbackStatus: 'ready'
+    }
+  };
+  if (stableJson(input.releaseUnits) !== stableJson(expectedReleaseUnits)) {
+    throw new Error('Customer migration release units drifted');
   }
   for (const name of ENVIRONMENTS) {
     const environment = input.environments?.[name];
@@ -709,7 +824,11 @@ function verifyCustomerMigrationReleaseEvidence(input, authority, options = {}) 
         .join(', ')}`
     );
   }
-  const observation = normalizeObservation(input.observation, authority.records.length);
+  const observation = normalizeObservation(
+    input.observation,
+    authority.records.length,
+    authority.preservedAssets.length
+  );
   if (
     observation.blockers.length ||
     observation.status !== 'passed' ||

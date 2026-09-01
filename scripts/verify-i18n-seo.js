@@ -5,6 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const {
   buildRedirects,
+  getTechIdentities,
   getPublishedFaqIds,
   parseNginxRedirectMap
 } = require('./lib/redirects');
@@ -16,11 +17,7 @@ const {
   resolveSiteVariant
 } = require('./lib/site-variant');
 const { locales } = require('../src/config/site-routing.json');
-const releaseGates = require('../src/content/guides/release-gates.json').entries;
-const { evaluateReleaseGate } = require('./verify-guide-authorization');
-const guideRegistry = require('../src/content/guides/registry.json').entries.filter(
-  (entry) => evaluateReleaseGate(entry.slug, releaseGates[entry.slug]).eligible
-);
+const guideRegistry = require('../src/content/guides/registry.json').entries;
 
 const rootDir = path.join(__dirname, '..');
 const outDir = path.join(rootDir, 'out');
@@ -274,8 +271,8 @@ function verifySitemap() {
   );
   assert(!urls.some((url) => url.endsWith('/ja/contact')), 'Sitemap contains Japanese Contact');
   assert.equal(
-    urls.includes(`${baseUrls.cn}/tech-center`),
-    variant === 'cn',
+    urls.includes(`${baseUrl}/tech-center`),
+    variant === 'cn' || variant === 'io',
     'Sitemap has an unexpected technical center URL'
   );
 
@@ -329,10 +326,18 @@ function verifyPublishedRoutes() {
     Boolean(resolveHtmlPath('/zh-hant/contact')),
     variant === 'io' || variant === 'preview'
   );
-  assert.equal(Boolean(resolveHtmlPath('/tech-center')), variant === 'cn');
+  assert.equal(Boolean(resolveHtmlPath('/tech-center')), variant !== 'preview');
   assert.equal(Boolean(resolveHtmlPath('/zh/tech-center')), variant === 'preview');
+  assert.equal(Boolean(resolveHtmlPath('/en/tech-center')), variant === 'preview');
   assert.equal(Boolean(resolveHtmlPath(techPath)), variant === 'cn');
   assert.equal(Boolean(resolveHtmlPath(`/zh${techPath}`)), variant === 'preview');
+  for (const identity of getTechIdentities(rootDir)) {
+    assert.equal(
+      Boolean(resolveHtmlPath(identity.sourcePath)),
+      variant === 'preview',
+      `Unexpected Technical review route state: ${identity.sourcePath}`
+    );
+  }
 }
 
 function verifyNotFoundFallback() {
@@ -385,9 +390,12 @@ function verifyNotFoundFallback() {
   assert.equal(contactRecovery.display, 'contents');
 
   const techRecovery = getRecoveryLinks('/ja/tutorial/missing');
-  assert.deepEqual(techRecovery.hrefs, [
-    variant === 'preview' ? '/zh/tech-center' : `${baseUrls.cn}/tech-center`
-  ]);
+  assert.deepEqual(
+    techRecovery.hrefs,
+    variant === 'preview'
+      ? ['/zh/tech-center', '/en/tech-center']
+      : [`${baseUrls.cn}/tech-center`, `${baseUrls.io}/tech-center`]
+  );
   assert.deepEqual(getRecoveryLinks('/ja/missing').hrefs, []);
 }
 
@@ -497,6 +505,9 @@ function main() {
     const techHtml = resolveHtml('/zh/tech-center');
     assert.equal(getCanonical(techHtml, '/zh/tech-center'), `${baseUrls.cn}/tech-center`);
     assert.equal(getRobots(techHtml), 'noindex, nofollow');
+    const englishTechHtml = resolveHtml('/en/tech-center');
+    assert.equal(getCanonical(englishTechHtml, '/en/tech-center'), `${baseUrls.io}/tech-center`);
+    assert.equal(getRobots(englishTechHtml), 'noindex, nofollow');
 
     const techArticleHtml = resolveHtml(`/zh${techPath}`);
     assert.equal(getCanonical(techArticleHtml, `/zh${techPath}`), `${baseUrls.cn}${techPath}`);

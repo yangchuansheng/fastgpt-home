@@ -66,7 +66,7 @@
     ],
     "identitySetSha256": "397c3eb1324f20f5efb997986e44995bbec03d134f52bc8b9f74aa9c93bb5cce",
     "registrySha256": "d12d7e234c35c47009704d2476c58d0a5f8e9909742a669a50bceaf83ab7fb38",
-    "releaseManifestSha256": "4ed7bf33cf7394f928c41e3862db73fe2f75ea3b29c6c5c5bd2e51288da0da47",
+    "releaseManifestSha256": "df558ceea5b87489597b26b83d200ba3748d53117ffaaada24b11952e9d73a6f",
     "source": "week06-wave1-release-manifest"
   },
   "production": {
@@ -807,7 +807,7 @@
   "artifacts": {
     "release": {
       "path": "src/content/tech-center/authority/week06-wave1-release-manifest.json",
-      "sha256": "4ed7bf33cf7394f928c41e3862db73fe2f75ea3b29c6c5c5bd2e51288da0da47",
+      "sha256": "df558ceea5b87489597b26b83d200ba3748d53117ffaaada24b11952e9d73a6f",
       "status": "passed",
       "artifacts": [
         {
@@ -1024,15 +1024,15 @@
         },
         {
           "path": "src/content/tech-center/authority/week06-wave1-content.json",
-          "sha256": "d378ab5bad134085d813c62c32618f7c690de97ea3ac9763bec38bbcf5cb917b"
+          "sha256": "9373523cd0836579700a71f7575ba6a8478558370b82b79e694e1c13c2bfe148"
         },
         {
           "path": "src/content/tech-center/authority/week06-wave1-manifest.json",
-          "sha256": "4832afcab9f61eb3895c2a1735e965e95b6e89005155409c8e71c21754e39b63"
+          "sha256": "9e8c212834b173e3bdf4348cfc681aa242769214989648b1932e7b74d677351a"
         },
         {
           "path": "src/content/tech-center/authority/week06-wave1-projection.json",
-          "sha256": "690591e6e969c429963455e6d7bf3490f18bc4d4d871d2fe25c48fe4f65459f8"
+          "sha256": "e59b00b4c4c5ba87a360317302d08a86e2c5c59bc0d3dde1cb98da619e632e1e"
         },
         {
           "path": "src/content/tech-center/authority/week06-wave1-rollback.json",
@@ -1042,7 +1042,9 @@
       "verification": {
         "command": "node scripts/verify-week06-wave1.js",
         "status": "passed",
-        "sourceVerified": true
+        "repositoryConsistent": true,
+        "sourceVerified": false,
+        "sourceDigestVerifiedCount": 0
       }
     },
     "rollback": {

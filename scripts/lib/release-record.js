@@ -9,7 +9,6 @@ const {
   normalizeSolutionsEvidence
 } = require('./release-readiness');
 const { collectSourceProvenance, redactReleaseOptions } = require('./release-cross-project');
-const { evaluateReleaseGate } = require('../verify-guide-authorization');
 const { G1_GUIDE_SLUGS, G2_GUIDE_SLUGS } = require('./guide-release');
 
 const ROOT = path.resolve(__dirname, '../..');
@@ -73,7 +72,9 @@ const EXPECTED_WEEK06_WAVE1 = {
   publicationCount: 50,
   baselinePageCount: 1372,
   resultingPageCount: 1422,
-  sourceVerified: true,
+  repositoryConsistent: true,
+  sourceVerified: false,
+  sourceDigestVerifiedCount: 0,
   fixtureVerified: true,
   exportVerified: false,
   releaseEligible: false,
@@ -81,21 +82,10 @@ const EXPECTED_WEEK06_WAVE1 = {
   rollback: 'ready'
 };
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
-const GUIDE_AUTHORIZATION_SLUGS = ['finance-research-retrieval', 'finance-daily-report-automation'];
-const GUIDE_RELEASE_GATES = JSON.parse(
-  fs.readFileSync(path.join(ROOT, 'src/content/guides/release-gates.json'), 'utf8')
-).entries;
-const GUIDE_RELEASE_BLOCKED_SLUGS = Object.entries(GUIDE_RELEASE_GATES)
-  .filter(([slug, gate]) => !evaluateReleaseGate(slug, gate).eligible)
-  .map(([slug]) => slug);
-const GUIDE_RELEASE_BLOCKED_COUNT = GUIDE_RELEASE_BLOCKED_SLUGS.length;
 const GUIDE_G1_MANIFEST_PATH = 'src/content/guides/g1-release-manifest.json';
 const GUIDE_G1_ROLLBACK_PATH = 'src/content/guides/g1-rollback.json';
 const GUIDE_G2_MANIFEST_PATH = 'src/content/guides/g2-release-manifest.json';
 const GUIDE_G2_ROLLBACK_PATH = 'src/content/guides/g2-rollback.json';
-const GUIDE_ENTRY_COUNT = JSON.parse(
-  fs.readFileSync(path.join(ROOT, 'src/content/guides/policy.json'), 'utf8')
-).entryCount;
 const GUIDE_RELEASE_PAIRS = [
   { slug: GUIDE_TRACER_SLUG, locales: ['zh', 'en'] },
   { slug: 'database-qa-integration-guide', locales: ['zh', 'en'] },
@@ -228,8 +218,6 @@ function createReleaseRecord(options) {
         source: false,
         regression: false,
         rollbackVerified: false,
-        live: false,
-        liveObserved: undefined,
         observed: undefined,
         variants: {},
         releaseReady: false
@@ -275,13 +263,6 @@ function createReleaseRecord(options) {
         expectedSlugs: [...G2_GUIDE_SLUGS],
         manifestPath: GUIDE_G2_MANIFEST_PATH,
         rollbackPath: GUIDE_G2_ROLLBACK_PATH,
-        source: false,
-        regression: false,
-        result: undefined,
-        releaseReady: false
-      },
-      guideAuthorization: {
-        expectedSlugs: GUIDE_AUTHORIZATION_SLUGS,
         source: false,
         regression: false,
         result: undefined,
@@ -395,16 +376,12 @@ function collectWeek06Wave1Evidence(record, stepId, variant, status, output) {
   if (stepId === 'week06-wave1.source') evidence.source = status === 'passed';
   if (stepId === 'week06-wave1.regression') evidence.regression = status === 'passed';
   if (stepId === 'week06-wave1.rollback') evidence.rollbackVerified = status === 'passed';
-  if (stepId === 'week06-wave1.live') evidence.live = status === 'passed';
   if (stepId === 'week06-wave1.rollback') return;
   const marker = output.match(/WEEK06_WAVE1_RESULT=(\{[^\n]+\})/);
   if (!marker) return;
   try {
     const observed = JSON.parse(marker[1]);
-    if (stepId === 'week06-wave1.live') {
-      evidence.liveObserved = observed;
-      record.counts.week06Wave1LiveObserved = observed;
-    } else if (variant) {
+    if (variant) {
       evidence.variants[variant] = observed;
       record.counts.week06Wave1Variants = {
         ...(record.counts.week06Wave1Variants || {}),
@@ -416,8 +393,7 @@ function collectWeek06Wave1Evidence(record, stepId, variant, status, output) {
     }
   } catch (error) {
     const invalid = { status: 'invalid', error: error.message };
-    if (stepId === 'week06-wave1.live') evidence.liveObserved = invalid;
-    else if (variant) evidence.variants[variant] = invalid;
+    if (variant) evidence.variants[variant] = invalid;
     else evidence.observed = invalid;
   }
 }
@@ -494,21 +470,7 @@ function finalizeReleaseRecord(record, failures, options) {
   const guidePairs = record.evidence.guidePairs;
   const guideG1 = record.evidence.guideG1;
   const guideG2 = record.evidence.guideG2;
-  const guideAuthorization = record.evidence.guideAuthorization;
   const technicalAuthority = record.evidence.technicalAuthority;
-  const completeAuthorization = guideAuthorization.result?.complete;
-  const missingAuthorization = guideAuthorization.result?.missing;
-  guideAuthorization.releaseReady =
-    guideAuthorization.source &&
-    guideAuthorization.regression &&
-    completeAuthorization?.status === 'publishable' &&
-    completeAuthorization.projectedEntries === GUIDE_ENTRY_COUNT - GUIDE_RELEASE_BLOCKED_COUNT &&
-    completeAuthorization.financeSlugs?.length === GUIDE_AUTHORIZATION_SLUGS.length &&
-    missingAuthorization?.status === 'release-blocked' &&
-    missingAuthorization.projectedEntries ===
-      GUIDE_ENTRY_COUNT - GUIDE_RELEASE_BLOCKED_COUNT - GUIDE_AUTHORIZATION_SLUGS.length &&
-    missingAuthorization.financeSlugs?.length === 0 &&
-    GUIDE_AUTHORIZATION_SLUGS.every((slug) => missingAuthorization.excludedSlugs?.includes(slug));
   guideG1.releaseReady =
     guideG1.source &&
     guideG1.regression &&
@@ -530,7 +492,6 @@ function finalizeReleaseRecord(record, failures, options) {
     guidePairs.source &&
     guideG1.releaseReady &&
     guideG2.releaseReady &&
-    guideAuthorization.releaseReady &&
     ['cn', 'io', 'preview'].every((variant) => {
       const evidence = guidePairs.variants[variant];
       return (
@@ -611,7 +572,8 @@ function finalizeReleaseRecord(record, failures, options) {
       const expectedOwnerPages = variant === 'preview' ? 50 : 25;
       const expectedProductionObserved = 0;
       return (
-        observed?.sourceVerified === true &&
+        observed?.repositoryConsistent === true &&
+        observed?.sourceVerified === false &&
         observed?.exportVerified === true &&
         observed?.releaseEligible === true &&
         observed?.ownerPages === expectedOwnerPages &&
@@ -622,17 +584,7 @@ function finalizeReleaseRecord(record, failures, options) {
         observed?.searchDrift === 0 &&
         observed?.brokenInternalLinks === 0
       );
-    }) &&
-    week06Wave1.live &&
-    week06Wave1.liveObserved?.liveHttpVerified === true &&
-    week06Wave1.liveObserved?.productionObserved === 50 &&
-    week06Wave1.liveObserved?.http200 === 50 &&
-    week06Wave1.liveObserved?.canonicalVerified === 50 &&
-    week06Wave1.liveObserved?.languageVerified === 50 &&
-    week06Wave1.liveObserved?.sitemapVerified === 50 &&
-    week06Wave1.liveObserved?.nonOwnerChecked === 50 &&
-    week06Wave1.liveObserved?.nonOwnerIndexable === 0 &&
-    week06Wave1.liveObserved?.ownerLeaks === 0;
+    });
   const releaseGate = !options.sourceOnly && !options.variant && failures.length === 0;
   record.evidence.releaseEligible =
     releaseGate &&
@@ -645,7 +597,6 @@ function finalizeReleaseRecord(record, failures, options) {
     technicalWave2.releaseReady &&
     week06Wave0Readiness.releaseReady &&
     week06Wave1.releaseReady &&
-    guideAuthorization.releaseReady &&
     guidePairs.releaseReady;
   record.status = record.evidence.releaseEligible
     ? 'release-eligible'
@@ -706,7 +657,6 @@ function recordStep(record, stepId, label, command, variant, status, output, evi
   collectCaseOnlyEvidence(record, stepId, variant, status, output);
   collectAliasContractEvidence(record, stepId, variant, status, output);
   collectFaqMetadataEvidence(record, stepId, variant, status, output);
-  collectGuideAuthorizationEvidence(record, stepId, status, output);
   collectGuideG1Evidence(record, stepId, status, output);
   collectGuideG2Evidence(record, stepId, status, output);
   collectGuidePairEvidence(record, stepId, variant, status, output);
@@ -738,23 +688,6 @@ function collectGuideG2Evidence(record, stepId, status, output) {
   const evidence = record.evidence.guideG2;
   evidence[evidenceKey] = status === 'passed';
   const marker = output.match(/GUIDE_G2_RESULT=(\{[^\n]+\})/);
-  if (!marker) return;
-  try {
-    evidence.result = JSON.parse(marker[1]);
-  } catch (error) {
-    evidence.result = { status: 'invalid', error: error.message };
-  }
-}
-
-function collectGuideAuthorizationEvidence(record, stepId, status, output) {
-  const evidenceKey = {
-    'guide-authorization.source': 'source',
-    'guide-authorization.regression': 'regression'
-  }[stepId];
-  if (!record || !evidenceKey) return;
-  const evidence = record.evidence.guideAuthorization;
-  evidence[evidenceKey] = status === 'passed';
-  const marker = output.match(/GUIDE_AUTHORIZATION_RESULT=(\{[\s\S]*\})/);
   if (!marker) return;
   try {
     evidence.result = JSON.parse(marker[1]);

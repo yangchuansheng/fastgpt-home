@@ -5,8 +5,13 @@ import HomeThemeFix from '@/components/home/HomeThemeFix';
 import Navbar from '@/components/home/Navbar';
 import { guideBuildEntries } from '@/content/guides/registry';
 import { getDictionary } from '@/lib/i18n';
-import { getGuideCanonicalUrl, getGuidePath, type GuidePublishedLocale } from '@/lib/guideSeo';
-import { getOwnedLocalePath, getOwnedLocaleUrl } from '@/lib/siteRouting';
+import {
+  GUIDE_PUBLISHED_LOCALES,
+  getGuideCanonicalUrl,
+  getGuidePath,
+  type GuidePublishedLocale
+} from '@/lib/guideSeo';
+import { getOwnedLocaleUrl, isPreviewSite } from '@/lib/siteRouting';
 
 const hubLanguage: Record<GuidePublishedLocale, string> = { en: 'en-US', zh: 'zh-CN' };
 
@@ -55,7 +60,13 @@ export async function GuideHubRoute({ locale }: { locale: GuidePublishedLocale }
         }}
       />
       <HomeThemeFix />
-      <Navbar links={dict.links} t={dict.Home.navCta} locale={locale} />
+      <Navbar
+        links={dict.links}
+        t={dict.Home.navCta}
+        locale={locale}
+        publishedLocales={GUIDE_PUBLISHED_LOCALES}
+        reviewLocalePaths={isPreviewSite}
+      />
       <GuideHubPage locale={locale} />
       <Footer t={dict.Home.footer} locale={locale} />
     </div>

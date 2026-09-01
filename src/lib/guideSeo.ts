@@ -7,7 +7,8 @@ import {
   currentSiteVariant,
   getDefaultLocaleForSiteVariant,
   getOwnedLocalePath,
-  getOwnedLocaleUrl
+  getOwnedLocaleUrl,
+  getReviewLocalePath
 } from '@/lib/siteRouting';
 
 export const GUIDE_PUBLISHED_LOCALES = ['zh', 'en'] as const;
@@ -40,6 +41,7 @@ export function resolveGuideLocale(locale: string): GuidePublishedLocale | undef
 
 /** Return the published Guide locales owned by the current static-export variant. */
 export function getGuideBuildLocales(): GuidePublishedLocale[] {
+  if (currentSiteVariant === 'preview') return [...GUIDE_PUBLISHED_LOCALES];
   const locales = getBuildLocaleCodes()
     .map(resolveGuideLocale)
     .filter((locale): locale is GuidePublishedLocale => Boolean(locale));
@@ -68,6 +70,11 @@ export function getGuideAlternates(
 /** Build a Guide path with the locale prefix required by its owning site variant. */
 export function getGuideOwnedPath(locale: GuidePublishedLocale, slug?: string): string {
   return getOwnedLocalePath(locale, getGuidePath(slug));
+}
+
+/** Build the locale-prefixed Guide review path used by Preview exports. */
+export function getGuideReviewPath(locale: GuidePublishedLocale, slug?: string): string {
+  return getReviewLocalePath(locale, getGuidePath(slug));
 }
 
 export function getGuideArticleMetadata(

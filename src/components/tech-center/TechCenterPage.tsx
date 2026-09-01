@@ -6,6 +6,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Search, X } from '
 import { getDefaultLocalePath } from '@/lib/localizedRoutes';
 import { techPublishedLocaleCodes } from '@/lib/publishedLocales';
 import { getTechnicalReviewPath } from '@/lib/technicalRouting';
+import { isPreviewSite } from '@/lib/siteRouting';
 import HomeThemeFix from '@/components/home/HomeThemeFix';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
@@ -460,6 +461,7 @@ export default function TechCenterPage({
         t={navCta}
         locale={locale}
         publishedLocales={techPublishedLocaleCodes}
+        reviewLocalePaths={isPreviewSite}
       />
       <main id="main-content" className={`${styles.page} ${styles.main}`}>
         <a className={styles.skipLink} href="#main-content">

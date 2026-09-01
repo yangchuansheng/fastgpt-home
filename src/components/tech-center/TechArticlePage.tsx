@@ -10,6 +10,7 @@ import { getDefaultLocalePath } from '@/lib/localizedRoutes';
 import { techPublishedLocaleCodes } from '@/lib/publishedLocales';
 import type { TechArticle } from '@/lib/tech-center-content';
 import { getTechnicalReviewPath } from '@/lib/technicalRouting';
+import { isPreviewSite } from '@/lib/siteRouting';
 import {
   getTechCategoryLabelForLocale,
   getTechEntryPath,
@@ -93,6 +94,7 @@ export default function TechArticlePage({
         t={navCta}
         locale={locale}
         publishedLocales={techPublishedLocaleCodes}
+        reviewLocalePaths={isPreviewSite}
       />
       <main className={styles.page}>
         <div className={styles.container}>

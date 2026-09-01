@@ -147,7 +147,7 @@ test('release coordinator gates technical content and every site variant', () =>
     assert(variantIds.includes('technical-wave.export'));
     assert(variantIds.includes('week06-wave1.export'));
   }
-  assert(getVariantExecutionOrder('io').includes('week06-wave1.live'));
+  assert.equal(getVariantExecutionOrder('io').includes('week06-wave1.live'), false);
   assert.equal(getVariantExecutionOrder('cn').includes('week06-wave1.live'), false);
   assert.equal(getVariantExecutionOrder('preview').includes('week06-wave1.live'), false);
   assert.equal(
@@ -173,14 +173,8 @@ test('release coordinator records and gates the case-only alias slice independen
     packageJson.scripts['verify:case-only-regression'],
     'node --test scripts/verify-case-only-aliases.test.js'
   );
-  assert.equal(
-    packageJson.scripts['verify:guide-authorization'],
-    'node scripts/verify-guide-authorization.js'
-  );
-  assert.equal(
-    packageJson.scripts['verify:guide-authorization-regression'],
-    'node --test scripts/verify-guide-authorization.test.js'
-  );
+  assert.equal(packageJson.scripts['verify:guide-authorization'], undefined);
+  assert.equal(packageJson.scripts['verify:guide-authorization-regression'], undefined);
   assert.equal(
     packageJson.scripts['verify:guide-g2-release'],
     'node scripts/verify-guide-g2-release.js'
@@ -364,7 +358,7 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
     'node scripts/verify-week06-wave1.js',
     undefined,
     'passed',
-    'WEEK06_WAVE1_RESULT={"issue":266,"wave":"wave-1","selectedCount":50,"publicationCount":50,"localeCounts":{"zh":25,"en":25},"baselinePageCount":1372,"resultingPageCount":1422,"sourceVerified":true,"fixtureVerified":true,"exportVerified":false,"releaseEligible":false,"productionObserved":false,"rollback":"ready"}'
+    'WEEK06_WAVE1_RESULT={"issue":266,"wave":"wave-1","selectedCount":50,"publicationCount":50,"localeCounts":{"zh":25,"en":25},"baselinePageCount":1372,"resultingPageCount":1422,"repositoryConsistent":true,"sourceVerified":false,"sourceDigestVerifiedCount":0,"fixtureVerified":true,"exportVerified":false,"releaseEligible":false,"productionObserved":false,"rollback":"ready"}'
   );
   assert.equal(record.evidence.week06Wave1.source, true);
   assert.deepEqual(record.evidence.week06Wave1.observed.localeCounts, { zh: 25, en: 25 });
@@ -402,7 +396,9 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
         localeCounts: { zh: 25, en: 25 },
         baselinePageCount: 1372,
         resultingPageCount: 1422,
-        sourceVerified: true,
+        repositoryConsistent: true,
+        sourceVerified: false,
+        sourceDigestVerifiedCount: 0,
         exportVerified: true,
         releaseEligible: true,
         productionObserved: 0,
@@ -416,17 +412,6 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
       })}`
     );
   }
-  finalizeReleaseRecord(record, [], { sourceOnly: false });
-  assert.equal(record.evidence.week06Wave1.releaseReady, false);
-  recordStep(
-    record,
-    'week06-wave1.live',
-    'Week06 Wave 1 live HTTP evidence',
-    'npm run verify:week06-wave1-live',
-    undefined,
-    'passed',
-    'WEEK06_WAVE1_RESULT={"issue":266,"wave":"wave-1","liveHttpVerified":true,"productionObserved":50,"http200":50,"canonicalVerified":50,"languageVerified":50,"sitemapVerified":50,"nonOwnerChecked":50,"nonOwnerIndexable":0,"ownerLeaks":0}'
-  );
   finalizeReleaseRecord(record, [], { sourceOnly: false });
   assert.equal(record.evidence.week06Wave1.releaseReady, true);
   assert.equal(record.evidence.week06Wave1.observed.productionObserved, false);

@@ -18,7 +18,6 @@ const SOURCE_PROVENANCE_PATHS = [
   'src/faq/generated-en-metadata-authority.json',
   'src/content/guides/registry.json',
   'src/content/guides/policy.json',
-  'src/content/guides/authorization.json',
   'src/lib/technical-content-policy.json',
   'src/components/tech-center/entries.json',
   'public/tech-center/search-index.json',

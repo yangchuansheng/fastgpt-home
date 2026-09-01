@@ -64,6 +64,10 @@ test('committed customer migration projection is deterministic and matches autho
   assert.equal(first.digest, second.digest);
   assert.equal(stableJson(first), stableJson(second));
   assert.equal(stableJson(first), stableJson(committed));
-  assert.equal(first.entries.length, 231);
+  assert.equal(first.entries.length, 230);
+  assert.equal(
+    first.entries.some((entry) => entry.sourcePath === '/customers/manifest.webmanifest'),
+    false
+  );
   assert.equal(first.targetCount, 107);
 });

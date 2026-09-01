@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "customer-migration-release",
   "authority": "customer-migration",
-  "authorityDigest": "2d5a07d086c55a94fa9c923c1256d9444e3b6b967befb381ea876d57aae8681d",
+  "authorityDigest": "7391b3b44d263cb1da1050b35477ad2776e4c6361c60ee7ce24ca1ad2d153c16",
   "repository": {
     "url": "https://github.com/labring/fastgpt-home"
   },
@@ -25,7 +25,11 @@
     "status": "ready",
     "tested": true,
     "previousIngressRevision": "1665072",
-    "migrationDigest": "2d5a07d086c55a94fa9c923c1256d9444e3b6b967befb381ea876d57aae8681d",
+    "migrationDigest": "7391b3b44d263cb1da1050b35477ad2776e4c6361c60ee7ce24ca1ad2d153c16",
+    "releaseUnits": {
+      "redirects": "ready",
+      "legacyManifest": "ready"
+    },
     "restorePaths": [
       "src/config/customer-migration-authority.json",
       "src/config/customer-migration-projection.json"
@@ -38,7 +42,8 @@
     "metrics": {
       "notFound": 0,
       "serverErrors": 0,
-      "redirects": 231,
+      "redirects": 230,
+      "preservedAssets": 1,
       "canonicalMismatches": 0
     },
     "crawlFiles": {

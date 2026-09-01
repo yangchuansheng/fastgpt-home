@@ -3,7 +3,7 @@
   "kind": "customer-migration-http",
   "authority": "customer-migration",
   "authorityPath": "src/config/customer-migration-authority.json",
-  "authorityDigest": "2d5a07d086c55a94fa9c923c1256d9444e3b6b967befb381ea876d57aae8681d",
+  "authorityDigest": "7391b3b44d263cb1da1050b35477ad2776e4c6361c60ee7ce24ca1ad2d153c16",
   "sourceHost": "solutions.fastgpt.cn",
   "targetHost": "fastgpt.cn",
   "legacyOrigin": "https://solutions.fastgpt.cn",

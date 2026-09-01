@@ -17,7 +17,7 @@ function getHtmlAttribute(tag, name) {
   return tag.match(new RegExp(`\\s${name}=["']([^"']+)["']`, 'i'))?.[1];
 }
 
-function verifyArticleHtml(html, identity, variant) {
+function verifyArticleHtml(html, identity, variant, expectedTitle) {
   const expectedLanguage = siteLocales[identity.locale];
   const sourceLabel = identity.locale === 'zh' ? 'FastGPT 官方来源' : 'FastGPT official source';
   const htmlTag = html.match(/<html\b[^>]*>/i)?.[0] || '';
@@ -41,6 +41,13 @@ function verifyArticleHtml(html, identity, variant) {
   if (robots !== expectedRobots) {
     throw new Error(`Week06 Wave 1 ${variant} robots drift: ${identity.key}`);
   }
+  const title = html.match(/<title>([\s\S]*?)<\/title>/i)?.[1] || '';
+  if (
+    title !== escapeHtml(expectedTitle) ||
+    (identity.locale === 'en' && /[\u3400-\u9fff]/.test(title))
+  ) {
+    throw new Error(`Week06 Wave 1 ${variant} title drift: ${identity.key}`);
+  }
   if (
     !html.includes(`"url":"${identity.canonical}"`) ||
     !html.includes(`"inLanguage":"${expectedLanguage.hreflang}"`) ||
@@ -48,6 +55,21 @@ function verifyArticleHtml(html, identity, variant) {
   ) {
     throw new Error(`Week06 Wave 1 ${variant} structured content drift: ${identity.key}`);
   }
+}
+
+function getExpectedArticleTitle(repoRoot, identity, entry) {
+  const [, section, slug] = identity.canonicalPath.split('/');
+  const source = fs.readFileSync(
+    path.join(repoRoot, 'src/content/tech-center', identity.locale, section, `${slug}.md`),
+    'utf8'
+  );
+  const explicit = source.match(/^meta_title:\s*(.+)$/m)?.[1]?.trim();
+  return (
+    explicit ||
+    `${entry.title}${
+      identity.locale === 'en' ? ' | FastGPT Technical Center' : '｜FastGPT 技术中心'
+    }`
+  );
 }
 
 function verifyHub(outDir, locale, variant, searchPath) {
@@ -112,6 +134,9 @@ function verifyWeek06Wave1Export(
   }
   const source = verifySource(repoRoot, { verifyExportFixtures: false });
   const projection = readJson(repoRoot, PROJECTION_RELATIVE_PATH);
+  const registryByIdentity = new Map(
+    projection.registry.map((entry) => [entry.identity, entry])
+  );
   const sitemapPath = path.join(outDir, 'sitemap.xml');
   const sitemapUrls = fs.existsSync(sitemapPath)
     ? [...fs.readFileSync(sitemapPath, 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(
@@ -128,7 +153,12 @@ function verifyWeek06Wave1Export(
     const htmlPath = resolveStaticHtml(outDir, route);
     if (owned) {
       if (!htmlPath) throw new Error(`Week06 Wave 1 ${variant} owner route missing: ${route}`);
-      verifyArticleHtml(fs.readFileSync(htmlPath, 'utf8'), identity, variant);
+      verifyArticleHtml(
+        fs.readFileSync(htmlPath, 'utf8'),
+        identity,
+        variant,
+        getExpectedArticleTitle(repoRoot, identity, registryByIdentity.get(identity.key))
+      );
       ownerPages += 1;
     } else if (htmlPath || resolveStaticHtml(outDir, identity.reviewPath)) {
       throw new Error(`Week06 Wave 1 ${variant} owner leak: ${identity.key}`);
@@ -197,6 +227,9 @@ function writeStaticHtml(outDir, route, html) {
 
 function writeWeek06Wave1ExportFixture(repoRoot, outDir, variant) {
   const projection = readJson(repoRoot, PROJECTION_RELATIVE_PATH);
+  const registryByIdentity = new Map(
+    projection.registry.map((entry) => [entry.identity, entry])
+  );
   for (const identity of projection.identities) {
     if (variant !== 'preview' && identity.owner !== variant) continue;
     const route = variant === 'preview' ? identity.reviewPath : identity.canonicalPath;
@@ -207,9 +240,9 @@ function writeWeek06Wave1ExportFixture(repoRoot, outDir, variant) {
     writeStaticHtml(
       outDir,
       route,
-      `<!doctype html><html lang="${language.htmlLang}"><head><link rel="canonical" href="${
-        identity.canonical
-      }"><link rel="alternate" hreflang="${language.hreflang}" href="${
+      `<!doctype html><html lang="${language.htmlLang}"><head><title>${escapeHtml(
+        getExpectedArticleTitle(repoRoot, identity, registryByIdentity.get(identity.key))
+      )}</title><link rel="canonical" href="${identity.canonical}"><link rel="alternate" hreflang="${language.hreflang}" href="${
         identity.canonical
       }"><meta name="robots" content="${robots}"></head><body><main><a href="${
         variant === 'preview' ? `/${identity.locale}/tech-center` : '/tech-center'
@@ -375,9 +408,17 @@ async function verifyWeek06Wave1Live(
   }
   const source = verifySource(repoRoot, { verifyExportFixtures: false });
   const projection = readJson(repoRoot, PROJECTION_RELATIVE_PATH);
+  const registryByIdentity = new Map(
+    projection.registry.map((entry) => [entry.identity, entry])
+  );
   await mapWithConcurrency(projection.identities, 5, async (identity) => {
     const html = await readLiveResponse(fetchImpl, identity.canonical, 'text/html');
-    verifyArticleHtml(html, identity, identity.owner);
+    verifyArticleHtml(
+      html,
+      identity,
+      identity.owner,
+      getExpectedArticleTitle(repoRoot, identity, registryByIdentity.get(identity.key))
+    );
   });
   await mapWithConcurrency(projection.identities, 5, async (identity) => {
     const oppositeLocale = identity.owner === 'cn' ? 'en' : 'zh';
