@@ -1,11 +1,11 @@
 import type { ComponentProps } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowUpRight, Workflow } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
+import ContentSidebarCta, { type ContentSidebarCtaCopy } from '@/components/ContentSidebarCta';
 import HomeThemeFix from '@/components/home/HomeThemeFix';
 import Navbar from '@/components/home/Navbar';
 import Footer from '@/components/home/Footer';
-import CloudEntryLink from '@/components/home/CloudEntryLink';
 import { getDefaultLocalePath } from '@/lib/localizedRoutes';
 import { techPublishedLocaleCodes } from '@/lib/publishedLocales';
 import type { TechArticle } from '@/lib/tech-center-content';
@@ -25,13 +25,6 @@ type HomeFooter = ComponentProps<typeof Footer>['t'];
 type NavLink = {
   label: string;
   href: string;
-};
-
-type ArticleCtaCopy = {
-  eyebrow: string;
-  title: string;
-  description: string;
-  label: string;
 };
 
 const ARTICLE_COPY = {
@@ -72,7 +65,7 @@ export default function TechArticlePage({
   navCta: { trial: string; consult: string };
   footer: HomeFooter;
   relatedArticles: TechEntry[];
-  cta: ArticleCtaCopy;
+  cta: ContentSidebarCtaCopy;
 }) {
   const copy = locale === 'zh' ? ARTICLE_COPY.zh : ARTICLE_COPY.en;
   const homeHref = getDefaultLocalePath(locale);
@@ -182,34 +175,14 @@ export default function TechArticlePage({
               )}
             </article>
             <aside className={styles.aside} aria-label={cta.title}>
-              <section className={styles.ctaCard} aria-labelledby="tech-article-cta-title">
-                <div className={styles.ctaTexture} aria-hidden="true" />
-                <div className={styles.ctaContent}>
-                  <div className={styles.ctaIcon}>
-                    <Workflow strokeWidth={1.7} aria-hidden="true" />
-                  </div>
-                  <p className={styles.ctaEyebrow}>{cta.eyebrow}</p>
-                  <h2 id="tech-article-cta-title" className={styles.ctaTitle}>
-                    {cta.title}
-                  </h2>
-                  <p className={styles.ctaDescription}>{cta.description}</p>
-                  <CloudEntryLink
-                    source="tech_article_sidebar_trial"
-                    data-rybbit-prop-category={article.category}
-                    data-rybbit-prop-slug={article.slug}
-                    rel="noopener noreferrer nofollow"
-                    aria-label={`${cta.label}: ${cta.title}`}
-                    className={styles.ctaLink}
-                  >
-                    <span>{cta.label}</span>
-                    <ArrowUpRight
-                      className={styles.ctaArrow}
-                      strokeWidth={1.8}
-                      aria-hidden="true"
-                    />
-                  </CloudEntryLink>
-                </div>
-              </section>
+              <ContentSidebarCta
+                locale={locale}
+                copy={cta}
+                consultSource="tech_article_sidebar_consult"
+                trialSource="tech_article_sidebar_trial"
+                category={article.category}
+                slug={article.slug}
+              />
             </aside>
           </div>
         </div>

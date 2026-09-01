@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
+import ContentSidebarCta, { type ContentSidebarCtaCopy } from '@/components/ContentSidebarCta';
 import guideStyles from '@/components/guide/GuideArticlePage.module.css';
 import MarkdownContent, { getMarkdownHeadings } from '@/components/tech-center/MarkdownContent';
 import techStyles from '@/components/tech-center/TechArticlePage.module.css';
@@ -54,10 +55,12 @@ export function getGuideArticleCopy(locale: GuidePublishedLocale) {
 
 export default function GuideArticlePage({
   document,
-  locale
+  locale,
+  cta
 }: {
   document: GuideDocument;
   locale: GuidePublishedLocale;
+  cta: ContentSidebarCtaCopy;
 }) {
   const labels = getGuideArticleCopy(locale);
   const { assetPolicy, configuredInternalLinks } = document.source;
@@ -133,21 +136,30 @@ export default function GuideArticlePage({
               </p>
             </nav>
           </article>
-          {headings.length > 0 && (
-            <aside className={guideStyles.toc} aria-label={labels.onThisPage}>
-              <p className={guideStyles.tocTitle}>{labels.onThisPage}</p>
-              <ol>
-                {headings.map((heading) => (
-                  <li
-                    className={heading.level > 2 ? guideStyles.tocNested : undefined}
-                    key={heading.id}
-                  >
-                    <a href={'#' + heading.id}>{heading.text}</a>
-                  </li>
-                ))}
-              </ol>
-            </aside>
-          )}
+          <aside className={guideStyles.sidebar} aria-label={cta.title}>
+            <ContentSidebarCta
+              locale={locale}
+              copy={cta}
+              consultSource="guide_article_sidebar_consult"
+              trialSource="guide_article_sidebar_trial"
+              slug={document.metadata.slug}
+            />
+            {headings.length > 0 && (
+              <nav className={guideStyles.toc} aria-label={labels.onThisPage}>
+                <p className={guideStyles.tocTitle}>{labels.onThisPage}</p>
+                <ol>
+                  {headings.map((heading) => (
+                    <li
+                      className={heading.level > 2 ? guideStyles.tocNested : undefined}
+                      key={heading.id}
+                    >
+                      <a href={'#' + heading.id}>{heading.text}</a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            )}
+          </aside>
         </div>
       </div>
     </main>

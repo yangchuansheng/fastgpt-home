@@ -48,7 +48,8 @@ export default async function TechArticleRoute({
           eyebrow: dict.FAQ.sidebarEyebrow,
           title: dict.FAQ.sidebarTitle,
           description: dict.FAQ.sidebarDescription,
-          label: dict.FAQ.sidebarCta
+          consultLabel: dict.Home.navCta.consult,
+          trialLabel: dict.FAQ.sidebarCta
         }}
       />
     </>

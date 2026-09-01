@@ -22,3 +22,4 @@ out
 
 # Local planning artifacts
 .planning/
+.codex/
