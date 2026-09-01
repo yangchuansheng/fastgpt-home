@@ -255,6 +255,7 @@ test('check mode leaves committed projections byte-for-byte unchanged', () => {
     'src/content/tech-center/authority/import-manifest.json',
     'src/content/tech-center/authority/decision-ledger.json',
     'public/tech-center/search-index.json',
+    'public/tech-center/search-index.en.json',
     'src/content/tech-center/deploy/fastgpt-opensandbox-env-config.md',
     'src/content/tech-center/reference/fastgpt-opensandbox-env-config.md',
     'src/content/tech-center/reference/fastgpt-chatglm2-m3e-api-test.md'
@@ -278,6 +279,8 @@ test('public search projection contains only discovery fields and matches the re
     fs.readFileSync(path.join(root, 'src/components/tech-center/entries.json'), 'utf8')
   );
   const projection = buildSearchProjection(entries);
+  const zhProjection = projection.filter((entry) => entry.locale === 'zh');
+  const enProjection = projection.filter((entry) => entry.locale === 'en');
   const firstEntry = entries[0];
 
   assert.deepEqual(Object.keys(projection[0]), [
@@ -313,7 +316,11 @@ test('public search projection contains only discovery fields and matches the re
   ]);
   assert.deepEqual(
     JSON.parse(fs.readFileSync(path.join(root, 'public/tech-center/search-index.json'), 'utf8')),
-    projection
+    zhProjection
+  );
+  assert.deepEqual(
+    JSON.parse(fs.readFileSync(path.join(root, 'public/tech-center/search-index.en.json'), 'utf8')),
+    enProjection
   );
 });
 
@@ -322,9 +329,12 @@ test('committed technical authority covers the complete accepted identity projec
   const entries = JSON.parse(
     fs.readFileSync(path.join(root, 'src/components/tech-center/entries.json'), 'utf8')
   );
-  const searchProjection = JSON.parse(
-    fs.readFileSync(path.join(root, 'public/tech-center/search-index.json'), 'utf8')
-  );
+  const searchProjection = [
+    ...JSON.parse(fs.readFileSync(path.join(root, 'public/tech-center/search-index.json'), 'utf8')),
+    ...JSON.parse(
+      fs.readFileSync(path.join(root, 'public/tech-center/search-index.en.json'), 'utf8')
+    )
+  ];
 
   assert.equal(manifest.pages.length, TECHNICAL_CONTENT_POLICY.expectedAcceptedCount);
   assert.equal(manifest.source.deniedCount, TECHNICAL_CONTENT_POLICY.expectedDeniedCount);

@@ -11718,5 +11718,2255 @@
     "publicPath": "/troubleshoot/fastgpt-api-batch-duplicate-index",
     "sourceType": "GitHub issue",
     "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-gethistories-empty-data",
+    "title": "解决FastGPT部分应用调用getHistories接口无历史记录的问题",
+    "description": "解决FastGPT部分应用调用getHistories接口无历史记录的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.18；应用前请在目标环境确…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-gethistories-empty-data",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-image-url-error",
+    "title": "解决FastGPT调用API进行图片分析时的Invalid image URL报错问题",
+    "description": "解决FastGPT调用API进行图片分析时的Invalid image URL报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8；应用前请在目标…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-image-url-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-json-context-issue",
+    "title": "解决FastGPT中非JSON格式API与聊天上下文控制异常问题",
+    "description": "解决FastGPT中非JSON格式API与聊天上下文控制异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-json-context-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-json-escaping-fix",
+    "title": "解决FastGPT API返回转义字符串无法直接调用的问题",
+    "description": "解决FastGPT API返回转义字符串无法直接调用的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGP…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-json-escaping-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-kb-qa-import-error",
+    "title": "解决FastGPT Api知识库问答拆分导入时报错的问题",
+    "description": "解决FastGPT Api知识库问答拆分导入时报错的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.23；应用前请在目标环境确认实际 FastGP…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-kb-qa-import-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-key-cannot-get-file-preview",
+    "title": "解决FastGPT API-key无法获取知识库文件预览地址问题",
+    "description": "解决FastGPT API-key无法获取知识库文件预览地址问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.7；应用前请在目标环境确认实际 FastG…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-key-cannot-get-file-preview",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-knowledgebase-txt-garbled",
+    "title": "解决FastGPT私有部署API知识库txt文件上传乱码问题",
+    "description": "解决FastGPT私有部署API知识库txt文件上传乱码问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.9.1-fix2；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-knowledgebase-txt-garbled",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-line-break-parsing-issue",
+    "title": "解决FastGPT调用/api/v1/chat/completions接口的换行符识别异常问题",
+    "description": "解决FastGPT调用/api/v1/chat/completions接口的换行符识别异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-line-break-parsing-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-link-collection-segment",
+    "title": "解决FastGPT通过API创建链接集合时的文件自动分段异常问题",
+    "description": "解决FastGPT通过API创建链接集合时的文件自动分段异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-link-collection-segment",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-messages-context-error",
+    "title": "解决FastGPT v4.9.14版本对话API传入messages无法构建上下文问题",
+    "description": "解决FastGPT v4.9.14版本对话API传入messages无法构建上下文问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.9.14；应用前请…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-messages-context-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-pdf-view-error",
+    "title": "解决FastGPT接口上传PDF后查看原始内容失败的问题",
+    "description": "解决FastGPT接口上传PDF后查看原始内容失败的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.10；应用前请在目标环境确认实际 FastG…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-pdf-view-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-response-leading-zero-prefix",
+    "title": "解决FastGPT调用非函数调用模型时API响应以0: 开头的问题",
+    "description": "解决FastGPT调用非函数调用模型时API响应以0: 开头的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.8；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-response-leading-zero-prefix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-specify-knowledge-base",
+    "title": "FastGPT 4.8.20私有部署版API指定知识库的解决方法",
+    "description": "FastGPT 4.8.20私有部署版API指定知识库的解决方法 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.20；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-specify-knowledge-base",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-stream-error-troubleshooting",
+    "title": "FastGPT API开启stream:true时的报错排查与修复方案",
+    "description": "FastGPT API开启stream:true时的报错排查与修复方案 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-stream-error-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-stream-reference-issue",
+    "title": "解决FastGPT API调用中stream参数影响知识库引用的问题",
+    "description": "解决FastGPT API调用中stream参数影响知识库引用的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 F…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-stream-reference-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-upload-collection-error",
+    "title": "解决FastGPT HTTP API上传文件集合的调用报错问题",
+    "description": "解决FastGPT HTTP API上传文件集合的调用报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-upload-collection-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-usage-data-fix",
+    "title": "解决FastGPT调用应用API时usage数据固定为1的问题",
+    "description": "解决FastGPT调用应用API时usage数据固定为1的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.22、2.5-1b；应用前请在目标环境…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-usage-data-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-api-web-response-discrepancy",
+    "title": "解决FastGPT私有部署版API与Web发布端回答不一致问题",
+    "description": "解决FastGPT私有部署版API与Web发布端回答不一致问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.19；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-api-web-response-discrepancy",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-call-blank-reply",
+    "title": "解决FastGPT私有部署版本应用间调用返回空白的问题",
+    "description": "解决FastGPT私有部署版本应用间调用返回空白的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v5.8.5；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-call-blank-reply",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-import-id-retention",
+    "title": "解决FastGPT跨环境应用导入时MongoDB主键_id丢失的问题",
+    "description": "解决FastGPT跨环境应用导入时MongoDB主键id丢失的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.9.10；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-import-id-retention",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-publish-params-incomplete",
+    "title": "解决FastGPT应用发布接口的节点参数不完整报错问题",
+    "description": "解决FastGPT应用发布接口的节点参数不完整报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-publish-params-incomplete",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-apps-objectid-error",
+    "title": "解决FastGPT切换团队插件时的apps模型ObjectId报错",
+    "description": "解决FastGPT切换团队插件时的apps模型ObjectId报错 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-apps-objectid-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-auto-chunking-title-missing",
+    "title": "解决FastGPT自动分块时三级标题字符不足丢失的问题",
+    "description": "解决FastGPT自动分块时三级标题字符不足丢失的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.7.1-alpha2；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-auto-chunking-title-missing",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-azure-gpt4o-content-filter-error",
+    "title": "解决FastGPT中Azure GPT-4o流式内容过滤相关报错问题",
+    "description": "解决FastGPT中Azure GPT-4o流式内容过滤相关报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.9；应用前请在目标环境确认实际 F…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-azure-gpt4o-content-filter-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-azure-openai-content-filter-error",
+    "title": "解决FastGPT中Azure OpenAI内容审核截断的模糊报错问题",
+    "description": "解决FastGPT中Azure OpenAI内容审核截断的模糊报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.7；应用前请在目标环境确认实际 F…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-azure-openai-content-filter-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-azure-openai-function-error",
+    "title": "解决FastGPT使用Azure OpenAI模型时文本抽取的参数报错问题",
+    "description": "解决FastGPT使用Azure OpenAI模型时文本抽取的参数报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 3.5-turbo；应用前请在目标环…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-azure-openai-function-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-backend-models-not-showing",
+    "title": "解决FastGPT后台无法显示指定模型的问题",
+    "description": "解决FastGPT后台无法显示指定模型的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与相关组件…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-backend-models-not-showing",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-base64-image-token-troubleshooting",
+    "title": "解决FastGPT base64传参调用模型时token占用过小的问题",
+    "description": "解决FastGPT base64传参调用模型时token占用过小的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-base64-image-token-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-batch-add-data-500-error",
+    "title": "解决FastGPT集合批量添加数据接口报500错误问题",
+    "description": "解决FastGPT集合批量添加数据接口报500错误问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-batch-add-data-500-error",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-batch-http-error-transfer",
+    "title": "解决FastGPT批量运行HTTP请求失败及错误传递问题",
+    "description": "解决FastGPT批量运行HTTP请求失败及错误传递问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-batch-http-error-transfer",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-batch-search-params-error",
+    "title": "解决FastGPT中批量搜索调用参数异常导致结果错误的问题",
+    "description": "解决FastGPT中批量搜索调用参数异常导致结果错误的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.13；应用前请在目标环境确认实际 FastG…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-batch-search-params-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-bge-rerank-troubleshooting",
+    "title": "解决FastGPT接入官方BGE重排序模型启动失败的问题",
+    "description": "解决FastGPT接入官方BGE重排序模型启动失败的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8、v0.1；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-bge-rerank-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-bge-reranker-false-result",
+    "title": "解决FastGPT私有部署版中bge reranker重排结果为false的问题",
+    "description": "解决FastGPT私有部署版中bge reranker重排结果为false的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8；应用前请在目标环境确…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-bge-reranker-false-result",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-bi-plugin-upgrade-error",
+    "title": "FastGPT v4.8.12-fix版本升级后BI图表插件失效的排错方法",
+    "description": "FastGPT v4.8.12-fix版本升级后BI图表插件失效的排错方法 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.11、v4.8.12-fi…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-bi-plugin-upgrade-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-big-data-retrieval-slowdown",
+    "title": "解决FastGPT私有部署大数据量下全文检索变慢问题",
+    "description": "解决FastGPT私有部署大数据量下全文检索变慢问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-big-data-retrieval-slowdown",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-blank-workflow-call-failure",
+    "title": "解决FastGPT空白工作流在聊天界面无法正常调用的问题",
+    "description": "解决FastGPT空白工作流在聊天界面无法正常调用的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.10.0；应用前请在目标环境确认实际 FastG…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-blank-workflow-call-failure",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-boolean-field-required-error",
+    "title": "解决FastGPT布尔类型字段设为必填后的界面与输出异常问题",
+    "description": "解决FastGPT布尔类型字段设为必填后的界面与输出异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.9.2；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-boolean-field-required-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-branch-parallel-task",
+    "title": "解决FastGPT分支流程无法并行执行批量任务的问题",
+    "description": "解决FastGPT分支流程无法并行执行批量任务的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.9；应用前请在目标环境确认实际 FastGPT 与…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-branch-parallel-task",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-bson-argument-format-error",
+    "title": "解决FastGPT中BSONError参数格式不符合要求的报错问题",
+    "description": "解决FastGPT中BSONError参数格式不符合要求的报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-bson-argument-format-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-build-export-member-error",
+    "title": "解决FastGPT 4.8.11版本打包缺失导出成员报错问题",
+    "description": "解决FastGPT 4.8.11版本打包缺失导出成员报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.11-fix；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-build-export-member-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-cannot-create-common-knowledge-base",
+    "title": "解决FastGPT私有部署无法进入新建通用知识库页面的问题",
+    "description": "解决FastGPT私有部署无法进入新建通用知识库页面的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.13-fix；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-cannot-create-common-knowledge-base",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-centos-image-pull-error",
+    "title": "解决CentOS部署FastGPT私有版时镜像拉取连接重置问题",
+    "description": "解决CentOS部署FastGPT私有版时镜像拉取连接重置问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.22；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-centos-image-pull-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chakra-cli-not-found",
+    "title": "解决FastGPT部署时chakra-cli无法找到的编译报错问题",
+    "description": "解决FastGPT部署时chakra-cli无法找到的编译报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.11、4.8.13-dev、9.4…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chakra-cli-not-found",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chart-axis-display-only",
+    "title": "FastGPT图表插件输入数据正确却仅显示横纵坐标的排错指南",
+    "description": "FastGPT图表插件输入数据正确却仅显示横纵坐标的排错指南 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastG…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chart-axis-display-only",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chart-display-issue",
+    "title": "解决FastGPT调用工具后图表无法正常生成的问题",
+    "description": "解决FastGPT调用工具后图表无法正常生成的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与相…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chart-display-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chat-api-error-debug-normal",
+    "title": "解决FastGPT对话模式下Chat API报错调试预览正常的问题",
+    "description": "解决FastGPT对话模式下Chat API报错调试预览正常的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.6；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chat-api-error-debug-normal",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chat-api-missing-reasoning-content",
+    "title": "解决FastGPT对话接口未返回reasoning_content的问题",
+    "description": "解决FastGPT对话接口未返回reasoningcontent的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.21、192.168；应用前请…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chat-api-missing-reasoning-content",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chat-api-oss-image-403-error",
+    "title": "解决FastGPT调用对话接口时阿里云OSS图片链接返回403下载错误",
+    "description": "解决FastGPT调用对话接口时阿里云OSS图片链接返回403下载错误 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chat-api-oss-image-403-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chat-base64-image-issue",
+    "title": "解决FastGPT聊天对话框无法显示base64格式图片的问题",
+    "description": "解决FastGPT聊天对话框无法显示base64格式图片的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.12.3、2.5-flash；应用前请在目标…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chat-base64-image-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chat-button-position-fix",
+    "title": "解决FastGPT聊天对话框复制等操作按钮位置不便的问题",
+    "description": "解决FastGPT聊天对话框复制等操作按钮位置不便的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chat-button-position-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chat-completions-api-troubleshooting",
+    "title": "解决FastGPT调用chat/completions接口的令牌异常问题",
+    "description": "解决FastGPT调用chat/completions接口的令牌异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 3.5-turbo、0.7；应用前请在…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chat-completions-api-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chat-completions-failure-troubleshooting",
+    "title": "解决FastGPT调用/api/v1/chat/completions接口偶发失败问题",
+    "description": "解决FastGPT调用/api/v1/chat/completions接口偶发失败问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chat-completions-failure-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chat-completions-messages-empty-error",
+    "title": "解决FastGPT调用/api/v1/chat/completions接口报messages is empty错误",
+    "description": "解决FastGPT调用/api/v1/chat/completions接口报messages is empty错误 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chat-completions-messages-empty-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chat-duplicate-output",
+    "title": "解决FastGPT私有部署版聊天内容重复输出的问题",
+    "description": "解决FastGPT私有部署版聊天内容重复输出的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.10.1；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chat-duplicate-output",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chat-history-mongo-size-error",
+    "title": "解决FastGPT更新聊天历史时MongoDB文档超限的报错问题",
+    "description": "解决FastGPT更新聊天历史时MongoDB文档超限的报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.9.10；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chat-history-mongo-size-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chatcompletion-400-error",
+    "title": "解决FastGPT ChatCompletion参数校验400错误",
+    "description": "解决FastGPT ChatCompletion参数校验400错误 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chatcompletion-400-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chatglm2-connect-error-troubleshooting",
+    "title": "FastGPT接入本地ChatGLM2模型时出现连接错误的排错方法",
+    "description": "FastGPT接入本地ChatGLM2模型时出现连接错误的排错方法 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chatglm2-connect-error-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chatglm3-classification-error",
+    "title": "解决FastGPT中ChatGLM3-6B高级编排问题分类异常问题",
+    "description": "解决FastGPT中ChatGLM3-6B高级编排问题分类异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chatglm3-classification-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chatglm3-multichat-error",
+    "title": "解决FastGPT部署ChatGLM3-6B后多轮对话报错问题",
+    "description": "解决FastGPT部署ChatGLM3-6B后多轮对话报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chatglm3-multichat-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chatglm3-prompt-fix",
+    "title": "解决FastGPT部署ChatGLM3时的prompt格式适配问题",
+    "description": "解决FastGPT部署ChatGLM3时的prompt格式适配问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chatglm3-prompt-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chatglm3-tool-call-fix",
+    "title": "解决FastGPT 4.7私有部署版本chatglm3-6b工具调用不生效问题",
+    "description": "解决FastGPT 4.7私有部署版本chatglm3-6b工具调用不生效问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.7；应用前请在目标环境确认实…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chatglm3-tool-call-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chattest-encoding-error",
+    "title": "解决FastGPT调用chatTest接口出现ERR_INCOMPLETE_CHUNKED_ENCODING报错问题",
+    "description": "解决FastGPT调用chatTest接口出现ERRINCOMPLETECHUNKEDENCODING报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chattest-encoding-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chattest-llm-empty-response",
+    "title": "解决FastGPT V4.8.21版本chatTest接口LLM响应为空报错问题",
+    "description": "解决FastGPT V4.8.21版本chatTest接口LLM响应为空报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.21；应用前请在目标…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chattest-llm-empty-response",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chinese-filename-garble",
+    "title": "解决FastGPT 4.8.11私有部署的中文文件名乱码问题",
+    "description": "解决FastGPT 4.8.11私有部署的中文文件名乱码问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.11；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chinese-filename-garble",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chinese-filename-upload-issue",
+    "title": "解决FastGPT接口上传本地文件时中文文件名乱码问题",
+    "description": "解决FastGPT接口上传本地文件时中文文件名乱码问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chinese-filename-upload-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-chunk-index-split-issue",
+    "title": "解决FastGPT 4.9.1+版本Chunk索引拆分导致召回异常的问题",
+    "description": "解决FastGPT 4.9.1+版本Chunk索引拆分导致召回异常的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.9.4、4.9.0、4.9.1；应…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-chunk-index-split-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-circular-call-resource-exhaustion",
+    "title": "解决FastGPT应用间循环调用导致服务资源耗尽的问题",
+    "description": "解决FastGPT应用间循环调用导致服务资源耗尽的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-circular-call-resource-exhaustion",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-classify-kb-header-error",
+    "title": "解决FastGPT分类知识库应用请求头字段过大报错问题",
+    "description": "解决FastGPT分类知识库应用请求头字段过大报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-classify-kb-header-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-claude3-non-jpeg-upload-fix",
+    "title": "解决FastGPT中Claude3模型非jpeg图片上传调用失败问题",
+    "description": "解决FastGPT中Claude3模型非jpeg图片上传调用失败问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 F…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-claude3-non-jpeg-upload-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-cloud-kb-call-error",
+    "title": "解决FastGPT私有部署云服务器调用知识库报错问题",
+    "description": "解决FastGPT私有部署云服务器调用知识库报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-cloud-kb-call-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-code-node-array-reference-error",
+    "title": "解决FastGPT中HTTP节点返回数组对象后代码节点无法引用的问题",
+    "description": "解决FastGPT中HTTP节点返回数组对象后代码节点无法引用的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 F…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-code-node-array-reference-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-code-node-body-too-large",
+    "title": "解决FastGPT代码执行节点请求体过大的报错问题",
+    "description": "解决FastGPT代码执行节点请求体过大的报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.4、3.01、14.339；应用前请在目标环境确认实…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-code-node-body-too-large",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-code-run-enotfound-error",
+    "title": "解决FastGPT代码运行时getaddrinfo ENOTFOUND报错",
+    "description": "解决FastGPT代码运行时getaddrinfo ENOTFOUND报错 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.8-fix2；应用前请在目…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-code-run-enotfound-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-code-run-node-debug-error",
+    "title": "解决FastGPT代码运行节点流程调试报错inputString.replace问题",
+    "description": "解决FastGPT代码运行节点流程调试报错inputString.replace问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.14；应用前请在…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-code-run-node-debug-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-code-timeout-troubleshooting",
+    "title": "解决FastGPT私有部署后代码调用接口超时的问题",
+    "description": "解决FastGPT私有部署后代码调用接口超时的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与相…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-code-timeout-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-cohere-rerank-api",
+    "title": "解决FastGPT用户调用Cohere格式rerank API接口的相关配置问题",
+    "description": "解决FastGPT用户调用Cohere格式rerank API接口的相关配置问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-cohere-rerank-api",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-collection-disable-failure",
+    "title": "解决FastGPT私有部署版集合禁用功能失效的问题",
+    "description": "解决FastGPT私有部署版集合禁用功能失效的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.7；应用前请在目标环境确认实际 FastGPT 与…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-collection-disable-failure",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-compile-module-not-found",
+    "title": "解决FastGPT编译时出现模块无法找到的报错问题",
+    "description": "解决FastGPT编译时出现模块无法找到的报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 148.0；应用前请在目标环境确认实际 FastGPT 与相…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-compile-module-not-found",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-config-error-troubleshooting",
+    "title": "FastGPT私有部署模型配置错误的排查与解决",
+    "description": "FastGPT私有部署模型配置错误的排查与解决 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.7；应用前请在目标环境确认实际 FastGPT 与相关…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-config-error-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-config-json-mount-error",
+    "title": "解决FastGPT容器挂载config.json文件启动失败的问题",
+    "description": "解决FastGPT容器挂载config.json文件启动失败的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.17；应用前请在目标环境确认实际 F…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-config-json-mount-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-connection-error-troubleshooting",
+    "title": "解决FastGPT 4.7私有部署版本的Connection error连接报错问题",
+    "description": "解决FastGPT 4.7私有部署版本的Connection error连接报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.7；应用前请在目标环境…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-connection-error-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-connection-error-troubleshooting-2",
+    "title": "FastGPT出现connection error连接错误的排查与解决方法",
+    "description": "FastGPT出现connection error连接错误的排查与解决方法 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-connection-error-troubleshooting-2",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-connection-error-troubleshooting-3",
+    "title": "解决FastGPT私有部署调用大模型出现Connection error的问题",
+    "description": "解决FastGPT私有部署调用大模型出现Connection error的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.9.4；应用前请在目标环境…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-connection-error-troubleshooting-3",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-consecutive-qna-premature-close",
+    "title": "解决FastGPT连续知识库问答出现Premature close报错问题",
+    "description": "解决FastGPT连续知识库问答出现Premature close报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-consecutive-qna-premature-close",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-container-crash-troubleshooting",
+    "title": "FastGPT知识库操作导致容器卡死无法重启的排错指南",
+    "description": "FastGPT知识库操作导致容器卡死无法重启的排错指南 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.6、v25.0.2；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-container-crash-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-container-proxy-issue",
+    "title": "解决FastGPT容器部署后请求无响应且未走代理的问题",
+    "description": "解决FastGPT容器部署后请求无响应且未走代理的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.7-alpha、v2.24.6、25.0.3；应用…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-container-proxy-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-container-restart-fix",
+    "title": "解决FastGPT部署后pg、aiproxy容器启动失败反复重启问题",
+    "description": "解决FastGPT部署后pg、aiproxy容器启动失败反复重启问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.30.0；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-container-restart-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-conversation-attachments-history-issue",
+    "title": "解决FastGPT对话中附件解析带入历史上传文档的问题",
+    "description": "解决FastGPT对话中附件解析带入历史上传文档的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.12-fix2；应用前请在目标环境确认实际 F…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-conversation-attachments-history-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-count-token-failed-troubleshooting",
+    "title": "解决FastGPT私有部署count_token_messages_failed报错问题",
+    "description": "解决FastGPT私有部署counttokenmessagesfailed报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-count-token-failed-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-create-link-collection-api-no-result",
+    "title": "解决FastGPT调用创建链接数据集接口无返回结果问题",
+    "description": "解决FastGPT调用创建链接数据集接口无返回结果问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.5；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-create-link-collection-api-no-result",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-csv-index-stuck-troubleshooting",
+    "title": "解决FastGPT私有部署版本CSV文件索引卡住的问题",
+    "description": "解决FastGPT私有部署版本CSV文件索引卡住的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.9；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-csv-index-stuck-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-ctime-timezone-mismatch",
+    "title": "解决FastGPT中{{cTime}}参数API与界面调用时区不一致问题",
+    "description": "解决FastGPT中{{cTime}}参数API与界面调用时区不一致问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.1；应用前请在目标环境确认实…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-ctime-timezone-mismatch",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-address-troubleshooting",
+    "title": "解决FastGPT自定义模型地址无法正常调用的问题",
+    "description": "解决FastGPT自定义模型地址无法正常调用的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.20-alpha；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-address-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-api-not-found",
+    "title": "解决FastGPT配置自定义API地址后返回Not Found错误的问题",
+    "description": "解决FastGPT配置自定义API地址后返回Not Found错误的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-api-not-found",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-api-params-403-troubleshooting",
+    "title": "FastGPT自定义前端调用对话API的参数配置与403报错排查",
+    "description": "FastGPT自定义前端调用对话API的参数配置与403报错排查 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.9；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-api-params-403-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-call-empty-event",
+    "title": "解决FastGPT自定义代码调用时首次对话返回空event的问题",
+    "description": "解决FastGPT自定义代码调用时首次对话返回空event的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-call-empty-event",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-channel-api-error",
+    "title": "解决FastGPT通过自定义渠道调用时的核心聊天API报错问题",
+    "description": "解决FastGPT通过自定义渠道调用时的核心聊天API报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.6.8；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-channel-api-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-editor-troubleshoot",
+    "title": "解决FastGPT中自定义Markdown编辑器集成异常的问题",
+    "description": "解决FastGPT中自定义Markdown编辑器集成异常的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-editor-troubleshoot",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-history-context-error",
+    "title": "解决FastGPT自定义历史变量赋值后对话轮次不符合预期问题",
+    "description": "解决FastGPT自定义历史变量赋值后对话轮次不符合预期问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.11；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-history-context-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-http-plugin-fix",
+    "title": "FastGPT调用自定义HTTP插件失败的排查与解决方法",
+    "description": "FastGPT调用自定义HTTP插件失败的排查与解决方法 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.7.1、4.8；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-http-plugin-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-key-troubleshooting",
+    "title": "解决FastGPT私有部署下自定义密钥连接模型失败的问题",
+    "description": "解决FastGPT私有部署下自定义密钥连接模型失败的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.6.8；应用前请在目标环境确认实际 FastGP…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-key-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-model-not-displayed",
+    "title": "解决FastGPT配置自定义模型后页面未显示的问题",
+    "description": "解决FastGPT配置自定义模型后页面未显示的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与相…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-model-not-displayed",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-mysql-json-parse-error",
+    "title": "解决FastGPT自定义MySQL数据源执行SQL时的JSON解析报错问题",
+    "description": "解决FastGPT自定义MySQL数据源执行SQL时的JSON解析报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-mysql-json-parse-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-openai-api-empty-response",
+    "title": "解决FastGPT调用自定义OpenAI格式接口返回为空问题",
+    "description": "解决FastGPT调用自定义OpenAI格式接口返回为空问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastG…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-openai-api-empty-response",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-pdf-parse-retry",
+    "title": "FastGPT重试Agent调用时自定义PDF解析不生效的排错方法",
+    "description": "FastGPT重试Agent调用时自定义PDF解析不生效的排错方法 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.15-fix3；应用前请在目标环境…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-pdf-parse-retry",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-plugin-parameter-conflict",
+    "title": "解决FastGPT自定义插件间调用的参数匹配冲突问题",
+    "description": "解决FastGPT自定义插件间调用的参数匹配冲突问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-plugin-parameter-conflict",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-prompt-not-working",
+    "title": "解决FastGPT私有部署版v4.7自定义prompt不生效的问题",
+    "description": "解决FastGPT私有部署版v4.7自定义prompt不生效的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.7；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-prompt-not-working",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-segment-issue",
+    "title": "解决FastGPT自定义文档分段设置无效的问题",
+    "description": "解决FastGPT自定义文档分段设置无效的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.9.6；应用前请在目标环境确认实际 FastGPT 与相关…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-segment-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-tool-empty-variable",
+    "title": "解决FastGPT自定义工具变量获取AI传入值为空的问题",
+    "description": "解决FastGPT自定义工具变量获取AI传入值为空的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-tool-empty-variable",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-tool-not-loading",
+    "title": "解决FastGPT自定义系统工具上传后页面不加载的问题",
+    "description": "解决FastGPT自定义系统工具上传后页面不加载的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-tool-not-loading",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-tts-playback-error",
+    "title": "解决FastGPT接入自定义TTS模型的语音播放异常问题",
+    "description": "解决FastGPT接入自定义TTS模型的语音播放异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-tts-playback-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-variable-required-bug",
+    "title": "解决FastGPT编排模式自定义变量必填开关异常问题",
+    "description": "解决FastGPT编排模式自定义变量必填开关异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.6；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-variable-required-bug",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-vector-model-retrieval-score",
+    "title": "解决FastGPT使用自定义向量模型时语义检索分异常的问题",
+    "description": "解决FastGPT使用自定义向量模型时语义检索分异常的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.20-fix2；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-vector-model-retrieval-score",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-custom-whisper-model-error",
+    "title": "解决FastGPT语音输入无法使用自定义whisper模型的问题",
+    "description": "解决FastGPT语音输入无法使用自定义whisper模型的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.7；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-custom-whisper-model-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-data-import-length-issue",
+    "title": "解决FastGPT导入数据时段落长度1000及以上无数据集的问题",
+    "description": "解决FastGPT导入数据时段落长度1000及以上无数据集的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-data-import-length-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-dataset-create-intro-issue",
+    "title": "解决FastGPT通过API创建知识库时intro参数不生效的问题",
+    "description": "解决FastGPT通过API创建知识库时intro参数不生效的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-dataset-create-intro-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-dataset-data-update-param-error",
+    "title": "修正FastGPT知识库修改单条数据接口的参数名称错误",
+    "description": "修正FastGPT知识库修改单条数据接口的参数名称错误 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.6；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-dataset-data-update-param-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-dataset-folder-list-issue",
+    "title": "解决FastGPT调用数据集列表接口无法获取文件夹内数据的问题",
+    "description": "解决FastGPT调用数据集列表接口无法获取文件夹内数据的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.9；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-dataset-folder-list-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-deepseek-reasoner-cot-fix",
+    "title": "解决deepseek-reasoner模型不同部署场景的CoT解析适配问题",
+    "description": "解决deepseek-reasoner模型不同部署场景的CoT解析适配问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-deepseek-reasoner-cot-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-default-model-unavailable-error",
+    "title": "解决FastGPT部署后分组default下无可用模型渠道的问题",
+    "description": "解决FastGPT部署后分组default下无可用模型渠道的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.6；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-default-model-unavailable-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-delete-kb-mongo-write-conflict",
+    "title": "FastGPT删除知识库时MongoDB写冲突报错的排错指南",
+    "description": "FastGPT删除知识库时MongoDB写冲突报错的排错指南 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastG…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-delete-kb-mongo-write-conflict",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-deploy-nginx-ssl-config",
+    "title": "解决FastGPT云端部署Nginx与Cloudflare SSL证书的配置问题",
+    "description": "解决FastGPT云端部署Nginx与Cloudflare SSL证书的配置问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-deploy-nginx-ssl-config",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-detail-page-unauth-dataset-error",
+    "title": "解决FastGPT私有部署版详情页知识库搜索无权操作数据集问题",
+    "description": "解决FastGPT私有部署版详情页知识库搜索无权操作数据集问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.9.1-fix2；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-detail-page-unauth-dataset-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-dialog-log-time-filter-error",
+    "title": "解决FastGPT对话日志时间范围筛选异常问题",
+    "description": "解决FastGPT对话日志时间范围筛选异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与相关组…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-dialog-log-time-filter-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-dialog-timeout-model-ratio-error",
+    "title": "解决FastGPT AI对话请求超时及模型比例未找到报错",
+    "description": "解决FastGPT AI对话请求超时及模型比例未找到报错 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.20；应用前请在目标环境确认实际 FastGP…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-dialog-timeout-model-ratio-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-disable-tool-call-thought-output",
+    "title": "解决FastGPT工具调用时输出大模型思考过程的问题",
+    "description": "解决FastGPT工具调用时输出大模型思考过程的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.4-fix、0.5.10、0.12.1；应用前请在…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-disable-tool-call-thought-output",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-build-apk-failure",
+    "title": "解决FastGPT私有部署docker打包时apk依赖拉取失败问题",
+    "description": "解决FastGPT私有部署docker打包时apk依赖拉取失败问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-build-apk-failure",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-build-canvas-error",
+    "title": "解决FastGPT私有部署docker build时canvas包编译报错问题",
+    "description": "解决FastGPT私有部署docker build时canvas包编译报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.7、2.11.2、v2.11…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-build-canvas-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-build-fix",
+    "title": "解决FastGPT私有部署时Docker镜像构建失败的问题",
+    "description": "解决FastGPT私有部署时Docker镜像构建失败的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.14.0-fix、v4.13.2；应用前请在目…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-build-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-build-interruption-troubleshooting",
+    "title": "解决FastGPT 4.7.1-fix版本Docker构建中断问题",
+    "description": "解决FastGPT 4.7.1-fix版本Docker构建中断问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.7.1-fix；应用前请在目标环境确认实…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-build-interruption-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-build-troubleshooting",
+    "title": "解决FastGPT 4.8.0版本docker镜像编译失败的常见问题",
+    "description": "解决FastGPT 4.8.0版本docker镜像编译失败的常见问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.0、v4.8.0；应用前请在目标环…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-build-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-compose-pull-error",
+    "title": "解决FastGPT Docker Compose启动时镜像拉取失败问题",
+    "description": "解决FastGPT Docker Compose启动时镜像拉取失败问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-compose-pull-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-compose-pull-stuck",
+    "title": "解决FastGPT 4.8.4版本docker compose拉取镜像停滞问题",
+    "description": "解决FastGPT 4.8.4版本docker compose拉取镜像停滞问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.4；应用前请在目标环境确…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-compose-pull-stuck",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-compose-timeout-error",
+    "title": "解决Docker Compose部署FastGPT新建应用超时问题",
+    "description": "解决Docker Compose部署FastGPT新建应用超时问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-compose-timeout-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-config-404-error",
+    "title": "解决FastGPT私有部署新增大模型配置后openapi测试报404的问题",
+    "description": "解决FastGPT私有部署新增大模型配置后openapi测试报404的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.7；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-config-404-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-env-credential-management",
+    "title": "解决Docker部署FastGPT时账号密码重复配置的问题",
+    "description": "解决Docker部署FastGPT时账号密码重复配置的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGP…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-env-credential-management",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-frontend-unreachable",
+    "title": "解决Docker部署FastGPT日志无报错但前端无法访问的问题",
+    "description": "解决Docker部署FastGPT日志无报错但前端无法访问的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.9.2；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-frontend-unreachable",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-jieba-binding-error",
+    "title": "解决Docker部署FastGPT时jieba原生绑定加载失败的问题",
+    "description": "解决Docker部署FastGPT时jieba原生绑定加载失败的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 F…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-jieba-binding-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-llm-pdf-conversion",
+    "title": "在FastGPT Docker环境中实现基于LLM的PDF格式优化转换功能",
+    "description": "在FastGPT Docker环境中实现基于LLM的PDF格式优化转换功能 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-llm-pdf-conversion",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-local-model-network-error",
+    "title": "解决Docker部署FastGPT对接本地大模型的网络访问异常问题",
+    "description": "解决Docker部署FastGPT对接本地大模型的网络访问异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 22.04、127.0.0、172.20.0…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-local-model-network-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-node-url-build-error",
+    "title": "解决FastGPT私有部署Docker打包时node:url模块构建失败问题",
+    "description": "解决FastGPT私有部署Docker打包时node:url模块构建失败问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.3；应用前请在目标环境确…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-node-url-build-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-pnpm-timeout-fix",
+    "title": "解决FastGPT私有部署Docker构建pnpm安装依赖超时问题",
+    "description": "解决FastGPT私有部署Docker构建pnpm安装依赖超时问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.12-beta、12.1.3、4.1…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-pnpm-timeout-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-port-mapping-error",
+    "title": "解决FastGPT本地部署修改Docker映射端口后登录报错问题",
+    "description": "解决FastGPT本地部署修改Docker映射端口后登录报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-port-mapping-error",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-proxy-connection-error",
+    "title": "解决FastGPT私有部署配置代理后出现连接错误的问题",
+    "description": "解决FastGPT私有部署配置代理后出现连接错误的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.11、192.168.43；应用前请在目标环境…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-proxy-connection-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-pull-timeout-error",
+    "title": "解决FastGPT部署时docker compose拉取镜像超时失败问题",
+    "description": "解决FastGPT部署时docker compose拉取镜像超时失败问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 3.3；应用前请在目标环境确认实际 F…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-pull-timeout-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-docker-swarm-port-unreachable",
+    "title": "解决Docker Swarm部署FastGPT后端口无法访问的问题",
+    "description": "解决Docker Swarm部署FastGPT后端口无法访问的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 13.5.2、172.33.16；应用前请在…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-docker-swarm-port-unreachable",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-document-chat-troubleshooting",
+    "title": "FastGPT文档对话相关功能的异常排查与解决",
+    "description": "FastGPT文档对话相关功能的异常排查与解决 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与相关组…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-document-chat-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-dommatrix-path2d-warnings",
+    "title": "FastGPT出现DOMMatrix与Path2D渲染警告的排错指南",
+    "description": "FastGPT出现DOMMatrix与Path2D渲染警告的排错指南 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.16；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-dommatrix-path2d-warnings",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-doubao-relay-mode-error",
+    "title": "解决FastGPT对接豆包时知识库插入报错的问题",
+    "description": "解决FastGPT对接豆包时知识库插入报错的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.15；应用前请在目标环境确认实际 FastGPT 与…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-doubao-relay-mode-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-doubao-tool-call-fix",
+    "title": "解决FastGPT私有部署版豆包模型工具调用失效的问题",
+    "description": "解决FastGPT私有部署版豆包模型工具调用失效的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.15；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-doubao-tool-call-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-duckduckgo-vqd-error",
+    "title": "解决FastGPT 4.8.10-fix版本中duckduckgo搜索VQD获取失败问题",
+    "description": "解决FastGPT 4.8.10-fix版本中duckduckgo搜索VQD获取失败问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.10-fix；…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-duckduckgo-vqd-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-duplicate-answer-troubleshooting",
+    "title": "解决FastGPT问题分类+知识库模式下回答重复两遍的问题",
+    "description": "解决FastGPT问题分类+知识库模式下回答重复两遍的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGP…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-duplicate-answer-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-dynamic-conversation-history-cache",
+    "title": "优化FastGPT固定轮数对话的缓存命中与成本控制",
+    "description": "优化FastGPT固定轮数对话的缓存命中与成本控制 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与相…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-dynamic-conversation-history-cache",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-ehostunreach-connect-error",
+    "title": "解决FastGPT连接外部服务时出现EHOSTUNREACH连接错误问题",
+    "description": "解决FastGPT连接外部服务时出现EHOSTUNREACH连接错误问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.1-fix；应用前请在目标环境…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-ehostunreach-connect-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embed-wordpress-mobile-overlay",
+    "title": "解决FastGPT嵌入WordPress后移动端聊天窗口左侧遮挡问题",
+    "description": "解决FastGPT嵌入WordPress后移动端聊天窗口左侧遮挡问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.7；应用前请在目标环境确认实际 F…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embed-wordpress-mobile-overlay",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-503-error",
+    "title": "解决FastGPT嵌入调用返回503无可用运行实例报错",
+    "description": "解决FastGPT嵌入调用返回503无可用运行实例报错 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-503-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-api-404-fix",
+    "title": "解决FastGPT配置Embedding-V1向量模型不生效且报404的问题",
+    "description": "解决FastGPT配置Embedding-V1向量模型不生效且报404的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-api-404-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-api-404-fix-2",
+    "title": "解决FastGPT 4.6.8私有部署版本的Embedding API 404报错问题",
+    "description": "解决FastGPT 4.6.8私有部署版本的Embedding API 404报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.6.8；应用前请在目…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-api-404-fix-2",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-api-not-responding",
+    "title": "FastGPT私有部署版嵌入API无响应的排查解决方法",
+    "description": "FastGPT私有部署版嵌入API无响应的排查解决方法 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.22；应用前请在目标环境确认实际 FastGP…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-api-not-responding",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-api-not-responding-2",
+    "title": "解决FastGPT私有部署免登陆及API调用Embedding API无响应问题",
+    "description": "解决FastGPT私有部署免登陆及API调用Embedding API无响应问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.11；应用前请在目标…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-api-not-responding-2",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-channel-unavailable",
+    "title": "解决FastGPT知识库调用text-embedding-ada-002时报无可用渠道的问题",
+    "description": "解决FastGPT知识库调用text-embedding-ada-002时报无可用渠道的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.8.18；应…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-channel-unavailable",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-channel-unavailable-2",
+    "title": "解决FastGPT私有部署中text-embedding-ada-002无可用渠道报错问题",
+    "description": "解决FastGPT私有部署中text-embedding-ada-002无可用渠道报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.6.1；应用前…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-channel-unavailable-2",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-connection-timeout",
+    "title": "解决FastGPT嵌入向量生成连接超时报错问题",
+    "description": "解决FastGPT嵌入向量生成连接超时报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 172.16.1；应用前请在目标环境确认实际 FastGPT 与…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-connection-timeout",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-dim-config-fix",
+    "title": "解决FastGPT私有部署中Embedding模型向量维度配置不生效问题",
+    "description": "解决FastGPT私有部署中Embedding模型向量维度配置不生效问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.18；应用前请在目标环境确认实…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-dim-config-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-failure-troubleshooting",
+    "title": "FastGPT知识库向量化失败问题的排查与解决",
+    "description": "FastGPT知识库向量化失败问题的排查与解决 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.7；应用前请在目标环境确认实际 FastGPT 与相关组件…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-failure-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-index-edit-error",
+    "title": "解决FastGPT 4.8.5及以上版本嵌入模型索引与编辑异常问题",
+    "description": "解决FastGPT 4.8.5及以上版本嵌入模型索引与编辑异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.5、4.8.4；应用前请在目标环境确…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-index-edit-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding-search-issue",
+    "title": "解决FastGPT使用特定嵌入模型后知识库无法搜索的问题",
+    "description": "解决FastGPT使用特定嵌入模型后知识库无法搜索的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.8.17；应用前请在目标环境确认实际 FastG…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding-search-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embedding3-large-dimension-error",
+    "title": "解决FastGPT使用Embedding-3-large时向量维度超限报错问题",
+    "description": "解决FastGPT使用Embedding-3-large时向量维度超限报错问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.9；应用前请在目标环境确…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embedding3-large-dimension-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embeddings-404-troubleshooting",
+    "title": "解决FastGPT配置第三方embeddings API后返回404的问题",
+    "description": "解决FastGPT配置第三方embeddings API后返回404的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embeddings-404-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-embeddings-config-troubleshooting",
+    "title": "解决FastGPT替换嵌入模型后的配置异常问题",
+    "description": "解决FastGPT替换嵌入模型后的配置异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与相关组…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-embeddings-config-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-empty-string-judge-fix",
+    "title": "解决FastGPT判断器无法正确识别空输入字符串的问题",
+    "description": "解决FastGPT判断器无法正确识别空输入字符串的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.7；应用前请在目标环境确认实际 FastGPT 与相…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-empty-string-judge-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-enable-search-config-fix",
+    "title": "解决FastGPT私有部署中enable_search配置不生效的问题",
+    "description": "解决FastGPT私有部署中enablesearch配置不生效的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.7；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-enable-search-config-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-error-troubleshooting",
+    "title": "FastGPT 使用过程中出现报错问题的排查与解决方法",
+    "description": "FastGPT 使用过程中出现报错问题的排查与解决方法 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-error-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-excel-comma-split",
+    "title": "解决FastGPT知识库Excel上传后英文逗号拆分单元格数据的问题",
+    "description": "解决FastGPT知识库Excel上传后英文逗号拆分单元格数据的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.9.0；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-excel-comma-split",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-excel-custom-index-retrieval",
+    "title": "解决FastGPT中Excel上传自定义索引后检索不准确的问题",
+    "description": "解决FastGPT中Excel上传自定义索引后检索不准确的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 5.4.3；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-excel-custom-index-retrieval",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-excel-data-loss",
+    "title": "解决FastGPT知识库上传Excel文件后数据不完整的问题",
+    "description": "解决FastGPT知识库上传Excel文件后数据不完整的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.9.10；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-excel-data-loss",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-external-video-html2pdf-error",
+    "title": "解决FastGPT中外部视频URL播放触发html2pdf报错的问题",
+    "description": "解决FastGPT中外部视频URL播放触发html2pdf报错的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 F…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-external-video-html2pdf-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-extra-network-access-fix",
+    "title": "解决FastGPT加入额外网络后无法通过该网络IP访问的问题",
+    "description": "解决FastGPT加入额外网络后无法通过该网络IP访问的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.9.0；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-extra-network-access-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-extract-json-array-fields",
+    "title": "FastGPT HTTP调用后提取JSON数组与指定字段的方法",
+    "description": "FastGPT HTTP调用后提取JSON数组与指定字段的方法 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fast…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-extract-json-array-fields",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-file-library-sync-script",
+    "title": "解决FastGPT文件库接口使用与同步脚本适配问题",
+    "description": "解决FastGPT文件库接口使用与同步脚本适配问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.21；应用前请在目标环境确认实际 FastGPT 与…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-file-library-sync-script",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-fix-correct-reply-failed",
+    "title": "解决FastGPT知识库纠正回复操作失败的问题",
+    "description": "解决FastGPT知识库纠正回复操作失败的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与相关组…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-fix-correct-reply-failed",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-fix-csv-log-structured-issue",
+    "title": "解决FastGPT生成的日志CSV文件无有效规整结构化内容的问题",
+    "description": "解决FastGPT生成的日志CSV文件无有效规整结构化内容的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-fix-csv-log-structured-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-fix-embedding-normalization",
+    "title": "解决FastGPT向量嵌入结果未正确归一化的异常问题",
+    "description": "解决FastGPT向量嵌入结果未正确归一化的异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-fix-embedding-normalization",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-fix-empty-model-stream-response",
+    "title": "解决FastGPT对话场景下模型流响应为空的问题",
+    "description": "解决FastGPT对话场景下模型流响应为空的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.9；应用前请在目标环境确认实际 FastGPT 与相关组…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-fix-empty-model-stream-response",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-fix-long-text-score-error",
+    "title": "解决FastGPT长文本输入时无法返回AI打分结果的问题",
+    "description": "解决FastGPT长文本输入时无法返回AI打分结果的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-fix-long-text-score-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-fix-multiple-audio-video",
+    "title": "解决FastGPT对话中多个音视频标签仅单个可用的问题",
+    "description": "解决FastGPT对话中多个音视频标签仅单个可用的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.20-fix2；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-fix-multiple-audio-video",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-fix-ollama-port-error",
+    "title": "解决FastGPT调用Ollama嵌入模型时的异常端口配置问题",
+    "description": "解决FastGPT调用Ollama嵌入模型时的异常端口配置问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.14、127.0.0；应用前请在目标环境…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-fix-ollama-port-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-fix-unable-update-app-icon",
+    "title": "解决FastGPT私有部署版本无法更新应用图标问题",
+    "description": "解决FastGPT私有部署版本无法更新应用图标问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.14.0；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-fix-unable-update-app-icon",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-fixed-200-token-reply-issue",
+    "title": "解决FastGPT大文件输入时AI回复固定200tokens的问题",
+    "description": "解决FastGPT大文件输入时AI回复固定200tokens的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.11-fix；应用前请在目标环境确认…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-fixed-200-token-reply-issue",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-flow-module-stuck",
+    "title": "解决FastGPT 4.6.8私有部署版本流程模块执行后无法跳转的问题",
+    "description": "解决FastGPT 4.6.8私有部署版本流程模块执行后无法跳转的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.6.8；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-flow-module-stuck",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-flow-node-performance-lag",
+    "title": "解决FastGPT流程图节点连接增多引发的性能卡顿问题",
+    "description": "解决FastGPT流程图节点连接增多引发的性能卡顿问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-flow-node-performance-lag",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-form-component-bug",
+    "title": "解决FastGPT V4.9.0-fix2版表单组件异常问题",
+    "description": "解决FastGPT V4.9.0-fix2版表单组件异常问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.9.0-fix2；应用前请在目标环境确认实际…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-form-component-bug",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-frontend-error-troubleshooting",
+    "title": "FastGPT前端页面出现请求报错的排错指南",
+    "description": "FastGPT前端页面出现请求报错的排错指南 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastGPT 与相关组件…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-frontend-error-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-frontend-index-loss",
+    "title": "解决FastGPT替换前端镜像后向量索引丢失问题",
+    "description": "解决FastGPT替换前端镜像后向量索引丢失问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 v4.9.6；应用前请在目标环境确认实际 FastGPT 与相…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-frontend-index-loss",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-fulltext-mixed-recall-empty-fix",
+    "title": "解决FastGPT开启全文/混合召回后搜索结果无法为空的问题",
+    "description": "解决FastGPT开启全文/混合召回后搜索结果无法为空的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 FastG…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-fulltext-mixed-recall-empty-fix",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-fulltext-search-error-troubleshooting",
+    "title": "FastGPT知识库搜索切换至全文检索后报错的排错方法",
+    "description": "FastGPT知识库搜索切换至全文检索后报错的排错方法 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.8.3；应用前请在目标环境确认实际 FastGPT…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-fulltext-search-error-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-gemini-400-error-troubleshooting",
+    "title": "解决FastGPT部署后Gemini模型对话出现400错误的问题",
+    "description": "解决FastGPT部署后Gemini模型对话出现400错误的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录未给出完整版本号；应用前请在目标环境确认实际 Fas…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-gemini-400-error-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-gemini-missing-thought-signature",
+    "title": "解决FastGPT中Gemini模型调用时未代入思维链签名的问题",
+    "description": "解决FastGPT中Gemini模型调用时未代入思维链签名的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 4.14.3；应用前请在目标环境确认实际 Fa…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-gemini-missing-thought-signature",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-gemini-tool-name-error",
+    "title": "解决FastGPT私有部署版Gemini工具调用函数名校验报错",
+    "description": "解决FastGPT私有部署版Gemini工具调用函数名校验报错 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 V4.9.10、2.5-pro；应用前请在目标环…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-gemini-tool-name-error",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-glm-answer-quality-troubleshooting",
+    "title": "解决FastGPT接入GLM后报错且回答质量异常的问题",
+    "description": "解决FastGPT接入GLM后报错且回答质量异常的问题 适用环境与版本范围 - 环境： FastGPT deployment environment described by the maintainer source - 版本范围： 维护者记录涉及 3.10；应用前请在目标环境确认实际 FastGPT 与…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-glm-answer-quality-troubleshooting",
+    "sourceType": "GitHub issue",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/deploy/deploy-ollama-docker-fastgpt",
+    "title": "通过Docker安装Ollama并配置FastGPT可正常访问的服务",
+    "description": "通过Docker安装Ollama并配置FastGPT可正常访问的服务 使用Ollama官方Docker镜像可一键完成Ollama服务的安装与启动，该部署方式无需手动处理复杂的依赖配置。部署前需确保目标机器已安装Docker环境。执行以下命令即可完成基础的镜像拉取与服务启动： 适配FastGPT Docker…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/deploy-ollama-docker-fastgpt",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-beijing-oneclick-deploy",
+    "title": "提供FastGPT北京区一键部署的具体详细操作指引",
+    "description": "提供FastGPT北京区一键部署的具体详细操作指引 北京区作为FastGPT的可选部署区域，服务提供商为火山云，国内用户可以稳定访问该区域的相关资源，但无法访问OpenAI等境外服务，部署价格约为新加坡区的1/4。该区域的网络环境适配国内主流的网络运营商，能够为用户提供稳定的FastGPT运行基础，适合有国…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-beijing-oneclick-deploy",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-bge-rerank-code-download",
+    "title": "为FastGPT部署提供BGE重排序模型的代码下载相关资源",
+    "description": "为FastGPT部署提供BGE重排序模型的代码下载相关资源 在FastGPT的自托管部署流程中，自定义BGE重排序模型的代码获取是重要环节。本页提供官方维护的三款BGE重排序模型的代码仓库地址，帮助技术人员与选型人员完成自定义重排序模型的配置与部署。 可用BGE重排序模型代码仓库 FastGPT官方提供三款…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-bge-rerank-code-download",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-bge-rerank-download",
+    "title": "介绍FastGPT源码部署中下载BGE重排序模型的操作步骤",
+    "description": "介绍FastGPT源码部署中下载BGE重排序模型的操作步骤 可用BGE重排序模型仓库 FastGPT源码部署环节中，可使用的BGE重排序模型共有三个，对应的Hugging Face仓库地址如下： 1. https://huggingface.co/BAAI/bge-reranker-base 2. http…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-bge-rerank-download",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/deploy/fastgpt-chatglm2-deployment-config",
+    "title": "FastGPT中ChatGLM2自定义模型的部署配置说明",
+    "description": "FastGPT中ChatGLM2自定义模型的部署配置说明 量化显存占用说明 依据官方数据，生成8192长度的内容时，不同量化等级的显存占用情况存在差异。FP16量化等级需占用12.8GB显存，int8量化等级需占用8.1GB显存，int4量化等级需占用5.1GB显存。量化操作会对性能产生轻微影响，影响程度有…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/fastgpt-chatglm2-deployment-config",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/deploy/upgrade-v4-0",
+    "title": "FastGPT V4.0从旧版本升级的完整操作指引",
+    "description": "FastGPT V4.0从旧版本升级的完整操作指引 这个版本改了什么 FastGPT V4.0版本对MongoDB数据库表结构和字段进行了较大调整，同时新增了专用初始化API接口，用于完成旧版本数据向V4.0版本的适配迁移。 升级前要确认的事 需提前连接目标MongoDB数据库。MongoDB会自动创建空表…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/upgrade-v4-0",
+    "sourceType": "官方文档",
+    "minutes": 4
+  },
+  {
+    "identity": "zh|/deploy/upgrade-v4-1",
+    "title": "FastGPT V4.1版本从旧版本升级的操作与验证说明",
+    "description": "FastGPT V4.1版本从旧版本升级的操作与验证说明 这个版本改了什么 V4.1版本优化了PostgreSQL和MongoDB的连接配置，仅需填写单个URL即可完成数据库连接。同时重新设置了对话存储结构，从旧版本升级至该版本时，需初始化原有存储内容。 升级前要确认的事 需确认原有MongoDB的数据库名…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/upgrade-v4-1",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/deploy/upgrade-v4-10-0",
+    "title": "FastGPT V4.10.0版本升级操作与新增内容说明",
+    "description": "FastGPT V4.10.0版本升级操作与新增内容说明 这个版本改了什么 本版本新增独立系统工具服务，支持系统工具独立开发和调试。同步更新系统工具开发指南与插件系统说明文档。 升级前要确认的事 使用Docker部署的用户，需参考最新docker-compose.yml文件配置fastgpt-plugin和…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/upgrade-v4-10-0",
+    "sourceType": "官方文档",
+    "minutes": 4
+  },
+  {
+    "identity": "zh|/deploy/upgrade-v4-10-1",
+    "title": "FastGPT V4.10.1 版本升级内容说明与操作指南",
+    "description": "FastGPT V4.10.1 版本升级内容说明与操作指南 这个版本改了什么 本版本的更新涵盖新增功能、优化项、问题修复及工具更新。新增功能包括系统工具支持流输出，商业版第三方知识库定时同步支持全量同步并可同步整个目录。优化内容包含定时任务报错日志记录到对话日志、封装应用动态form渲染组件、目录面包屑导航…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/upgrade-v4-10-1",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/deploy/upgrade-v4-11-0",
+    "title": "FastGPT V4.11.0版本升级内容与操作说明",
+    "description": "FastGPT V4.11.0版本升级内容与操作说明 这个版本改了什么 项目调整包括移除所有开源功能的限制，包含应用数量和知识库数量上限；调整RoadMap，增加上下文管理、AI生成工作流、高级编排DeBug调试模式等计划；国际版域名将 fastgpt.io 调整成 fastgpt.io。新增功能包含商业版…",
+    "category": "deploy",
+    "locale": "zh",
+    "publicPath": "/deploy/upgrade-v4-11-0",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-cannot-edit-admin-permission",
+    "title": "FastGPT app模块canNotEditAdminPermission错误码详细说明",
+    "description": "FastGPT app模块canNotEditAdminPermission错误码详细说明 这个错误是什么 该错误属于FastGPT app模块的错误码体系，枚举名为canNotEditAdminPermission，对应状态文本为canNotEditAdminPermission，错误码为502004，关…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-cannot-edit-admin-permission",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-invalidapptype-error",
+    "title": "FastGPT app模块invalidAppType错误码的说明与处理指南",
+    "description": "FastGPT app模块invalidAppType错误码的说明与处理指南 这个错误是什么 该错误属于FastGPT的app模块，枚举名为invalidAppType，对应状态文本为invalidAppType，错误码为502003，对应的文案键为common:codeerror.apperror.inv…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-invalidapptype-error",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-invalidowner-error",
+    "title": "FastGPT app模块invalidOwner错误码的说明与处理方法",
+    "description": "FastGPT app模块invalidOwner错误码的说明与处理方法 这个错误是什么 该错误属于FastGPT的app模块，枚举名为invalidOwner，状态文本为invalidOwner，错误码为502002，对应国际化文案键为common:codeerror.apperror.invalidow…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-invalidowner-error",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-unauth-error-guide",
+    "title": "FastGPT app模块unAuthApp错误码的说明与排查",
+    "description": "FastGPT app模块unAuthApp错误码的说明与排查 这个错误是什么 这是FastGPT app模块下的unAuthApp错误，对应错误码为502001，错误标识statusText为unAuthApp，国际化文案键为common:codeerror.apperror.unauthapp。该错误表…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-unauth-error-guide",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/troubleshoot/fastgpt-app-unexist-error-guide",
+    "title": "FastGPT应用模块unExist错误码的说明与处理指南",
+    "description": "FastGPT应用模块unExist错误码的说明与处理指南 这个错误是什么 该错误属于FastGPT应用模块的预定义枚举错误，枚举名为unExist，对应状态文本为appUnExist，错误码为502000，错误提示信息对应国际化文案键common:codeerror.apperror.notexist，用…",
+    "category": "troubleshoot",
+    "locale": "zh",
+    "publicPath": "/troubleshoot/fastgpt-app-unexist-error-guide",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/glossary/agent-sandbox-config-migration",
+    "title": "FastGPT Agent沙箱的配置、镜像源设置及迁移流程说明",
+    "description": "FastGPT Agent沙箱的配置、镜像源设置及迁移流程说明 一句话定义 Agent沙箱是FastGPT中运行Agent任务的隔离运行环境，支持配置依赖源与执行数据迁移。 在 FastGPT 里怎么用 依赖源配置 环境变量AGENTSANDBOXPYPIINDEXURL适用于所有运行态镜像。AGENTSA…",
+    "category": "glossary",
+    "locale": "zh",
+    "publicPath": "/glossary/agent-sandbox-config-migration",
+    "sourceType": "官方文档",
+    "minutes": 4
+  },
+  {
+    "identity": "zh|/glossary/chat-title-model-env-var",
+    "title": "FastGPT中CHAT_TITLE_MODEL环境变量的配置说明",
+    "description": "FastGPT中CHATTITLEMODEL环境变量的配置说明 一句话定义 CHATTITLEMODEL是FastGPT用于自动生成对话标题的环境变量。 在 FastGPT 里怎么用（参数 / 位置 / 步骤） 需在fastgpt和fastgpt-pro的部署环境中配置该变量，示例配置为CHATTITLEM…",
+    "category": "glossary",
+    "locale": "zh",
+    "publicPath": "/glossary/chat-title-model-env-var",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/glossary/chatglm2-deployment-fastgpt",
+    "title": "FastGPT中ChatGLM2自定义模型的部署配置与启动方法",
+    "description": "FastGPT中ChatGLM2自定义模型的部署配置与启动方法 一句话定义 ChatGLM2部署是FastGPT中通过源码方式配置并启动ChatGLM2自定义大语言模型的操作流程。 在 FastGPT 里怎么用 首先完成环境配置，相关配置教程可通过GPT获取。下载指定的openaiapi.py文件，执行pi…",
+    "category": "glossary",
+    "locale": "zh",
+    "publicPath": "/glossary/chatglm2-deployment-fastgpt",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/glossary/deerapi-fastgpt-provider-config",
+    "title": "FastGPT中DeerAPI大语言模型提供商的配置说明",
+    "description": "FastGPT中DeerAPI大语言模型提供商的配置说明 一句话定义 DeerAPI是FastGPT可接入的第三方大语言模型服务提供商。 在FastGPT里怎么用 配置DeerAPI提供商时，需通过https://api.deerapi.com/token获取API密钥，设置基础请求地址为https://a…",
+    "category": "glossary",
+    "locale": "zh",
+    "publicPath": "/glossary/deerapi-fastgpt-provider-config",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/glossary/disable-chatbot-window-menu-button",
+    "title": "介绍在FastGPT中禁用聊天窗口功能菜单按钮的方法",
+    "description": "介绍在FastGPT中禁用聊天窗口功能菜单按钮的方法 一句话定义 FastGPT聊天窗口功能菜单按钮是FastGPT聊天窗口内用于提供操作选项的界面元素，其功能可能在特定场景下与网站智能客服对话产生冲突，可通过禁用或隐藏操作限制用户对该按钮的访问，避免功能冲突问题。 在 FastGPT 里怎么用（参数 /…",
+    "category": "glossary",
+    "locale": "zh",
+    "publicPath": "/glossary/disable-chatbot-window-menu-button",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/model/fastgpt-aiproxy-channelid-setup",
+    "title": "正确获取并配置FastGPT对接AIProxy协议所需的channelId参数",
+    "description": "正确获取并配置FastGPT对接AIProxy协议所需的channelId参数 channelId的核心要求 对接AIProxy协议时，FastGPT所需的channelId参数，必须与AIProxy仓库core/model/chtype.go文件中定义的ChannelType数值完全一致。不得根据供应商名…",
+    "category": "model",
+    "locale": "zh",
+    "publicPath": "/model/fastgpt-aiproxy-channelid-setup",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/model/fastgpt-model-preset-directories",
+    "title": "FastGPT模型预设相关目录的结构与各文件的作用说明",
+    "description": "FastGPT模型预设相关目录的结构与各文件的作用说明 目录基础信息 该目录为FastGPT模型预设的核心存储目录，完整路径为packages/infrastructure/src/static-data/models/，包含核心配置文件与多类子目录，用于统一管理所有模型供应商的预设参数与相关资源。 目录与…",
+    "category": "model",
+    "locale": "zh",
+    "publicPath": "/model/fastgpt-model-preset-directories",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/model/fastgpt-model-preset-guidelines",
+    "title": "FastGPT模型预设的配置规则与维护注意事项",
+    "description": "FastGPT模型预设的配置规则与维护注意事项 模型配置的合规依据 新增或修改模型前，需以官方模型文档、官方模型列表API或官方价格/模型页为判断依据。不宜仅根据搜索结果、第三方博客或聚合站判断模型是否存在。此类官方渠道的信息可确保模型的有效性与合规性，避免因非官方渠道的内容导致配置出现偏差。 模型维护的通…",
+    "category": "model",
+    "locale": "zh",
+    "publicPath": "/model/fastgpt-model-preset-guidelines",
+    "sourceType": "官方文档",
+    "minutes": 2
+  },
+  {
+    "identity": "zh|/model/fastgpt-plugin-core-concepts",
+    "title": "FastGPT插件核心概念与操作使用说明",
+    "description": "FastGPT插件核心概念与操作使用说明 插件核心概念总览 FastGPT的插件体系包含多个标准化核心概念，用于实现功能模块化与复用。插件是独立可复用的功能模块，可分为工具、模型预设、知识库来源等类型。插件包为插件打包后的.pkg文件，是不同类型插件完成安装、更新与管理的统一载体。工具是一类插件，通常封装第…",
+    "category": "model",
+    "locale": "zh",
+    "publicPath": "/model/fastgpt-plugin-core-concepts",
+    "sourceType": "官方文档",
+    "minutes": 3
+  },
+  {
+    "identity": "zh|/model/fastgpt-plugin-dev-setup",
+    "title": "FastGPT插件开发的本地环境搭建步骤说明",
+    "description": "FastGPT插件开发的本地环境搭建步骤说明 基础开发环境要求 开发FastGPT系统工具前，需配置以下基础环境： - Node.js 版本需匹配目标插件仓库的版本要求，确保项目依赖的兼容性。 - 安装 pnpm，当前 fastgpt-plugin 仓库采用 pnpm workspace 进行多包依赖管理，…",
+    "category": "model",
+    "locale": "zh",
+    "publicPath": "/model/fastgpt-plugin-dev-setup",
+    "sourceType": "官方文档",
+    "minutes": 2
   }
 ]

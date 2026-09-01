@@ -5,9 +5,9 @@ import guideStyles from '@/components/guide/GuideArticlePage.module.css';
 import MarkdownContent, { getMarkdownHeadings } from '@/components/tech-center/MarkdownContent';
 import techStyles from '@/components/tech-center/TechArticlePage.module.css';
 import type { GuideDocument } from '@/lib/guideContent';
-import { getGuideOwnedPath, type GuidePublishedLocale } from '@/lib/guideSeo';
+import { getGuideReviewPath, type GuidePublishedLocale } from '@/lib/guideSeo';
 import { parseMarkdown } from '@/lib/markdownParser';
-import { getOwnedLocalePath } from '@/lib/siteRouting';
+import { getDefaultLocalePath } from '@/lib/localizedRoutes';
 
 const guideArticleCopy = {
   en: {
@@ -71,9 +71,9 @@ export default function GuideArticlePage({
           className={`${techStyles.breadcrumbs} ${guideStyles.breadcrumbs}`}
           aria-label={labels.breadcrumb}
         >
-          <Link href={getOwnedLocalePath(locale)}>{labels.home}</Link>
+          <Link href={getDefaultLocalePath(locale)}>{labels.home}</Link>
           <span aria-hidden="true">/</span>
-          <Link href={getGuideOwnedPath(locale)}>{labels.guide}</Link>
+          <Link href={getGuideReviewPath(locale)}>{labels.guide}</Link>
           <span aria-hidden="true">/</span>
           <span aria-current="page">{document.source.h1}</span>
         </nav>
@@ -127,9 +127,11 @@ export default function GuideArticlePage({
                 </div>
               </section>
             )}
-            <p className={techStyles.returnLink}>
-              <Link href={getGuideOwnedPath(locale)}>{labels.back}</Link>
-            </p>
+            <nav aria-label={labels.back}>
+              <p className={techStyles.returnLink}>
+                <Link href={getGuideReviewPath(locale)}>{labels.back}</Link>
+              </p>
+            </nav>
           </article>
           {headings.length > 0 && (
             <aside className={guideStyles.toc} aria-label={labels.onThisPage}>

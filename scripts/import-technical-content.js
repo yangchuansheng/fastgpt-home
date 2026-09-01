@@ -1044,6 +1044,17 @@ function assertDeniedIdentitiesAbsent(denials, entries, searchProjection) {
   );
 }
 
+function splitSearchProjection(searchProjection) {
+  const projections = {
+    zh: searchProjection.filter((entry) => entry.locale === 'zh'),
+    en: searchProjection.filter((entry) => entry.locale === 'en')
+  };
+  if (projections.zh.length + projections.en.length !== searchProjection.length) {
+    throw new Error('Technical content search projection contains an unsupported locale');
+  }
+  return projections;
+}
+
 function writeFileAtomic(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   const temporaryPath = `${filePath}.tmp-${process.pid}`;
@@ -1053,7 +1064,10 @@ function writeFileAtomic(filePath, content) {
 
 function writeImportPlan(plan, repoRoot = REPOSITORY_ROOT) {
   const entryPath = path.join(repoRoot, 'src/components/tech-center/entries.json');
-  const searchPath = path.join(repoRoot, 'public/tech-center/search-index.json');
+  const searchPaths = {
+    zh: path.join(repoRoot, 'public/tech-center/search-index.json'),
+    en: path.join(repoRoot, 'public/tech-center/search-index.en.json')
+  };
   const authorityRoot = path.join(repoRoot, 'src/content/tech-center/authority');
   const manifestPath = path.join(authorityRoot, 'import-manifest.json');
   const ledgerPath = path.join(authorityRoot, 'decision-ledger.json');
@@ -1062,9 +1076,11 @@ function writeImportPlan(plan, repoRoot = REPOSITORY_ROOT) {
     validateAuthorityProjection(entry, `technical content registry[${index}]`)
   );
   const searchProjection = buildSearchProjection(entries);
+  const localizedSearch = splitSearchProjection(searchProjection);
   assertDeniedIdentitiesAbsent(plan.ledger.denials, entries, searchProjection);
   writeFileAtomic(entryPath, stableJson(entries));
-  writeFileAtomic(searchPath, stableJson(searchProjection));
+  writeFileAtomic(searchPaths.zh, stableJson(localizedSearch.zh));
+  writeFileAtomic(searchPaths.en, stableJson(localizedSearch.en));
   for (const page of plan.pages) {
     writeFileAtomic(path.join(repoRoot, page.normalizedBodyPath), page.normalizedDocument);
   }
@@ -1084,6 +1100,7 @@ function verifyImportPlanNoDrift(plan, repoRoot = REPOSITORY_ROOT) {
     validateAuthorityProjection(entry, `technical content registry[${index}]`)
   );
   const searchProjection = buildSearchProjection(entries);
+  const localizedSearch = splitSearchProjection(searchProjection);
   assertDeniedIdentitiesAbsent(plan.ledger.denials, entries, searchProjection);
   assertFileContent(
     path.join(repoRoot, 'src/components/tech-center/entries.json'),
@@ -1092,8 +1109,13 @@ function verifyImportPlanNoDrift(plan, repoRoot = REPOSITORY_ROOT) {
   );
   assertFileContent(
     path.join(repoRoot, 'public/tech-center/search-index.json'),
-    stableJson(searchProjection),
-    'search projection'
+    stableJson(localizedSearch.zh),
+    'Chinese search projection'
+  );
+  assertFileContent(
+    path.join(repoRoot, 'public/tech-center/search-index.en.json'),
+    stableJson(localizedSearch.en),
+    'English search projection'
   );
   assertFileContent(
     path.join(repoRoot, 'src/content/tech-center/authority/import-manifest.json'),
@@ -1396,12 +1418,21 @@ function verifyCommittedAuthority(repoRoot = REPOSITORY_ROOT) {
   entries.forEach((entry, index) =>
     validateAuthorityProjection(entry, `technical content registry[${index}]`)
   );
-  const searchPath = path.join(repoRoot, 'public/tech-center/search-index.json');
-  if (!fs.existsSync(searchPath)) throw new Error('Technical content search projection is missing');
-  const searchProjection = JSON.parse(fs.readFileSync(searchPath, 'utf8'));
-  if (!Array.isArray(searchProjection)) {
+  const searchPaths = {
+    zh: path.join(repoRoot, 'public/tech-center/search-index.json'),
+    en: path.join(repoRoot, 'public/tech-center/search-index.en.json')
+  };
+  if (!fs.existsSync(searchPaths.zh) || !fs.existsSync(searchPaths.en)) {
+    throw new Error('Technical content search projection is missing');
+  }
+  const localizedSearch = {
+    zh: JSON.parse(fs.readFileSync(searchPaths.zh, 'utf8')),
+    en: JSON.parse(fs.readFileSync(searchPaths.en, 'utf8'))
+  };
+  if (!Array.isArray(localizedSearch.zh) || !Array.isArray(localizedSearch.en)) {
     throw new Error('Technical content search projection must be an array');
   }
+  const searchProjection = [...localizedSearch.zh, ...localizedSearch.en];
   if (searchProjection.length !== EXPECTED_TECHNICAL_PAGE_COUNT) {
     throw new Error(
       [
@@ -1418,8 +1449,11 @@ function verifyCommittedAuthority(repoRoot = REPOSITORY_ROOT) {
   validateIdentitySet(
     searchProjection.map((entry) => ({ locale: entry.locale, canonicalPath: entry.publicPath }))
   );
-  const expectedSearchProjection = buildSearchProjection(entries);
-  if (JSON.stringify(searchProjection) !== JSON.stringify(expectedSearchProjection)) {
+  const expectedSearchProjection = splitSearchProjection(buildSearchProjection(entries));
+  if (
+    JSON.stringify(localizedSearch.zh) !== JSON.stringify(expectedSearchProjection.zh) ||
+    JSON.stringify(localizedSearch.en) !== JSON.stringify(expectedSearchProjection.en)
+  ) {
     throw new Error('Technical content search projection drift');
   }
   assertDeniedIdentitiesAbsent(ledger.denials, entries, searchProjection);

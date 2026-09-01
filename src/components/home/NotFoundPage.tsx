@@ -22,6 +22,8 @@ import {
   techPublishedLocaleCodes
 } from '@/lib/publishedLocales';
 import CloudEntryLink from '@/components/home/CloudEntryLink';
+import { getTechEntriesForLocale } from '@/components/tech-center/data';
+import { getTechnicalReviewPath } from '@/lib/technicalRouting';
 
 const dictionaries = { en, 'zh-hant': zhHant, zh, ja, ar, vi, th, id, ms };
 const languages = getPublishedLocaleCodes();
@@ -56,15 +58,23 @@ const recoveryGroups = [
     locales: techPublishedLocaleCodes
   }
 ] as const;
-const recoveryPayload = recoveryGroups.map((group) => ({
-  sections: group.sections,
-  links: group.locales.map((locale) => ({
-    href: isPreviewSite
-      ? getDefaultLocalePath(locale, group.path)
-      : getOwnedLocaleUrl(locale, group.path),
-    label: `${localeNames[locale]} · ${group.label}`
-  }))
-}));
+const publishedTechRecoveryLocales = techPublishedLocaleCodes.filter(
+  (locale) => getTechEntriesForLocale(locale).length > 0
+);
+const recoveryPayload = recoveryGroups.map((group) => {
+  const locales = group.label === 'Tech Center' ? publishedTechRecoveryLocales : group.locales;
+  return {
+    sections: group.sections,
+    links: locales.map((locale) => ({
+      href: isPreviewSite
+        ? group.label === 'Tech Center'
+          ? getTechnicalReviewPath(locale, group.path)
+          : getDefaultLocalePath(locale, group.path)
+        : getOwnedLocaleUrl(locale, group.path),
+      label: `${localeNames[locale]} · ${group.label}`
+    }))
+  };
+});
 const recoveryScript = `
   (() => {
     const segments = location.pathname.split('/').filter(Boolean);

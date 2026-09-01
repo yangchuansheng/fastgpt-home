@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/** Verify the five bilingual Guide pairs emitted by the Preview static export. */
+/** Verify the eight bilingual Guide pairs emitted by the Preview static export. */
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -14,7 +14,10 @@ const REQUIRED_SLUGS = [
   'database-qa-integration-guide',
   'scheduled-report-automation',
   'finance-research-retrieval',
-  'finance-daily-report-automation'
+  'finance-daily-report-automation',
+  'migrate-saas-to-selfhost',
+  'embed-ai-into-product',
+  'soe-policy-qa-deployment'
 ];
 
 function fail(message) {
@@ -113,8 +116,14 @@ function singleMatch(html, expression, label) {
   return decode(matches[0][1]);
 }
 
+function hrefs(html) {
+  return [...html.matchAll(/<a\b[^>]*\bhref=["']([^"']+)["'][^>]*>/gi)].map((match) =>
+    decode(match[1])
+  );
+}
+
 function verifyPage(outDir, slug, locale) {
-  const routePrefix = locale === 'zh' ? '/zh' : '';
+  const routePrefix = `/${locale}`;
   const route = `${routePrefix}/guide/${slug}`;
   const filePath = htmlPath(outDir, route);
   if (!filePath) fail(`missing ${locale} Guide page ${route}`);
@@ -157,15 +166,22 @@ function verifyPage(outDir, slug, locale) {
   ) {
     fail(`${locale} ${slug} h1 differs from registry`);
   }
+  const links = hrefs(html);
+  const hubPath = `${routePrefix}/guide`;
+  if (links.filter((href) => href === hubPath).length < 2) {
+    fail(`${locale} ${slug} is missing prefixed Guide breadcrumb or return links`);
+  }
+  const homePath = locale === 'zh' ? '/zh' : '/';
+  if (!links.includes(homePath)) fail(`${locale} ${slug} is missing its localized home link`);
 }
 
-/** Verify every exported Guide route and the five Week05 bilingual pairs. */
+/** Verify every exported Guide route and the eight Week06 bilingual pairs. */
 function verifyGuidePreview({ outDir }) {
   const safeOutDir = path.resolve(outDir || '');
   if (!outDir || !fs.existsSync(safeOutDir)) fail(`output directory does not exist: ${safeOutDir}`);
   const expectedRoutes = new Set([
-    ...['', 'zh'].flatMap((prefix) => {
-      const routePrefix = prefix ? `/${prefix}` : '';
+    ...['en', 'zh'].flatMap((prefix) => {
+      const routePrefix = `/${prefix}`;
       return [
         `${routePrefix}/guide`,
         ...REGISTRY.entries.map((entry) => `${routePrefix}/guide/${entry.slug}`)
@@ -173,7 +189,7 @@ function verifyGuidePreview({ outDir }) {
     })
   ]);
   const actualRoutes = new Set([
-    ...collectGuideRoutes(safeOutDir, ''),
+    ...collectGuideRoutes(safeOutDir, 'en'),
     ...collectGuideRoutes(safeOutDir, 'zh')
   ]);
   if (
@@ -184,12 +200,20 @@ function verifyGuidePreview({ outDir }) {
       `Guide route inventory differs; expected ${expectedRoutes.size}, received ${actualRoutes.size}`
     );
   }
-  for (const route of ['/guide', '/zh/guide']) {
+  if (htmlPath(safeOutDir, '/guide')) fail('Preview must omit the unprefixed Guide hub');
+  for (const route of ['/en/guide', '/zh/guide']) {
     if (!htmlPath(safeOutDir, route)) fail(`missing Guide hub ${route}`);
     const html = fs.readFileSync(htmlPath(safeOutDir, route), 'utf8');
     const locale = route.startsWith('/zh') ? 'zh' : 'en';
     verifySharedMetadata(html, '', locale);
     assertJsonLdTypes(html, ['CollectionPage', 'ItemList', 'BreadcrumbList'], `${locale} hub`);
+    const links = hrefs(html);
+    for (const entry of REGISTRY.entries) {
+      const expected = `/${locale}/guide/${entry.slug}`;
+      if (!links.includes(expected)) fail(`${locale} hub is missing card target ${expected}`);
+    }
+    const homePath = locale === 'zh' ? '/zh' : '/';
+    if (!links.includes(homePath)) fail(`${locale} hub is missing its localized home link`);
   }
   for (const slug of REQUIRED_SLUGS) {
     verifyPage(safeOutDir, slug, 'en');

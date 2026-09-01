@@ -9,7 +9,14 @@ import CloudEntryLink from '@/components/home/CloudEntryLink';
 import { getDefaultLocalePath } from '@/lib/localizedRoutes';
 import { techPublishedLocaleCodes } from '@/lib/publishedLocales';
 import type { TechArticle } from '@/lib/tech-center-content';
-import { getTechEntryPath, type TechEntry } from './data';
+import { getTechnicalReviewPath } from '@/lib/technicalRouting';
+import { isPreviewSite } from '@/lib/siteRouting';
+import {
+  getTechCategoryLabelForLocale,
+  getTechEntryPath,
+  getTechSourceLabelForLocale,
+  type TechEntry
+} from './data';
 import MarkdownContent from './MarkdownContent';
 import styles from './TechArticlePage.module.css';
 
@@ -25,6 +32,29 @@ type ArticleCtaCopy = {
   title: string;
   description: string;
   label: string;
+};
+
+const ARTICLE_COPY = {
+  zh: {
+    breadcrumbs: '面包屑',
+    hubName: '技术中心',
+    readMinutes: (minutes: number) => `${minutes} 分钟阅读`,
+    sourceAria: '本文来源',
+    sourceLabel: '本文来源',
+    viewSource: '查看原始来源',
+    relatedEyebrow: '同主题内容',
+    relatedTitle: '继续阅读'
+  },
+  en: {
+    breadcrumbs: 'Breadcrumbs',
+    hubName: 'Technical Center',
+    readMinutes: (minutes: number) => `${minutes} min read`,
+    sourceAria: 'Article source',
+    sourceLabel: 'Source',
+    viewSource: 'View original source',
+    relatedEyebrow: 'Related content',
+    relatedTitle: 'Continue reading'
+  }
 };
 
 export default function TechArticlePage({
@@ -44,11 +74,16 @@ export default function TechArticlePage({
   relatedArticles: TechEntry[];
   cta: ArticleCtaCopy;
 }) {
+  const copy = locale === 'zh' ? ARTICLE_COPY.zh : ARTICLE_COPY.en;
   const homeHref = getDefaultLocalePath(locale);
-  const hubHref = getDefaultLocalePath(locale, '/tech-center');
+  const hubHref = getTechnicalReviewPath(locale, '/tech-center');
+  const categoryLabel = getTechCategoryLabelForLocale(article.category, locale);
+  const sourceLabel = getTechSourceLabelForLocale(article.sourceType, locale);
+  const pageTypeLabel =
+    article.pageType === article.categoryLabel ? categoryLabel : article.pageType;
   const localizedMarkdown = article.markdown.replace(
-    /\]\(\/zh(\/[^)]+)\)/g,
-    (_match, href: string) => `](${getDefaultLocalePath(locale, href)})`
+    /\]\(\/(?:zh|en)(\/[^)]+)\)/g,
+    (_match, href: string) => `](${getTechnicalReviewPath(locale, href)})`
   );
 
   return (
@@ -59,23 +94,24 @@ export default function TechArticlePage({
         t={navCta}
         locale={locale}
         publishedLocales={techPublishedLocaleCodes}
+        reviewLocalePaths={isPreviewSite}
       />
       <main className={styles.page}>
         <div className={styles.container}>
-          <nav className={styles.breadcrumbs} aria-label="面包屑">
+          <nav className={styles.breadcrumbs} aria-label={copy.breadcrumbs}>
             <Link href={homeHref}>FastGPT</Link>
             <span aria-hidden="true">/</span>
-            <Link href={hubHref}>技术中心</Link>
+            <Link href={hubHref}>{copy.hubName}</Link>
             <span aria-hidden="true">/</span>
             <span aria-current="page">{article.title}</span>
           </nav>
 
           <header className={styles.header}>
             <div className={styles.meta}>
-              <span className={styles.badge}>{article.categoryLabel}</span>
-              <span className={`${styles.badge} ${styles.sourceBadge}`}>{article.sourceType}</span>
-              <span>{article.minutes} 分钟阅读</span>
-              {article.pageType !== article.sourceType && <span>{article.pageType}</span>}
+              <span className={styles.badge}>{categoryLabel}</span>
+              <span className={`${styles.badge} ${styles.sourceBadge}`}>{sourceLabel}</span>
+              <span>{copy.readMinutes(article.minutes)}</span>
+              {article.pageType !== article.sourceType && <span>{pageTypeLabel}</span>}
             </div>
             <h1>{article.title}</h1>
             <p className={styles.summary}>{article.seoDescription}</p>
@@ -101,16 +137,16 @@ export default function TechArticlePage({
                 headingIdPrefix="article-section"
               />
               {article.source && (
-                <footer className={styles.sourceFooter} aria-label="本文来源">
-                  <span className={styles.sourceLabel}>本文来源</span>
-                  <span className={styles.sourceType}>{article.sourceType}</span>
+                <footer className={styles.sourceFooter} aria-label={copy.sourceAria}>
+                  <span className={styles.sourceLabel}>{copy.sourceLabel}</span>
+                  <span className={styles.sourceType}>{sourceLabel}</span>
                   <a
                     className={styles.sourceLink}
                     href={article.source}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <span>查看原始来源</span>
+                    <span>{copy.viewSource}</span>
                     <ArrowUpRight
                       className={styles.sourceIcon}
                       strokeWidth={1.8}
@@ -122,18 +158,20 @@ export default function TechArticlePage({
               {relatedArticles.length > 0 && (
                 <section className={styles.related} aria-labelledby="related-title">
                   <div className={styles.relatedHeader}>
-                    <p className={styles.relatedEyebrow}>同主题内容</p>
-                    <h2 id="related-title">继续阅读</h2>
+                    <p className={styles.relatedEyebrow}>{copy.relatedEyebrow}</p>
+                    <h2 id="related-title">{copy.relatedTitle}</h2>
                   </div>
                   <div className={styles.relatedList}>
                     {relatedArticles.map((relatedArticle) => (
                       <Link
                         className={styles.relatedLink}
-                        href={getDefaultLocalePath(locale, getTechEntryPath(relatedArticle))}
+                        href={getTechnicalReviewPath(locale, getTechEntryPath(relatedArticle))}
                         key={relatedArticle.slug}
                       >
                         <span>
-                          <small>{relatedArticle.categoryLabel}</small>
+                          <small>
+                            {getTechCategoryLabelForLocale(relatedArticle.category, locale)}
+                          </small>
                           {relatedArticle.title}
                         </span>
                         <ArrowUpRight strokeWidth={1.8} aria-hidden="true" />

@@ -73,6 +73,18 @@ jobs:
           npm ci
           npm run verify:release -- --keep-artifacts ${{ github.event_name == 'pull_request' && '--allow-missing-solutions-evidence' || '' }}
 
+      - name: Verify postdeploy owner URLs
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          mkdir -p .release-artifacts/postdeploy
+          npm run verify:week06-wave1-live | tee .release-artifacts/postdeploy/week06-wave1-live.log
+
+      - name: Verify postdeploy observation window
+        if: ${{ always() && github.event_name == 'workflow_dispatch' }}
+        run: |
+          mkdir -p .release-artifacts/postdeploy
+          npm run verify:week06-wave1-observation | tee .release-artifacts/postdeploy/week06-wave1-observation.log
+
       - name: Upload release verification record and artifacts
         if: ${{ always() && hashFiles('.release-artifacts/**') != '' }}
         uses: actions/upload-artifact@v4

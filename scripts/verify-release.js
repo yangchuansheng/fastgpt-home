@@ -44,6 +44,12 @@ const {
   recordVariantOutcome,
   writeReleaseRecord
 } = require('./lib/release-record');
+const {
+  extractP1SuccessMeasurement,
+  getSourceNodeSteps,
+  getSourceNpmSteps,
+  getVariantSteps
+} = require('./lib/release-steps');
 
 const ROOT = path.resolve(__dirname, '..');
 const RETAIN_DIR = path.join(ROOT, '.release-artifacts');
@@ -180,147 +186,12 @@ function npmStep(failures, stepId, label, args, env, variant, formatSuccess, rec
   );
 }
 
-function getSourceNodeSteps() {
-  return [
-    [
-      'solutions-preview.regression',
-      'Solutions preview runner regression',
-      'scripts/lib/solutions-preview-http.test.js',
-      []
-    ],
-    ['seo-basics.regression', 'SEO basics regression', 'scripts/verify-seo-basics.test.js', []],
-    [
-      'content-hygiene.source',
-      'content hygiene source verification',
-      'scripts/verify-content-hygiene.js',
-      ['--mode', 'source']
-    ],
-    [
-      'faq-route-registry.source',
-      'route registry check',
-      'scripts/generate-faq-route-registry.js',
-      ['--check']
-    ],
-    [
-      'faq-metadata-snapshot.source',
-      'metadata snapshot check',
-      'scripts/generate-faq-metadata.js',
-      ['--check']
-    ],
-    ['faq-routes.source', 'FAQ route source verification', 'scripts/verify-faq-routes.js', []],
-    [
-      'faq-metadata-legacy.source',
-      'FAQ metadata source verification',
-      'scripts/verify-faq-metadata.js',
-      []
-    ],
-    [
-      'faq-metadata.source',
-      'FAQ metadata normalization source verification',
-      'scripts/verify-faq-metadata-authority.js',
-      []
-    ],
-    [
-      'faq-seo-graph.source',
-      'FAQ SEO graph source verification',
-      'scripts/verify-faq-seo-graph.js',
-      []
-    ],
-    [
-      'url-alias.source',
-      'URL Alias Authority source verification',
-      'scripts/verify-url-alias-authority.js',
-      []
-    ],
-    [
-      'case-only.source',
-      'case-only authority and projection source verification',
-      'scripts/verify-case-only-aliases.js',
-      []
-    ],
-    [
-      'url-alias.rebuilt-source',
-      'URL Alias rebuilt-slug authority and projection source verification',
-      'scripts/verify-rebuilt-slug-aliases.js',
-      []
-    ],
-    [
-      'faq-redirects.source',
-      'FAQ redirect source verification',
-      'scripts/verify-faq-redirects.js',
-      ['--source']
-    ],
-    [
-      'technical-authority.source',
-      'technical authority source verification',
-      'scripts/verify-technical-authority.js',
-      []
-    ],
-    [
-      'technical-wave.source',
-      'technical wave source verification',
-      'scripts/verify-technical-wave.js',
-      []
-    ]
-  ];
-}
-
-function getSourceNpmSteps() {
-  return [
-    [
-      'technical-content.source',
-      'technical content authority verification',
-      ['verify:technical-content']
-    ],
-    [
-      'technical-authority.regression',
-      'technical authority regression',
-      ['verify:technical-authority-regression']
-    ],
-    [
-      'technical-wave.regression',
-      'technical wave regression',
-      ['verify:technical-wave-regression']
-    ],
-    [
-      'technical-content.regression',
-      'technical content regression',
-      ['verify:technical-content-regression']
-    ],
-    [
-      'technical-center.regression',
-      'technical center regression',
-      ['verify:technical-center-regression']
-    ],
-    [
-      'technical-export.regression',
-      'technical export regression',
-      ['verify:technical-export-regression']
-    ],
-    ['url-alias.regression', 'URL Alias Authority regression', ['verify:url-alias-regression']],
-    ['case-only.regression', 'case-only slice regression', ['verify:case-only-regression']],
-    [
-      'url-alias.rebuilt-regression',
-      'URL Alias rebuilt-slug slice regression',
-      ['verify:rebuilt-slug-regression']
-    ],
-    [
-      'faq-metadata.regression',
-      'FAQ metadata normalization regression',
-      ['verify:faq-metadata-authority-regression']
-    ],
-    ['release-readiness.regression', 'release readiness regression', ['verify:release-readiness']]
-  ];
-}
-
 function getSourceExecutionOrder() {
   return [
     ...getSourceNodeSteps().map(([stepId]) => stepId),
     ...getSourceNpmSteps().map(([stepId]) => stepId),
     'lint.source',
     'typescript.source',
-    'guide-authorization.source',
-    'guide-authorization.regression',
     'guide-content.source'
   ];
 }
@@ -365,32 +236,22 @@ function runSourceChecks(failures, env, record) {
   ) {
     console.log('[verify-release] Wave 0 governance-complete; publication-count=0');
   }
+  const week06Wave0 = record?.evidence.week06Wave0Readiness?.observed;
+  if (
+    week06Wave0?.sourceVerified === true &&
+    week06Wave0.fixtureVerified === true &&
+    week06Wave0.exportVerified === false &&
+    week06Wave0.governanceStatus === 'governance-complete' &&
+    week06Wave0.publicationCount === 0
+  ) {
+    console.log(
+      '[verify-release] Week06 bilingual Wave 0 source-verified; fixture-verified; governance-complete; publication-count=0'
+    );
+  }
 }
 
 function runGuideSourceChecks(failures, env, variant, record) {
   const suffix = variant ? ` (${variant})` : '';
-  if (!variant) {
-    nodeStep(
-      failures,
-      'guide-authorization.source',
-      'Guide authorization source verification',
-      'scripts/verify-guide-authorization.js',
-      [],
-      env,
-      undefined,
-      record
-    );
-    npmStep(
-      failures,
-      'guide-authorization.regression',
-      'Guide authorization regression',
-      ['verify:guide-authorization-regression'],
-      env,
-      undefined,
-      undefined,
-      record
-    );
-  }
   nodeStep(
     failures,
     'guide-content.source',
@@ -401,114 +262,6 @@ function runGuideSourceChecks(failures, env, variant, record) {
     variant,
     record
   );
-}
-
-function extractP1SuccessMeasurement(output) {
-  return output.match(
-    /P1 verification passed for .*:\s*([0-9.]+ KiB initial JavaScript gzip)/
-  )?.[1];
-}
-
-function getVariantSteps(variant) {
-  const steps = [
-    {
-      runner: 'node',
-      id: 'content-hygiene.html',
-      label: `Complete HTML hygiene (${variant})`,
-      command: 'scripts/verify-content-hygiene.js',
-      args: ['--mode', 'html', '--root', 'out', '--variant', variant]
-    },
-    {
-      runner: 'npm',
-      id: 'technical-center.export',
-      label: `technical center artifact verification (${variant})`,
-      args: ['verify:technical-center']
-    },
-    {
-      runner: 'npm',
-      id: 'technical-export.export',
-      label: `technical export artifact verification (${variant})`,
-      args: ['verify:technical-export']
-    },
-    {
-      runner: 'npm',
-      id: 'technical-wave.export',
-      label: `technical wave export verification (${variant})`,
-      args: ['verify:technical-wave', '--', '--export', '--variant', variant, '--out-dir', 'out']
-    },
-    ...(variant === 'preview'
-      ? []
-      : [
-          {
-            runner: 'node',
-            id: 'url-alias.blackbox',
-            label: `URL Alias black-box verification (${variant})`,
-            command: 'scripts/verify-url-alias-blackbox.js',
-            args: ['--variant', variant]
-          },
-          {
-            runner: 'node',
-            id: 'case-only.http',
-            label: `Case-only HTTP verification (${variant})`,
-            command: 'scripts/verify-url-alias-blackbox.js',
-            args: ['--variant', variant, '--slice', 'case-only']
-          }
-        ]),
-    {
-      runner: 'npm',
-      id: 'p0.export',
-      label: `P0 HTML verification (${variant})`,
-      args: ['verify:p0']
-    },
-    {
-      runner: 'npm',
-      id: 'p1.export',
-      label: `P1 HTML verification (${variant})`,
-      args: ['verify:p1'],
-      formatSuccess: extractP1SuccessMeasurement
-    },
-    {
-      runner: 'npm',
-      id: 'p2.export',
-      label: `P2 HTML verification (${variant})`,
-      args: ['verify:p2']
-    },
-    {
-      runner: 'npm',
-      id: 'i18n-seo.export',
-      label: `i18n SEO HTML verification (${variant})`,
-      args: ['verify:i18n-seo']
-    },
-    ...(variant === 'preview'
-      ? []
-      : [
-          {
-            runner: 'npm',
-            id: 'faq-metadata-legacy.html',
-            label: `FAQ metadata HTML verification (${variant})`,
-            args: ['verify:faq-metadata', '--', '--html', '--variant', variant]
-          },
-          {
-            runner: 'npm',
-            id: 'faq-metadata.html',
-            label: `FAQ metadata normalization HTML verification (${variant})`,
-            args: ['verify:faq-metadata-authority', '--', '--html', '--variant', variant]
-          },
-          {
-            runner: 'npm',
-            id: 'faq-seo-graph.html',
-            label: `FAQ SEO graph HTML verification (${variant})`,
-            args: ['verify:faq-seo-graph', '--', '--html', '--out-dir', 'out', '--variant', variant]
-          },
-          {
-            runner: 'npm',
-            id: 'faq-redirects.export',
-            label: `FAQ redirect artifact verification (${variant})`,
-            args: ['verify:faq-redirects']
-          }
-        ])
-  ];
-  return steps;
 }
 
 function getVariantExecutionOrder(variant) {
@@ -716,13 +469,34 @@ function main() {
     'technical-wave-rollback',
     record.startedAt
   );
+  addRollbackFile(
+    record,
+    'src/content/tech-center/authority/week05-wave2-release-manifest.json',
+    'technical-wave2-release-manifest',
+    record.startedAt
+  );
+  addRollbackFile(
+    record,
+    'src/content/tech-center/authority/week05-wave2-rollback.json',
+    'technical-wave2-rollback',
+    record.startedAt
+  );
+  addRollbackFile(
+    record,
+    'scripts/fixtures/technical-authority/week06-wave0-readiness.json',
+    'week06-wave0-release-rollback-contract',
+    record.startedAt
+  );
   for (const [relativePath, role] of [
     ['src/faq/generated-en-route-registry.json', 'faq-route-registry'],
     ['src/faq/generated-en-metadata.json', 'faq-metadata-projection'],
     ['src/faq/generated-en-metadata-authority.json', 'faq-metadata-authority'],
     ['src/content/guides/registry.json', 'guide-registry'],
     ['src/content/guides/policy.json', 'guide-release-policy'],
-    ['src/content/guides/authorization.json', 'guide-authorization']
+    ['src/content/guides/g1-release-manifest.json', 'guide-g1-release-manifest'],
+    ['src/content/guides/g1-rollback.json', 'guide-g1-rollback'],
+    ['src/content/guides/g2-release-manifest.json', 'guide-g2-release-manifest'],
+    ['src/content/guides/g2-rollback.json', 'guide-g2-rollback']
   ]) {
     addRollbackFile(record, relativePath, role, record.startedAt);
   }

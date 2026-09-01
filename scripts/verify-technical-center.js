@@ -64,18 +64,27 @@ function verifyRegistryIsOutsideInitialJavaScript(html, outDir, registryPath, ma
   );
 }
 
-function verifySearchProjection(searchIndexPath, registryPath) {
+function verifySearchProjection(searchIndexPath, registryPath, locale) {
   assert(
     fs.existsSync(searchIndexPath),
     `Missing Technical Center search projection ${searchIndexPath}`
   );
   const projection = JSON.parse(fs.readFileSync(searchIndexPath, 'utf8'));
   const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+  const expectedRegistry = locale
+    ? registry.filter((entry) => entry.slug?.startsWith(`/${locale}/`))
+    : registry;
   assert(Array.isArray(projection), 'Technical Center search projection must be an array');
+  if (locale) {
+    assert(
+      projection.every((entry) => entry.locale === locale),
+      `Technical Center search projection contains a non-${locale} identity`
+    );
+  }
   assert.equal(
     projection.length,
-    registry.length,
-    `Technical Center search projection has ${projection.length} entries; expected ${registry.length}`
+    expectedRegistry.length,
+    `Technical Center search projection has ${projection.length} entries; expected ${expectedRegistry.length}`
   );
   return projection.length;
 }
@@ -110,13 +119,15 @@ function verifyTechnicalCenter({
   baselineGzipBytes = BUDGET.baselineGzipBytes,
   maxIncreaseBytes = BUDGET.maxIncreaseBytes,
   registryPath = path.join(ROOT, 'src/components/tech-center/entries.json'),
-  searchIndexPath
+  searchIndexPath,
+  locale
 } = {}) {
   const htmlPath = resolveHtml(outDir, route);
   const html = fs.readFileSync(htmlPath, 'utf8');
   const searchEntries = verifySearchProjection(
     searchIndexPath || path.join(outDir, 'tech-center/search-index.json'),
-    registryPath
+    registryPath,
+    locale
   );
   const initialEntries = countInitialEntries(html);
   assert(initialEntries > 0, 'Technical Center HTML has no server-rendered entries');
@@ -175,14 +186,14 @@ function parseArgs(argv) {
 
 function main(argv = process.argv.slice(2)) {
   const variant = resolveSiteVariant();
-  if (variant === 'io') {
-    console.log(`[verify-technical-center] skipped for variant=${variant}`);
-    return;
-  }
-
   const options = parseArgs(argv);
+  const locale = variant === 'io' ? 'en' : 'zh';
   const route = options.route || (variant === 'preview' ? '/zh/tech-center' : BUDGET.route);
-  const result = verifyTechnicalCenter({ ...options, route });
+  const searchIndexPath = path.join(
+    options.outDir || OUT_DIR,
+    locale === 'zh' ? 'tech-center/search-index.json' : 'tech-center/search-index.en.json'
+  );
+  const result = verifyTechnicalCenter({ ...options, route, locale, searchIndexPath });
   console.log(
     [
       `[verify-technical-center] passed: ${result.route}, `,

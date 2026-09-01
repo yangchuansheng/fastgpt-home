@@ -45,3 +45,193 @@ lives at `.release-artifacts/release-verification.json`.
 Pull-request CI adds `--allow-missing-solutions-evidence` so source and export verification
 can complete with a release-ineligible record. Manual release runs remain strict and require
 approved Solutions evidence.
+
+## Documentation host owner-routing evidence
+
+`npm run verify:documentation-host -- --cn-target <https-url> --io-target <https-url> \
+  --contract scripts/fixtures/documentation-host-contract.json --output <json>` runs the
+external docs black-box contract with production targets supplied by the release operator. The
+contract checks owner HTTP 200/self-canonical pages, direct cross-host 301s with query
+preservation, reciprocal `zh-CN`/`en` hreflang, owner robots/sitemap signals, and the 203-path
+English audit sample. Responses are captured under `<output-basename>-responses/`.
+
+Pass `--rollback-input <json>` to provide the tested host-scoped rollback unit when it is kept in
+a separate release artifact. The contract fixture records the previous revision and restore paths;
+the runner never assumes an external docs production target.
+
+## Week06 English Technical Page tracer evidence
+
+`npm run verify:week06-english-tracer` validates the accepted `week06-0006` English Technical Page
+tracer against the closed authority. The fixture covers source and decision provenance, the IO
+owner-relative route with HTTP-equivalent 200 and a self-canonical, CN owner isolation, the
+locale-prefixed Preview review route with the IO production canonical and `noindex, nofollow`,
+English hub/category/featured/search identities, deferred locale search data with the bounded
+initial-listing fallback, sitemap membership, and content hygiene.
+
+Run the focused regression suite with:
+
+```bash
+npm run verify:week06-english-tracer-regression
+```
+
+Week06 Wave 0 remains a dry run with publication count and public-page delta at zero. The
+production Technical Page registry remains at 1,372 entries and the tracer verifier records a
+registry delta of zero. The evidence fixture and verifier are tracked with [issue #261](https://github.com/labring/fastgpt-home/issues/261).
+
+## Week06 model and glossary tracer evidence
+
+`npm run verify:week06-model-glossary-tracers` validates one Simplified Chinese glossary tracer,
+one Simplified Chinese model tracer, and one English model tracer against the closed Week06
+authority. The dry-run fixtures prove localized category labels, CN/IO owner-relative routes,
+locale-prefixed Preview review routes, canonical/robots/structured-data signals, locale-scoped
+hub counts, search and fallback listings, sitemap ownership, content hygiene, and zero owner leaks.
+
+Run the mutation regression suite with:
+
+```bash
+npm run verify:week06-model-glossary-tracers-regression
+```
+
+The verifier retains the issue #261 English tracer baseline and keeps the 1,372-entry production
+registry byte-stable while Week06 Wave 0 remains a zero-publication dry run. This evidence is
+tracked with [issue #264](https://github.com/labring/fastgpt-home/issues/264).
+
+## Week06 bilingual Technical Wave 0 readiness
+
+`npm run verify:week06-wave0-readiness` closes the issue #265 dry-run record by composing the
+closed Week06 authority with the real issue #261 and #264 tracer verifiers. It freezes the
+authority release digest, requires zero unresolved identity, duplicate, evidence, credential,
+privacy, operation-risk, comparison-routing, and hygiene findings, and verifies CN, IO, and
+Preview owner routing, canonical, robots, sitemap, structured data, isolation, localized hubs,
+search projections, and bounded fallbacks.
+
+The contract records the 1,372-page pre-Wave 1 registry, the approved initial-JavaScript baseline,
+both locale search projection sizes, and the deterministic completed-tracer export file count,
+bytes, digest, and reference build duration. The duration points to a frozen five-sample measurement
+with its command, environment, measurement ID, median, and export digest. Registry, search, sitemap,
+static-export, internal-link, and release-record deltas stay at zero through byte-stable repository
+artifacts and reproducible completed-tracer sitemap and HTML outputs. Its release and rollback
+manifests share one baseline digest and the staged write regression proves that a partial write
+restores the real bytes for every mapped artifact.
+
+Run the mutation coverage with:
+
+```bash
+npm run verify:week06-wave0-readiness-regression
+```
+
+The top-level release coordinator runs both commands and records `source-verified`,
+`export-verified`, `governance-complete`, and publication count zero. Wave 0 keeps publication
+count at zero and preserves the production registry byte-for-byte.
+
+## Week06 Wave 1 observation and next official-source slice
+
+`npm run verify:week06-wave1-observation` validates the retained #266 bilingual Wave 1 baseline,
+its release and rollback artifact digests, the 50-URL production observation, the per-owner search
+record, the Wave 0 capacity boundary, and the deterministic follow-on candidate slice. The current
+record is truthfully `blocked`: all 50 live owner probes returned HTTP 404, both owner sitemaps
+omitted the Wave 1 identities, and no approved 14-day Search Console export or complete capacity
+measurement was available.
+
+The candidate-only follow-on record selects at most 200 remaining accepted low-risk official
+documentation identities in authority order. It preserves the 25/25 Wave 1 identity history and
+keeps glossary, GitHub troubleshooting, and comparison cohorts behind gates. The pending ticket
+uses `{ issue: 267, nativeEdge: "blocks" }`; issue creation waits for complete observation windows.
+
+Run the mutation coverage with:
+
+```bash
+npm run verify:week06-wave1-observation-regression
+```
+
+## Week06 bilingual Technical Wave 1
+
+Issue #266 publishes one approved 50-identity unit from the closed Week06 authority: 25 Chinese
+pages owned by CN and 25 English pages owned by IO. The contract is
+`scripts/fixtures/technical-authority/week06-wave1-contract.json`; the selection and generated
+content, projection, release, and rollback records use the `week06-wave1-*` prefix. The retained
+Week05 Wave 1/Wave 2 and Week06 Wave 0 artifacts remain historical evidence for their original
+page counts.
+
+Run the source, mutation, staged-export, and byte-exact rollback gates with:
+
+```bash
+npm run verify:week06-wave1
+npm run verify:week06-wave1-regression
+npm run verify:week06-wave1-fixtures
+npm run verify:week06-wave1-rollback
+```
+
+The source gate requires exactly 25 `zh` and 25 `en` accepted identities, approved official,
+error-code, model, and glossary cohorts, public HTTPS sources, stable source digests, clean reader
+bodies, and one identity set across registry, locale search, sitemap, static export, release, and
+rollback surfaces. The staged export gate checks CN, IO, and Preview owner routes, self-canonical
+and hreflang metadata, robots, sitemap isolation, structured data, localized hubs, search and
+fallback links. The rollback gate injects a partial write across the three production projection
+files, 50 reader documents, and five release artifacts, then compares every restored byte and
+SHA-256 digest with the 1,372-page pre-Wave1 state. Static fixtures record export verification;
+live HTTP production observation remains false until the deployed owner URLs are checked with:
+
+```bash
+npm run verify:week06-wave1-live
+```
+
+The live gate requires HTTP 200, self-canonical, language, structured content, and exact owner
+sitemap membership for all 50 URLs. It also checks every opposite-owner URL and permits only an
+absent response, a redirect to the owner canonical, or a noindex copy with the owner canonical.
+The release coordinator keeps Wave 1 release readiness blocked until this independent live
+evidence passes.
+
+To regenerate the source package after an approved selection change, set
+`WEEK06_TECHNICAL_SOURCE_ROOT` to the Week06 batch directory and run
+`npm run generate:week06-wave1`, then rerun all four gates. Write mode reads all 50 approved
+source files and verifies each full-file and body SHA-256 before projection. Rollback removes the
+50 localized reader files and `week06-wave1-*` generated records while restoring the recorded
+1,372-page registry and both locale search projections as one atomic unit.
+
+## Week06 comparison candidate gate
+
+`npm run verify:week06-compare-disposition` validates the three Week06 comparison candidates
+against the existing Dify, RAGFlow, MaxKB, and self-build identities. It records one merge into
+the existing bilingual MaxKB comparison and two denials, while keeping generic Technical Page,
+search, sitemap, and static-export deltas at zero. Official evidence is HTTPS-only and the
+release/rollback manifests retain the exact merged identities.
+
+Run the focused regression suite with:
+
+```bash
+npm run verify:week06-compare-disposition-regression
+```
+
+## Week05 Wave 2 observation gate
+
+`npm run verify:technical-wave-observation` validates the retained production, search,
+capacity, rollback, and next-slice evidence for issue #263. The authority record freezes the
+1,372-page candidate baseline and the exact 200-identity rollback surface. It currently exits
+nonzero because the full-wave production probe observed 200 HTTP 404 responses, zero sitemap
+memberships, an incomplete 72-hour window, absent 14-day search evidence, and incomplete
+capacity measurements.
+
+The next 200 accepted official-source candidates remain recorded as a candidate-only slice.
+Issue creation stays gated until the observation verifier passes; the retained slice contract
+requires the new issue to carry `ready-for-agent` and the native block edge
+`{ issue: 263, nativeEdge: "blocks" }`.
+
+Run the mutation coverage with:
+
+```bash
+npm run verify:technical-wave-observation-regression
+```
+
+## Customer migration release evidence
+
+`npm run verify:customer-migration-release -- --contract <json> --output <json>` runs the
+manifest-derived 231-source contract against both the approved preview and production origins.
+The release contract records the repository revision, approved origin pair for each environment,
+the tested previous ingress revision and migration digest, and a 72-hour observation containing
+404, 5xx, redirect, canonical, and crawl-file metrics. The runner retains response headers and
+metadata in the JSON output and response bodies in `<output-basename>-responses/<environment>/`.
+
+Use `scripts/fixtures/customer-migration-release-contract.json` as the reproducible contract
+shape. Replace its environment targets and observation values with the release-approved inputs,
+then retain the JSON output and response directories as the production evidence bundle.

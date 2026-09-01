@@ -4,14 +4,18 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { buildRedirects, getTechIdentities, parseNginxRedirectMap } = require('./lib/redirects');
+const {
+  buildRedirects,
+  getTechIdentities,
+  getTechRoutesToRemove,
+  parseNginxRedirectMap
+} = require('./lib/redirects');
 const { getProductionBaseUrls, resolveSiteVariant } = require('./lib/site-variant');
 const TECHNICAL_CONTENT_POLICY = require('../src/lib/technical-content-policy.json');
 
 const ROOT = path.resolve(__dirname, '..');
 const OUT_DIR = path.join(ROOT, 'out');
 const NEXT_DIR = path.join(ROOT, '.next');
-const ENTRIES_PATH = path.join(ROOT, 'src/components/tech-center/entries.json');
 const TECH_ROUTE_SOURCE = path.join(ROOT, 'src/app/[lang]/[section]/[slug]/page.tsx');
 const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
 
@@ -48,6 +52,14 @@ function getRobots(html, route) {
   return getAttribute(tag, 'content');
 }
 
+function getHreflang(html, route, language) {
+  const tag = [...html.matchAll(/<link\b[^>]*rel="alternate"[^>]*>/gi)]
+    .map((match) => match[0])
+    .find((candidate) => getAttribute(candidate, 'hreflang') === language);
+  assert(tag, `Missing ${language} hreflang metadata for ${route}`);
+  return getAttribute(tag, 'href');
+}
+
 function readSitemap(outDir) {
   const sitemapPath = path.join(outDir, 'sitemap.xml');
   if (!fs.existsSync(sitemapPath)) return null;
@@ -78,17 +90,22 @@ function verifyRedirectProjection(actual, expected, label) {
   }
 }
 
-function verifyArticleMetadata(outDir, route, canonical, robots) {
+function verifyArticleMetadata(outDir, route, canonical, robots, language) {
   const html = readHtml(outDir, route);
   assert.equal(getCanonical(html, route), canonical, `${route} has an unexpected canonical`);
   assert.equal(getRobots(html, route), robots, `${route} has an unexpected robots policy`);
+  assert.equal(
+    getHreflang(html, route, language),
+    canonical,
+    `${route} has an unexpected hreflang owner URL`
+  );
   assert(
     html.includes(`"url":"${canonical}"`),
     `${route} JSON-LD does not resolve to its canonical URL`
   );
 }
 
-function verifySitemap(outDir, variant, canonicalUrls, reviewPaths, baseUrls) {
+function verifySitemap(outDir, variant, identities, baseUrls) {
   const sitemap = readSitemap(outDir);
   if (variant === 'preview') {
     assert.equal(sitemap, null, 'Preview export contains a production sitemap');
@@ -97,34 +114,33 @@ function verifySitemap(outDir, variant, canonicalUrls, reviewPaths, baseUrls) {
 
   assert(sitemap, `${variant} export is missing sitemap.xml`);
   const urls = new Set(sitemap);
-  const canonicalSet = new Set(canonicalUrls);
-  if (variant === 'cn') {
+  const ownerIdentities = identities.filter(
+    (identity) => (identity.locale === 'zh' ? 'cn' : 'io') === variant
+  );
+  const allCanonicalUrls = new Set(
+    identities.map(
+      (identity) =>
+        `${identity.locale === 'zh' ? baseUrls.cn : baseUrls.io}${identity.canonicalPath}`
+    )
+  );
+  assert.equal(
+    sitemap.filter((url) => allCanonicalUrls.has(url)).length,
+    ownerIdentities.length,
+    `${variant} sitemap contains an unexpected Technical Page cardinality`
+  );
+  for (const identity of identities) {
+    const owner = identity.locale === 'zh' ? 'cn' : 'io';
+    const canonical = `${baseUrls[owner]}${identity.canonicalPath}`;
     assert.equal(
-      sitemap.filter((url) => canonicalSet.has(url)).length,
-      canonicalUrls.length,
-      'CN sitemap contains an unexpected Technical Page cardinality'
+      urls.has(canonical),
+      owner === variant,
+      `${variant} sitemap ownership drift for ${identity.key}`
     );
-    for (const url of canonicalUrls) {
-      assert(urls.has(url), `Sitemap is missing Technical Page ${url}`);
-    }
-    for (const pathName of reviewPaths) {
-      for (const host of [baseUrls.cn, baseUrls.io]) {
-        assert(!urls.has(`${host}${pathName}`), `Sitemap contains a review path ${pathName}`);
-      }
-    }
-  } else if (variant === 'io') {
-    assert.equal(
-      sitemap.filter((url) => canonicalSet.has(url)).length,
-      0,
-      'IO sitemap contains Technical Page URLs'
-    );
-    for (const url of canonicalUrls) {
-      assert(!urls.has(url), `IO sitemap contains ${url}`);
-    }
-    for (const pathName of reviewPaths) {
-      for (const host of [baseUrls.cn, baseUrls.io]) {
-        assert(!urls.has(`${host}${pathName}`), `IO sitemap contains a review path ${pathName}`);
-      }
+    for (const host of [baseUrls.cn, baseUrls.io]) {
+      assert(
+        !urls.has(`${host}${identity.sourcePath}`),
+        `Sitemap contains a review path ${identity.sourcePath}`
+      );
     }
   }
 }
@@ -153,12 +169,11 @@ function verifyTechnicalExport({
   outDir = OUT_DIR,
   nextDir = NEXT_DIR,
   variant = resolveSiteVariant(),
-  env = process.env
+  env = process.env,
+  identities = getTechIdentities(ROOT),
+  expectedPageCount = EXPECTED_TECHNICAL_PAGE_COUNT
 } = {}) {
-  const entries = JSON.parse(fs.readFileSync(ENTRIES_PATH, 'utf8'));
-  const identities = getTechIdentities(ROOT);
-  assert.equal(entries.length, EXPECTED_TECHNICAL_PAGE_COUNT, 'Unexpected Technical Page count');
-  assert.equal(identities.length, EXPECTED_TECHNICAL_PAGE_COUNT, 'Unexpected identity count');
+  assert.equal(identities.length, expectedPageCount, 'Unexpected identity count');
   assert(
     fs.readFileSync(TECH_ROUTE_SOURCE, 'utf8').includes('export const dynamicParams = false'),
     'Technical detail route must reject unpublished paths'
@@ -166,33 +181,29 @@ function verifyTechnicalExport({
 
   const baseUrls = getProductionBaseUrls(env);
   const redirectProjection = buildRedirects(ROOT, env);
-  const canonicalUrls = identities.map((identity) => `${baseUrls.cn}${identity.canonicalPath}`);
-  const reviewPaths = identities.map((identity) => identity.sourcePath);
   const robots = variant === 'preview' ? 'noindex, nofollow' : 'index, follow';
 
-  if (variant === 'cn') {
+  if (variant === 'cn' || variant === 'io') {
+    const routesToRemove = getTechRoutesToRemove(identities, variant);
     for (const identity of identities) {
-      verifyArticleMetadata(
-        outDir,
-        identity.canonicalPath,
-        `${baseUrls.cn}${identity.canonicalPath}`,
-        robots
-      );
+      const owner = identity.locale === 'zh' ? 'cn' : 'io';
+      if (owner === variant) {
+        verifyArticleMetadata(
+          outDir,
+          identity.canonicalPath,
+          `${baseUrls[owner]}${identity.canonicalPath}`,
+          robots,
+          identity.locale === 'zh' ? 'zh-CN' : 'en'
+        );
+      } else if (routesToRemove.has(identity.canonicalPath)) {
+        assert(
+          !resolveHtmlPath(outDir, identity.canonicalPath),
+          `${variant} export contains non-owner route ${identity.canonicalPath}`
+        );
+      }
       assert(
         !resolveHtmlPath(outDir, identity.sourcePath),
-        `CN export contains ${identity.sourcePath}`
-      );
-    }
-    assert(!resolveHtmlPath(outDir, '/reference/technical-page-not-published'));
-  } else if (variant === 'io') {
-    for (const identity of identities) {
-      assert(
-        !resolveHtmlPath(outDir, identity.canonicalPath),
-        `IO export contains ${identity.canonicalPath}`
-      );
-      assert(
-        !resolveHtmlPath(outDir, identity.sourcePath),
-        `IO export contains ${identity.sourcePath}`
+        `${variant} export contains ${identity.sourcePath}`
       );
     }
     assert(!resolveHtmlPath(outDir, '/reference/technical-page-not-published'));
@@ -201,8 +212,9 @@ function verifyTechnicalExport({
       verifyArticleMetadata(
         outDir,
         identity.sourcePath,
-        `${baseUrls.cn}${identity.canonicalPath}`,
-        robots
+        `${identity.locale === 'zh' ? baseUrls.cn : baseUrls.io}${identity.canonicalPath}`,
+        robots,
+        identity.locale === 'zh' ? 'zh-CN' : 'en'
       );
       assert(
         !resolveHtmlPath(outDir, identity.canonicalPath),
@@ -213,7 +225,7 @@ function verifyTechnicalExport({
     throw new Error(`Unsupported Site Variant: ${variant}`);
   }
 
-  verifySitemap(outDir, variant, canonicalUrls, reviewPaths, baseUrls);
+  verifySitemap(outDir, variant, identities, baseUrls);
   verifyNginxRedirects(
     nextDir,
     variant,

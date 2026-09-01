@@ -1,0 +1,252 @@
+[
+  {
+    "identity": "en|/api/fastgpt-chat-api-reference",
+    "title": "Set up and use FastGPT Chat API",
+    "description": "Set up and use FastGPT Chat API Retrieve Your FastGPT App ID Every chat application on FastGPT has a unique App ID, a required identifier for all Chat API…",
+    "category": "api",
+    "locale": "en",
+    "publicPath": "/api/fastgpt-chat-api-reference",
+    "sourceType": "官方文档",
+    "minutes": 7
+  },
+  {
+    "identity": "en|/api/fastgpt-api-dataset-collection-create-2",
+    "title": "Create FastGPT Dataset Collections via API",
+    "description": "Create FastGPT Dataset Collections via API Overview This V1 API endpoint enables programmatic creation of a dataset collection by passing a pre-uploaded f…",
+    "category": "api",
+    "locale": "en",
+    "publicPath": "/api/fastgpt-api-dataset-collection-create-2",
+    "sourceType": "官方文档",
+    "minutes": 8
+  },
+  {
+    "identity": "en|/api/fastgpt-app-overall-stats-api",
+    "title": "Retrieve FastGPT App Overall Usage Statistics",
+    "description": "Retrieve FastGPT App Overall Usage Statistics API Overview This GET-based API endpoint returns aggregated, high-level usage metrics for a specified FastGP…",
+    "category": "api",
+    "locale": "en",
+    "publicPath": "/api/fastgpt-app-overall-stats-api",
+    "sourceType": "官方文档",
+    "minutes": 6
+  },
+  {
+    "identity": "en|/api/fastgpt-api-docs-overview",
+    "title": "Understand FastGPT Official API Documentation Basics",
+    "description": "Understand FastGPT Official API Documentation Basics Auto-Generated FastGPT API Documentation Basics Starting with FastGPT version 4.15.0, official API do…",
+    "category": "api",
+    "locale": "en",
+    "publicPath": "/api/fastgpt-api-docs-overview",
+    "sourceType": "官方文档",
+    "minutes": 5
+  },
+  {
+    "identity": "en|/api/fastgpt-app-log-chart-api-2",
+    "title": "Retrieve FastGPT App Chart Data via API",
+    "description": "Retrieve FastGPT App Chart Data via API API Endpoint Overview This POST API endpoint retrieves aggregated chart metrics for a specified FastGPT applicatio…",
+    "category": "api",
+    "locale": "en",
+    "publicPath": "/api/fastgpt-app-log-chart-api-2",
+    "sourceType": "官方文档",
+    "minutes": 8
+  },
+  {
+    "identity": "en|/deploy/agent-sandbox-package-registry-mirrors",
+    "title": "Configure Agent Sandbox Package Registry Mirrors",
+    "description": "Configure Agent Sandbox Package Registry Mirrors Agent Sandbox Package Registry Mirror Overview FastGPT’s Agent Sandbox now includes native support for pa…",
+    "category": "deploy",
+    "locale": "en",
+    "publicPath": "/deploy/agent-sandbox-package-registry-mirrors",
+    "sourceType": "官方文档",
+    "minutes": 6
+  },
+  {
+    "identity": "en|/deploy/bge-reranker-model-downloads-fastgpt",
+    "title": "Download BGE Reranker Models for FastGPT Deployment",
+    "description": "Download BGE Reranker Models for FastGPT Deployment Supported BGE Reranker Model Repositories Three official model repositories are provided for FastGPT c…",
+    "category": "deploy",
+    "locale": "en",
+    "publicPath": "/deploy/bge-reranker-model-downloads-fastgpt",
+    "sourceType": "官方文档",
+    "minutes": 5
+  },
+  {
+    "identity": "en|/deploy/chatglm2-6b-fastgpt-integration",
+    "title": "Set Up ChatGLM2-6B For FastGPT Integration",
+    "description": "Set Up ChatGLM2-6B For FastGPT Integration Model Overview ChatGLM2-6B is the second-generation iteration of the open-source bilingual (Chinese-English) ch…",
+    "category": "deploy",
+    "locale": "en",
+    "publicPath": "/deploy/chatglm2-6b-fastgpt-integration",
+    "sourceType": "官方文档",
+    "minutes": 6
+  },
+  {
+    "identity": "en|/deploy/chatglm2-docker-deployment-fastgpt",
+    "title": "Deploy ChatGLM2 for FastGPT via Docker",
+    "description": "Deploy ChatGLM2 for FastGPT via Docker Image and Port Specifications Two official container images are provided for ChatGLM2 deployment. The global public…",
+    "category": "deploy",
+    "locale": "en",
+    "publicPath": "/deploy/chatglm2-docker-deployment-fastgpt",
+    "sourceType": "官方文档",
+    "minutes": 5
+  },
+  {
+    "identity": "en|/integration/dingtalk-app-permissions-fastgpt",
+    "title": "Configure DingTalk App Permissions for FastGPT Dataset",
+    "description": "Configure DingTalk App Permissions for FastGPT Dataset This document outlines the mandatory steps to configure DingTalk application permissions for integr…",
+    "category": "integration",
+    "locale": "en",
+    "publicPath": "/integration/dingtalk-app-permissions-fastgpt",
+    "sourceType": "官方文档",
+    "minutes": 5
+  },
+  {
+    "identity": "en|/integration/dingtalk-dataset-add-sync",
+    "title": "Add and Sync DingTalk Dataset Files in FastGPT",
+    "description": "Add and Sync DingTalk Dataset Files in FastGPT DingTalk Dataset File Import and Sync Overview This guide details the process for importing online document…",
+    "category": "integration",
+    "locale": "en",
+    "publicPath": "/integration/dingtalk-dataset-add-sync",
+    "sourceType": "官方文档",
+    "minutes": 5
+  },
+  {
+    "identity": "en|/integration/dingtalk-fastgpt-dataset-integration",
+    "title": "Configure DingTalk Dataset Integration for FastGPT",
+    "description": "Configure DingTalk Dataset Integration for FastGPT Overview This documentation covers integration between DingTalk enterprise resources and FastGPT knowle…",
+    "category": "integration",
+    "locale": "en",
+    "publicPath": "/integration/dingtalk-fastgpt-dataset-integration",
+    "sourceType": "官方文档",
+    "minutes": 5
+  },
+  {
+    "identity": "en|/node/batch-processing-node-input-params",
+    "title": "Configure Batch Processing Node Input Parameters",
+    "description": "Configure Batch Processing Node Input Parameters Batch Processing Node Input Overview The FastGPT Batch Processing workflow node enables iterative executi…",
+    "category": "node",
+    "locale": "en",
+    "publicPath": "/node/batch-processing-node-input-params",
+    "sourceType": "官方文档",
+    "minutes": 6
+  },
+  {
+    "identity": "en|/node/batch-processing-nodes-workflow-use-cases",
+    "title": "Leverage Batch Processing Nodes for Workflow Automation",
+    "description": "Leverage Batch Processing Nodes for Workflow Automation Batch Processing Node Overview The Batch Processing node extends workflow capabilities through aut…",
+    "category": "node",
+    "locale": "en",
+    "publicPath": "/node/batch-processing-nodes-workflow-use-cases",
+    "sourceType": "官方文档",
+    "minutes": 5
+  },
+  {
+    "identity": "en|/node/conditional-loop-copy-refinement-workflow",
+    "title": "Set Up Conditional Loop AI Copy Refinement Workflows",
+    "description": "Set Up Conditional Loop AI Copy Refinement Workflows Overview This documentation details configuring a FastGPT Conditional Loop node to automate iterative…",
+    "category": "node",
+    "locale": "en",
+    "publicPath": "/node/conditional-loop-copy-refinement-workflow",
+    "sourceType": "官方文档",
+    "minutes": 7
+  },
+  {
+    "identity": "en|/tutorial/custom-question-list-api-reference",
+    "title": "Retrieve matched custom chat input questions",
+    "description": "Retrieve matched custom chat input questions Custom Question List API Overview This API enables retrieval of pre-defined custom chat input questions match…",
+    "category": "tutorial",
+    "locale": "en",
+    "publicPath": "/tutorial/custom-question-list-api-reference",
+    "sourceType": "官方文档",
+    "minutes": 6
+  },
+  {
+    "identity": "en|/tutorial/dataset-backed-civil-code-qa-assistant",
+    "title": "Create Dataset-Backed Civil Code Q&A Assistant",
+    "description": "Create Dataset-Backed Civil Code Q&A Assistant Dataset Fundamentals for Controlled Q&A A Dataset in FastGPT is designed for scenarios where answers must b…",
+    "category": "tutorial",
+    "locale": "en",
+    "publicPath": "/tutorial/dataset-backed-civil-code-qa-assistant",
+    "sourceType": "官方文档",
+    "minutes": 6
+  },
+  {
+    "identity": "en|/tutorial/fastgpt-admin-team-mode-configuration",
+    "title": "Configure FastGPT Admin Team Operational Modes",
+    "description": "Configure FastGPT Admin Team Operational Modes FastGPT Team Mode Overview FastGPT includes three pre-built team operation modes to support diverse organiz…",
+    "category": "tutorial",
+    "locale": "en",
+    "publicPath": "/tutorial/fastgpt-admin-team-mode-configuration",
+    "sourceType": "官方文档",
+    "minutes": 7
+  },
+  {
+    "identity": "en|/tutorial/fastgpt-agent-chat-debugging",
+    "title": "General Debugging for FastGPT Agent Chat Previews",
+    "description": "General Debugging for FastGPT Agent Chat Previews General Debugging Capabilities Overview All FastGPT Agent v2 chat previews include consistent debugging…",
+    "category": "tutorial",
+    "locale": "en",
+    "publicPath": "/tutorial/fastgpt-agent-chat-debugging",
+    "sourceType": "官方文档",
+    "minutes": 7
+  },
+  {
+    "identity": "en|/tutorial/fastgpt-agent-skill-binding-2",
+    "title": "Bind Skills to FastGPT Agent Applications",
+    "description": "Bind Skills to FastGPT Agent Applications Eligible Application Types Only Agent-type FastGPT applications support direct binding of custom skills. Simple…",
+    "category": "tutorial",
+    "locale": "en",
+    "publicPath": "/tutorial/fastgpt-agent-skill-binding-2",
+    "sourceType": "官方文档",
+    "minutes": 5
+  },
+  {
+    "identity": "en|/model/add-model-existing-fastgpt-provider",
+    "title": "Add a Model to an Existing FastGPT Provider",
+    "description": "Add a Model to an Existing FastGPT Provider Task Overview This guide outlines the standardized process for adding a new custom model to an already support…",
+    "category": "model",
+    "locale": "en",
+    "publicPath": "/model/add-model-existing-fastgpt-provider",
+    "sourceType": "官方文档",
+    "minutes": 5
+  },
+  {
+    "identity": "en|/model/fastgpt-add-model-provider",
+    "title": "Add a New Model Provider to FastGPT",
+    "description": "Add a New Model Provider to FastGPT This guide covers the formal steps to add a custom model provider to FastGPT. Create Provider Directory Create a dedic…",
+    "category": "model",
+    "locale": "en",
+    "publicPath": "/model/fastgpt-add-model-provider",
+    "sourceType": "官方文档",
+    "minutes": 7
+  },
+  {
+    "identity": "en|/model/fastgpt-add-models-existing-providers",
+    "title": "Add Models to Existing FastGPT Provider Configurations",
+    "description": "Add Models to Existing FastGPT Provider Configurations Overview This guide covers adding new custom models to pre-configured FastGPT provider definitions,…",
+    "category": "model",
+    "locale": "en",
+    "publicPath": "/model/fastgpt-add-models-existing-providers",
+    "sourceType": "官方文档",
+    "minutes": 12
+  },
+  {
+    "identity": "en|/model/fastgpt-agent-plugin-development",
+    "title": "Develop FastGPT Agent Plugin Standard Workflows",
+    "description": "Develop FastGPT Agent Plugin Standard Workflows Overview This technical page outlines the official, sanctioned workflow for building FastGPT agent plugins…",
+    "category": "model",
+    "locale": "en",
+    "publicPath": "/model/fastgpt-agent-plugin-development",
+    "sourceType": "官方文档",
+    "minutes": 9
+  },
+  {
+    "identity": "en|/model/fastgpt-aiproxy-protocol-setup",
+    "title": "Set Up FastGPT AIProxy Protocol Entries",
+    "description": "Set Up FastGPT AIProxy Protocol Entries Core Differentiators Between AIProxy and Model Providers FastGPT includes two distinct framework components for mo…",
+    "category": "model",
+    "locale": "en",
+    "publicPath": "/model/fastgpt-aiproxy-protocol-setup",
+    "sourceType": "官方文档",
+    "minutes": 6
+  }
+]

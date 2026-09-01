@@ -128,9 +128,46 @@ test('the route passes only a bounded projection and the client owns no registry
     path.join(root, 'src/components/tech-center/TechCenterPage.tsx'),
     'utf8'
   );
+  const rootArticleSource = fs.readFileSync(
+    path.join(root, 'src/app/tech-article-route.tsx'),
+    'utf8'
+  );
+  const contentSource = fs.readFileSync(path.join(root, 'src/lib/tech-center-content.ts'), 'utf8');
+  const articleSource = fs.readFileSync(
+    path.join(root, 'src/components/tech-center/TechArticlePage.tsx'),
+    'utf8'
+  );
 
-  assert.match(routeSource, /TECH_ENTRIES\.slice\(0, PAGE_SIZE\)\.map\(toTechSearchEntry\)/);
+  assert.match(routeSource, /localeEntries\.slice\(0, PAGE_SIZE\)\.map\(toTechSearchEntry\)/);
+  assert.doesNotMatch(routeSource, /TECH_ENTRIES|CATEGORY_META/);
   assert.doesNotMatch(clientSource, /entries\.json|TECH_ENTRIES/);
+  assert.match(clientSource, /TECH_CENTER_COPY/);
+  assert.match(clientSource, /toLocaleLowerCase\(copy\.localeName\)/);
+  assert.match(clientSource, /getTechnicalReviewPath/);
+  assert.match(articleSource, /ARTICLE_COPY/);
+  assert.match(articleSource, /getTechnicalReviewPath/);
+  assert.match(rootArticleSource, /getDefaultLocaleForSiteVariant\(currentSiteVariant\)/);
+  assert.match(rootArticleSource, /getTechArticle\(section, slug, preferredLocale\)/);
+  assert.equal(
+    (contentSource.match(/ownerParams\.length \? ownerParams : params\.slice\(0, 1\)/g) || [])
+      .length,
+    2
+  );
   assert.match(clientSource, /value\.length !== expectedLength/);
   assert.match(clientSource, /new Set\(value\.map/);
+});
+
+test('every published Technical section has an owner-route entry point', () => {
+  const entries = JSON.parse(
+    fs.readFileSync(path.join(root, 'src/components/tech-center/entries.json'), 'utf8')
+  );
+  const sections = new Set(entries.map((entry) => entry.slug.split('/')[2]));
+
+  for (const section of sections) {
+    assert.equal(
+      fs.existsSync(path.join(root, 'src/app', section, '[slug]/page.tsx')),
+      true,
+      `Missing owner route for Technical section: ${section}`
+    );
+  }
 });

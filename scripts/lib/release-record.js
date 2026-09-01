@@ -9,6 +9,7 @@ const {
   normalizeSolutionsEvidence
 } = require('./release-readiness');
 const { collectSourceProvenance, redactReleaseOptions } = require('./release-cross-project');
+const { G1_GUIDE_SLUGS, G2_GUIDE_SLUGS } = require('./guide-release');
 
 const ROOT = path.resolve(__dirname, '../..');
 const RETAIN_DIR = path.join(ROOT, '.release-artifacts');
@@ -41,15 +42,57 @@ const EXPECTED_TECHNICAL_WAVE = {
   acceptedUpdate: 0,
   resultingPageCount: 1172
 };
+const EXPECTED_TECHNICAL_WAVE2 = {
+  wave: 'wave-2',
+  baselineWave: 'wave-1',
+  baselinePageCount: 1172,
+  selectedCount: 200,
+  acceptedAdd: 200,
+  acceptedUpdate: 0,
+  resultingPageCount: 1372
+};
+const EXPECTED_WEEK06_WAVE0_READINESS = {
+  issue: 265,
+  wave: 'wave-0',
+  sourceVerified: true,
+  fixtureVerified: true,
+  exportVerified: false,
+  governanceStatus: 'governance-complete',
+  publicationCount: 0,
+  publicPageDelta: 0,
+  tracerCount: 4,
+  ownerLeaks: 0,
+  capacityBaseline: 'recorded',
+  rollback: 'rollback-on-error'
+};
+const EXPECTED_WEEK06_WAVE1 = {
+  issue: 266,
+  wave: 'wave-1',
+  selectedCount: 50,
+  publicationCount: 50,
+  baselinePageCount: 1372,
+  resultingPageCount: 1422,
+  repositoryConsistent: true,
+  sourceVerified: false,
+  sourceDigestVerifiedCount: 0,
+  fixtureVerified: true,
+  exportVerified: false,
+  releaseEligible: false,
+  productionObserved: false,
+  rollback: 'ready'
+};
 const GUIDE_TRACER_SLUG = 'poc-30-day-design';
-const GUIDE_AUTHORIZATION_SLUGS = ['finance-research-retrieval', 'finance-daily-report-automation'];
-const GUIDE_ENTRY_COUNT = JSON.parse(
-  fs.readFileSync(path.join(ROOT, 'src/content/guides/policy.json'), 'utf8')
-).entryCount;
+const GUIDE_G1_MANIFEST_PATH = 'src/content/guides/g1-release-manifest.json';
+const GUIDE_G1_ROLLBACK_PATH = 'src/content/guides/g1-rollback.json';
+const GUIDE_G2_MANIFEST_PATH = 'src/content/guides/g2-release-manifest.json';
+const GUIDE_G2_ROLLBACK_PATH = 'src/content/guides/g2-rollback.json';
 const GUIDE_RELEASE_PAIRS = [
   { slug: GUIDE_TRACER_SLUG, locales: ['zh', 'en'] },
   { slug: 'database-qa-integration-guide', locales: ['zh', 'en'] },
   { slug: 'scheduled-report-automation', locales: ['zh', 'en'] },
+  { slug: 'migrate-saas-to-selfhost', locales: ['zh', 'en'] },
+  { slug: 'embed-ai-into-product', locales: ['zh', 'en'] },
+  { slug: 'soe-policy-qa-deployment', locales: ['zh', 'en'] },
   { slug: 'finance-research-retrieval', locales: ['zh', 'en'] },
   { slug: 'finance-daily-report-automation', locales: ['zh', 'en'] }
 ];
@@ -98,6 +141,9 @@ function createReleaseRecord(options) {
       expectedTechnicalPages: EXPECTED_TECHNICAL_PAGE_COUNT,
       technicalAuthority: { ...EXPECTED_TECHNICAL_AUTHORITY },
       technicalWave: { ...EXPECTED_TECHNICAL_WAVE },
+      technicalWave2: { ...EXPECTED_TECHNICAL_WAVE2 },
+      week06Wave0Readiness: { ...EXPECTED_WEEK06_WAVE0_READINESS },
+      week06Wave1: { ...EXPECTED_WEEK06_WAVE1, localeCounts: { zh: 25, en: 25 } },
       faqMetadata: {
         candidates: EXPECTED_FAQ_METADATA_CANDIDATES,
         identities: EXPECTED_FAQ_METADATA_IDENTITIES,
@@ -145,6 +191,37 @@ function createReleaseRecord(options) {
         variants: {},
         releaseReady: false
       },
+      technicalWave2: {
+        expected: { ...EXPECTED_TECHNICAL_WAVE2 },
+        source: false,
+        regression: false,
+        observed: undefined,
+        baseline: {
+          wave: EXPECTED_TECHNICAL_WAVE2.baselineWave,
+          pageCount: EXPECTED_TECHNICAL_WAVE2.baselinePageCount,
+          registrySha256: undefined,
+          searchSha256: undefined
+        },
+        variants: {},
+        releaseReady: false
+      },
+      week06Wave0Readiness: {
+        expected: { ...EXPECTED_WEEK06_WAVE0_READINESS },
+        source: false,
+        regression: false,
+        observed: undefined,
+        releaseReady: false
+      },
+      week06Wave1: {
+        expected: { ...EXPECTED_WEEK06_WAVE1 },
+        expectedLocaleCounts: { zh: 25, en: 25 },
+        source: false,
+        regression: false,
+        rollbackVerified: false,
+        observed: undefined,
+        variants: {},
+        releaseReady: false
+      },
       faqMetadata: {
         expected: {
           candidates: EXPECTED_FAQ_METADATA_CANDIDATES,
@@ -173,8 +250,19 @@ function createReleaseRecord(options) {
         variants: {},
         releaseReady: false
       },
-      guideAuthorization: {
-        expectedSlugs: GUIDE_AUTHORIZATION_SLUGS,
+      guideG1: {
+        expectedSlugs: [...G1_GUIDE_SLUGS],
+        manifestPath: GUIDE_G1_MANIFEST_PATH,
+        rollbackPath: GUIDE_G1_ROLLBACK_PATH,
+        source: false,
+        regression: false,
+        result: undefined,
+        releaseReady: false
+      },
+      guideG2: {
+        expectedSlugs: [...G2_GUIDE_SLUGS],
+        manifestPath: GUIDE_G2_MANIFEST_PATH,
+        rollbackPath: GUIDE_G2_ROLLBACK_PATH,
         source: false,
         regression: false,
         result: undefined,
@@ -229,6 +317,84 @@ function collectTechnicalWaveEvidence(record, stepId, variant, status, output) {
     if (variant) evidence.variants[variant] = observed;
   } catch (error) {
     evidence.observed = { status: 'invalid', error: error.message };
+  }
+}
+
+function collectTechnicalWave2Evidence(record, stepId, variant, status, output) {
+  if (
+    !record ||
+    !['technical-wave2.source', 'technical-wave2.regression', 'technical-wave2.export'].includes(
+      stepId
+    )
+  ) {
+    return;
+  }
+  const evidence = record.evidence.technicalWave2;
+  if (stepId === 'technical-wave2.source') evidence.source = status === 'passed';
+  if (stepId === 'technical-wave2.regression') evidence.regression = status === 'passed';
+  const marker = output.match(/WAVE2_RESULT=(\{[^\n]+\})/);
+  if (!marker) return;
+  try {
+    const observed = JSON.parse(marker[1]);
+    evidence.observed = observed;
+    record.counts.technicalWave2Observed = observed;
+    if (observed.baselineRegistrySha256 || observed.baselineSearchSha256) {
+      evidence.baseline = {
+        wave: observed.baselineWave,
+        pageCount: observed.baselinePageCount,
+        registrySha256: observed.baselineRegistrySha256,
+        searchSha256: observed.baselineSearchSha256
+      };
+    }
+    if (variant) evidence.variants[variant] = observed;
+  } catch (error) {
+    evidence.observed = { status: 'invalid', error: error.message };
+  }
+}
+
+function collectWeek06Wave0ReadinessEvidence(record, stepId, status, output) {
+  const evidenceKey = {
+    'week06-wave0-readiness.source': 'source',
+    'week06-wave0-readiness.regression': 'regression'
+  }[stepId];
+  if (!record || !evidenceKey) return;
+  const evidence = record.evidence.week06Wave0Readiness;
+  evidence[evidenceKey] = status === 'passed';
+  const marker = output.match(/WEEK06_WAVE0_READINESS_RESULT=(\{[^\n]+\})/);
+  if (!marker) return;
+  try {
+    evidence.observed = JSON.parse(marker[1]);
+    record.counts.week06Wave0ReadinessObserved = evidence.observed;
+  } catch (error) {
+    evidence.observed = { status: 'invalid', error: error.message };
+  }
+}
+
+function collectWeek06Wave1Evidence(record, stepId, variant, status, output) {
+  if (!record || !stepId.startsWith('week06-wave1.')) return;
+  const evidence = record.evidence.week06Wave1;
+  if (stepId === 'week06-wave1.source') evidence.source = status === 'passed';
+  if (stepId === 'week06-wave1.regression') evidence.regression = status === 'passed';
+  if (stepId === 'week06-wave1.rollback') evidence.rollbackVerified = status === 'passed';
+  if (stepId === 'week06-wave1.rollback') return;
+  const marker = output.match(/WEEK06_WAVE1_RESULT=(\{[^\n]+\})/);
+  if (!marker) return;
+  try {
+    const observed = JSON.parse(marker[1]);
+    if (variant) {
+      evidence.variants[variant] = observed;
+      record.counts.week06Wave1Variants = {
+        ...(record.counts.week06Wave1Variants || {}),
+        [variant]: observed
+      };
+    } else {
+      evidence.observed = observed;
+      record.counts.week06Wave1Observed = observed;
+    }
+  } catch (error) {
+    const invalid = { status: 'invalid', error: error.message };
+    if (variant) evidence.variants[variant] = invalid;
+    else evidence.observed = invalid;
   }
 }
 
@@ -302,24 +468,30 @@ function finalizeReleaseRecord(record, failures, options) {
       return faqMetadata.observed?.[key] === expected;
     });
   const guidePairs = record.evidence.guidePairs;
-  const guideAuthorization = record.evidence.guideAuthorization;
+  const guideG1 = record.evidence.guideG1;
+  const guideG2 = record.evidence.guideG2;
   const technicalAuthority = record.evidence.technicalAuthority;
-  const completeAuthorization = guideAuthorization.result?.complete;
-  const missingAuthorization = guideAuthorization.result?.missing;
-  guideAuthorization.releaseReady =
-    guideAuthorization.source &&
-    guideAuthorization.regression &&
-    completeAuthorization?.status === 'publishable' &&
-    completeAuthorization.projectedEntries === GUIDE_ENTRY_COUNT &&
-    completeAuthorization.financeSlugs?.length === GUIDE_AUTHORIZATION_SLUGS.length &&
-    missingAuthorization?.status === 'release-blocked' &&
-    missingAuthorization.projectedEntries ===
-      GUIDE_ENTRY_COUNT - GUIDE_AUTHORIZATION_SLUGS.length &&
-    missingAuthorization.financeSlugs?.length === 0 &&
-    GUIDE_AUTHORIZATION_SLUGS.every((slug) => missingAuthorization.excludedSlugs?.includes(slug));
+  guideG1.releaseReady =
+    guideG1.source &&
+    guideG1.regression &&
+    guideG1.result?.status === 'source-verified' &&
+    JSON.stringify(guideG1.result?.g1Slugs) === JSON.stringify(G1_GUIDE_SLUGS) &&
+    guideG1.result?.ownerPages?.cn === G1_GUIDE_SLUGS.length &&
+    guideG1.result?.ownerPages?.io === G1_GUIDE_SLUGS.length &&
+    guideG1.result?.g2ExcludedSlugs?.length === 1;
+  guideG2.releaseReady =
+    guideG2.source &&
+    guideG2.regression &&
+    guideG2.result?.status === 'source-verified' &&
+    JSON.stringify(guideG2.result?.g2Slugs) === JSON.stringify(G2_GUIDE_SLUGS) &&
+    guideG2.result?.g2IdentityCount === G2_GUIDE_SLUGS.length &&
+    guideG2.result?.ownerPages?.cn === G2_GUIDE_SLUGS.length &&
+    guideG2.result?.ownerPages?.io === G2_GUIDE_SLUGS.length &&
+    guideG2.result?.sourceDocumentCount === G2_GUIDE_SLUGS.length * 2;
   guidePairs.releaseReady =
     guidePairs.source &&
-    guideAuthorization.releaseReady &&
+    guideG1.releaseReady &&
+    guideG2.releaseReady &&
     ['cn', 'io', 'preview'].every((variant) => {
       const evidence = guidePairs.variants[variant];
       return (
@@ -350,6 +522,69 @@ function finalizeReleaseRecord(record, failures, options) {
         observed?.releaseEligible === true
       );
     });
+  const technicalWave2 = record.evidence.technicalWave2;
+  technicalWave2.releaseReady =
+    technicalWave2.source &&
+    technicalWave2.regression &&
+    Object.entries(technicalWave2.expected).every(
+      ([key, expected]) => technicalWave2.observed?.[key] === expected
+    ) &&
+    technicalWave2.baseline?.wave === technicalWave2.expected.baselineWave &&
+    technicalWave2.baseline?.pageCount === technicalWave2.expected.baselinePageCount &&
+    /^[a-f0-9]{64}$/.test(technicalWave2.baseline?.registrySha256 || '') &&
+    /^[a-f0-9]{64}$/.test(technicalWave2.baseline?.searchSha256 || '') &&
+    technicalWave2.baseline.registrySha256 === technicalWave2.observed?.baselineRegistrySha256 &&
+    technicalWave2.baseline.searchSha256 === technicalWave2.observed?.baselineSearchSha256 &&
+    /^[a-f0-9]{64}$/.test(technicalWave2.observed?.baselineRegistrySha256 || '') &&
+    /^[a-f0-9]{64}$/.test(technicalWave2.observed?.baselineSearchSha256 || '') &&
+    ['cn', 'io', 'preview'].every((variant) => {
+      const observed = technicalWave2.variants[variant];
+      return (
+        observed?.sourceVerified === true &&
+        observed?.exportVerified === true &&
+        observed?.releaseEligible === true &&
+        /^[a-f0-9]{64}$/.test(observed.baselineRegistrySha256 || '') &&
+        /^[a-f0-9]{64}$/.test(observed.baselineSearchSha256 || '')
+      );
+    });
+  const week06Wave0Readiness = record.evidence.week06Wave0Readiness;
+  week06Wave0Readiness.releaseReady =
+    week06Wave0Readiness.source &&
+    week06Wave0Readiness.regression &&
+    Object.entries(week06Wave0Readiness.expected).every(
+      ([key, expected]) => week06Wave0Readiness.observed?.[key] === expected
+    ) &&
+    ['cn', 'io', 'preview'].every(
+      (variant) => week06Wave0Readiness.observed?.variants?.[variant] === 'verified'
+    );
+  const week06Wave1 = record.evidence.week06Wave1;
+  week06Wave1.releaseReady =
+    week06Wave1.source &&
+    week06Wave1.regression &&
+    week06Wave1.rollbackVerified &&
+    Object.entries(week06Wave1.expected).every(
+      ([key, expected]) => week06Wave1.observed?.[key] === expected
+    ) &&
+    JSON.stringify(week06Wave1.observed?.localeCounts) ===
+      JSON.stringify(week06Wave1.expectedLocaleCounts) &&
+    ['cn', 'io', 'preview'].every((variant) => {
+      const observed = week06Wave1.variants[variant];
+      const expectedOwnerPages = variant === 'preview' ? 50 : 25;
+      const expectedProductionObserved = 0;
+      return (
+        observed?.repositoryConsistent === true &&
+        observed?.sourceVerified === false &&
+        observed?.exportVerified === true &&
+        observed?.releaseEligible === true &&
+        observed?.ownerPages === expectedOwnerPages &&
+        observed?.productionObserved === expectedProductionObserved &&
+        observed?.ownerLeaks === 0 &&
+        observed?.localeDrift === 0 &&
+        observed?.sitemapDrift === 0 &&
+        observed?.searchDrift === 0 &&
+        observed?.brokenInternalLinks === 0
+      );
+    });
   const releaseGate = !options.sourceOnly && !options.variant && failures.length === 0;
   record.evidence.releaseEligible =
     releaseGate &&
@@ -359,7 +594,9 @@ function finalizeReleaseRecord(record, failures, options) {
     faqMetadata.releaseReady &&
     technicalAuthority.releaseReady &&
     technicalWave.releaseReady &&
-    guideAuthorization.releaseReady &&
+    technicalWave2.releaseReady &&
+    week06Wave0Readiness.releaseReady &&
+    week06Wave1.releaseReady &&
     guidePairs.releaseReady;
   record.status = record.evidence.releaseEligible
     ? 'release-eligible'
@@ -414,22 +651,43 @@ function recordStep(record, stepId, label, command, variant, status, output, evi
   collectCountEvidence(record, output);
   collectTechnicalAuthorityEvidence(record, stepId, status, output);
   collectTechnicalWaveEvidence(record, stepId, variant, status, output);
+  collectTechnicalWave2Evidence(record, stepId, variant, status, output);
+  collectWeek06Wave0ReadinessEvidence(record, stepId, status, output);
+  collectWeek06Wave1Evidence(record, stepId, variant, status, output);
   collectCaseOnlyEvidence(record, stepId, variant, status, output);
   collectAliasContractEvidence(record, stepId, variant, status, output);
   collectFaqMetadataEvidence(record, stepId, variant, status, output);
-  collectGuideAuthorizationEvidence(record, stepId, status, output);
+  collectGuideG1Evidence(record, stepId, status, output);
+  collectGuideG2Evidence(record, stepId, status, output);
   collectGuidePairEvidence(record, stepId, variant, status, output);
 }
 
-function collectGuideAuthorizationEvidence(record, stepId, status, output) {
+function collectGuideG1Evidence(record, stepId, status, output) {
   const evidenceKey = {
-    'guide-authorization.source': 'source',
-    'guide-authorization.regression': 'regression'
+    'guide-release.source': 'source',
+    'guide-release.regression': 'regression'
   }[stepId];
   if (!record || !evidenceKey) return;
-  const evidence = record.evidence.guideAuthorization;
+  const evidence = record.evidence.guideG1;
   evidence[evidenceKey] = status === 'passed';
-  const marker = output.match(/GUIDE_AUTHORIZATION_RESULT=(\{[\s\S]*\})/);
+  const marker = output.match(/GUIDE_G1_RESULT=(\{[^\n]+\})/);
+  if (!marker) return;
+  try {
+    evidence.result = JSON.parse(marker[1]);
+  } catch (error) {
+    evidence.result = { status: 'invalid', error: error.message };
+  }
+}
+
+function collectGuideG2Evidence(record, stepId, status, output) {
+  const evidenceKey = {
+    'guide-g2-release.source': 'source',
+    'guide-g2-release.regression': 'regression'
+  }[stepId];
+  if (!record || !evidenceKey) return;
+  const evidence = record.evidence.guideG2;
+  evidence[evidenceKey] = status === 'passed';
+  const marker = output.match(/GUIDE_G2_RESULT=(\{[^\n]+\})/);
   if (!marker) return;
   try {
     evidence.result = JSON.parse(marker[1]);
@@ -545,6 +803,8 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
   const findStep = (stepId) => commands.find((step) => step.id === stepId);
   const technicalExportStep = findStep('technical-export.export');
   const technicalCenterStep = findStep('technical-center.export');
+  const technicalWave2Step = findStep('technical-wave2.export');
+  const week06Wave1Step = findStep('week06-wave1.export');
   const guideStep = findStep('guide.export');
   const p1Step = findStep('p1.export');
   const faqMetadataStep = findStep('faq-metadata.html');
@@ -593,6 +853,19 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
       ? 'passed'
       : 'failed',
     technicalExport: technicalExportStep?.status === 'passed',
+    technicalWave2: {
+      status: artifactStatus(technicalWave2Step),
+      baselineRegistrySha256:
+        record.evidence.technicalWave2.variants[variant]?.baselineRegistrySha256,
+      baselineSearchSha256: record.evidence.technicalWave2.variants[variant]?.baselineSearchSha256,
+      resultingPageCount: record.evidence.technicalWave2.variants[variant]?.resultingPageCount
+    },
+    week06Wave1: {
+      status: artifactStatus(week06Wave1Step),
+      ownerPages: record.evidence.week06Wave1.variants[variant]?.ownerPages,
+      productionObserved: record.evidence.week06Wave1.variants[variant]?.productionObserved,
+      publicationCount: record.evidence.week06Wave1.variants[variant]?.publicationCount
+    },
     technicalPageCount: EXPECTED_TECHNICAL_PAGE_COUNT,
     caseOnly: {
       status: caseOnlyStep?.status || 'skipped',
@@ -614,6 +887,7 @@ function recordVariantOutcome(record, variant, failures, commandStart) {
       htmlHygiene: artifactStatus(findStep('content-hygiene.html')),
       technicalCenter: artifactStatus(technicalCenterStep),
       technicalExport: artifactStatus(technicalExportStep),
+      week06Wave1: artifactStatus(week06Wave1Step),
       faqMetadata: artifactStatus(faqMetadataStep),
       guide: artifactStatus(guideStep),
       guideTracer: {

@@ -4,10 +4,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   TECH_ENTRIES,
+  getTechEntriesForLocale,
   getTechnicalPageIdentity,
   type TechEntry
 } from '@/components/tech-center/data';
-import { currentSiteVariant, type SiteVariant } from '@/lib/siteRouting';
+import { techPublishedLocaleCodes, type TechPublishedLocale } from '@/lib/publishedLocales';
+import { currentSiteVariant, getLocaleOwner, type SiteVariant } from '@/lib/siteRouting';
 
 const CONTENT_ROOT = path.join(process.cwd(), 'src/content/tech-center');
 
@@ -29,7 +31,7 @@ export type TechArticle = TechEntry & {
 };
 
 export type TechArticleParams = {
-  lang: 'zh';
+  lang: TechPublishedLocale;
   section: string;
   slug: string;
 };
@@ -61,11 +63,19 @@ function parseFrontMatter(markdown: string) {
 function getEntryPath(entry: Pick<TechEntry, 'slug'>) {
   const identity = getTechnicalPageIdentity(entry);
   const segments = identity.canonicalPath.split('/');
-  if (identity.locale !== 'zh' || segments.length !== 3 || !segments[1] || !segments[2]) {
+  if (
+    !techPublishedLocaleCodes.includes(identity.locale as TechPublishedLocale) ||
+    segments.length !== 3 ||
+    !segments[1] ||
+    !segments[2]
+  ) {
     throw new Error(`Unsupported tech article slug: ${entry.slug}`);
   }
 
-  return path.join(CONTENT_ROOT, segments[1], `${segments[2]}.md`);
+  const localizedPath = path.join(CONTENT_ROOT, identity.locale, segments[1], `${segments[2]}.md`);
+  if (fs.existsSync(localizedPath)) return localizedPath;
+  if (identity.locale === 'zh') return path.join(CONTENT_ROOT, segments[1], `${segments[2]}.md`);
+  return localizedPath;
 }
 
 const DESCRIPTION_LIMIT = 155;
@@ -167,15 +177,21 @@ function readTechArticle(entry: TechEntry): TechArticle {
           .map((keyword) => keyword.trim())
           .filter(Boolean)
       : [],
-    metaTitle: metadata.meta_title || `${entry.title}｜FastGPT 技术中心`,
+    metaTitle:
+      metadata.meta_title ||
+      `${entry.title}${
+        getTechnicalPageIdentity(entry).locale === 'en'
+          ? ' | FastGPT Technical Center'
+          : '｜FastGPT 技术中心'
+      }`,
     pageType: metadata.page_type || entry.categoryLabel,
     markdown: body,
     seoDescription: metadata.meta_description || getTechArticleDescription(entry, body)
   };
 }
 
-export function getTechArticle(section: string, slug: string) {
-  const entry = TECH_ENTRIES.find((item) => item.slug === `/zh/${section}/${slug}`);
+export function getTechArticle(section: string, slug: string, locale: TechPublishedLocale = 'zh') {
+  const entry = TECH_ENTRIES.find((item) => item.slug === `/${locale}/${section}/${slug}`);
   return entry ? readTechArticle(entry) : null;
 }
 
@@ -187,14 +203,16 @@ export function getTechArticleLastModified(article: TechEntry) {
   return dateModified ? new Date(`${dateModified}T00:00:00Z`) : fileModified;
 }
 
-export function getTechCenterLastModified() {
-  return new Date(
-    Math.max(...TECH_ENTRIES.map((entry) => getTechArticleLastModified(entry).getTime()))
-  );
+export function getTechCenterLastModified(locale?: TechPublishedLocale) {
+  const entries = locale ? getTechEntriesForLocale(locale) : TECH_ENTRIES;
+  if (!entries.length) return undefined;
+  return new Date(Math.max(...entries.map((entry) => getTechArticleLastModified(entry).getTime())));
 }
 
 export function getRelatedTechArticles(article: TechEntry, limit = 3) {
-  const related = TECH_ENTRIES.filter((entry) => entry.category === article.category);
+  const related = getTechEntriesForLocale(article.slug.split('/')[1]).filter(
+    (entry) => entry.category === article.category
+  );
   const currentIndex = related.findIndex((entry) => entry.slug === article.slug);
   if (currentIndex === -1) return related.slice(0, limit);
 
@@ -210,10 +228,14 @@ export function getTechArticleParams(): TechArticleParams[] {
   return TECH_ENTRIES.map((entry) => {
     const identity = getTechnicalPageIdentity(entry);
     const [, section, slug] = identity.canonicalPath.split('/');
-    if (identity.locale !== 'zh' || !section || !slug) {
+    if (
+      !techPublishedLocaleCodes.includes(identity.locale as TechPublishedLocale) ||
+      !section ||
+      !slug
+    ) {
       throw new Error(`Invalid tech article slug: ${entry.slug}`);
     }
-    return { lang: 'zh', section, slug };
+    return { lang: identity.locale as TechPublishedLocale, section, slug };
   });
 }
 
@@ -221,15 +243,19 @@ export function getTechArticleReviewParams(
   variant: SiteVariant = currentSiteVariant
 ): TechArticleParams[] {
   const params = getTechArticleParams();
-  return variant === 'preview' ? params : params.slice(0, 1);
+  if (variant === 'preview') return params;
+  const ownerParams = params.filter((param) => getLocaleOwner(param.lang) === variant);
+  return ownerParams.length ? ownerParams : params.slice(0, 1);
 }
 
 export function getTechArticleOwnerParams(
   section: string,
   variant: SiteVariant = currentSiteVariant
 ) {
-  const params = getTechArticleParams()
-    .filter((param) => param.section === section)
-    .map(({ slug }) => ({ slug }));
-  return variant === 'cn' ? params : params.slice(0, 1);
+  const params = getTechArticleParams().filter((param) => param.section === section);
+  if (variant === 'preview') return params.slice(0, 1).map(({ slug }) => ({ slug }));
+  const ownerParams = params.filter((param) => getLocaleOwner(param.lang) === variant);
+  // Static export requires one seed param when this variant owns no route in the section.
+  const slugs = (ownerParams.length ? ownerParams : params.slice(0, 1)).map((param) => param.slug);
+  return [...new Set(slugs)].map((slug) => ({ slug }));
 }
