@@ -567,7 +567,7 @@ test('release build and workflow wiring preserve source hygiene while enforcing 
   );
   assert.match(
     packageJson.scripts.build,
-    /fix-html-lang\.js && node scripts\/verify-technical-export\.js && node scripts\/verify-content-hygiene\.js --mode html --root out$/
+    /fix-html-lang\.js && node --test scripts\/verify-content-sidebar-cta\.test\.js && node scripts\/verify-technical-export\.js && node scripts\/verify-content-hygiene\.js --mode html --root out$/
   );
   const variantOrder = getVariantExecutionOrder('cn');
   assert(variantOrder.indexOf('variant.build') < variantOrder.indexOf('content-hygiene.html'));

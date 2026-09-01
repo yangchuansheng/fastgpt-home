@@ -73,6 +73,19 @@ function addPage(
   pages.set(route, { surface, route, locale, slug });
 }
 
+function getExpectedTechPages(variant) {
+  const defaultLocale = getDefaultLocale(variant);
+
+  return getTechIdentities(root).flatMap((identity) => {
+    if (variant === 'preview') {
+      return [{ route: identity.sourcePath, ...identity }];
+    }
+    return identity.locale === defaultLocale
+      ? [{ route: identity.canonicalPath, ...identity }]
+      : [];
+  });
+}
+
 function getExpectedPages(variant) {
   const defaultLocale = getDefaultLocale(variant);
   const pages = new Map();
@@ -95,13 +108,8 @@ function getExpectedPages(variant) {
     }
   }
 
-  for (const identity of getTechIdentities(root)) {
-    if (variant === 'cn') {
-      addPage(pages, 'tech', identity.canonicalPath, identity.locale, identity.sourcePath);
-    }
-    if (variant === 'preview') {
-      addPage(pages, 'tech', identity.sourcePath, identity.locale, identity.sourcePath);
-    }
+  for (const page of getExpectedTechPages(variant)) {
+    addPage(pages, 'tech', page.route, page.locale, page.sourcePath);
   }
 
   for (const filePath of walkHtmlFiles(outDir)) {
@@ -152,6 +160,23 @@ function verifyPage(page, defaultLocale) {
     }
   }
 }
+
+test('production Technical expectations follow Site Variant locale ownership', () => {
+  const identities = getTechIdentities(root);
+
+  for (const variant of ['cn', 'io']) {
+    const defaultLocale = getDefaultLocale(variant);
+    const actual = getExpectedTechPages(variant)
+      .map((page) => page.route)
+      .sort();
+    const expected = identities
+      .filter((identity) => identity.locale === defaultLocale)
+      .map((identity) => identity.canonicalPath)
+      .sort();
+
+    assert.deepEqual(actual, expected, `${variant} Technical routes`);
+  }
+});
 
 test('every exported content detail has a consultation-first attributed sidebar CTA', () => {
   assert(fs.existsSync(outDir), `Missing static export: ${outDir}`);
