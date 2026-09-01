@@ -4,10 +4,10 @@
 
 const path = require('node:path');
 const {
-  verifyWeek06Wave1AtomicRollback,
   verifyWeek06Wave1Export,
   verifyWeek06Wave1ExportFixtures,
   verifyWeek06Wave1Live,
+  verifyWeek06Wave1RollbackOnError,
   verifyWeek06Wave1Source
 } = require('./lib/week06-technical-wave1');
 
@@ -23,7 +23,11 @@ function parseArgs(argv = process.argv.slice(2)) {
     } else if (token === '--live') {
       if (options.mode !== 'source') throw new Error('Choose one verification mode');
       options.mode = 'live';
-    } else if (token === '--fixtures' || token === '--atomic-rollback') {
+    } else if (
+      token === '--fixtures' ||
+      token === '--rollback-on-error' ||
+      token === '--atomic-rollback'
+    ) {
       if (options.mode !== 'source') throw new Error('Choose one verification mode');
       options.mode = token === '--fixtures' ? 'fixtures' : 'rollback';
     } else if (token === '--out-dir') {
@@ -62,7 +66,7 @@ async function main(argv = process.argv.slice(2)) {
   } else if (options.mode === 'fixtures') {
     result = verifyWeek06Wave1ExportFixtures(ROOT);
   } else if (options.mode === 'rollback') {
-    result = verifyWeek06Wave1AtomicRollback(ROOT);
+    result = verifyWeek06Wave1RollbackOnError(ROOT);
   } else {
     result = verifyWeek06Wave1Source(ROOT);
   }

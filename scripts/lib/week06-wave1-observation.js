@@ -561,7 +561,7 @@ function evaluateReleaseAndRollback(record, repoRoot, baseline, blockers) {
     fileSha256(path.join(repoRoot, rollback.path)) !== rollback.sha256 ||
     rollback.status !== 'passed' ||
     rollback.test?.status !== 'passed' ||
-    rollback.test?.command !== 'node scripts/verify-week06-wave1.js --atomic-rollback'
+    rollback.test?.command !== 'node scripts/verify-week06-wave1.js --rollback-on-error'
   ) {
     blockers.push({ code: 'rollback-artifact-incomplete' });
   }

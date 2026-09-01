@@ -54,23 +54,7 @@ function evaluateTechnicalWaveObservation(
   const block = (code, detail) => blockers.push(detail ? { code, detail } : { code });
   const release = readJson(repoRoot, WAVE_RELEASE_MANIFEST_RELATIVE_PATH);
   const rollback = readJson(repoRoot, WAVE_ROLLBACK_RELATIVE_PATH);
-  const currentEntries = readJson(repoRoot, REGISTRY_RELATIVE_PATH);
-  const currentSearch = [
-    ...readJson(repoRoot, SEARCH_RELATIVE_PATH),
-    ...(fs.existsSync(path.join(repoRoot, 'public/tech-center/search-index.en.json'))
-      ? readJson(repoRoot, 'public/tech-center/search-index.en.json')
-      : [])
-  ];
-  const historicalProjection = filterWeek06Wave1Projection(
-    repoRoot,
-    currentEntries,
-    currentSearch,
-    (entry) => {
-      const match = entry?.slug?.match(/^\/([^/]+)(\/.*)$/);
-      if (!match) throw new Error(`Invalid technical entry slug: ${entry?.slug}`);
-      return { locale: match[1], canonicalPath: match[2] };
-    }
-  );
+  const historicalProjection = filterWeek06Wave1Projection(repoRoot);
   const entries = historicalProjection.entries;
   const search = historicalProjection.search;
   const authority = loadTechnicalAuthority(repoRoot);

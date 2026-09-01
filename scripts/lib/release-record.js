@@ -56,14 +56,15 @@ const EXPECTED_WEEK06_WAVE0_READINESS = {
   issue: 265,
   wave: 'wave-0',
   sourceVerified: true,
-  exportVerified: true,
+  fixtureVerified: true,
+  exportVerified: false,
   governanceStatus: 'governance-complete',
   publicationCount: 0,
   publicPageDelta: 0,
   tracerCount: 4,
   ownerLeaks: 0,
   capacityBaseline: 'recorded',
-  rollback: 'atomic'
+  rollback: 'rollback-on-error'
 };
 const EXPECTED_WEEK06_WAVE1 = {
   issue: 266,
@@ -73,8 +74,9 @@ const EXPECTED_WEEK06_WAVE1 = {
   baselinePageCount: 1372,
   resultingPageCount: 1422,
   sourceVerified: true,
-  exportVerified: true,
-  releaseEligible: true,
+  fixtureVerified: true,
+  exportVerified: false,
+  releaseEligible: false,
   productionObserved: false,
   rollback: 'ready'
 };

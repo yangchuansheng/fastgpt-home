@@ -156,3 +156,18 @@ test('the route passes only a bounded projection and the client owns no registry
   assert.match(clientSource, /value\.length !== expectedLength/);
   assert.match(clientSource, /new Set\(value\.map/);
 });
+
+test('every published Technical section has an owner-route entry point', () => {
+  const entries = JSON.parse(
+    fs.readFileSync(path.join(root, 'src/components/tech-center/entries.json'), 'utf8')
+  );
+  const sections = new Set(entries.map((entry) => entry.slug.split('/')[2]));
+
+  for (const section of sections) {
+    assert.equal(
+      fs.existsSync(path.join(root, 'src/app', section, '[slug]/page.tsx')),
+      true,
+      `Missing owner route for Technical section: ${section}`
+    );
+  }
+});

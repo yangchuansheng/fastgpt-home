@@ -24,6 +24,7 @@ const {
   buildSearchProjection
 } = require('../import-technical-content');
 const { filterWave2Projection } = require('./technical-wave-baseline');
+const { resolveStaticHtml } = require('./technical-export');
 
 const WAVE_ID = 'wave-1';
 const WAVE_MIN_CANDIDATES = 25;
@@ -612,13 +613,7 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
   if (authority.projection.wave !== 'wave-0' || authority.projection.publicationCount !== 0) {
     throw new Error('Wave 0 baseline must remain a zero-publication projection');
   }
-  const historical = filterWave2Projection(
-    repoRoot,
-    authority,
-    entries,
-    search,
-    parseEntryIdentity
-  );
+  const historical = filterWave2Projection(repoRoot);
   const historicalEntries = historical.entries;
   const historicalSearch = historical.search;
   const manifest = readWaveArtifact(repoRoot, WAVE_MANIFEST_RELATIVE_PATH, 'Wave 1 manifest');
@@ -819,15 +814,6 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
     exportVerified: false,
     releaseEligible: false
   };
-}
-
-function resolveStaticHtml(outDir, route) {
-  const relative = route.replace(/^\/+|\/+$/g, '');
-  const candidates = [
-    path.join(outDir, `${relative}.html`),
-    path.join(outDir, relative, 'index.html')
-  ];
-  return candidates.find((candidate) => fs.existsSync(candidate));
 }
 
 function verifyWaveExport(repoRoot, { outDir, variant = 'cn' } = {}) {

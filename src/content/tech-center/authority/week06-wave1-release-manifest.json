@@ -3,10 +3,11 @@
   "issue": 266,
   "batch": "week06",
   "wave": "wave-1",
-  "status": "release-eligible",
+  "status": "source-verified",
   "sourceVerified": true,
-  "exportVerified": true,
-  "releaseEligible": true,
+  "fixtureVerified": true,
+  "exportVerified": false,
+  "releaseEligible": false,
   "productionObserved": false,
   "sourceSetSha256": "9f509a7f3677e2d1924ef25dcee45b0f9ced9947da6fe315084eade1f91c551c",
   "identitySet": [
@@ -81,7 +82,7 @@
   "postWriteVerification": "required",
   "evidence": {
     "source": "week06-candidate-manifest",
-    "export": "cn-io-preview-static-owner-projection",
+    "fixture": "cn-io-preview-static-owner-projection",
     "production": "pending-live-http-observation"
   },
   "artifacts": [
@@ -303,11 +304,11 @@
     },
     {
       "path": "src/content/tech-center/authority/week06-wave1-manifest.json",
-      "sha256": "c3aed159919c40b31e0018667062c7600c8cbf4a02df279c657b068984a4d331"
+      "sha256": "4832afcab9f61eb3895c2a1735e965e95b6e89005155409c8e71c21754e39b63"
     },
     {
       "path": "src/content/tech-center/authority/week06-wave1-projection.json",
-      "sha256": "cca2e1b072291cc55e05b5c6ba0bb85d52f0d7a638a398b4831d98d96e5cf72a"
+      "sha256": "690591e6e969c429963455e6d7bf3490f18bc4d4d871d2fe25c48fe4f65459f8"
     },
     {
       "path": "src/content/tech-center/authority/week06-wave1-rollback.json",

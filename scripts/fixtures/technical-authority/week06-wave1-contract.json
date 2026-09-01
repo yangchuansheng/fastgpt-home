@@ -53,7 +53,7 @@
     "source": "node scripts/verify-week06-wave1.js",
     "regression": "node --test scripts/verify-week06-wave1.test.js",
     "fixtures": "node scripts/verify-week06-wave1.js --fixtures",
-    "rollback": "node scripts/verify-week06-wave1.js --atomic-rollback",
+    "rollback": "node scripts/verify-week06-wave1.js --rollback-on-error",
     "live": "node scripts/verify-week06-wave1.js --live"
   }
 }

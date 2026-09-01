@@ -66,7 +66,7 @@
     ],
     "identitySetSha256": "397c3eb1324f20f5efb997986e44995bbec03d134f52bc8b9f74aa9c93bb5cce",
     "registrySha256": "d12d7e234c35c47009704d2476c58d0a5f8e9909742a669a50bceaf83ab7fb38",
-    "releaseManifestSha256": "d12cf9a85331f75abf8e618d64408b9d1be889cd21f796433cf7d2231300be17",
+    "releaseManifestSha256": "4ed7bf33cf7394f928c41e3862db73fe2f75ea3b29c6c5c5bd2e51288da0da47",
     "source": "week06-wave1-release-manifest"
   },
   "production": {
@@ -761,7 +761,7 @@
     "sha256": "f874067ba3a59e50e5d04dbeab759d1b70751c0765e62c07993be969cf6e2fa5",
     "status": "passed",
     "test": {
-      "command": "node scripts/verify-week06-wave1.js --atomic-rollback",
+      "command": "node scripts/verify-week06-wave1.js --rollback-on-error",
       "status": "passed",
       "testedAt": "2026-08-29T23:55:00.000Z",
       "assertion": "Every Wave 1 staged surface restores the prior complete bytes and digests"
@@ -782,7 +782,7 @@
     },
     "baseline": {
       "wave0Path": "scripts/fixtures/technical-authority/week06-wave0-readiness.json",
-      "wave0Sha256": "3dc106444e7e14eb9cd140166650fff0bfeffebf3625eda1b47912f12929c548",
+      "wave0Sha256": "94d077de531105f6acfddc4943ab95bdbf9ed07df4fbb2581c239a57e505d9c9",
       "pageCount": 1372,
       "nextPageCount": 1422
     },
@@ -807,7 +807,7 @@
   "artifacts": {
     "release": {
       "path": "src/content/tech-center/authority/week06-wave1-release-manifest.json",
-      "sha256": "d12cf9a85331f75abf8e618d64408b9d1be889cd21f796433cf7d2231300be17",
+      "sha256": "4ed7bf33cf7394f928c41e3862db73fe2f75ea3b29c6c5c5bd2e51288da0da47",
       "status": "passed",
       "artifacts": [
         {
@@ -1028,11 +1028,11 @@
         },
         {
           "path": "src/content/tech-center/authority/week06-wave1-manifest.json",
-          "sha256": "c3aed159919c40b31e0018667062c7600c8cbf4a02df279c657b068984a4d331"
+          "sha256": "4832afcab9f61eb3895c2a1735e965e95b6e89005155409c8e71c21754e39b63"
         },
         {
           "path": "src/content/tech-center/authority/week06-wave1-projection.json",
-          "sha256": "cca2e1b072291cc55e05b5c6ba0bb85d52f0d7a638a398b4831d98d96e5cf72a"
+          "sha256": "690591e6e969c429963455e6d7bf3490f18bc4d4d871d2fe25c48fe4f65459f8"
         },
         {
           "path": "src/content/tech-center/authority/week06-wave1-rollback.json",
@@ -1050,7 +1050,7 @@
       "sha256": "f874067ba3a59e50e5d04dbeab759d1b70751c0765e62c07993be969cf6e2fa5",
       "status": "passed",
       "test": {
-        "command": "node scripts/verify-week06-wave1.js --atomic-rollback",
+        "command": "node scripts/verify-week06-wave1.js --rollback-on-error",
         "status": "passed",
         "testedAt": "2026-08-29T23:55:00.000Z",
         "assertion": "Every Wave 1 staged surface restores the prior complete bytes and digests"

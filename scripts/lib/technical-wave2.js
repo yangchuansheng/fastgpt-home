@@ -15,7 +15,7 @@ const {
   verifyPersistedArtifacts
 } = require('./technical-authority');
 const { verifyProjectionConsistency } = require('./technical-projection');
-const { getProductionBaseUrls } = require('./site-variant');
+const { verifyTechnicalWave2Export } = require('./technical-wave2-export');
 const {
   buildNormalizedTechnicalPage,
   buildSearchProjection
@@ -179,8 +179,8 @@ function normalizeSearchProjection(entries, search) {
   return expected;
 }
 
-function removeWave2Projection(repoRoot, authority, entries, search, selection) {
-  const deployed = filterWeek06Wave1Projection(repoRoot, entries, search, parseEntryIdentity);
+function removeWave2Projection(repoRoot, authority, selection) {
+  const deployed = filterWeek06Wave1Projection(repoRoot);
   const selectedKeys = getSelectionIdentityKeys(authority, selection);
   const baselineEntries = deployed.entries.filter(
     (entry) => !selectedKeys.has(identityKey(parseEntryIdentity(entry)))
@@ -593,8 +593,6 @@ function buildWavePackage(repoRoot) {
   const { baselineEntries, baselineSearch } = removeWave2Projection(
     repoRoot,
     authority,
-    entries,
-    existingSearch,
     approvedSelection
   );
   const baseline = buildBaseline(repoRoot, baselineEntries, baselineSearch);
@@ -781,7 +779,7 @@ function verifyWave2Source(repoRoot = path.resolve(__dirname, '../..')) {
   verifyPersistedArtifacts(authority, repoRoot);
   const approvedSelection = loadWave2Selection(repoRoot);
   const { baselineEntries, baselineSearch, deployedEntries, deployedSearch } =
-    removeWave2Projection(repoRoot, authority, entries, search, approvedSelection);
+    removeWave2Projection(repoRoot, authority, approvedSelection);
   const baseline = buildBaseline(repoRoot, baselineEntries, baselineSearch);
   if (JSON.stringify(manifest.baseline) !== JSON.stringify(baseline)) {
     throw new Error('Wave 2 actual deployed baseline drift');
@@ -948,71 +946,8 @@ function verifyWave2Source(repoRoot = path.resolve(__dirname, '../..')) {
   };
 }
 
-function resolveStaticHtml(outDir, route) {
-  const relative = route.replace(/^\/+|\/+$/g, '');
-  return [path.join(outDir, `${relative}.html`), path.join(outDir, relative, 'index.html')].find(
-    (filePath) => fs.existsSync(filePath)
-  );
-}
-
-function verifyWave2Export(repoRoot, { outDir, variant = 'cn' } = {}) {
-  if (!outDir) throw new Error('Wave 2 export verification requires --out-dir');
-  if (!['cn', 'io', 'preview'].includes(variant)) {
-    throw new Error(`Unsupported Wave 2 export variant: ${variant}`);
-  }
-  const source = verifyWave2Source(repoRoot);
-  const projection = readJson(repoRoot, WAVE_PROJECTION_RELATIVE_PATH);
-  const baseUrls = getProductionBaseUrls();
-  const canonicalHost = baseUrls.cn;
-  const sitemapPath = path.join(outDir, 'sitemap.xml');
-  const sitemap = fs.existsSync(sitemapPath) ? fs.readFileSync(sitemapPath, 'utf8') : '';
-  const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-  projection.identities.forEach((identity) => {
-    const canonical = `${canonicalHost}${identity.canonicalPath}`;
-    const reviewRoute = identity.slug;
-    if (variant === 'io') {
-      if (
-        resolveStaticHtml(outDir, identity.canonicalPath) ||
-        resolveStaticHtml(outDir, reviewRoute)
-      ) {
-        throw new Error(`IO export contains Wave 2 route: ${identity.canonicalPath}`);
-      }
-      if (sitemapUrls.includes(canonical) || sitemapUrls.includes(`${baseUrls.io}${reviewRoute}`)) {
-        throw new Error(`IO sitemap contains Wave 2 route: ${identity.canonicalPath}`);
-      }
-      return;
-    }
-    const route = variant === 'preview' ? reviewRoute : identity.canonicalPath;
-    const htmlPath = resolveStaticHtml(outDir, route);
-    if (!htmlPath) throw new Error(`Missing Wave 2 ${variant} HTML: ${route}`);
-    const html = fs.readFileSync(htmlPath, 'utf8');
-    const canonicalTags = html.match(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi) || [];
-    if (canonicalTags.length !== 1 || !canonicalTags[0].includes(`href="${canonical}"`)) {
-      throw new Error(`Wave 2 ${variant} canonical drift: ${route}`);
-    }
-    const robotsTag = html.match(/<meta\b[^>]*\bname=["']robots["'][^>]*>/i)?.[0] || '';
-    const expectedRobots = variant === 'preview' ? 'noindex, nofollow' : 'index, follow';
-    if (!robotsTag.includes(`content="${expectedRobots}"`)) {
-      throw new Error(`Wave 2 ${variant} robots drift: ${route}`);
-    }
-    if (!html.includes(`"url":"${canonical}"`)) {
-      throw new Error(`Wave 2 ${variant} structured data drift: ${route}`);
-    }
-    if (!html.includes('FastGPT maintainer source'))
-      throw new Error(`Wave 2 citation missing in export: ${route}`);
-    if (variant === 'cn') {
-      if (sitemapUrls.filter((url) => url === canonical).length !== 1) {
-        throw new Error(`Wave 2 sitemap membership drift: ${identity.canonicalPath}`);
-      }
-      if (resolveStaticHtml(outDir, reviewRoute)) {
-        throw new Error(`CN export contains Wave 2 review route: ${reviewRoute}`);
-      }
-    }
-  });
-  if (variant === 'preview' && sitemapUrls.length) {
-    throw new Error('Preview export contains a production sitemap');
-  }
-  return { ...source, exportVerified: true, releaseEligible: true, variant };
+function verifyWave2Export(repoRoot, options) {
+  return verifyTechnicalWave2Export(repoRoot, options, verifyWave2Source);
 }
 
 module.exports = {

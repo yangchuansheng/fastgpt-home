@@ -19,7 +19,8 @@ test('the bilingual Week06 Wave 0 record is ready for a zero-publication release
     issue: 265,
     wave: 'wave-0',
     sourceVerified: true,
-    exportVerified: true,
+    fixtureVerified: true,
+    exportVerified: false,
     governanceStatus: 'governance-complete',
     publicationCount: 0,
     publicPageDelta: 0,
@@ -27,7 +28,7 @@ test('the bilingual Week06 Wave 0 record is ready for a zero-publication release
     variants: { cn: 'verified', io: 'verified', preview: 'verified' },
     ownerLeaks: 0,
     capacityBaseline: 'recorded',
-    rollback: 'atomic'
+    rollback: 'rollback-on-error'
   });
 });
 

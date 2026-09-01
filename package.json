@@ -77,7 +77,7 @@
     "verify:week06-wave1-live": "node scripts/verify-week06-wave1.js --live",
     "verify:week06-wave1-regression": "node --test scripts/verify-week06-wave1.test.js",
     "verify:week06-wave1-fixtures": "node scripts/verify-week06-wave1.js --fixtures",
-    "verify:week06-wave1-rollback": "node scripts/verify-week06-wave1.js --atomic-rollback",
+    "verify:week06-wave1-rollback": "node scripts/verify-week06-wave1.js --rollback-on-error",
     "verify:week06-wave1-observation": "node scripts/verify-week06-wave1-observation.js",
     "verify:week06-wave1-observation-regression": "node --test scripts/verify-week06-wave1-observation.test.js",
     "verify:week06-compare-disposition": "node scripts/verify-week06-compare-disposition.js",

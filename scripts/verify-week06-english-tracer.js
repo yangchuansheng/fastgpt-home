@@ -9,8 +9,8 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { buildNormalizedTechnicalPage } = require('./import-technical-content');
-const { identityKey, stableJson } = require('./lib/technical-authority');
-const { readWeek06Wave1IdentityKeys } = require('./lib/technical-wave-baseline');
+const { stableJson } = require('./lib/technical-authority');
+const { loadTechnicalWaveState } = require('./lib/technical-wave-baseline');
 const { verifyProjectionConsistency } = require('./lib/technical-projection');
 const { verifyTechnicalCenter } = require('./verify-technical-center');
 const { verifyWeek06TechnicalAuthority } = require('./verify-week06-technical-authority');
@@ -179,17 +179,9 @@ function verifyWave0(rootDir, contract) {
 function verifyProductionRegistry(rootDir, contract, registryPath) {
   const filePath =
     registryPath || resolveRelative(rootDir, contract.expected.productionRegistry.path);
-  const deployedEntries = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  const week06Wave1IdentityKeys = registryPath ? new Set() : readWeek06Wave1IdentityKeys(rootDir);
   const entries = registryPath
-    ? deployedEntries
-    : deployedEntries.filter((entry) => {
-        const match = entry.slug?.match(/^\/([^/]+)(\/.*)$/);
-        assert(match, `Invalid Technical Page slug: ${entry.slug}`);
-        return !week06Wave1IdentityKeys.has(
-          identityKey({ locale: match[1], canonicalPath: match[2] })
-        );
-      });
+    ? JSON.parse(fs.readFileSync(filePath, 'utf8'))
+    : loadTechnicalWaveState(rootDir, 'week05-wave2').entries;
   const raw = Buffer.from(registryPath ? fs.readFileSync(filePath) : stableJson(entries));
   assert(Array.isArray(entries), 'Production Technical Page registry must be an array');
   assert.equal(

@@ -351,11 +351,12 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
     'node scripts/verify-week06-wave0-readiness.js',
     undefined,
     'passed',
-    'WEEK06_WAVE0_READINESS_RESULT={"issue":265,"wave":"wave-0","sourceVerified":true,"exportVerified":true,"governanceStatus":"governance-complete","publicationCount":0,"publicPageDelta":0,"tracerCount":4,"variants":{"cn":"verified","io":"verified","preview":"verified"},"ownerLeaks":0,"capacityBaseline":"recorded","rollback":"atomic"}'
+    'WEEK06_WAVE0_READINESS_RESULT={"issue":265,"wave":"wave-0","sourceVerified":true,"fixtureVerified":true,"exportVerified":false,"governanceStatus":"governance-complete","publicationCount":0,"publicPageDelta":0,"tracerCount":4,"variants":{"cn":"verified","io":"verified","preview":"verified"},"ownerLeaks":0,"capacityBaseline":"recorded","rollback":"rollback-on-error"}'
   );
   assert.equal(record.evidence.week06Wave0Readiness.source, true);
   assert.equal(record.evidence.week06Wave0Readiness.observed.publicationCount, 0);
-  assert.equal(record.evidence.week06Wave0Readiness.observed.exportVerified, true);
+  assert.equal(record.evidence.week06Wave0Readiness.observed.fixtureVerified, true);
+  assert.equal(record.evidence.week06Wave0Readiness.observed.exportVerified, false);
   recordStep(
     record,
     'week06-wave1.source',
@@ -363,7 +364,7 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
     'node scripts/verify-week06-wave1.js',
     undefined,
     'passed',
-    'WEEK06_WAVE1_RESULT={"issue":266,"wave":"wave-1","selectedCount":50,"publicationCount":50,"localeCounts":{"zh":25,"en":25},"baselinePageCount":1372,"resultingPageCount":1422,"sourceVerified":true,"exportVerified":true,"releaseEligible":true,"productionObserved":false,"rollback":"ready"}'
+    'WEEK06_WAVE1_RESULT={"issue":266,"wave":"wave-1","selectedCount":50,"publicationCount":50,"localeCounts":{"zh":25,"en":25},"baselinePageCount":1372,"resultingPageCount":1422,"sourceVerified":true,"fixtureVerified":true,"exportVerified":false,"releaseEligible":false,"productionObserved":false,"rollback":"ready"}'
   );
   assert.equal(record.evidence.week06Wave1.source, true);
   assert.deepEqual(record.evidence.week06Wave1.observed.localeCounts, { zh: 25, en: 25 });
@@ -380,7 +381,7 @@ test('release record keeps evidence tiers and rollback inventory separate', () =
     record,
     'week06-wave1.rollback',
     'Week06 Wave 1 rollback evidence',
-    'node scripts/verify-week06-wave1.js --atomic-rollback',
+    'node scripts/verify-week06-wave1.js --rollback-on-error',
     undefined,
     'passed',
     'WEEK06_WAVE1_RESULT={"restored":true,"surfaceCount":58,"byteDrift":0,"digestDrift":0}'

@@ -7,10 +7,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { loadTechnicalAuthority, stableJson } = require('./lib/technical-authority');
-const {
-  readWeek06Wave1IdentityKeys,
-  readWave2IdentityKeys
-} = require('./lib/technical-wave-baseline');
+const { loadTechnicalWaveState } = require('./lib/technical-wave-baseline');
 const { verifyWeek06PrivacyScan } = require('./lib/week06-privacy-scan');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -85,12 +82,6 @@ function assertNoCredentialShape(value, label) {
 
 function identityKey(identity) {
   return `${identity.locale}|${identity.canonicalPath}`;
-}
-
-function parseTechnicalEntryIdentity(entry) {
-  const match = entry.slug?.match(/^\/([^/]+)(\/.*)$/);
-  assert(match, `Invalid technical registry slug: ${entry.slug}`);
-  return { locale: match[1], canonicalPath: match[2] };
 }
 
 function verifyCandidate(candidate, index, relationByCandidate) {
@@ -367,14 +358,7 @@ function verifyWeek06TechnicalAuthority(rootDir = ROOT) {
   assert.equal(rollback.baseline.pageCount, EXPECTED.baselinePages);
   assert.equal(rollback.baseline.registrySha256, manifest.baseline.registrySha256);
 
-  const baselineRegistry = path.join(rootDir, 'src/components/tech-center/entries.json');
-  const deployedRegistry = JSON.parse(fs.readFileSync(baselineRegistry, 'utf8'));
-  const week06Wave1IdentityKeys = readWeek06Wave1IdentityKeys(rootDir);
-  const wave2IdentityKeys = readWave2IdentityKeys(rootDir, loadTechnicalAuthority(rootDir));
-  const historicalRegistry = deployedRegistry.filter((entry) => {
-    const key = identityKey(parseTechnicalEntryIdentity(entry));
-    return !week06Wave1IdentityKeys.has(key) && !wave2IdentityKeys.has(key);
-  });
+  const historicalRegistry = loadTechnicalWaveState(rootDir, 'week05-wave1').entries;
   assert.equal(historicalRegistry.length, EXPECTED.baselinePages);
   assert.equal(sha256(stableJson(historicalRegistry)), manifest.baseline.registrySha256);
   assert.equal(manifest.baseline.pageCount, EXPECTED.baselinePages);

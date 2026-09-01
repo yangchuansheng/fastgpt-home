@@ -13,11 +13,19 @@ const {
   stableJson
 } = require('./technical-authority');
 const { verifyProjectionConsistency } = require('./technical-projection');
-const { sanitizeReaderText } = require('./technical-wave');
+const { loadTechnicalWaveState } = require('./technical-wave-baseline');
+const delivery = require('./week06-wave1-delivery');
 const {
-  buildNormalizedTechnicalPage,
-  buildSearchProjection
-} = require('../import-technical-content');
+  assertReaderHygiene,
+  buildReaderPage,
+  normalizeRelativePath,
+  parseSourceBody,
+  readerPath,
+  resolveRepositoryPath,
+  sanitizePublicText,
+  validateSelectedIdentity
+} = require('./week06-wave1-content');
+const { buildSearchProjection } = require('../import-technical-content');
 
 const SELECTION_RELATIVE_PATH = 'src/content/tech-center/authority/week06-wave1-selection.json';
 const CONTRACT_RELATIVE_PATH = 'scripts/fixtures/technical-authority/week06-wave1-contract.json';
@@ -42,18 +50,6 @@ const APPROVED_SOURCE_CLASSIFICATIONS = {
   model: new Set(['official-document']),
   glossary: new Set(['supported-glossary-source'])
 };
-const EN_CATEGORY_LABELS = {
-  api: 'API',
-  dataset: 'Knowledge bases',
-  deploy: 'Deployment and upgrades',
-  integration: 'Integrations',
-  node: 'Workflow nodes',
-  reference: 'Technical reference',
-  model: 'Model guides',
-  glossary: 'Glossary',
-  troubleshoot: 'Troubleshooting',
-  tutorial: 'Tutorials'
-};
 const PUBLIC_SURFACES = [
   'registry',
   'search',
@@ -70,16 +66,6 @@ const READER_CONTENT_CONTRACT = [
   'security-and-operation-guardrails',
   'rollback-guidance',
   'reader-body-hygiene'
-];
-const READER_FORBIDDEN_PATTERNS = [
-  /\bsk-[A-Za-z0-9][A-Za-z0-9_-]{5,}\b/gi,
-  /\bBearer\s+(?!\[REDACTED_CREDENTIAL\])[A-Za-z0-9._~+/=-]{6,}/gi,
-  /\beyJ[A-Za-z0-9._-]{20,}\b/g,
-  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g,
-  /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
-  /(?<!\d)(?:\+?86[- ]?)?1[3-9]\d{9}(?!\d)/g,
-  /(?<!\d)\d{17}[\dXx](?!\d)/g,
-  /(?:internal\s+KB|GSC\s+provenance|publish\s+target|verification\s+workflow|sign[- ]off|内部\s*KB|发布落点|核验流程|签发)\s*[:：]/gi
 ];
 
 function readJson(repoRoot, relativePath) {
@@ -117,238 +103,6 @@ function candidateCohort(candidate) {
   return 'official';
 }
 
-function normalizeRelativePath(value, label) {
-  if (typeof value !== 'string' || !value || value.includes('\\')) {
-    throw new Error(`${label} must be a normalized repository-relative path`);
-  }
-  const normalized = path.posix.normalize(value);
-  if (
-    normalized !== value ||
-    normalized.startsWith('/') ||
-    normalized === '..' ||
-    normalized.startsWith('../')
-  ) {
-    throw new Error(`${label} must stay inside its approved root`);
-  }
-  return normalized;
-}
-
-function resolveRepositoryPath(repoRoot, relativePath, label) {
-  const normalized = normalizeRelativePath(relativePath, label);
-  const root = path.resolve(repoRoot);
-  const resolved = path.resolve(root, normalized);
-  if (resolved !== root && !resolved.startsWith(`${root}${path.sep}`)) {
-    throw new Error(`${label} escapes the repository`);
-  }
-  return resolved;
-}
-
-function validateSelectedIdentity(candidate) {
-  const label = candidate.id;
-  const { identity } = candidate;
-  if (!identity || !['zh', 'en'].includes(identity.locale)) {
-    throw new Error(`${label} has an unsupported locale`);
-  }
-  const canonicalPath = identity.canonicalPath;
-  const normalizedCanonicalPath = path.posix.normalize(canonicalPath || '');
-  if (
-    typeof canonicalPath !== 'string' ||
-    normalizedCanonicalPath !== canonicalPath ||
-    !/^\/[a-z0-9]+(?:\/[a-z0-9]+(?:[a-z0-9-]*[a-z0-9])?)+$/.test(canonicalPath) ||
-    canonicalPath.includes('/../') ||
-    canonicalPath.includes('/./')
-  ) {
-    throw new Error(`${label} canonical path must be normalized and traversal-free`);
-  }
-  if (identity.sourcePath !== `/${identity.locale}${canonicalPath}`) {
-    throw new Error(`${label} source path must match its localized identity`);
-  }
-  const expectedSourcePrefix = identity.locale === 'zh' ? '中文-fastgpt.cn/' : '英文-fastgpt.io/';
-  const sourceFile = normalizeRelativePath(
-    candidate.provenance?.sourceFile,
-    `${label} source file`
-  );
-  if (!sourceFile.startsWith(expectedSourcePrefix) || !sourceFile.endsWith('.md')) {
-    throw new Error(`${label} source file must stay inside its approved locale tree`);
-  }
-}
-
-function readerPath(candidate) {
-  validateSelectedIdentity(candidate);
-  return normalizeRelativePath(
-    `src/content/tech-center/${candidate.identity.locale}${candidate.identity.canonicalPath}.md`,
-    `${candidate.id} reader path`
-  );
-}
-
-function sanitizePublicText(value) {
-  return sanitizeReaderText(value)
-    .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[REDACTED_PRIVATE_DATA]')
-    .replace(/(?<!\d)(?:\+?86[- ]?)?1[3-9]\d{9}(?!\d)/g, '[REDACTED_PRIVATE_DATA]')
-    .replace(/(?<!\d)\d{17}[\dXx](?!\d)/g, '[REDACTED_PRIVATE_DATA]');
-}
-
-function assertReaderHygiene(document, label) {
-  for (const pattern of READER_FORBIDDEN_PATTERNS) {
-    pattern.lastIndex = 0;
-    if (pattern.test(document)) throw new Error(`${label} reader content hygiene failed`);
-  }
-}
-
-function sanitizePublicBody(value) {
-  return String(value)
-    .replace(/\r\n?/g, '\n')
-    .replace(/\bsk-[A-Za-z0-9][A-Za-z0-9_-]{5,}\b/gi, '[REDACTED_CREDENTIAL]')
-    .replace(/\bBearer\s+[A-Za-z0-9._~+/=-]{6,}/gi, 'Bearer [REDACTED_CREDENTIAL]')
-    .replace(/\beyJ[A-Za-z0-9._-]{20,}\b/g, '[REDACTED_CREDENTIAL]')
-    .replace(/\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/g, '[REDACTED_CREDENTIAL]')
-    .replace(/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g, '[REDACTED_CREDENTIAL]')
-    .replace(
-      /\b((?:mysql|postgres(?:ql)?|mongodb(?:\+srv)?):\/\/)[^\s`:@]+:[^\s`@]+@/gi,
-      '$1[REDACTED_CREDENTIAL]@'
-    )
-    .replace(
-      /(\b(?:api[_-]?key|access[_-]?token|password|secret)\s*[:=]\s*["'`]?)([^\s,"'`}]+)/gi,
-      '$1[REDACTED_CREDENTIAL]'
-    )
-    .replace(
-      /([?&](?:token|key|secret|api[_-]?key|access[_-]?token)=)[^&\s)`]+/gi,
-      '$1[REDACTED_CREDENTIAL]'
-    )
-    .replace(/\b(?:mytoken|mykey|sk-fastgpt|sk-tarzan)\b/gi, '[REDACTED_CREDENTIAL]');
-}
-
-function normalizeSourceCitation(body, candidate) {
-  const label = candidate.identity.locale === 'zh' ? 'FastGPT 官方来源' : 'FastGPT official source';
-  return body.replace(
-    /^[ \t]*>[ \t]*((?:来源|Source))[ \t]*[:：][ \t]*(https:\/\/[^\n]+)[ \t]*$/gimu,
-    (matched, sourceWord, sourceText) => {
-      const urls = [...sourceText.matchAll(/https:\/\/[^\s、，,;；]+/g)].map((match) =>
-        match[0].replace(/[.)\]]+$/, '')
-      );
-      if (!urls.length) return matched;
-      const separator = candidate.identity.locale === 'zh' ? '：' : ':';
-      return urls.map((url) => `> ${sourceWord}${separator} [${label}](${url})`).join('\n\n');
-    }
-  );
-}
-
-function parseSourceBody(source, label) {
-  const normalized = String(source).replace(/\r\n?/g, '\n');
-  const match = normalized.match(/^---\n([\s\S]*?)\n---(?:\n|$)/);
-  if (!match) throw new Error(`${label} must contain normalized front matter`);
-  return { normalized, body: normalized.slice(match[0].length) };
-}
-
-function buildGovernanceSupplement(candidate, body) {
-  const sections = [];
-  if (!/^## .*?(?:applicab|version scope|environment scope|适用|版本范围|环境范围)/im.test(body)) {
-    sections.push(
-      candidate.identity.locale === 'en'
-        ? `## Applicability and version scope\n\nUse this page for the documented ${
-            EN_CATEGORY_LABELS[candidate.category]
-          } scenario. Confirm the FastGPT, dependency, API, and deployment versions in the official source before applying a change.`
-        : `## 适用性与版本范围\n\n本页适用于官方来源记录的 ${candidate.categoryLabel} 场景。执行变更前，需核对 FastGPT、依赖、API 与部署版本。`
-    );
-  }
-  if (!/^## .*?(?:safety|security|guardrail|安全|护栏|风险)/im.test(body)) {
-    sections.push(
-      candidate.identity.locale === 'en'
-        ? `## Safety guardrails\n\nUse [REDACTED_CREDENTIAL] for credentials and private data. ${candidate.operationRisk.prerequisite}`
-        : '## 安全护栏\n\n凭证与私密数据使用 [REDACTED_CREDENTIAL] 占位符。执行操作前需核对文档的环境与版本。'
-    );
-  }
-  if (!/^## .*?(?:rollback|recovery|回滚|恢复)/im.test(body)) {
-    sections.push(
-      candidate.identity.locale === 'en'
-        ? `## Rollback guidance\n\n${candidate.operationRisk.rollback} Restore saved configuration and data snapshots, then repeat the smallest verification scenario.`
-        : '## 回滚指引\n\n恢复变更前的技术内容权威快照、已保存配置与数据快照，再执行最小验证场景。'
-    );
-  }
-  return sections.length ? `${body.trim()}\n\n${sections.join('\n\n')}\n` : `${body.trim()}\n`;
-}
-
-function assertConcreteSourceContent(body, candidate) {
-  const normalizedBody = sanitizePublicText(body);
-  const fingerprint = sanitizePublicText(candidate.evidence.fingerprint);
-  const headingCount = [...body.matchAll(/^#{1,6}\s+\S/gm)].length;
-  if (
-    body.length < 400 ||
-    headingCount < 3 ||
-    !normalizedBody.includes(fingerprint) ||
-    !body.includes(candidate.provenance.sourceUrl)
-  ) {
-    throw new Error(`${candidate.id} must retain its concrete approved source body`);
-  }
-}
-
-function loadApprovedReaderBody(repoRoot, candidate, sourceRoot) {
-  if (sourceRoot) {
-    const root = path.resolve(sourceRoot);
-    const directRoot = fs.existsSync(path.join(root, '中文-fastgpt.cn'))
-      ? root
-      : path.join(root, '程序化技术页-第4批');
-    const sourceFile = normalizeRelativePath(
-      candidate.provenance.sourceFile,
-      `${candidate.id} source file`
-    );
-    const sourcePath = resolveRepositoryPath(directRoot, sourceFile, `${candidate.id} source path`);
-    if (!fs.existsSync(sourcePath))
-      throw new Error(`${candidate.id} approved source file is missing`);
-    const source = fs.readFileSync(sourcePath, 'utf8');
-    const parsed = parseSourceBody(source, candidate.id);
-    if (
-      sha256(parsed.normalized) !== candidate.provenance.sourceSha256 ||
-      sha256(parsed.body) !== candidate.provenance.sourceBodySha256
-    ) {
-      throw new Error(`${candidate.id} approved source digest drift`);
-    }
-    const imported = normalizeSourceCitation(sanitizePublicBody(parsed.body), candidate);
-    const body = buildGovernanceSupplement(candidate, imported);
-    assertConcreteSourceContent(body, candidate);
-    return { body, sourceDigestVerified: true };
-  }
-  const pathName = readerPath(candidate);
-  const filePath = resolveRepositoryPath(repoRoot, pathName, `${candidate.id} reader path`);
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`${candidate.id} reader source is missing; provide --source-root for import`);
-  }
-  const { body } = parseSourceBody(fs.readFileSync(filePath, 'utf8'), candidate.id);
-  assertConcreteSourceContent(body, candidate);
-  return { body: `${body.trim()}\n`, sourceDigestVerified: false };
-}
-
-function buildReaderPage(repoRoot, candidate, sourceRoot) {
-  const { body, sourceDigestVerified } = loadApprovedReaderBody(repoRoot, candidate, sourceRoot);
-  const sourceCount = new Set(
-    [
-      ...body.matchAll(
-        /^\s*>\s*(?:来源|Source)\s*[:：]\s*\[[^\]]+\]\((https:\/\/[^)\s]+)\)\s*$/gimu
-      )
-    ].map((match) => match[1])
-  ).size;
-  const page = buildNormalizedTechnicalPage({
-    metadata: {
-      title: sanitizePublicText(candidate.title),
-      slug: candidate.identity.sourcePath,
-      page_type:
-        candidate.identity.locale === 'en'
-          ? EN_CATEGORY_LABELS[candidate.category]
-          : candidate.categoryLabel,
-      source: candidate.provenance.sourceUrl,
-      source_type:
-        candidate.identity.locale === 'en' ? 'Official documentation' : candidate.sourceType
-    },
-    identity: candidate.identity,
-    body,
-    wordCount: body.length,
-    sourceCount,
-    label: `Week06 Wave 1 ${candidate.id}`
-  });
-  assertReaderHygiene(page.document, candidate.id);
-  return { ...page, sourceDigestVerified };
-}
-
 function splitSearchProjection(entries) {
   const projection = buildSearchProjection(entries);
   return {
@@ -357,19 +111,12 @@ function splitSearchProjection(entries) {
   };
 }
 
-function removeCurrentProjection(entries, search, selected) {
-  const selectedKeys = new Set(selected.map((candidate) => identityKey(candidate.identity)));
-  return {
-    entries: entries.filter((entry) => !selectedKeys.has(identityKey(parseEntryIdentity(entry)))),
-    search: {
-      zh: search.zh.filter((entry) => !selectedKeys.has(entry.identity)),
-      en: search.en.filter((entry) => !selectedKeys.has(entry.identity))
-    }
+function buildBaseline(repoRoot) {
+  const historical = loadTechnicalWaveState(repoRoot, 'week05-wave2');
+  const baseline = {
+    entries: historical.entries,
+    search: historical.searchByLocale
   };
-}
-
-function buildBaseline(repoRoot, entries, search, selected) {
-  const baseline = removeCurrentProjection(entries, search, selected);
   if (baseline.entries.length !== BASELINE_PAGE_COUNT) {
     throw new Error(
       `Week06 Wave 1 baseline must contain ${BASELINE_PAGE_COUNT} pages; found ${baseline.entries.length}`
@@ -684,10 +431,11 @@ function buildProjection({ selectionEvidence, projectedEntries, projectedSearch 
   const releaseRecord = identities.map((identity) => ({
     candidateId: identity.candidateId,
     identity: identity.key,
-    status: 'release-eligible',
+    status: 'source-verified',
     sourceVerified: true,
-    exportVerified: true,
-    releaseEligible: true,
+    fixtureVerified: true,
+    exportVerified: false,
+    releaseEligible: false,
     productionObserved: false,
     publicationCount: 1
   }));
@@ -706,8 +454,9 @@ function buildProjection({ selectionEvidence, projectedEntries, projectedSearch 
     consistency: 'identity-set-verified',
     governanceStatus: 'governance-complete',
     sourceVerified: true,
-    exportVerified: true,
-    releaseEligible: true,
+    fixtureVerified: true,
+    exportVerified: false,
+    releaseEligible: false,
     productionObserved: false,
     baselinePageCount: BASELINE_PAGE_COUNT,
     acceptedCandidateCount: identities.length,
@@ -792,17 +541,7 @@ function buildRollback({ baseline, projection, readerPaths }) {
 
 function buildWeek06Wave1Package(repoRoot = path.resolve(__dirname, '../..'), { sourceRoot } = {}) {
   const selectionEvidence = verifyWeek06Wave1Selection(repoRoot);
-  const currentEntries = readJson(repoRoot, REGISTRY_RELATIVE_PATH);
-  const currentSearch = {
-    zh: readJson(repoRoot, ZH_SEARCH_RELATIVE_PATH),
-    en: readJson(repoRoot, EN_SEARCH_RELATIVE_PATH)
-  };
-  const baseline = buildBaseline(
-    repoRoot,
-    currentEntries,
-    currentSearch,
-    selectionEvidence.selected
-  );
+  const baseline = buildBaseline(repoRoot);
   const readerDocuments = new Map();
   const pages = new Map();
   let sourceDigestVerifiedCount = 0;
@@ -843,7 +582,7 @@ function buildWeek06Wave1Package(repoRoot = path.resolve(__dirname, '../..'), { 
     issue: 266,
     batch: 'week06',
     wave: 'wave-1',
-    status: 'release-eligible',
+    status: 'source-verified',
     identitySet: projection.identitySet,
     baseline: baselineRecord,
     selection: {
@@ -890,10 +629,11 @@ function buildWeek06Wave1Package(repoRoot = path.resolve(__dirname, '../..'), { 
     },
     verification: {
       sourceVerified: true,
-      exportVerified: true,
-      releaseEligible: true,
+      fixtureVerified: true,
+      exportVerified: false,
+      releaseEligible: false,
       productionObserved: false,
-      evidenceSource: 'staged-static-owner-projection'
+      evidenceSource: 'staged-static-owner-fixture'
     }
   };
   const artifactBytes = new Map([
@@ -910,10 +650,11 @@ function buildWeek06Wave1Package(repoRoot = path.resolve(__dirname, '../..'), { 
     issue: 266,
     batch: 'week06',
     wave: 'wave-1',
-    status: 'release-eligible',
+    status: 'source-verified',
     sourceVerified: true,
-    exportVerified: true,
-    releaseEligible: true,
+    fixtureVerified: true,
+    exportVerified: false,
+    releaseEligible: false,
     productionObserved: false,
     sourceSetSha256: content.sourceSetSha256,
     identitySet: projection.identitySet,
@@ -924,7 +665,7 @@ function buildWeek06Wave1Package(repoRoot = path.resolve(__dirname, '../..'), { 
     postWriteVerification: 'required',
     evidence: {
       source: 'week06-candidate-manifest',
-      export: 'cn-io-preview-static-owner-projection',
+      fixture: 'cn-io-preview-static-owner-projection',
       production: 'pending-live-http-observation'
     },
     artifacts: [...readerDocuments.entries(), ...artifactBytes.entries()].map(
@@ -1084,14 +825,15 @@ function verifyWeek06Wave1Source(
     ownerLeaks: 0,
     hygieneFindings: 0,
     sourceVerified: true,
-    exportVerified: true,
-    releaseEligible: true,
+    fixtureVerified: verifyExportFixtures,
+    exportVerified: false,
+    releaseEligible: false,
     productionObserved: false,
     rollback: 'ready'
   };
 }
 
-function verifyWeek06Wave1AtomicRollback(repoRoot = path.resolve(__dirname, '../..')) {
+function verifyWeek06Wave1RollbackOnError(repoRoot = path.resolve(__dirname, '../..')) {
   const wavePackage = buildWeek06Wave1Package(repoRoot);
   const actualBefore = wavePackage.files.map((filePath) => fs.readFileSync(filePath));
   const actualDigests = actualBefore.map((bytes) => sha256(bytes));
@@ -1173,403 +915,20 @@ function verifyWeek06Wave1AtomicRollback(repoRoot = path.resolve(__dirname, '../
   }
 }
 
-function resolveStaticHtml(outDir, route) {
-  const relative = route.replace(/^\/+|\/+$/g, '');
-  return [path.join(outDir, `${relative}.html`), path.join(outDir, relative, 'index.html')].find(
-    (filePath) => fs.existsSync(filePath)
-  );
+function verifyWeek06Wave1Export(repoRoot, options) {
+  return delivery.verifyWeek06Wave1Export(repoRoot, options, verifyWeek06Wave1Source);
 }
 
-function getHtmlAttribute(tag, name) {
-  return tag.match(new RegExp(`\\s${name}=["']([^"']+)["']`, 'i'))?.[1];
+function verifyWeek06Wave1ExportFixtures(repoRoot) {
+  return delivery.verifyWeek06Wave1ExportFixtures(repoRoot, verifyWeek06Wave1Source);
 }
 
-function verifyArticleHtml(html, identity, variant) {
-  const expectedLanguage = identity.locale === 'zh' ? 'zh-CN' : 'en';
-  const sourceLabel = identity.locale === 'zh' ? 'FastGPT 官方来源' : 'FastGPT official source';
-  const htmlTag = html.match(/<html\b[^>]*>/i)?.[0] || '';
-  if (getHtmlAttribute(htmlTag, 'lang') !== expectedLanguage) {
-    throw new Error(`Week06 Wave 1 ${variant} locale drift: ${identity.key}`);
-  }
-  const canonicalTag = html.match(/<link\b[^>]*rel=["']canonical["'][^>]*>/i)?.[0] || '';
-  if (getHtmlAttribute(canonicalTag, 'href') !== identity.canonical) {
-    throw new Error(`Week06 Wave 1 ${variant} canonical drift: ${identity.key}`);
-  }
-  const hreflangTag = html.match(/<link\b[^>]*hreflang=["'][^"']+["'][^>]*>/i)?.[0] || '';
-  if (
-    getHtmlAttribute(hreflangTag, 'hreflang') !== expectedLanguage ||
-    getHtmlAttribute(hreflangTag, 'href') !== identity.canonical
-  ) {
-    throw new Error(`Week06 Wave 1 ${variant} hreflang drift: ${identity.key}`);
-  }
-  const robotsTag = html.match(/<meta\b[^>]*name=["']robots["'][^>]*>/i)?.[0] || '';
-  const robots = getHtmlAttribute(robotsTag, 'content');
-  const expectedRobots = variant === 'preview' ? 'noindex, nofollow' : 'index, follow';
-  if (robots !== expectedRobots) {
-    throw new Error(`Week06 Wave 1 ${variant} robots drift: ${identity.key}`);
-  }
-  if (
-    !html.includes(`"url":"${identity.canonical}"`) ||
-    !html.includes(`"inLanguage":"${expectedLanguage}"`) ||
-    !html.includes(sourceLabel)
-  ) {
-    throw new Error(`Week06 Wave 1 ${variant} structured content drift: ${identity.key}`);
-  }
-}
-
-function verifyHub(outDir, locale, variant, searchPath) {
-  const route = variant === 'preview' ? `/${locale}/tech-center` : '/tech-center';
-  const htmlPath = resolveStaticHtml(outDir, route);
-  if (!htmlPath) throw new Error(`Week06 Wave 1 ${variant} hub missing: ${locale}`);
-  const html = fs.readFileSync(htmlPath, 'utf8');
-  const expectedLanguage = locale === 'zh' ? 'zh-CN' : 'en';
-  const canonical = `${OWNER_ORIGINS[locale]}/tech-center`;
-  if (!html.includes(`<html lang="${expectedLanguage}">`) || !html.includes(searchPath)) {
-    throw new Error(`Week06 Wave 1 ${variant} hub locale or search drift: ${locale}`);
-  }
-  const canonicalTag = html.match(/<link\b[^>]*rel=["']canonical["'][^>]*>/i)?.[0] || '';
-  const robotsTag = html.match(/<meta\b[^>]*name=["']robots["'][^>]*>/i)?.[0] || '';
-  const expectedRobots = variant === 'preview' ? 'noindex, nofollow' : 'index, follow';
-  if (
-    getHtmlAttribute(canonicalTag, 'href') !== canonical ||
-    getHtmlAttribute(robotsTag, 'content') !== expectedRobots ||
-    !html.includes(`"url":"${canonical}"`) ||
-    !html.includes(`"inLanguage":"${expectedLanguage}"`)
-  ) {
-    throw new Error(`Week06 Wave 1 ${variant} hub metadata drift: ${locale}`);
-  }
-  const alternates = new Map(
-    [...html.matchAll(/<link\b[^>]*rel=["']alternate["'][^>]*>/gi)].map((match) => [
-      getHtmlAttribute(match[0], 'hreflang'),
-      getHtmlAttribute(match[0], 'href')
-    ])
-  );
-  if (
-    alternates.get('zh-CN') !== `${OWNER_ORIGINS.zh}/tech-center` ||
-    alternates.get('en') !== `${OWNER_ORIGINS.en}/tech-center`
-  ) {
-    throw new Error(`Week06 Wave 1 ${variant} hub hreflang drift: ${locale}`);
-  }
-  const links = [...html.matchAll(/<article\b[^>]*>[\s\S]*?<\/article>/gi)]
-    .map((article) => article[0].match(/<a\b[^>]*href=["'](\/[^"'#?]+)["']/i)?.[1])
-    .filter(Boolean);
-  if (!links.length || links.length > 12) {
-    throw new Error(`Week06 Wave 1 ${variant} fallback listing drift: ${locale}`);
-  }
-  for (const link of links) {
-    if (!resolveStaticHtml(outDir, link)) {
-      throw new Error(`Week06 Wave 1 broken internal link: ${link}`);
-    }
-  }
-  return links.length;
-}
-
-function verifyWeek06Wave1Export(
-  repoRoot = path.resolve(__dirname, '../..'),
-  { outDir, variant } = {}
-) {
-  if (!outDir) throw new Error('Week06 Wave 1 export verification requires --out-dir');
-  if (!['cn', 'io', 'preview'].includes(variant)) {
-    throw new Error('Week06 Wave 1 export variant must be cn, io, or preview');
-  }
-  const source = verifyWeek06Wave1Source(repoRoot, { verifyExportFixtures: false });
-  const projection = readJson(repoRoot, PROJECTION_RELATIVE_PATH);
-  const sitemapPath = path.join(outDir, 'sitemap.xml');
-  const sitemapUrls = fs.existsSync(sitemapPath)
-    ? [...fs.readFileSync(sitemapPath, 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(
-        (match) => match[1]
-      )
-    : [];
-  if (variant === 'preview' && sitemapUrls.length) {
-    throw new Error('Week06 Wave 1 Preview export contains sitemap entries');
-  }
-  let ownerPages = 0;
-  for (const identity of projection.identities) {
-    const owned = variant === 'preview' || identity.owner === variant;
-    const route = variant === 'preview' ? identity.reviewPath : identity.canonicalPath;
-    const htmlPath = resolveStaticHtml(outDir, route);
-    if (owned) {
-      if (!htmlPath) throw new Error(`Week06 Wave 1 ${variant} owner route missing: ${route}`);
-      verifyArticleHtml(fs.readFileSync(htmlPath, 'utf8'), identity, variant);
-      ownerPages += 1;
-    } else if (htmlPath || resolveStaticHtml(outDir, identity.reviewPath)) {
-      throw new Error(`Week06 Wave 1 ${variant} owner leak: ${identity.key}`);
-    }
-    const membership = sitemapUrls.filter((url) => url === identity.canonical).length;
-    if (membership !== (variant !== 'preview' && identity.owner === variant ? 1 : 0)) {
-      throw new Error(`Week06 Wave 1 ${variant} sitemap drift: ${identity.key}`);
-    }
-  }
-  const expectedLocales = variant === 'preview' ? ['zh', 'en'] : [variant === 'cn' ? 'zh' : 'en'];
-  for (const locale of expectedLocales) {
-    verifyHub(
-      outDir,
-      locale,
-      variant,
-      locale === 'zh' ? '/tech-center/search-index.json' : '/tech-center/search-index.en.json'
-    );
-  }
-  for (const [locale, relativePath] of [
-    ['zh', ZH_SEARCH_RELATIVE_PATH],
-    ['en', EN_SEARCH_RELATIVE_PATH]
-  ]) {
-    const exportedPath = path.join(outDir, 'tech-center', path.basename(relativePath));
-    if (!fs.existsSync(exportedPath)) {
-      throw new Error(`Week06 Wave 1 ${variant} ${locale} search projection missing`);
-    }
-    if (
-      fs.readFileSync(exportedPath, 'utf8') !==
-      fs.readFileSync(path.join(repoRoot, relativePath), 'utf8')
-    ) {
-      throw new Error(`Week06 Wave 1 ${variant} ${locale} search projection drift`);
-    }
-  }
-  return {
-    ...source,
-    variant,
-    ownerPages,
-    hubs: expectedLocales,
-    productionObserved: 0,
-    stagedPagesVerified: ownerPages,
-    ownerLeaks: 0,
-    localeDrift: 0,
-    sitemapDrift: 0,
-    searchDrift: 0,
-    brokenInternalLinks: 0
-  };
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
-}
-
-function writeStaticHtml(outDir, route, html) {
-  const relative = route.replace(/^\/+|\/+$/g, '');
-  const filePath = path.join(outDir, `${relative}.html`);
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, html);
+function verifyWeek06Wave1Live(repoRoot, options) {
+  return delivery.verifyWeek06Wave1Live(repoRoot, options, verifyWeek06Wave1Source);
 }
 
 function writeWeek06Wave1ExportFixture(repoRoot, outDir, variant) {
-  const projection = readJson(repoRoot, PROJECTION_RELATIVE_PATH);
-  for (const identity of projection.identities) {
-    if (variant !== 'preview' && identity.owner !== variant) continue;
-    const route = variant === 'preview' ? identity.reviewPath : identity.canonicalPath;
-    const language = identity.locale === 'zh' ? 'zh-CN' : 'en';
-    const robots = variant === 'preview' ? 'noindex, nofollow' : 'index, follow';
-    const source = projection.registry.find((entry) => entry.identity === identity.key)?.source;
-    const sourceLabel = identity.locale === 'zh' ? 'FastGPT 官方来源' : 'FastGPT official source';
-    writeStaticHtml(
-      outDir,
-      route,
-      `<!doctype html><html lang="${language}"><head><link rel="canonical" href="${
-        identity.canonical
-      }"><link rel="alternate" hreflang="${language}" href="${
-        identity.canonical
-      }"><meta name="robots" content="${robots}"></head><body><main><a href="${
-        variant === 'preview' ? `/${identity.locale}/tech-center` : '/tech-center'
-      }">Technical Center</a><a href="${escapeHtml(
-        source
-      )}">${sourceLabel}</a></main><script type="application/ld+json">{"url":"${
-        identity.canonical
-      }","inLanguage":"${language}"}</script></body></html>`
-    );
-  }
-  const locales = variant === 'preview' ? ['zh', 'en'] : [variant === 'cn' ? 'zh' : 'en'];
-  for (const locale of locales) {
-    const identities = projection.identities.filter((identity) => identity.locale === locale);
-    const searchPath =
-      locale === 'zh' ? '/tech-center/search-index.json' : '/tech-center/search-index.en.json';
-    const links = identities
-      .slice(0, 12)
-      .map((identity) => {
-        const route = variant === 'preview' ? identity.reviewPath : identity.canonicalPath;
-        return `<article class="technical-card"><a class="technical-card-link" href="${route}"><span>${identity.key}</span></a></article>`;
-      })
-      .join('');
-    const language = locale === 'zh' ? 'zh-CN' : 'en';
-    const canonical = `${OWNER_ORIGINS[locale]}/tech-center`;
-    const robots = variant === 'preview' ? 'noindex, nofollow' : 'index, follow';
-    writeStaticHtml(
-      outDir,
-      variant === 'preview' ? `/${locale}/tech-center` : '/tech-center',
-      `<!doctype html><html lang="${language}"><head><link rel="canonical" href="${canonical}"><link rel="alternate" hreflang="zh-CN" href="${OWNER_ORIGINS.zh}/tech-center"><link rel="alternate" hreflang="en" href="${OWNER_ORIGINS.en}/tech-center"><meta name="robots" content="${robots}"></head><body data-search-index="${searchPath}">${links}<script type="application/ld+json">{"url":"${canonical}","inLanguage":"${language}"}</script></body></html>`
-    );
-  }
-  fs.mkdirSync(path.join(outDir, 'tech-center'), { recursive: true });
-  fs.copyFileSync(
-    path.join(repoRoot, ZH_SEARCH_RELATIVE_PATH),
-    path.join(outDir, 'tech-center/search-index.json')
-  );
-  fs.copyFileSync(
-    path.join(repoRoot, EN_SEARCH_RELATIVE_PATH),
-    path.join(outDir, 'tech-center/search-index.en.json')
-  );
-  if (variant !== 'preview') {
-    const urls = projection.identities
-      .filter((identity) => identity.owner === variant)
-      .map((identity) => `<url><loc>${identity.canonical}</loc></url>`)
-      .join('');
-    fs.writeFileSync(path.join(outDir, 'sitemap.xml'), `<urlset>${urls}</urlset>`);
-  }
-}
-
-function verifyWeek06Wave1ExportFixtures(repoRoot = path.resolve(__dirname, '../..')) {
-  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'week06-wave1-export-'));
-  try {
-    const results = {};
-    for (const variant of ['cn', 'io', 'preview']) {
-      const outDir = path.join(temporaryRoot, variant);
-      writeWeek06Wave1ExportFixture(repoRoot, outDir, variant);
-      results[variant] = verifyWeek06Wave1Export(repoRoot, { outDir, variant });
-    }
-    return {
-      ownerPages: Object.fromEntries(
-        Object.entries(results).map(([variant, result]) => [variant, result.ownerPages])
-      ),
-      hubs: Object.fromEntries(
-        Object.entries(results).map(([variant, result]) => [variant, result.hubs])
-      ),
-      productionObserved: 0,
-      stagedPagesVerified:
-        results.cn.stagedPagesVerified +
-        results.io.stagedPagesVerified +
-        results.preview.stagedPagesVerified,
-      ownerLeaks: 0,
-      localeDrift: 0,
-      sitemapDrift: 0,
-      searchDrift: 0,
-      brokenInternalLinks: 0
-    };
-  } finally {
-    fs.rmSync(temporaryRoot, { recursive: true, force: true });
-  }
-}
-
-async function readLiveResponse(fetchImpl, url, expectedContentType) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000);
-  timeout.unref?.();
-  try {
-    const response = await fetchImpl(url, { redirect: 'manual', signal: controller.signal });
-    if (!response || response.status !== 200) {
-      throw new Error(`Week06 Wave 1 live HTTP status drift: ${url}`);
-    }
-    const contentType = response.headers?.get?.('content-type') || '';
-    if (!contentType.toLowerCase().includes(expectedContentType)) {
-      throw new Error(`Week06 Wave 1 live content type drift: ${url}`);
-    }
-    return response.text();
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-async function verifyNonOwnerResponse(fetchImpl, url, identity) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000);
-  timeout.unref?.();
-  try {
-    const response = await fetchImpl(url, { redirect: 'manual', signal: controller.signal });
-    if (!response) throw new Error(`Week06 Wave 1 non-owner response missing: ${url}`);
-    if ([404, 410].includes(response.status)) return;
-    if ([301, 302, 307, 308].includes(response.status)) {
-      const location = response.headers?.get?.('location');
-      if (location && new URL(location, url).href === identity.canonical) return;
-      throw new Error(`Week06 Wave 1 non-owner redirect drift: ${identity.key}`);
-    }
-    if (response.status === 200) {
-      const html = await response.text();
-      const canonicalTag = html.match(/<link\b[^>]*rel=["']canonical["'][^>]*>/i)?.[0] || '';
-      const robotsTag = html.match(/<meta\b[^>]*name=["']robots["'][^>]*>/i)?.[0] || '';
-      const robots = getHtmlAttribute(robotsTag, 'content') || '';
-      if (
-        getHtmlAttribute(canonicalTag, 'href') === identity.canonical &&
-        /(?:^|[,\s])noindex(?:$|[,\s])/i.test(robots)
-      ) {
-        return;
-      }
-    }
-    throw new Error(`Week06 Wave 1 non-owner indexable copy: ${identity.key}`);
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-async function mapWithConcurrency(values, concurrency, operation) {
-  let nextIndex = 0;
-  const results = new Array(values.length);
-  await Promise.all(
-    Array.from({ length: Math.min(concurrency, values.length) }, async () => {
-      while (nextIndex < values.length) {
-        const index = nextIndex;
-        nextIndex += 1;
-        results[index] = await operation(values[index], index);
-      }
-    })
-  );
-  return results;
-}
-
-async function verifyWeek06Wave1Live(
-  repoRoot = path.resolve(__dirname, '../..'),
-  { fetchImpl = globalThis.fetch } = {}
-) {
-  if (typeof fetchImpl !== 'function') {
-    throw new Error('Week06 Wave 1 live verification requires fetch');
-  }
-  const source = verifyWeek06Wave1Source(repoRoot, { verifyExportFixtures: false });
-  const projection = readJson(repoRoot, PROJECTION_RELATIVE_PATH);
-  await mapWithConcurrency(projection.identities, 5, async (identity) => {
-    const html = await readLiveResponse(fetchImpl, identity.canonical, 'text/html');
-    verifyArticleHtml(html, identity, identity.owner);
-  });
-  await mapWithConcurrency(projection.identities, 5, async (identity) => {
-    const oppositeLocale = identity.owner === 'cn' ? 'en' : 'zh';
-    const nonOwnerUrl = `${OWNER_ORIGINS[oppositeLocale]}${identity.canonicalPath}`;
-    await verifyNonOwnerResponse(fetchImpl, nonOwnerUrl, identity);
-  });
-  const sitemapByOwner = new Map();
-  for (const [owner, locale] of [
-    ['cn', 'zh'],
-    ['io', 'en']
-  ]) {
-    const sitemapUrl = `${OWNER_ORIGINS[locale]}/sitemap.xml`;
-    const xml = await readLiveResponse(fetchImpl, sitemapUrl, 'xml');
-    sitemapByOwner.set(
-      owner,
-      [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1])
-    );
-  }
-  let sitemapVerified = 0;
-  for (const identity of projection.identities) {
-    for (const owner of ['cn', 'io']) {
-      const membership = sitemapByOwner
-        .get(owner)
-        .filter((url) => url === identity.canonical).length;
-      const expectedMembership = identity.owner === owner ? 1 : 0;
-      if (membership !== expectedMembership) {
-        throw new Error(`Week06 Wave 1 live sitemap drift: ${identity.key}`);
-      }
-    }
-    sitemapVerified += 1;
-  }
-  return {
-    ...source,
-    liveHttpVerified: true,
-    productionObserved: projection.identities.length,
-    http200: projection.identities.length,
-    canonicalVerified: projection.identities.length,
-    languageVerified: projection.identities.length,
-    sitemapVerified,
-    nonOwnerChecked: projection.identities.length,
-    nonOwnerIndexable: 0,
-    ownerLeaks: 0
-  };
+  return delivery.writeWeek06Wave1ExportFixture(repoRoot, outDir, variant);
 }
 
 module.exports = {
@@ -1589,7 +948,7 @@ module.exports = {
   loadWeek06Wave1Contract,
   loadWeek06Wave1Selection,
   verifyWeek06Wave1Selection,
-  verifyWeek06Wave1AtomicRollback,
+  verifyWeek06Wave1RollbackOnError,
   verifyWeek06Wave1Export,
   verifyWeek06Wave1ExportFixtures,
   verifyWeek06Wave1Live,

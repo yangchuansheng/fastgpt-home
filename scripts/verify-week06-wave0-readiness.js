@@ -8,8 +8,8 @@ const os = require('node:os');
 const path = require('node:path');
 const zlib = require('node:zlib');
 const { applyRollbackProjection } = require('./lib/technical-projection');
-const { identityKey, stableJson } = require('./lib/technical-authority');
-const { readWeek06Wave1IdentityKeys } = require('./lib/technical-wave-baseline');
+const { stableJson } = require('./lib/technical-authority');
+const { loadTechnicalWaveState } = require('./lib/technical-wave-baseline');
 const {
   digestJson,
   directoryInventory,
@@ -65,25 +65,17 @@ function assertDigest(value, label) {
 function readWave0ArtifactBytes(rootDir, relativePath) {
   const artifactPath = resolveArtifact(rootDir, relativePath);
   const bytes = fs.readFileSync(artifactPath);
-  if (
-    relativePath !== 'src/components/tech-center/entries.json' &&
-    relativePath !== 'public/tech-center/search-index.json' &&
-    relativePath !== 'public/tech-center/search-index.en.json'
-  ) {
-    return bytes;
+  const baseline = loadTechnicalWaveState(rootDir, 'week05-wave2');
+  if (relativePath === 'src/components/tech-center/entries.json') {
+    return Buffer.from(stableJson(baseline.entries));
   }
-
-  const week06Wave1IdentityKeys = readWeek06Wave1IdentityKeys(rootDir);
-  const entries = JSON.parse(bytes);
-  const historical = entries.filter((entry) => {
-    if (relativePath.startsWith('public/')) {
-      return !week06Wave1IdentityKeys.has(entry.identity);
-    }
-    const match = entry.slug?.match(/^\/([^/]+)(\/.*)$/);
-    assert(match, `Invalid Technical Page slug: ${entry.slug}`);
-    return !week06Wave1IdentityKeys.has(identityKey({ locale: match[1], canonicalPath: match[2] }));
-  });
-  return Buffer.from(stableJson(historical));
+  if (relativePath === 'public/tech-center/search-index.json') {
+    return Buffer.from(stableJson(baseline.searchByLocale.zh));
+  }
+  if (relativePath === 'public/tech-center/search-index.en.json') {
+    return Buffer.from(stableJson(baseline.searchByLocale.en));
+  }
+  return bytes;
 }
 
 function median(values) {
@@ -125,11 +117,11 @@ function loadReadinessContract(rootDir = ROOT, contractPath = CONTRACT_PATH) {
   );
   for (const tracer of Object.values(contract.tracers)) {
     assert.equal(tracer.sourceVerified, true, 'tracer source verification drift');
-    assert.equal(tracer.exportVerified, true, 'tracer export verification drift');
+    assert.equal(tracer.fixtureVerified, true, 'tracer fixture verification drift');
   }
   assert.equal(contract.capacityBaseline.status, 'recorded');
   assert.equal(contract.releaseManifest.status, 'source-verified');
-  assert.equal(contract.releaseManifest.exportStatus, 'export-verified');
+  assert.equal(contract.releaseManifest.exportStatus, 'fixture-verified');
   assert.equal(contract.releaseManifest.governanceStatus, 'governance-complete');
   assert.equal(contract.releaseManifest.publicationCount, 0);
   assert.deepEqual(contract.releaseManifest.surfaces, PUBLIC_SURFACES);
@@ -145,7 +137,7 @@ function loadReadinessContract(rootDir = ROOT, contractPath = CONTRACT_PATH) {
   );
   for (const surface of ['sitemap', 'staticExport', 'internalLinks']) {
     assert.deepEqual(contract.releaseManifest.surfaceEvidence[surface], {
-      source: 'completed-tracer-export',
+      source: 'completed-tracer-fixture',
       baselineSurface: surface
     });
   }
@@ -222,7 +214,7 @@ function loadExportSurfaceBaseline(rootDir, contract) {
   );
   const baseline = readJson(baselinePath, 'completed tracer export surface baseline');
   assert.equal(baseline.schemaVersion, 1);
-  assert.equal(baseline.kind, 'week06-wave0-completed-tracer-export-surfaces');
+  assert.equal(baseline.kind, 'week06-wave0-completed-tracer-fixture-surfaces');
   assert.deepEqual(baseline.sourceCommands, [
     contract.tracers.englishExistingCategory.command,
     contract.tracers.modelGlossary.command
@@ -343,7 +335,7 @@ function verifyCapacityBaseline(rootDir, contract) {
     assert.equal(measurement.kind, 'week06-wave0-capacity-measurement');
     assert.equal(measurement.measurementId, reference.measurementId);
     assert.equal(measurement.command, 'node scripts/verify-week06-wave0-readiness.js');
-    assert.equal(measurement.scope, 'completed-tracer-export-generation');
+    assert.equal(measurement.scope, 'completed-tracer-fixture-generation');
     assert.equal(measurement.statistic, 'median');
     assert.equal(measurement.sampleCount, measurement.durationSamplesMilliseconds.length);
     assert(
@@ -364,7 +356,7 @@ function verifyCapacityBaseline(rootDir, contract) {
   }
 }
 
-function verifyAtomicRollback({ rootDir = ROOT, contract }) {
+function verifyRollbackOnError({ rootDir = ROOT, contract }) {
   const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'week06-wave0-rollback-'));
   const sourceRoot = path.join(temporaryRoot, 'source');
   const restoreRoot = path.join(temporaryRoot, 'restore');
@@ -429,7 +421,7 @@ function verifyAtomicRollback({ rootDir = ROOT, contract }) {
       contract.rollbackManifest.baselineSha256,
       'rollback baseline digest drift'
     );
-    return 'atomic';
+    return 'rollback-on-error';
   } finally {
     fs.rmSync(temporaryRoot, { recursive: true, force: true });
   }
@@ -462,10 +454,11 @@ function verifyWeek06Wave0Readiness({
     contract.releaseManifest.baselineSha256,
     'release baseline digest drift'
   );
-  const rollback = verifyAtomicRollback({ rootDir, contract });
+  const rollback = verifyRollbackOnError({ rootDir, contract });
   assert.deepEqual(contract.coordinator, {
     sourceVerified: true,
-    exportVerified: true,
+    fixtureVerified: true,
+    exportVerified: false,
     governanceStatus: 'governance-complete',
     publicationCount: 0
   });
@@ -474,6 +467,7 @@ function verifyWeek06Wave0Readiness({
     issue: contract.issue,
     wave: contract.wave,
     sourceVerified: contract.coordinator.sourceVerified,
+    fixtureVerified: contract.coordinator.fixtureVerified,
     exportVerified: contract.coordinator.exportVerified,
     governanceStatus: contract.coordinator.governanceStatus,
     publicationCount: contract.coordinator.publicationCount,
@@ -524,6 +518,6 @@ module.exports = {
   loadReadinessContract,
   main,
   parseArgs,
-  verifyAtomicRollback,
+  verifyRollbackOnError,
   verifyWeek06Wave0Readiness
 };

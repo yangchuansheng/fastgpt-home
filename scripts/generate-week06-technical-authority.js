@@ -3,8 +3,16 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
-const zlib = require('node:zlib');
 const yaml = require('js-yaml');
+const {
+  buildEvidence,
+  buildOperationRisk,
+  buildSecurity,
+  classifySource,
+  looseFrontMatter
+} = require('./lib/week06-technical-candidate');
+const { loadTechnicalWaveState } = require('./lib/technical-wave-baseline');
+const { openZipEntries, readXmlRows } = require('./lib/xlsx');
 
 const ROOT = path.resolve(__dirname, '..');
 const OUTPUT_DIR = path.join(ROOT, 'src/content/tech-center/authority');
@@ -80,72 +88,11 @@ function resolveBatchRoot(sourceRoot) {
   return path.join(sourceRoot, '程序化技术页-第4批');
 }
 
-function zipEntries(buffer) {
-  const eocd = buffer.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
-  if (eocd === -1) throw new Error('Invalid XLSX source: ZIP end record is missing');
-  const count = buffer.readUInt16LE(eocd + 10);
-  const directoryOffset = buffer.readUInt32LE(eocd + 16);
-  const entries = new Map();
-  let offset = directoryOffset;
-  for (let index = 0; index < count; index += 1) {
-    if (buffer.readUInt32LE(offset) !== 0x02014b50)
-      throw new Error('Invalid XLSX central directory');
-    const method = buffer.readUInt16LE(offset + 10);
-    const compressedSize = buffer.readUInt32LE(offset + 20);
-    const nameLength = buffer.readUInt16LE(offset + 28);
-    const extraLength = buffer.readUInt16LE(offset + 30);
-    const commentLength = buffer.readUInt16LE(offset + 32);
-    const localOffset = buffer.readUInt32LE(offset + 42);
-    const name = buffer.toString('utf8', offset + 46, offset + 46 + nameLength);
-    entries.set(name, { method, compressedSize, localOffset });
-    offset += 46 + nameLength + extraLength + commentLength;
-  }
-  return (name) => {
-    const entry = entries.get(name);
-    if (!entry) return null;
-    const localNameLength = buffer.readUInt16LE(entry.localOffset + 26);
-    const localExtraLength = buffer.readUInt16LE(entry.localOffset + 28);
-    const start = entry.localOffset + 30 + localNameLength + localExtraLength;
-    const compressed = buffer.subarray(start, start + entry.compressedSize);
-    if (entry.method === 0) return compressed;
-    if (entry.method === 8) return zlib.inflateRawSync(compressed);
-    throw new Error(`Unsupported XLSX compression method ${entry.method}`);
-  };
-}
-
-function decodeXml(value) {
-  return value
-    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
-    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'");
-}
-
-function readXmlRows(xml) {
-  return [...xml.matchAll(/<row\b[^>]*>([\s\S]*?)<\/row>/g)].map(([, body]) => {
-    const values = {};
-    for (const match of body.matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
-      const attributes = match[1];
-      const content = match[2] || '';
-      const cell = attributes.match(/\br="([^"]+)"/);
-      if (!cell) continue;
-      const column = cell[1].replace(/\d+$/, '');
-      const text = content.match(/<t[^>]*>([\s\S]*?)<\/t>/)?.[1];
-      const numeric = content.match(/<v>([\s\S]*?)<\/v>/)?.[1];
-      values[column] = decodeXml(text ?? numeric ?? '').trim();
-    }
-    return values;
-  });
-}
-
 function readWorkbook(batchRoot) {
   const workbookPath = path.join(batchRoot, WORKBOOK_NAME);
   if (!fs.existsSync(workbookPath))
     throw new Error(`Missing Week06 technical workbook: ${workbookPath}`);
-  const getEntry = zipEntries(fs.readFileSync(workbookPath));
+  const getEntry = openZipEntries(fs.readFileSync(workbookPath));
   const sheet = getEntry('xl/worksheets/sheet1.xml');
   if (!sheet) throw new Error('Week06 technical workbook is missing sheet1');
   const rows = readXmlRows(sheet.toString('utf8'));
@@ -201,185 +148,6 @@ function readWorkbook(batchRoot) {
     sha256: sha256(fs.readFileSync(workbookPath)),
     records
   };
-}
-
-function looseFrontMatter(source) {
-  const match = source.match(/^---\n([\s\S]*?)\n---(?:\n|$)/);
-  const block = match?.[1] || '';
-  const values = {};
-  for (const line of block.split('\n')) {
-    const separator = line.indexOf(':');
-    if (separator <= 0) continue;
-    values[line.slice(0, separator).trim()] = line.slice(separator + 1).trim();
-  }
-  return { block, body: match ? source.slice(match[0].length) : source, values };
-}
-
-const CREDENTIAL_PATTERNS = [
-  ['token', /\bsk-[A-Za-z0-9][A-Za-z0-9_-]{5,}\b/gi],
-  ['bearer', /\bBearer\s+[A-Za-z0-9._~+/=-]{6,}/gi],
-  ['jwt', /\beyJ[A-Za-z0-9._-]{20,}\b/g],
-  ['access-key', /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/g],
-  ['private-key', /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g],
-  ['dsn', /\b(?:mysql|postgres(?:ql)?|mongodb(?:\+srv)?):\/\/[^\s`]+/gi],
-  [
-    'credential-assignment',
-    /\b(?:api[_-]?key|access[_-]?token|chat_api_key|token_key|password|secret)\s*[:=]\s*["'`]?[^\s,"'`}]+/gi
-  ],
-  ['credential-query', /[?&](?:token|key|secret|api[_-]?key|access[_-]?token)=[^&\s)`]+/gi],
-  ['auth-header', /\b(?:Authorization|X-[A-Za-z0-9-]*(?:Token|Key))\s*[:=]\s*[^\s,;`)]+/gi]
-];
-
-const OPERATION_PATTERNS = [
-  ['docker-volume-removal', /docker(?:[- ]compose)?\s+down[^\n`]*-v/gi],
-  ['docker-system-prune', /docker\s+system\s+prune/gi],
-  ['docker-builder-prune', /docker\s+builder\s+prune/gi],
-  ['recursive-delete', /rm\s+-rf[^\n`]*/gi],
-  ['persistent-data-delete', /删除[^\n]*(?:持久化数据目录|数据库目录|数据卷|数据目录)/gi],
-  ['lockfile-delete', /(?:rm\s+-rf|删除)[^\n]*(?:pnpm-lock|package-lock|yarn\.lock|lockfile)/gi],
-  ['cache-delete', /(?:rm\s+-rf|删除)[^\n]*(?:\.next|缓存)/gi],
-  ['permission-change', /(?:chmod|chown)\s+[^\n`]*/gi]
-];
-
-function redactCredential(value) {
-  return String(value)
-    .replace(/\bsk-[A-Za-z0-9][A-Za-z0-9_-]{5,}\b/gi, '[REDACTED_CREDENTIAL]')
-    .replace(/\bBearer\s+[A-Za-z0-9._~+/=-]{6,}/gi, 'Bearer [REDACTED_CREDENTIAL]')
-    .replace(/\beyJ[A-Za-z0-9._-]{20,}\b/g, '[REDACTED_CREDENTIAL]')
-    .replace(/\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/g, '[REDACTED_CREDENTIAL]')
-    .replace(/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g, '[REDACTED_CREDENTIAL]')
-    .replace(
-      /\b((?:mysql|postgres(?:ql)?|mongodb(?:\+srv)?):\/\/)[^\s`:@]+:[^\s`@]+@/gi,
-      '$1[REDACTED_CREDENTIAL]@'
-    )
-    .replace(
-      /(\b(?:api[_-]?key|access[_-]?token|password|secret)\s*[:=]\s*["'`]?)[^\s,"'`}]+/gi,
-      '$1[REDACTED_CREDENTIAL]'
-    )
-    .replace(
-      /([?&](?:token|key|secret|api[_-]?key|access[_-]?token)=)[^&\s)`]+/gi,
-      '$1[REDACTED_CREDENTIAL]'
-    );
-}
-
-function scanPatterns(source, patterns) {
-  const matches = [];
-  const lines = source.split('\n');
-  lines.forEach((line, lineIndex) => {
-    patterns.forEach(([kind, pattern]) => {
-      pattern.lastIndex = 0;
-      for (const match of line.matchAll(pattern)) {
-        matches.push({ kind, line: lineIndex + 1, raw: match[0] });
-      }
-    });
-  });
-  const seen = new Set();
-  return matches.filter((match) => {
-    const key = `${match.kind}|${match.line}|${match.raw}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-function buildSecurity(source, sourceFile, sourceUrl) {
-  const findings = scanPatterns(source, CREDENTIAL_PATTERNS).map((match) => ({
-    kind: match.kind,
-    location: { sourceFile, line: match.line },
-    fingerprint: sha256(redactCredential(match.raw)),
-    disposition: 'redacted',
-    reviewer: 'technical-governance',
-    evidence: sourceUrl,
-    replacement: '[REDACTED_CREDENTIAL]'
-  }));
-  return {
-    status: findings.length ? 'redacted-secret' : 'clear',
-    findings
-  };
-}
-
-function buildOperationRisk(source, sourceFile, sourceUrl) {
-  const findings = scanPatterns(source, OPERATION_PATTERNS);
-  const level = findings.some((finding) =>
-    ['docker-system-prune', 'docker-volume-removal', 'persistent-data-delete'].includes(
-      finding.kind
-    )
-  )
-    ? 'D0'
-    : findings.some((finding) =>
-        [
-          'recursive-delete',
-          'permission-change',
-          'lockfile-delete',
-          'docker-builder-prune'
-        ].includes(finding.kind)
-      )
-    ? 'D1'
-    : findings.length
-    ? 'D2'
-    : 'none';
-  const guidance = {
-    none: {
-      warning: 'No destructive operation identified in the candidate.',
-      prerequisite: 'Confirm the documented environment and version before review.',
-      rollback: 'Restore the prior technical-content authority snapshot.',
-      decision: 'cleared'
-    },
-    D0: {
-      warning: 'The source describes an operation that can affect persistent state.',
-      prerequisite: 'Require a verified backup and an approved recovery runbook.',
-      rollback: 'Restore the verified backup and keep the operation outside publication.',
-      decision: 'denied'
-    },
-    D1: {
-      warning: 'The source describes an operation that can affect a bounded service resource.',
-      prerequisite: 'Limit the operation to the named workspace and confirm a recent backup.',
-      rollback: 'Restore the prior image or configuration and rerun bounded verification.',
-      decision: 'safeguarded'
-    },
-    D2: {
-      warning: 'The source describes a reproducible cache or generated-artifact operation.',
-      prerequisite: 'Confirm the target is regenerable and record the rebuild result.',
-      rollback: 'Rebuild the generated artifact from the pinned source revision.',
-      decision: 'safeguarded'
-    }
-  }[level];
-  return {
-    level,
-    ...guidance,
-    findings: findings.map((finding) => ({
-      kind: finding.kind,
-      location: { sourceFile, line: finding.line },
-      fingerprint: sha256(redactCredential(finding.raw)),
-      evidence: sourceUrl,
-      disposition: level === 'D0' ? 'denied' : level === 'none' ? 'cleared' : 'safeguarded'
-    }))
-  };
-}
-
-function buildEvidence(title, source, sourceUrl, sourceType, pageType) {
-  const fingerprint = redactCredential(
-    source
-      .replace(/^---[\s\S]*?---\s*/m, '')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, 240)
-  );
-  return {
-    status: sourceUrl ? 'verified' : 'needs-evidence',
-    sources: sourceUrl ? [sourceUrl] : [],
-    fingerprint: fingerprint || title,
-    applicability: `${sourceType} ${pageType} content; verify the target FastGPT version before use.`
-  };
-}
-
-function classifySource(category, sourceType) {
-  if (category === 'compare') return 'comparison-kb';
-  if (sourceType.includes('GitHub')) return 'github-issue';
-  if (sourceType.includes('错误码')) return 'open-source-error-code';
-  if (sourceType.includes('升级')) return 'official-upgrade-note';
-  if (sourceType.includes('术语')) return 'supported-glossary-source';
-  return 'official-document';
 }
 
 function readCandidate(filePath, sourceRoot, workbookRecord) {
@@ -709,12 +477,13 @@ function closeManifest(manifest, batchRoot) {
   const sourceSetSha256 = sha256(
     candidates.map((candidate) => `${candidate.id}|${candidate.provenance.sourceSha256}`).join('\n')
   );
+  const historicalBaseline = loadTechnicalWaveState(ROOT, 'week05-wave1');
   const baseline = {
     batch: 'week05',
     status: 'deployed-registry',
-    pageCount: JSON.parse(fs.readFileSync(path.join(ROOT, WEEK05_REGISTRY), 'utf8')).length,
+    pageCount: historicalBaseline.entries.length,
     registryPath: WEEK05_REGISTRY,
-    registrySha256: sha256(fs.readFileSync(path.join(ROOT, WEEK05_REGISTRY))),
+    registrySha256: sha256(stableJson(historicalBaseline.entries)),
     releaseManifestPath: WEEK05_RELEASE_MANIFEST,
     releaseManifestSha256: sha256(fs.readFileSync(path.join(ROOT, WEEK05_RELEASE_MANIFEST))),
     authorityPath: WEEK05_AUTHORITY,

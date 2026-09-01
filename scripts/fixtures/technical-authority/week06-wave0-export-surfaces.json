@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "kind": "week06-wave0-completed-tracer-export-surfaces",
+  "kind": "week06-wave0-completed-tracer-fixture-surfaces",
   "sourceCommands": [
     "node scripts/verify-week06-english-tracer.js",
     "node scripts/verify-week06-model-glossary-tracers.js"

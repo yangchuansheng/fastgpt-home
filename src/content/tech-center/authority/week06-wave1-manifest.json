@@ -3,7 +3,7 @@
   "issue": 266,
   "batch": "week06",
   "wave": "wave-1",
-  "status": "release-eligible",
+  "status": "source-verified",
   "identitySet": [
     "en|/api/fastgpt-chat-api-reference",
     "en|/api/fastgpt-api-dataset-collection-create-2",
@@ -264,7 +264,7 @@
   },
   "projection": {
     "path": "src/content/tech-center/authority/week06-wave1-projection.json",
-    "sha256": "cca2e1b072291cc55e05b5c6ba0bb85d52f0d7a638a398b4831d98d96e5cf72a",
+    "sha256": "690591e6e969c429963455e6d7bf3490f18bc4d4d871d2fe25c48fe4f65459f8",
     "identitySet": [
       "en|/api/fastgpt-chat-api-reference",
       "en|/api/fastgpt-api-dataset-collection-create-2",
@@ -376,16 +376,17 @@
   },
   "provenance": {
     "contractPath": "scripts/fixtures/technical-authority/week06-wave1-contract.json",
-    "contractSha256": "9930e012390180f4f3a9c37af017f0b6facd98e6b8a56a723f3f59d29de35155",
+    "contractSha256": "9cdbaa814f8893f1a8909c7bfaa76fd3b5472de9a1c853a7cc9704e8392b3ce9",
     "authorityPath": "src/content/tech-center/authority/week06-candidate-manifest.json",
     "authoritySha256": "7803bad860bb15d46529a0f7a1b0109122f93529b085afe6718fc2ffa09d81a8",
     "sourceSetSha256": "9f509a7f3677e2d1924ef25dcee45b0f9ced9947da6fe315084eade1f91c551c"
   },
   "verification": {
     "sourceVerified": true,
-    "exportVerified": true,
-    "releaseEligible": true,
+    "fixtureVerified": true,
+    "exportVerified": false,
+    "releaseEligible": false,
     "productionObserved": false,
-    "evidenceSource": "staged-static-owner-projection"
+    "evidenceSource": "staged-static-owner-fixture"
   }
 }

@@ -8,9 +8,9 @@ const {
   buildWeek06Wave1Package,
   loadWeek06Wave1Contract,
   loadWeek06Wave1Selection,
-  verifyWeek06Wave1AtomicRollback,
   verifyWeek06Wave1ExportFixtures,
   verifyWeek06Wave1Live,
+  verifyWeek06Wave1RollbackOnError,
   verifyWeek06Wave1Source,
   verifyWeek06Wave1Selection,
   writeWeek06Wave1ExportFixture
@@ -121,13 +121,14 @@ test('Week06 Wave 1 committed source package preserves one exact identity set', 
   assert.equal(result.projectionDrift, 0);
   assert.equal(result.hygieneFindings, 0);
   assert.equal(result.sourceVerified, true);
-  assert.equal(result.exportVerified, true);
-  assert.equal(result.releaseEligible, true);
+  assert.equal(result.fixtureVerified, true);
+  assert.equal(result.exportVerified, false);
+  assert.equal(result.releaseEligible, false);
   assert.equal(result.productionObserved, false);
 });
 
 test('Week06 Wave 1 partial write restores every real surface byte and digest', () => {
-  const result = verifyWeek06Wave1AtomicRollback(ROOT);
+  const result = verifyWeek06Wave1RollbackOnError(ROOT);
 
   assert.equal(result.restored, true);
   assert.equal(result.surfaceCount, 58);
@@ -144,6 +145,8 @@ test('Week06 Wave 1 staged CN, IO, and Preview exports preserve owner isolation'
   assert.deepEqual(result.hubs, { cn: ['zh'], io: ['en'], preview: ['zh', 'en'] });
   assert.equal(result.productionObserved, 0);
   assert.equal(result.stagedPagesVerified, 100);
+  assert.equal(result.fixtureVerified, true);
+  assert.equal(result.exportVerified, false);
   assert.equal(result.ownerLeaks, 0);
   assert.equal(result.localeDrift, 0);
   assert.equal(result.sitemapDrift, 0);
@@ -291,6 +294,16 @@ test('Week06 Wave 1 rejects selection mutations and invalid CLI input', () => {
   assert.throws(() => parseArgs(['--unknown']), /Unknown option/);
   assert.deepEqual(parseArgs(['--live']), {
     mode: 'live',
+    outDir: null,
+    variant: null
+  });
+  assert.deepEqual(parseArgs(['--rollback-on-error']), {
+    mode: 'rollback',
+    outDir: null,
+    variant: null
+  });
+  assert.deepEqual(parseArgs(['--atomic-rollback']), {
+    mode: 'rollback',
     outDir: null,
     variant: null
   });
