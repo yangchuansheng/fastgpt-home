@@ -137,6 +137,9 @@ function verifyWeek06Wave1Export(
   const registryByIdentity = new Map(
     projection.registry.map((entry) => [entry.identity, entry])
   );
+  const ownedPaths = new Set(
+    projection.identities.map((identity) => `${identity.owner}|${identity.canonicalPath}`)
+  );
   const sitemapPath = path.join(outDir, 'sitemap.xml');
   const sitemapUrls = fs.existsSync(sitemapPath)
     ? [...fs.readFileSync(sitemapPath, 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(
@@ -160,7 +163,10 @@ function verifyWeek06Wave1Export(
         getExpectedArticleTitle(repoRoot, identity, registryByIdentity.get(identity.key))
       );
       ownerPages += 1;
-    } else if (htmlPath || resolveStaticHtml(outDir, identity.reviewPath)) {
+    } else if (
+      (!ownedPaths.has(`${variant}|${identity.canonicalPath}`) && htmlPath) ||
+      resolveStaticHtml(outDir, identity.reviewPath)
+    ) {
       throw new Error(`Week06 Wave 1 ${variant} owner leak: ${identity.key}`);
     }
     const membership = sitemapUrls.filter((url) => url === identity.canonical).length;
@@ -411,6 +417,9 @@ async function verifyWeek06Wave1Live(
   const registryByIdentity = new Map(
     projection.registry.map((entry) => [entry.identity, entry])
   );
+  const ownedPaths = new Set(
+    projection.identities.map((identity) => `${identity.owner}|${identity.canonicalPath}`)
+  );
   await mapWithConcurrency(projection.identities, 5, async (identity) => {
     const html = await readLiveResponse(fetchImpl, identity.canonical, 'text/html');
     verifyArticleHtml(
@@ -420,10 +429,13 @@ async function verifyWeek06Wave1Live(
       getExpectedArticleTitle(repoRoot, identity, registryByIdentity.get(identity.key))
     );
   });
-  await mapWithConcurrency(projection.identities, 5, async (identity) => {
+  const nonOwnerResults = await mapWithConcurrency(projection.identities, 5, async (identity) => {
     const oppositeLocale = identity.owner === 'cn' ? 'en' : 'zh';
+    const oppositeOwner = identity.owner === 'cn' ? 'io' : 'cn';
+    if (ownedPaths.has(`${oppositeOwner}|${identity.canonicalPath}`)) return false;
     const nonOwnerUrl = `${OWNER_ORIGINS[oppositeLocale]}${identity.canonicalPath}`;
     await verifyNonOwnerResponse(fetchImpl, nonOwnerUrl, identity);
+    return true;
   });
   const sitemapByOwner = new Map();
   for (const [owner, locale] of [
@@ -458,7 +470,7 @@ async function verifyWeek06Wave1Live(
     canonicalVerified: projection.identities.length,
     languageVerified: projection.identities.length,
     sitemapVerified,
-    nonOwnerChecked: projection.identities.length,
+    nonOwnerChecked: nonOwnerResults.filter(Boolean).length,
     nonOwnerIndexable: 0,
     ownerLeaks: 0
   };

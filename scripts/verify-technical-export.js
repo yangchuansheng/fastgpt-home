@@ -4,14 +4,18 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { buildRedirects, getTechIdentities, parseNginxRedirectMap } = require('./lib/redirects');
+const {
+  buildRedirects,
+  getTechIdentities,
+  getTechRoutesToRemove,
+  parseNginxRedirectMap
+} = require('./lib/redirects');
 const { getProductionBaseUrls, resolveSiteVariant } = require('./lib/site-variant');
 const TECHNICAL_CONTENT_POLICY = require('../src/lib/technical-content-policy.json');
 
 const ROOT = path.resolve(__dirname, '..');
 const OUT_DIR = path.join(ROOT, 'out');
 const NEXT_DIR = path.join(ROOT, '.next');
-const ENTRIES_PATH = path.join(ROOT, 'src/components/tech-center/entries.json');
 const TECH_ROUTE_SOURCE = path.join(ROOT, 'src/app/[lang]/[section]/[slug]/page.tsx');
 const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
 
@@ -165,12 +169,11 @@ function verifyTechnicalExport({
   outDir = OUT_DIR,
   nextDir = NEXT_DIR,
   variant = resolveSiteVariant(),
-  env = process.env
+  env = process.env,
+  identities = getTechIdentities(ROOT),
+  expectedPageCount = EXPECTED_TECHNICAL_PAGE_COUNT
 } = {}) {
-  const entries = JSON.parse(fs.readFileSync(ENTRIES_PATH, 'utf8'));
-  const identities = getTechIdentities(ROOT);
-  assert.equal(entries.length, EXPECTED_TECHNICAL_PAGE_COUNT, 'Unexpected Technical Page count');
-  assert.equal(identities.length, EXPECTED_TECHNICAL_PAGE_COUNT, 'Unexpected identity count');
+  assert.equal(identities.length, expectedPageCount, 'Unexpected identity count');
   assert(
     fs.readFileSync(TECH_ROUTE_SOURCE, 'utf8').includes('export const dynamicParams = false'),
     'Technical detail route must reject unpublished paths'
@@ -181,6 +184,7 @@ function verifyTechnicalExport({
   const robots = variant === 'preview' ? 'noindex, nofollow' : 'index, follow';
 
   if (variant === 'cn' || variant === 'io') {
+    const routesToRemove = getTechRoutesToRemove(identities, variant);
     for (const identity of identities) {
       const owner = identity.locale === 'zh' ? 'cn' : 'io';
       if (owner === variant) {
@@ -191,7 +195,7 @@ function verifyTechnicalExport({
           robots,
           identity.locale === 'zh' ? 'zh-CN' : 'en'
         );
-      } else {
+      } else if (routesToRemove.has(identity.canonicalPath)) {
         assert(
           !resolveHtmlPath(outDir, identity.canonicalPath),
           `${variant} export contains non-owner route ${identity.canonicalPath}`

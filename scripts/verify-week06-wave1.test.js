@@ -15,10 +15,90 @@ const {
   verifyWeek06Wave1Selection,
   writeWeek06Wave1ExportFixture
 } = require('./lib/week06-technical-wave1');
+const {
+  verifyWeek06Wave1ExportFixtures: verifyBilingualExportFixtures,
+  verifyWeek06Wave1Live: verifyBilingualLive
+} = require('./lib/week06-wave1-delivery');
 const { parseArgs } = require('./verify-week06-wave1');
 const { parseArgs: parseGenerateArgs } = require('./generate-week06-wave1');
 
 const ROOT = path.resolve(__dirname, '..');
+
+function writeBilingualWave1Fixture(repoRoot) {
+  const identities = [
+    {
+      key: 'zh|/api/shared-guide',
+      candidateId: 'zh-shared',
+      locale: 'zh',
+      owner: 'cn',
+      canonicalPath: '/api/shared-guide',
+      reviewPath: '/zh/api/shared-guide',
+      canonical: 'https://fastgpt.cn/api/shared-guide'
+    },
+    {
+      key: 'en|/api/shared-guide',
+      candidateId: 'en-shared',
+      locale: 'en',
+      owner: 'io',
+      canonicalPath: '/api/shared-guide',
+      reviewPath: '/en/api/shared-guide',
+      canonical: 'https://fastgpt.io/api/shared-guide'
+    }
+  ];
+  const projectionPath = path.join(
+    repoRoot,
+    'src/content/tech-center/authority/week06-wave1-projection.json'
+  );
+  const registry = identities.map((identity) => ({
+    identity: identity.key,
+    title: identity.locale === 'zh' ? '共享指南' : 'Shared guide',
+    source: 'https://doc.fastgpt.io/docs/shared-guide'
+  }));
+  fs.mkdirSync(path.dirname(projectionPath), { recursive: true });
+  fs.writeFileSync(projectionPath, JSON.stringify({ identities, registry }));
+  for (const identity of identities) {
+    const articlePath = path.join(
+      repoRoot,
+      'src/content/tech-center',
+      identity.locale,
+      'api/shared-guide.md'
+    );
+    fs.mkdirSync(path.dirname(articlePath), { recursive: true });
+    fs.writeFileSync(
+      articlePath,
+      `meta_title: ${identity.locale === 'zh' ? '共享指南' : 'Shared guide'}\n`
+    );
+  }
+  for (const relativePath of [
+    'public/tech-center/search-index.json',
+    'public/tech-center/search-index.en.json'
+  ]) {
+    const searchPath = path.join(repoRoot, relativePath);
+    fs.mkdirSync(path.dirname(searchPath), { recursive: true });
+    fs.writeFileSync(searchPath, '[]\n');
+  }
+}
+
+function createFixtureFetch(fixtureRoot) {
+  return async (url) => {
+    const parsed = new URL(url);
+    const variant = parsed.hostname === 'fastgpt.cn' ? 'cn' : 'io';
+    const outDir = path.join(fixtureRoot, variant);
+    const relative = parsed.pathname.replace(/^\/+|\/+$/g, '');
+    const candidates =
+      relative === 'sitemap.xml'
+        ? [path.join(outDir, 'sitemap.xml')]
+        : [path.join(outDir, `${relative}.html`), path.join(outDir, relative, 'index.html')];
+    const filePath = candidates.find((candidate) => fs.existsSync(candidate));
+    return {
+      status: filePath ? 200 : 404,
+      headers: {
+        get: () => (relative === 'sitemap.xml' ? 'application/xml' : 'text/html; charset=utf-8')
+      },
+      text: async () => (filePath ? fs.readFileSync(filePath, 'utf8') : '')
+    };
+  };
+}
 
 test('Week06 Wave 1 approves exactly 25 Chinese and 25 English identities', () => {
   const contract = loadWeek06Wave1Contract(ROOT);
@@ -52,6 +132,51 @@ test('Week06 Wave 1 selection passes authority, source, security, risk, and coll
   assert.match(result.authoritySha256, /^[a-f0-9]{64}$/);
   assert.match(result.selectionSha256, /^[a-f0-9]{64}$/);
   assert.match(result.sourceSetSha256, /^[a-f0-9]{64}$/);
+});
+
+test('Week06 Wave 1 selection accepts the same canonical path in different locales', () => {
+  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'week06-wave1-bilingual-'));
+  try {
+    for (const relativePath of [
+      'scripts/fixtures/technical-authority/week06-wave1-contract.json',
+      'src/content/tech-center/authority/week06-wave1-selection.json',
+      'src/content/tech-center/authority/week06-candidate-manifest.json',
+      'src/components/tech-center/entries.json'
+    ]) {
+      const target = path.join(temporaryRoot, relativePath);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.copyFileSync(path.join(ROOT, relativePath), target);
+    }
+    const selectionPath = path.join(
+      temporaryRoot,
+      'src/content/tech-center/authority/week06-wave1-selection.json'
+    );
+    const authorityPath = path.join(
+      temporaryRoot,
+      'src/content/tech-center/authority/week06-candidate-manifest.json'
+    );
+    const selection = JSON.parse(fs.readFileSync(selectionPath, 'utf8'));
+    const authority = JSON.parse(fs.readFileSync(authorityPath, 'utf8'));
+    const selected = selection.candidateIds.map((candidateId) =>
+      authority.candidates.find((candidate) => candidate.id === candidateId)
+    );
+    const chinese = selected.find((candidate) => candidate.identity.locale === 'zh');
+    const english = selected.find((candidate) => candidate.identity.locale === 'en');
+    english.identity.canonicalPath = chinese.identity.canonicalPath;
+    english.identity.sourcePath = `/en${chinese.identity.canonicalPath}`;
+    selection.identitySet[
+      selection.candidateIds.indexOf(english.id)
+    ] = `en|${chinese.identity.canonicalPath}`;
+    fs.writeFileSync(authorityPath, JSON.stringify(authority));
+    fs.writeFileSync(selectionPath, JSON.stringify(selection));
+
+    const result = verifyWeek06Wave1Selection(temporaryRoot);
+    assert.equal(result.selectedCount, 50);
+    assert.equal(result.identityCollisions, 0);
+    assert.equal(result.readerPathCollisions, 0);
+  } finally {
+    fs.rmSync(temporaryRoot, { recursive: true, force: true });
+  }
 });
 
 test('Week06 Wave 1 builds bilingual reader content and one 50-identity projection', () => {
@@ -156,30 +281,36 @@ test('Week06 Wave 1 staged CN, IO, and Preview exports preserve owner isolation'
   assert.equal(result.brokenInternalLinks, 0);
 });
 
+test('Week06 Wave 1 accepts a bilingual shared path in all exports and live verification', async () => {
+  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'week06-wave1-shared-path-'));
+  const verifySource = () => ({ repositoryConsistent: true, sourceVerified: true });
+  try {
+    writeBilingualWave1Fixture(temporaryRoot);
+    const fixtures = verifyBilingualExportFixtures(temporaryRoot, verifySource);
+    assert.deepEqual(fixtures.ownerPages, { cn: 1, io: 1, preview: 2 });
+
+    for (const variant of ['cn', 'io']) {
+      writeWeek06Wave1ExportFixture(temporaryRoot, path.join(temporaryRoot, variant), variant);
+    }
+    const fixtureFetch = createFixtureFetch(temporaryRoot);
+    const live = await verifyBilingualLive(
+      temporaryRoot,
+      { fetchImpl: fixtureFetch },
+      verifySource
+    );
+    assert.equal(live.nonOwnerChecked, 0);
+  } finally {
+    fs.rmSync(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
 test('Week06 Wave 1 live verifier requires 50 owner HTTP pages and exact sitemaps', async () => {
   const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'week06-wave1-live-'));
   try {
     for (const variant of ['cn', 'io']) {
       writeWeek06Wave1ExportFixture(ROOT, path.join(temporaryRoot, variant), variant);
     }
-    const fixtureFetch = async (url) => {
-      const parsed = new URL(url);
-      const variant = parsed.hostname === 'fastgpt.cn' ? 'cn' : 'io';
-      const outDir = path.join(temporaryRoot, variant);
-      const relative = parsed.pathname.replace(/^\/+|\/+$/g, '');
-      const candidates =
-        relative === 'sitemap.xml'
-          ? [path.join(outDir, 'sitemap.xml')]
-          : [path.join(outDir, `${relative}.html`), path.join(outDir, relative, 'index.html')];
-      const filePath = candidates.find((candidate) => fs.existsSync(candidate));
-      return {
-        status: filePath ? 200 : 404,
-        headers: {
-          get: () => (relative === 'sitemap.xml' ? 'application/xml' : 'text/html; charset=utf-8')
-        },
-        text: async () => (filePath ? fs.readFileSync(filePath, 'utf8') : '')
-      };
-    };
+    const fixtureFetch = createFixtureFetch(temporaryRoot);
     const result = await verifyWeek06Wave1Live(ROOT, { fetchImpl: fixtureFetch });
     assert.equal(result.liveHttpVerified, true);
     assert.equal(result.productionObserved, 50);

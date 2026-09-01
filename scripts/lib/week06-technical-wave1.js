@@ -223,15 +223,11 @@ function verifyWeek06Wave1Selection(repoRoot = path.resolve(__dirname, '../..'))
     return candidate;
   });
   const selectedIdentityKeys = selected.map((candidate) => identityKey(candidate.identity));
-  const selectedReaderPaths = selected.map((candidate) => candidate.identity.canonicalPath);
   const selectedKeySet = new Set(selectedIdentityKeys);
   const baselineEntries = entries.filter(
     (entry) => !selectedKeySet.has(identityKey(parseEntryIdentity(entry)))
   );
   const baselineIdentityKeys = new Set(baselineEntries.map(parseEntryIdentity).map(identityKey));
-  const baselineReaderPaths = new Set(
-    baselineEntries.map((entry) => parseEntryIdentity(entry).canonicalPath)
-  );
 
   for (const candidate of selected) {
     const label = candidate.id;
@@ -285,9 +281,6 @@ function verifyWeek06Wave1Selection(repoRoot = path.resolve(__dirname, '../..'))
     if (baselineIdentityKeys.has(identityKey(candidate.identity))) {
       throw new Error(`${label} collides with the production registry`);
     }
-    if (baselineReaderPaths.has(candidate.identity.canonicalPath)) {
-      throw new Error(`${label} collides with an existing reader path`);
-    }
   }
 
   if (new Set(selectedIdentityKeys).size !== selected.length) {
@@ -295,9 +288,6 @@ function verifyWeek06Wave1Selection(repoRoot = path.resolve(__dirname, '../..'))
   }
   if (JSON.stringify(selectedIdentityKeys) !== JSON.stringify(selection.identitySet)) {
     throw new Error('Week06 Wave 1 approved identity set drift');
-  }
-  if (new Set(selectedReaderPaths).size !== selected.length) {
-    throw new Error('Week06 Wave 1 selected reader paths collide');
   }
   const localeCounts = { zh: 0, en: 0 };
   const cohortCounts = { official: 0, errorCode: 0, model: 0, glossary: 0 };
