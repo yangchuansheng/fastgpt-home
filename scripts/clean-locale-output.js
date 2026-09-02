@@ -31,6 +31,11 @@ const aliasAuthorityMetadata = {
   authoritySourceHosts: aliasAuthoritySummary.sourceHosts,
   authorityManyToOneTargets: aliasAuthoritySummary.manyToOneTargets
 };
+const blogEntries = require('../src/content/blog/registry.json').entries;
+const blogCategories = ['product-updates', 'technical-insights'];
+const blogProductionReady = blogCategories.every((category) =>
+  blogEntries.some((entry) => entry.status === 'published' && entry.category === category)
+);
 
 function removePath(targetPath) {
   if (!fs.existsSync(targetPath)) return 0;
@@ -96,6 +101,13 @@ if (variant === 'preview') {
 } else {
   removed += removeRoute('/zh/guide');
   removed += removeRoute('/en/guide');
+}
+
+if (variant === 'preview') {
+  removed += removeRoute('/blog');
+} else {
+  removed += removeRoute('/zh/blog');
+  if (variant !== 'cn' || !blogProductionReady) removed += removeRoute('/blog');
 }
 
 const { cnRedirects, ioRedirects } = buildRedirects(rootDir);

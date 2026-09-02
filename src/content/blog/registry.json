@@ -1,0 +1,30 @@
+{
+  "entries": [
+    {
+      "slug": "product-update-adoption-path",
+      "sourceName": "product-update-adoption-path.md",
+      "status": "draft",
+      "category": "product-updates",
+      "title": "FastGPT 产品上新：从功能发布到团队采用的完整路径",
+      "summary": "从能力变化、适用场景、使用步骤和升级影响四个角度，展示一篇产品上新文章应如何帮助团队完成采用。",
+      "metaTitle": "FastGPT 产品上新：功能发布与团队采用路径",
+      "metaDescription": "了解 FastGPT 产品上新内容如何说明能力变化、适用场景、使用步骤与升级影响，帮助开发团队高效评估和采用新能力。",
+      "datePublished": "2026-09-02",
+      "dateModified": "2026-09-02",
+      "minutes": 4
+    },
+    {
+      "slug": "verifiable-rag-optimization-loop",
+      "sourceName": "verifiable-rag-optimization-loop.md",
+      "status": "draft",
+      "category": "technical-insights",
+      "title": "FastGPT RAG 优化：建立可验证的检索与回答闭环",
+      "summary": "把 RAG 优化拆成问题集、检索证据、回答质量和持续迭代四个环节，用可重复的指标验证每次调整。",
+      "metaTitle": "FastGPT RAG 优化：可验证的检索与回答闭环",
+      "metaDescription": "学习如何用 FastGPT 建立可验证的 RAG 优化闭环，覆盖测试问题集、检索证据、回答质量指标与持续迭代方法。",
+      "datePublished": "2026-09-01",
+      "dateModified": "2026-09-02",
+      "minutes": 6
+    }
+  ]
+}

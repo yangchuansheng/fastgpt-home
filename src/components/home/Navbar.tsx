@@ -15,8 +15,13 @@ import { LangSwitcher } from '@/components/header/LangSwitcher';
 import Image from 'next/image';
 import { localeConfigs, type LocaleCode } from '@/lib/locales';
 import { RYBBIT_EVENTS, rybbitClickAttrs } from '@/lib/rybbitEvents';
-import { getPublishedLocaleCodes } from '@/lib/siteRouting';
-import { getReviewLocalePath } from '@/lib/siteRouting';
+import { isBlogProductionReady } from '@/content/blog/registry';
+import {
+  currentSiteVariant,
+  getPublishedLocaleCodes,
+  getReviewLocalePath,
+  isPreviewSite
+} from '@/lib/siteRouting';
 import { useContactUrl } from '@/components/home/hooks/useContactUrl';
 
 interface NavLink {
@@ -76,7 +81,10 @@ export default function Navbar({
   const desktopStartUrl = useStartUrl();
   const mobileStartUrl = useStartUrl();
   const pathname = usePathname();
-  const resolvedLinks = links.filter((link) => link.href !== '/tech-center');
+  const blogAvailable = isPreviewSite || (currentSiteVariant === 'cn' && isBlogProductionReady);
+  const resolvedLinks = links.filter(
+    (link) => link.href !== '/tech-center' && (link.href !== '/blog' || blogAvailable)
+  );
   const routeWithoutLang = (() => {
     if (!params?.lang) return pathname;
     const currentLangPrefix = `/${params.lang}`;

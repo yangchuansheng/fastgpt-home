@@ -6,9 +6,12 @@ import CloudEntryLink from '@/components/home/CloudEntryLink';
 import { RYBBIT_EVENTS, rybbitClickAttrs } from '@/lib/rybbitEvents';
 import { isContactHref } from '@/lib/consultation';
 import { getDefaultLocalePath } from '@/lib/clientNavigation';
+import { isBlogProductionReady } from '@/content/blog/registry';
+import { getBlogReviewPath } from '@/lib/blogSeo';
 import { getGuideReviewPath } from '@/lib/guideSeo';
 import { normalizeLocale } from '@/lib/locales';
 import { getContactPublishedLocale } from '@/lib/publishedLocales';
+import { currentSiteVariant, isPreviewSite } from '@/lib/siteRouting';
 
 type ColumnLink = { label: string; href: string; external?: boolean; cloudEntrySource?: string };
 type Column = { title: string; width: number; items: (ColumnLink | { label: string })[] };
@@ -24,6 +27,7 @@ type FooterT = {
       title: string;
       items: {
         docs: string;
+        blog?: string;
         guide: string;
         faq: string;
         learning: string;
@@ -42,6 +46,9 @@ function buildColumns(t: FooterT['columns'], locale?: string): Column[] {
   const normalizedLocale = normalizeLocale(locale);
   const faqLocale = normalizedLocale === 'zh' ? 'zh' : 'en';
   const guideLocale = normalizedLocale === 'zh' ? 'zh' : 'en';
+  const blogAvailable =
+    normalizedLocale === 'zh' &&
+    (isPreviewSite || (currentSiteVariant === 'cn' && isBlogProductionReady));
 
   return [
     {
@@ -80,6 +87,15 @@ function buildColumns(t: FooterT['columns'], locale?: string): Column[] {
           href: getGuideReviewPath(guideLocale),
           external: false
         },
+        ...(blogAvailable && t.links.items.blog
+          ? [
+              {
+                label: t.links.items.blog,
+                href: getBlogReviewPath(),
+                external: false
+              }
+            ]
+          : []),
         {
           label: t.links.items.learning,
           href: 'https://video.fastgpt.cn/videos',

@@ -19,7 +19,8 @@ export default function HomeLayoutSwitcher({ dict, children }: HomeLayoutSwitche
   const isTechArticle =
     /\/(?:api|dataset|deploy|integration|node|troubleshoot|tutorial)\/[^/]+$/.test(pathname);
   const isSelfContained =
-    /\/(?:faq|price|tech-center|compare|contact|guide)(?:\/|$)/.test(pathname) || isTechArticle;
+    /\/(?:faq|price|tech-center|compare|contact|guide|blog)(?:\/|$)/.test(pathname) ||
+    isTechArticle;
 
   if (isHome || isSelfContained) {
     return <>{children}</>;

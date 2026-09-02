@@ -9,6 +9,10 @@
       "href": "https://doc.fastgpt.io/docs/introduction"
     },
     {
+      "label": "Blog",
+      "href": "/blog"
+    },
+    {
       "label": "学习中心",
       "href": "https://video.fastgpt.cn/videos"
     },
@@ -466,6 +470,7 @@
           "title": "链接",
           "items": {
             "docs": "官网文档",
+            "blog": "Blog",
             "guide": "指南",
             "faq": "常见问题",
             "learning": "学习中心",
