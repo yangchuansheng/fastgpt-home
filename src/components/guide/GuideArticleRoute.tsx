@@ -75,7 +75,17 @@ export async function GuideArticleRoute({
         publishedLocales={GUIDE_PUBLISHED_LOCALES}
         reviewLocalePaths={isPreviewSite}
       />
-      <GuideArticlePage document={document} locale={locale} />
+      <GuideArticlePage
+        document={document}
+        locale={locale}
+        cta={{
+          eyebrow: dict.FAQ.sidebarEyebrow,
+          title: dict.FAQ.sidebarTitle,
+          description: dict.FAQ.sidebarDescription,
+          consultLabel: dict.Home.navCta.consult,
+          trialLabel: dict.FAQ.sidebarCta
+        }}
+      />
       <Footer t={dict.Home.footer} locale={locale} />
     </div>
   );
