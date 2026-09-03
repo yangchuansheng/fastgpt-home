@@ -53,10 +53,10 @@ const ACCEPTANCE_COMMANDS = {
   http: 'npm run verify:technical-full-release-approval -- --verify-http-evidence "$PRODUCTION_HTTP_EVIDENCE" "$PRODUCTION_HTTP_EVIDENCE_SHA256"'
 };
 const UPSTREAM_REVISIONS = {
-  identityClosure: 'f7f847806d6ac83c17d4cc5e1fc29b591477143e',
-  capacityReport: '4b13834a32e1477a39270fa0ae2ea84bd33c56ae',
-  buildDecision: '7f2d539d8d1ecc429aac7645a9f1167a16ab2814',
-  productionSwitch: 'c8ac1a47d72cc5095a90e3c6e8a8ad4d307e92fd'
+  identityClosure: 'bf026d79655eb296ea1d8101a5bf49523a9a7fda',
+  capacityReport: '522cb25f86567d7f5dad736c8b925dad30d978be',
+  buildDecision: '1d2bf27b5fbaed5ace9a20566241cf1bbdbba8bc',
+  productionSwitch: '37d7eec36d1741f6139c062d3549ff33d11d2bbf'
 };
 const FAILURE_THRESHOLDS = [
   { metric: 'owner-unavailable', operator: '>=', value: 1 },
@@ -318,8 +318,17 @@ function verifyTechnicalFullReleaseApproval({
   const failedVariants = capacity.variants
     .filter(({ buildSucceeded, postBuildVerified }) => !buildSucceeded || !postBuildVerified)
     .map(({ variant }) => variant);
-  const capacityReady = failedVariants.length === 0 && capacity.decision.safeOneShotFullRelease;
-  assert.equal(contract.lineage.capacityReport.successfulRerun, capacityReady);
+  const staleCapacityMeasurement =
+    capacity.measurementBinding?.status === 'stale-after-source-normalization';
+  const capacityReady =
+    !staleCapacityMeasurement &&
+    failedVariants.length === 0 &&
+    capacity.decision.safeOneShotFullRelease;
+  assert.equal(
+    contract.lineage.capacityReport.successfulRerun,
+    capacityReady,
+    'capacity rerun state drift'
+  );
   assert.deepEqual(contract.lineage.capacityReport.failedVariants, failedVariants);
   if (!capacityReady) {
     assert(capacity.variants.every(({ failure }) => failure?.includes('ENOSPC')));
@@ -466,6 +475,17 @@ function verifyTechnicalFullReleaseApproval({
     assert.deepEqual(item.evidence, expectedReference, `${item.code} evidence reference drift`);
   }
   const states = deriveStates(statusByCode);
+  if (staleCapacityMeasurement) {
+    assert.equal(
+      statusByCode['successful-4007-page-capacity-rerun'],
+      'blocked',
+      'stale capacity measurement must keep approval blocked'
+    );
+    assert(
+      states.releaseBlockers.includes('successful-4007-page-capacity-rerun'),
+      'stale capacity measurement must keep release blocked'
+    );
+  }
   assert.deepEqual(
     contract.approvalBlockers,
     states.approvalBlockers,

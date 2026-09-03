@@ -217,6 +217,15 @@ test('post-switch HTTP evidence does not deadlock pre-release approval', () => {
   );
 });
 
+test('stale capacity measurement keeps approval and release blocked', () => {
+  assertContractRejected((contract) => {
+    contract.requiredEvidence[0].status = 'passed';
+  }, /successful-4007-page-capacity-rerun status does not match evidence/);
+  assertContractRejected((contract) => {
+    contract.lineage.capacityReport.successfulRerun = true;
+  }, /capacity rerun state drift/);
+});
+
 test('unrelated JSON cannot forge candidate approval evidence', () => {
   const packageBytes = fs.readFileSync(path.join(ROOT, 'package.json'));
   const packageSha256 = crypto.createHash('sha256').update(packageBytes).digest('hex');
