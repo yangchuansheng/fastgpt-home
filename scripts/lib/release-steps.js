@@ -99,6 +99,12 @@ function getSourceNodeSteps() {
       []
     ],
     [
+      'technical-full-release-build-decision.source',
+      'Technical full-release build decision verification',
+      'scripts/verify-technical-full-release-build-decision.js',
+      []
+    ],
+    [
       'week06-wave0-readiness.source',
       'Week06 bilingual Technical Wave 0 readiness verification',
       'scripts/verify-week06-wave0-readiness.js',
@@ -140,6 +146,11 @@ function getSourceNpmSteps() {
       'technical-wave2.regression',
       'technical wave 2 regression',
       ['verify:technical-wave2-regression']
+    ],
+    [
+      'technical-full-release-build-decision.regression',
+      'Technical full-release build decision regression',
+      ['verify:technical-full-release-build-decision-regression']
     ],
     [
       'week06-wave0-readiness.regression',

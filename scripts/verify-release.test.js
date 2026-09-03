@@ -128,6 +128,7 @@ test('release coordinator gates technical content and every site variant', () =>
     'verify:technical-content-regression',
     'verify:technical-center-regression',
     'verify:technical-export-regression',
+    'verify:technical-full-release-build-decision-regression',
     'verify:release-readiness',
     'verify:week06-wave0-readiness-regression',
     'verify:week06-wave1-regression'
@@ -137,6 +138,10 @@ test('release coordinator gates technical content and every site variant', () =>
   const readinessStep = getSourceNodeSteps().find(
     ([stepId]) => stepId === 'week06-wave0-readiness.source'
   );
+  const buildDecisionStep = getSourceNodeSteps().find(
+    ([stepId]) => stepId === 'technical-full-release-build-decision.source'
+  );
+  assert.equal(buildDecisionStep[2], 'scripts/verify-technical-full-release-build-decision.js');
   assert.equal(readinessStep[2], 'scripts/verify-week06-wave0-readiness.js');
   const wave1Step = getSourceNodeSteps().find(([stepId]) => stepId === 'week06-wave1.source');
   assert.equal(wave1Step[2], 'scripts/verify-week06-wave1.js');

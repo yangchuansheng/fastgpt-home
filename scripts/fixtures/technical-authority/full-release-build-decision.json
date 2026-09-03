@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "issue": 276,
+  "status": "closed",
+  "decidedAt": "2026-09-03T10:15:00.000Z",
+  "sourceRevision": "4b13834a32e1477a39270fa0ae2ea84bd33c56ae",
+  "evidence": {
+    "capacityReport": {
+      "path": "scripts/fixtures/technical-authority/full-release-capacity.json",
+      "sha256": "c6ca2e3ce6b0a76ac0ce4c9a570c5ac118824f3a03d190e82c4f37048bc6f36c",
+      "issue": 275,
+      "sourceRevision": "f7f847806d6ac83c17d4cc5e1fc29b591477143e",
+      "pages": 4007,
+      "recordsSha256": "9ccbac8a5bd4c3bcf3f06fff4f6937f5405e491ac0af49efccdd56372cc608b6"
+    },
+    "observedBoundary": {
+      "failingVariants": ["cn", "io", "preview"],
+      "failureCode": "ENOSPC",
+      "maxPeakRssBytes": 5560156160,
+      "maxPartialNextBuildBytes": 3442494968,
+      "projectionBytes": 5254333,
+      "conclusion": "working-storage-boundary"
+    }
+  },
+  "decision": {
+    "path": "increase-build-resources",
+    "coordinator": "npm run verify:release -- --retain-success-artifacts <staging-directory>",
+    "commands": {
+      "preflight": "npm run verify:technical-full-release-build-decision",
+      "build": "npm run verify:release -- --retain-success-artifacts <staging-directory>",
+      "activate": "kubectl set image deployment/fastgpt-home fastgpt-home=<immutable-artifact-image>",
+      "rollback": "kubectl set image deployment/fastgpt-home fastgpt-home=<previous-complete-artifact-image>"
+    },
+    "rationale": [
+      "All three production-style variants reached ENOSPC in Next.js build output.",
+      "Measured peak RSS stayed below the measured host memory, so working storage is the observed capacity boundary.",
+      "The existing release coordinator already builds variants sequentially, cleans between variants, runs artifact gates, and retains namespaced outputs."
+    ],
+    "resources": {
+      "nodeMajor": 24,
+      "caseSensitiveFilesystem": true,
+      "minimumLogicalCpuCount": 10,
+      "minimumMemoryBytes": 25769803776,
+      "workingDisk": {
+        "kind": "dedicated-ephemeral",
+        "minimumFreeBytesAtStart": 17179869184,
+        "successfulCapacityRerunRequired": true,
+        "postSuccessHeadroomRatio": 1.25,
+        "finalMinimumRule": "max(17179869184, ceil(max-successful-working-set-bytes * 1.25))"
+      }
+    },
+    "build": {
+      "sourceCommitCount": 1,
+      "variants": ["cn", "io", "preview"],
+      "parallelism": 1,
+      "splitStaticGeneration": false,
+      "cleanBetweenVariants": true,
+      "sealOnlyAfterEveryVariantPasses": true
+    },
+    "artifact": {
+      "count": 1,
+      "id": "technical-full-release-bundle",
+      "immutable": true,
+      "digestAlgorithm": "sha256",
+      "layout": ["cn/out", "io/out", "preview/out", "manifest.json"],
+      "sourceRevisionPinned": true
+    },
+    "integrityChecks": [
+      "source-commit-equality",
+      "variant-set-exact",
+      "variant-post-build-gates",
+      "route-canonical-hreflang-sitemap",
+      "collision-free-namespaced-layout",
+      "sha256-file-inventory",
+      "bundle-sha256"
+    ],
+    "productionSwitch": {
+      "count": 1,
+      "strategy": "artifact-id-pointer-swap",
+      "requiresCompleteBundle": true,
+      "variants": ["cn", "io", "preview"]
+    },
+    "rollback": {
+      "strategy": "previous-complete-artifact",
+      "command": "kubectl set image deployment/fastgpt-home fastgpt-home=<previous-complete-artifact-image>",
+      "recordPreviousArtifactBeforeSwitch": true,
+      "verifyPreviousArtifactDigest": true,
+      "switchCount": 1,
+      "rebuild": false
+    }
+  },
+  "alternatives": [
+    {
+      "path": "reuse-current-resources",
+      "disposition": "rejected",
+      "reason": "CN, IO, and Preview each terminated with ENOSPC."
+    },
+    {
+      "path": "optimize-existing-projections",
+      "disposition": "rejected",
+      "reason": "Registry and search projections total 5,254,333 bytes while failures occurred in Next.js build output; the measurement provides no projection optimization target."
+    },
+    {
+      "path": "split-build-and-merge",
+      "disposition": "rejected",
+      "reason": "The measurement establishes a storage boundary and provides no evidence that a larger one-shot workspace is insufficient; splitting adds route, metadata, and digest merge failure modes."
+    },
+    {
+      "path": "multiple-release-artifacts-or-switches",
+      "disposition": "rejected",
+      "reason": "Multiple release units would break the required atomic commit, artifact, production switch, and rollback boundary."
+    }
+  ],
+  "releaseBlockers": [
+    "successful-4007-page-capacity-rerun-on-selected-runner",
+    "all-cn-io-preview-post-build-gates-pass",
+    "full-release-prebuild-state-transition-is-approved",
+    "io-and-preview-artifact-publication-path-is-approved",
+    "single-bundle-manifest-and-rollback-artifact-are-recorded"
+  ]
+}
