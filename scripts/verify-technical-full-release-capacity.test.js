@@ -28,7 +28,7 @@ test('capacity runner requires both frozen source roots', () => {
   );
 });
 
-test('committed capacity evidence stays bound to the frozen closure', () => {
+test('committed capacity evidence stays bound to the current closure', () => {
   const root = path.resolve(__dirname, '..');
   const report = JSON.parse(
     fs.readFileSync(
@@ -39,6 +39,30 @@ test('committed capacity evidence stays bound to the frozen closure', () => {
   const mutated = structuredClone(report);
   mutated.projection.pages += 1;
   assert.throws(() => validateCapacityReport(mutated, root), /projection drift/);
+});
+
+test('stale capacity measurements require the rerun blocker and keep release unsafe', () => {
+  const root = path.resolve(__dirname, '..');
+  const report = JSON.parse(
+    fs.readFileSync(
+      path.join(root, 'scripts/fixtures/technical-authority/full-release-capacity.json')
+    )
+  );
+  validateCapacityReport(report, root);
+
+  const digestDrift = structuredClone(report);
+  digestDrift.measurementBinding.currentRecordsSha256 = '0'.repeat(64);
+  assert.throws(() => validateCapacityReport(digestDrift, root), /current digest drift/);
+
+  const missingBlocker = structuredClone(report);
+  missingBlocker.decision.blockers = missingBlocker.decision.blockers.filter(
+    (blocker) => blocker !== 'capacity-rerun-required-after-source-normalization'
+  );
+  assert.throws(() => validateCapacityReport(missingBlocker, root), /rerun blocker is missing/);
+
+  const safeStale = structuredClone(report);
+  safeStale.decision = { safeOneShotFullRelease: true, blockers: [] };
+  assert.throws(() => validateCapacityReport(safeStale, root), /stale measurement cannot be safe/);
 });
 
 test('projection rewrites only the route identity in front matter', () => {

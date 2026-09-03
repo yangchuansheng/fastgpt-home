@@ -166,10 +166,7 @@ function sanitizeFailure(output, repoRoot) {
   try {
     roots.push(fs.realpathSync(repoRoot));
   } catch {}
-  return roots.reduce(
-    (sanitized, root) => sanitized.replaceAll(root, '<disposable-root>'),
-    output
-  );
+  return roots.reduce((sanitized, root) => sanitized.replaceAll(root, '<disposable-root>'), output);
 }
 
 function buildEnvironment(variant) {
@@ -279,7 +276,8 @@ async function main(argv = process.argv.slice(2)) {
     );
     return report;
   }
-  const disposableRoot = options.workRoot || fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-'));
+  const disposableRoot =
+    options.workRoot || fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-'));
   const cleanup = !options.workRoot;
   const repoRoot = path.join(disposableRoot, 'repo');
   const logRoot = path.join(disposableRoot, 'logs');
@@ -306,6 +304,12 @@ async function main(argv = process.argv.slice(2)) {
         physicalMemoryBytes: os.totalmem()
       },
       projection,
+      measurementBinding: {
+        measuredRecordsSha256: projection.recordsSha256,
+        currentRecordsSha256: projection.recordsSha256,
+        status: 'current',
+        rerunRequired: false
+      },
       variants: [],
       decision: null
     };

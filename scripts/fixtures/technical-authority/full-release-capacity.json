@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "issue": 275,
-  "sourceRevision": "f7f847806d6ac83c17d4cc5e1fc29b591477143e",
+  "sourceRevision": "bf026d79655eb296ea1d8101a5bf49523a9a7fda",
   "measuredAt": "2026-09-03T09:41:26.746Z",
   "command": "npm run verify:technical-full-release-capacity -- --w5-source-root <W5_ROOT> --w6-source-root <W6_ROOT>",
   "scope": "disposable-4007-page-production-static-export",
@@ -20,22 +20,29 @@
       "zh": 3492,
       "en": 515
     },
-    "recordsSha256": "9ccbac8a5bd4c3bcf3f06fff4f6937f5405e491ac0af49efccdd56372cc608b6",
+    "recordsSha256": "37b56915f8173fd3c4ecf7502ea08fd8675ff6220ea7f8d2172537847720a6de",
     "sourceFilesVerified": 2585,
     "registry": {
       "bytes": 2652671,
-      "sha256": "1d51d66343cbc35ab2322b38b748c7854c8cdff4e12069e1e05a2a7b8c1e7e64"
+      "sha256": "4013cf51d4012a54d9e9daa523a446ae7e5d64cae895cc4356f1feb30152aaa4"
     },
     "search": {
       "zh": {
         "bytes": 2356741,
-        "sha256": "a098b815db71198a56c99dabf270349b0d7e8485473de13368cbeceda6b2aab9"
+        "sha256": "0d4e855738d793460e37fa98208b6680e12ca0ba05cd139996ad10902db94679"
       },
       "en": {
         "bytes": 244921,
         "sha256": "ff270b54d96e0d9cb28230e9dccce4952b930eb50eabd508a32c8b3e5110bce5"
       }
     }
+  },
+  "measurementBinding": {
+    "measuredRecordsSha256": "9ccbac8a5bd4c3bcf3f06fff4f6937f5405e491ac0af49efccdd56372cc608b6",
+    "currentRecordsSha256": "37b56915f8173fd3c4ecf7502ea08fd8675ff6220ea7f8d2172537847720a6de",
+    "status": "stale-after-source-normalization",
+    "rerunRequired": true,
+    "rerunBlocker": "capacity-rerun-required-after-source-normalization"
   },
   "variants": [
     {
@@ -104,6 +111,7 @@
     "blockers": [
       "prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure",
       "docker-publication-is-cn-only",
+      "capacity-rerun-required-after-source-normalization",
       "one-or-more-static-exports-failed",
       "cn-post-build-gate-failed",
       "io-post-build-gate-failed",

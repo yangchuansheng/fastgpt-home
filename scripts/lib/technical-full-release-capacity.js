@@ -18,6 +18,12 @@ function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
+function assertDigest(value, label) {
+  if (typeof value !== 'string' || !/^[a-f0-9]{64}$/.test(value)) {
+    throw new Error(`${label} must be a lowercase SHA-256 digest`);
+  }
+}
+
 function resolveSourcePath(sourceRoot, batch, sourceFile) {
   const folder = batch === 'W5' ? '程序化技术页-第3批' : '程序化技术页-第4批';
   for (const root of [path.resolve(sourceRoot), path.resolve(sourceRoot, folder)]) {
@@ -37,10 +43,12 @@ function replaceFrontMatterSlug(source, slug, label) {
   }
   const header = normalized.slice(4, end);
   if (!/^slug:\s*.+$/m.test(header)) throw new Error(`${label} has no front matter slug`);
-  const body = normalized.slice(end).replace(
-    /^([ \t]*>[ \t]*(?:来源|Source|Sources|参考资料|References)[ \t]*[:：][ \t]*)(https:\/\/[^\s)]+)[ \t]*$/gimu,
-    '$1[Public source]($2)'
-  );
+  const body = normalized
+    .slice(end)
+    .replace(
+      /^([ \t]*>[ \t]*(?:来源|Source|Sources|参考资料|References)[ \t]*[:：][ \t]*)(https:\/\/[^\s)]+)[ \t]*$/gimu,
+      '$1[Public source]($2)'
+    );
   return `---\n${header.replace(/^slug:\s*.+$/m, `slug: ${slug}`)}${body}`;
 }
 
@@ -59,7 +67,9 @@ function deriveSummary(title, source) {
 }
 
 function authorityCandidates(repoRoot) {
-  const w5 = readJson(path.join(repoRoot, 'src/content/tech-center/authority/week05-authority.json'));
+  const w5 = readJson(
+    path.join(repoRoot, 'src/content/tech-center/authority/week05-authority.json')
+  );
   const w6 = readJson(
     path.join(repoRoot, 'src/content/tech-center/authority/week06-candidate-manifest.json')
   );
@@ -91,7 +101,11 @@ function projectTechnicalContent({ repoRoot, w5SourceRoot, w6SourceRoot }) {
     const slug = `/${record.locale}${record.canonicalPath}`;
     if (seen.has(slug)) throw new Error(`Projected identity already exists: ${slug}`);
     const sourcePath = resolveSourcePath(roots[record.batch], record.batch, record.sourceFile);
-    const document = replaceFrontMatterSlug(fs.readFileSync(sourcePath, 'utf8'), slug, record.sourceFile);
+    const document = replaceFrontMatterSlug(
+      fs.readFileSync(sourcePath, 'utf8'),
+      slug,
+      record.sourceFile
+    );
     const outputPath = path.join(
       repoRoot,
       'src/content/tech-center',
@@ -121,10 +135,7 @@ function projectTechnicalContent({ repoRoot, w5SourceRoot, w6SourceRoot }) {
   fs.writeFileSync(registryPath, stableJson(entries));
   for (const locale of ['zh', 'en']) {
     fs.writeFileSync(
-      path.join(
-        repoRoot,
-        `public/tech-center/search-index${locale === 'en' ? '.en' : ''}.json`
-      ),
+      path.join(repoRoot, `public/tech-center/search-index${locale === 'en' ? '.en' : ''}.json`),
       stableJson(localizedSearch[locale])
     );
   }
@@ -240,7 +251,8 @@ function validateCapacityReport(report, repoRoot) {
         'exportBytes',
         'initialJavaScriptGzipBytes'
       ]) {
-        if (!(measurement[field] > 0)) throw new Error(`${measurement.variant}.${field} is missing`);
+        if (!(measurement[field] > 0))
+          throw new Error(`${measurement.variant}.${field} is missing`);
       }
     } else if (
       typeof measurement.failure !== 'string' ||
@@ -258,6 +270,38 @@ function validateCapacityReport(report, repoRoot) {
     report.decision.safeOneShotFullRelease !== (report.decision.blockers.length === 0)
   ) {
     throw new Error('Technical full-release capacity decision drift');
+  }
+  const binding = report.measurementBinding;
+  if (!binding || typeof binding !== 'object' || Array.isArray(binding)) {
+    throw new Error('Technical full-release capacity measurement binding is missing');
+  }
+  assertDigest(binding.measuredRecordsSha256, 'capacity.measurementBinding.measuredRecordsSha256');
+  assertDigest(binding.currentRecordsSha256, 'capacity.measurementBinding.currentRecordsSha256');
+  if (!['current', 'stale-after-source-normalization'].includes(binding.status)) {
+    throw new Error('Technical full-release capacity measurement binding status changed');
+  }
+  if (typeof binding.rerunRequired !== 'boolean') {
+    throw new Error('Technical full-release capacity measurement rerun flag is missing');
+  }
+  if (binding.currentRecordsSha256 !== report.projection.recordsSha256) {
+    throw new Error('Technical full-release capacity measurement current digest drift');
+  }
+  if (binding.status === 'current') {
+    if (binding.rerunRequired || binding.measuredRecordsSha256 !== binding.currentRecordsSha256) {
+      throw new Error('Technical full-release capacity current measurement binding drift');
+    }
+  } else {
+    const rerunBlocker =
+      binding.rerunBlocker || 'capacity-rerun-required-after-source-normalization';
+    if (!binding.rerunRequired || binding.measuredRecordsSha256 === binding.currentRecordsSha256) {
+      throw new Error('Technical full-release capacity stale measurement binding drift');
+    }
+    if (report.decision.safeOneShotFullRelease) {
+      throw new Error('Technical full-release capacity stale measurement cannot be safe');
+    }
+    if (!report.decision.blockers.includes(rerunBlocker)) {
+      throw new Error('Technical full-release capacity stale measurement rerun blocker is missing');
+    }
   }
   return report;
 }
