@@ -5,15 +5,15 @@
   "scope": "decision-contract",
   "releaseState": "blocked",
   "decidedAt": "2026-09-03T10:15:00.000Z",
-  "sourceRevision": "4b13834a32e1477a39270fa0ae2ea84bd33c56ae",
+  "sourceRevision": "522cb25f86567d7f5dad736c8b925dad30d978be",
   "evidence": {
     "capacityReport": {
       "path": "scripts/fixtures/technical-authority/full-release-capacity.json",
-      "sha256": "c6ca2e3ce6b0a76ac0ce4c9a570c5ac118824f3a03d190e82c4f37048bc6f36c",
+      "sha256": "c950c7283916dbe9dbe315819e0d47886c7b12fccdc57c1f62c8e6d3aaad807c",
       "issue": 275,
-      "sourceRevision": "f7f847806d6ac83c17d4cc5e1fc29b591477143e",
+      "sourceRevision": "bf026d79655eb296ea1d8101a5bf49523a9a7fda",
       "pages": 4007,
-      "recordsSha256": "9ccbac8a5bd4c3bcf3f06fff4f6937f5405e491ac0af49efccdd56372cc608b6"
+      "recordsSha256": "37b56915f8173fd3c4ecf7502ea08fd8675ff6220ea7f8d2172537847720a6de"
     },
     "observedBoundary": {
       "failingVariants": ["cn", "io", "preview"],

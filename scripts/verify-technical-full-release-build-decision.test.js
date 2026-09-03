@@ -10,6 +10,7 @@ const {
   verifyResourcePreflight,
   verifyTechnicalFullReleaseBuildDecision
 } = require('./verify-technical-full-release-build-decision');
+const { sha256 } = require('./lib/technical-authority');
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -133,6 +134,21 @@ test('release state and blockers are derived from prerequisite evidence', () => 
       evidence: { path: 'package.json', sha256: '0'.repeat(64) }
     };
   }, /evidence digest drift/);
+});
+
+test('stale capacity measurement keeps the release blocked', () => {
+  assertDecisionRejected((decision) => {
+    decision.releaseState = 'ready';
+    decision.releaseBlockers = [];
+    decision.releasePrerequisites = decision.releasePrerequisites.map((prerequisite) => ({
+      ...prerequisite,
+      status: 'passed',
+      evidence: {
+        path: 'package.json',
+        sha256: sha256(fs.readFileSync(path.join(ROOT, 'package.json')))
+      }
+    }));
+  }, /stale capacity measurement cannot mark the release ready/);
 });
 
 test('activation and rollback reject an unexpected bundle digest', () => {

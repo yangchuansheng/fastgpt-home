@@ -153,7 +153,6 @@ function verifyTechnicalFullReleaseBuildDecision({
     'working-storage-boundary',
     'observed capacity conclusion drift'
   );
-
   const decision = contract.decision;
   assert.equal(decision.path, 'increase-build-resources', 'selected build path drift');
   assert.equal(
@@ -314,6 +313,23 @@ function verifyTechnicalFullReleaseBuildDecision({
     releaseBlockers.length === 0 ? 'ready' : 'blocked',
     'full release state does not match prerequisite evidence'
   );
+  const staleCapacityMeasurement =
+    capacity.measurementBinding?.status === 'stale-after-source-normalization';
+  if (staleCapacityMeasurement) {
+    assert.equal(
+      contract.releaseState,
+      'blocked',
+      'stale capacity measurement cannot mark the release ready'
+    );
+    const rerunPrerequisite = contract.releasePrerequisites?.find(
+      ({ code }) => code === 'successful-4007-page-capacity-rerun-on-selected-runner'
+    );
+    assert.equal(
+      rerunPrerequisite?.status,
+      'blocked',
+      'stale capacity measurement must keep the rerun prerequisite blocked'
+    );
+  }
   const contentPolicy = readJson(contentPolicyPath, 'Technical content policy');
   assert(
     contentPolicy.expectedPageCount < capacity.projection.pages || releaseBlockers.length === 0,
