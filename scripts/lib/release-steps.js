@@ -105,6 +105,12 @@ function getSourceNodeSteps() {
       []
     ],
     [
+      'technical-full-release-production-switch.source',
+      'Technical full-release production switch contract verification',
+      'scripts/verify-technical-full-release-production-switch.js',
+      []
+    ],
+    [
       'week06-wave0-readiness.source',
       'Week06 bilingual Technical Wave 0 readiness verification',
       'scripts/verify-week06-wave0-readiness.js',
@@ -151,6 +157,11 @@ function getSourceNpmSteps() {
       'technical-full-release-build-decision.regression',
       'Technical full-release build decision regression',
       ['verify:technical-full-release-build-decision-regression']
+    ],
+    [
+      'technical-full-release-production-switch.regression',
+      'Technical full-release production switch contract regression',
+      ['verify:technical-full-release-production-switch-regression']
     ],
     [
       'week06-wave0-readiness.regression',
