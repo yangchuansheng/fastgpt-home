@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "issue": 278,
+  "status": "closed",
+  "scope": "atomic-full-release-approval",
+  "approvalState": "blocked",
+  "releaseState": "blocked",
+  "approved": false,
+  "lineage": {
+    "identityClosure": {
+      "path": "src/content/tech-center/authority/full-release-identity-closure.json",
+      "sha256": "7779bb04eb10579b97afeeef39893dd623b70119204e85aa70e98488837e18b9",
+      "issue": 274,
+      "sourceRevision": "f7f847806d6ac83c17d4cc5e1fc29b591477143e",
+      "recordsSha256": "9ccbac8a5bd4c3bcf3f06fff4f6937f5405e491ac0af49efccdd56372cc608b6"
+    },
+    "capacityReport": {
+      "path": "scripts/fixtures/technical-authority/full-release-capacity.json",
+      "sha256": "c6ca2e3ce6b0a76ac0ce4c9a570c5ac118824f3a03d190e82c4f37048bc6f36c",
+      "issue": 275,
+      "sourceRevision": "f7f847806d6ac83c17d4cc5e1fc29b591477143e",
+      "reportRevision": "4b13834a32e1477a39270fa0ae2ea84bd33c56ae",
+      "targetPages": 4007,
+      "successfulRerun": false,
+      "failedVariants": ["cn", "io", "preview"],
+      "failureCode": "ENOSPC"
+    },
+    "buildDecision": {
+      "path": "scripts/fixtures/technical-authority/full-release-build-decision.json",
+      "sha256": "0cf2e2c8957f5082ce73cdb391e6fa36664ee176655203afad993f4a8a936d21",
+      "issue": 276,
+      "sourceRevision": "4b13834a32e1477a39270fa0ae2ea84bd33c56ae",
+      "contractRevision": "7f2d539d8d1ecc429aac7645a9f1167a16ab2814",
+      "pathDecision": "increase-build-resources"
+    },
+    "productionSwitch": {
+      "path": "scripts/fixtures/technical-authority/full-release-production-switch.json",
+      "sha256": "39e995fddfd8db276a6d9e71cd7f7e30efac60af38cf3e27404d1a01df69a377",
+      "issue": 277,
+      "sourceRevision": "c8ac1a47d72cc5095a90e3c6e8a8ad4d307e92fd",
+      "window": {
+        "timezone": "Asia/Shanghai",
+        "startsAt": "2026-09-08T14:00:00.000Z",
+        "endsAt": "2026-09-08T16:00:00.000Z"
+      }
+    }
+  },
+  "releaseUnit": {
+    "atomic": true,
+    "baselineCount": 1422,
+    "candidateCount": 2585,
+    "targetCount": 4007,
+    "localeCounts": {
+      "baseline": { "zh": 1397, "en": 25 },
+      "candidate": { "zh": 2095, "en": 490 },
+      "target": { "zh": 3492, "en": 515 }
+    },
+    "ownerCounts": {
+      "baseline": { "cn": 1397, "io": 25 },
+      "candidate": { "cn": 2095, "io": 490 },
+      "target": { "cn": 3492, "io": 515 }
+    },
+    "recordsSha256": "9ccbac8a5bd4c3bcf3f06fff4f6937f5405e491ac0af49efccdd56372cc608b6",
+    "identitySetSha256": "58dd50a330b8a8f8fab9a5424748d993096e5a57a270470a3582507b729f5e03"
+  },
+  "candidate": {
+    "sourceRevision": null,
+    "bundle": null,
+    "approvalEvidence": null,
+    "productionHttpEvidence": null
+  },
+  "acceptanceCommands": {
+    "source": "npm run verify:technical-full-release -- --w5-source-root \"$W5_SOURCE_ROOT\" --w6-source-root \"$W6_SOURCE_ROOT\"",
+    "export": "npm run verify:release -- --retain-success-artifacts \"$RELEASE_STAGING_DIR\"",
+    "canonical": "npm run verify:technical-export -- --variant \"$RELEASE_VARIANT\" --out-dir \"$RELEASE_VARIANT_OUT\"",
+    "hreflang": "npm run verify:technical-export -- --variant \"$RELEASE_VARIANT\" --out-dir \"$RELEASE_VARIANT_OUT\"",
+    "sitemap": "npm run verify:technical-export -- --variant \"$RELEASE_VARIANT\" --out-dir \"$RELEASE_VARIANT_OUT\"",
+    "ownerIsolation": "npm run verify:technical-export -- --variant \"$RELEASE_VARIANT\" --out-dir \"$RELEASE_VARIANT_OUT\"",
+    "contentHygiene": "node scripts/verify-content-hygiene.js --mode html --root \"$RELEASE_VARIANT_OUT\" --variant \"$RELEASE_VARIANT\"",
+    "bundle": "npm run verify:technical-full-release-build-decision -- --verify-bundle \"$RELEASE_BUNDLE\" \"$RELEASE_SOURCE_COMMIT\" \"$RELEASE_BUNDLE_SHA256\"",
+    "http": "npm run verify:technical-full-release-approval -- --verify-http-evidence \"$PRODUCTION_HTTP_EVIDENCE\" \"$PRODUCTION_HTTP_EVIDENCE_SHA256\""
+  },
+  "activation": {
+    "gate": "approvalState",
+    "command": "npm run verify:technical-full-release-approval -- --require-approved \"$RELEASE_SOURCE_COMMIT\" \"$RELEASE_BUNDLE_SHA256\" && npm run verify:technical-full-release-production-switch -- --require-ready \"$RELEASE_SOURCE_COMMIT\" \"$RELEASE_BUNDLE_SHA256\" && npm run verify:technical-full-release-build-decision -- --verify-bundle \"$RELEASE_BUNDLE\" \"$RELEASE_SOURCE_COMMIT\" \"$RELEASE_BUNDLE_SHA256\" && \"$RELEASE_CONTROLLER\" activate --artifact \"$RELEASE_BUNDLE\" --targets cn,io --record-previous \"$PREVIOUS_RELEASE_BUNDLE\""
+  },
+  "majorFailure": {
+    "triggerMode": "any-threshold",
+    "thresholds": [
+      { "metric": "owner-unavailable", "operator": ">=", "value": 1 },
+      { "metric": "candidate-http-404", "operator": ">=", "value": 1 },
+      { "metric": "candidate-http-5xx-rate-percent", "operator": ">=", "value": 1 },
+      { "metric": "canonical-mismatch", "operator": ">=", "value": 1 },
+      { "metric": "sitemap-missing", "operator": ">=", "value": 1 },
+      { "metric": "owner-isolation-failure", "operator": ">=", "value": 1 },
+      { "metric": "content-hygiene-finding", "operator": ">=", "value": 1 },
+      { "metric": "release-bundle-or-source-mismatch", "operator": ">=", "value": 1 }
+    ]
+  },
+  "baselineRestore": {
+    "pageCount": 1422,
+    "strategy": "previous-complete-artifact",
+    "immutable": true,
+    "requiresCompleteArtifact": true,
+    "command": "npm run verify:technical-full-release-build-decision -- --verify-bundle \"$PREVIOUS_RELEASE_BUNDLE\" \"$PREVIOUS_RELEASE_SOURCE_COMMIT\" \"$PREVIOUS_RELEASE_BUNDLE_SHA256\" && \"$RELEASE_CONTROLLER\" activate --artifact \"$PREVIOUS_RELEASE_BUNDLE\" --targets cn,io"
+  },
+  "requiredEvidence": [
+    {
+      "code": "successful-4007-page-capacity-rerun",
+      "phase": "pre-release",
+      "status": "blocked",
+      "evidence": null
+    },
+    {
+      "code": "build-decision-ready",
+      "phase": "pre-release",
+      "status": "blocked",
+      "evidence": null
+    },
+    {
+      "code": "production-switch-ready",
+      "phase": "pre-release",
+      "status": "blocked",
+      "evidence": null
+    },
+    {
+      "code": "candidate-approval-evidence-recorded",
+      "phase": "pre-release",
+      "status": "blocked",
+      "evidence": null
+    },
+    {
+      "code": "production-http-evidence-recorded",
+      "phase": "post-switch",
+      "status": "blocked",
+      "evidence": null
+    }
+  ],
+  "approvalBlockers": [
+    "successful-4007-page-capacity-rerun",
+    "build-decision-ready",
+    "production-switch-ready",
+    "candidate-approval-evidence-recorded"
+  ],
+  "releaseBlockers": [
+    "successful-4007-page-capacity-rerun",
+    "build-decision-ready",
+    "production-switch-ready",
+    "candidate-approval-evidence-recorded",
+    "production-http-evidence-recorded"
+  ]
+}

@@ -98,6 +98,8 @@
     "verify:technical-full-release-build-decision-regression": "node --test scripts/verify-technical-full-release-build-decision.test.js",
     "verify:technical-full-release-production-switch": "node scripts/verify-technical-full-release-production-switch.js",
     "verify:technical-full-release-production-switch-regression": "node --test scripts/verify-technical-full-release-production-switch.test.js",
+    "verify:technical-full-release-approval": "node scripts/verify-technical-full-release-approval.js",
+    "verify:technical-full-release-approval-regression": "node --test scripts/verify-technical-full-release-approval.test.js",
     "verify:technical-wave-observation": "node scripts/verify-technical-wave-observation.js",
     "verify:technical-wave-observation-regression": "node --test scripts/verify-technical-wave-observation.test.js",
     "verify:technical-center": "node scripts/verify-technical-center.js",
