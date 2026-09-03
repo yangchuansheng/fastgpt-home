@@ -3568,9 +3568,9 @@
         "sourceFile": "英文-fastgpt.io/deploy/cloudflare-r2-fastgpt-object-storage-config.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/config/object-storage",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/config/object-storage",
-        "sourceSha256": "d1e63360cb8e0a0b2355e4711d7228f5cf55996d1c3808237336988fd2e9c0c8",
-        "sourceBodySha256": "4e32e37dea4602f28705184c83e6eb21d2012afffc6295cf27b5f10b1c9461aa",
-        "bodySha256": "4e32e37dea4602f28705184c83e6eb21d2012afffc6295cf27b5f10b1c9461aa",
+        "sourceSha256": "e21069123b000fa945fdc68fd76f4ee66d7164c66fa7db413a45c5c45c34b628",
+        "sourceBodySha256": "8809e983845e62d33883f0c45d81cfe3b2ff808824913e2a6cd364aa1c3eab03",
+        "bodySha256": "8809e983845e62d33883f0c45d81cfe3b2ff808824913e2a6cd364aa1c3eab03",
         "workbookRow": 1552,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -5136,9 +5136,9 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-4122-admin-config-features.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/upgrading/4-12/4122",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/upgrading/4-12/4122",
-        "sourceSha256": "c9b80ef557941eb0d25e300c9ac0f438dcd1c1be5ba5bf716e9640402fc639a1",
-        "sourceBodySha256": "90e942942390bca84f9bfc61e2d24d16d0da116263aae7b32a819c33b5ae6cba",
-        "bodySha256": "90e942942390bca84f9bfc61e2d24d16d0da116263aae7b32a819c33b5ae6cba",
+        "sourceSha256": "0824ed1a9387b330de666644d4b57c3a7f6d0237e3089440747f19e67c225f7a",
+        "sourceBodySha256": "edfcac5b5a1ac3346ef7148b39b54102957e3bcba144558e79577828b0febcf3",
+        "bodySha256": "edfcac5b5a1ac3346ef7148b39b54102957e3bcba144558e79577828b0febcf3",
         "workbookRow": 1568,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -6745,9 +6745,9 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-41410-bug-security-fixes.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/upgrading/4-14/41410",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/upgrading/4-14/41410",
-        "sourceSha256": "3b3425ac913c79bcdc77bf8ed0381be82e918ceff0110e71f3bba8c4714a145b",
-        "sourceBodySha256": "b13ca95aa47af41b297a658a8a98f5999731d0dce4c17f9d0c7eae70609bff96",
-        "bodySha256": "b13ca95aa47af41b297a658a8a98f5999731d0dce4c17f9d0c7eae70609bff96",
+        "sourceSha256": "973233277da228cb4d47c275919af5911a86f1de0a766af58ee02989bf1371e0",
+        "sourceBodySha256": "fae1ab7cc2cd7b1bc5c6205f9d8c45f5d39ded4d026e587622aa317a3defff5c",
+        "bodySha256": "fae1ab7cc2cd7b1bc5c6205f9d8c45f5d39ded4d026e587622aa317a3defff5c",
         "workbookRow": 1584,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -8721,9 +8721,9 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-415-environment-variables.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/upgrading/4-15/41501",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/upgrading/4-15/41501",
-        "sourceSha256": "233d1c05ba83edd8d195dd63b14d7be5168cc82d99e427c5fff37a82a8dd64b9",
-        "sourceBodySha256": "becd478603c1ffe81057c5749cf80359df89cd9510c2a124640603ec1d04ad8c",
-        "bodySha256": "becd478603c1ffe81057c5749cf80359df89cd9510c2a124640603ec1d04ad8c",
+        "sourceSha256": "7379536ae4628e1a8fb5d61ad1207b900e4c37af338ac2b49a7247f7b41f1c5e",
+        "sourceBodySha256": "d04d06f83b02de761c3c64450b916c4801b73291e9575f6c18298b22a2eadc4c",
+        "bodySha256": "d04d06f83b02de761c3c64450b916c4801b73291e9575f6c18298b22a2eadc4c",
         "workbookRow": 1604,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -15760,9 +15760,9 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-marker-pdf-parsing.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/custom-models/marker",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/custom-models/marker",
-        "sourceSha256": "143b03e01bf8598a57ab5dbee50d7758e9597f32046f8c5d854b22fdfa9129f6",
-        "sourceBodySha256": "2327cfd25974a3c9d5bb7c5bc541fd846a46a9d3af8453fca7b93050ce5684ed",
-        "bodySha256": "2327cfd25974a3c9d5bb7c5bc541fd846a46a9d3af8453fca7b93050ce5684ed",
+        "sourceSha256": "4d676558c59ff0a2176629346ae5948345858dfb06144577136bef54a2c439b6",
+        "sourceBodySha256": "215894305547dc1bc37aee946e1ddcec5313733ad987c77ed5948ed1d4b73dbe",
+        "bodySha256": "215894305547dc1bc37aee946e1ddcec5313733ad987c77ed5948ed1d4b73dbe",
         "workbookRow": 1673,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -15956,9 +15956,9 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-mineru-configuration.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/custom-models/mineru",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/custom-models/mineru",
-        "sourceSha256": "0f28d70bf01eee09ded66e2fc403ebddd1acb9e887a35ae4f99c6257d0893c91",
-        "sourceBodySha256": "4a33c2e639d6088cfd4a64b0fe2640fa7220f538ab2cae8e615e22fdfd5df854",
-        "bodySha256": "4a33c2e639d6088cfd4a64b0fe2640fa7220f538ab2cae8e615e22fdfd5df854",
+        "sourceSha256": "6ae30cf30a6b0a547e174d8ec0fc6022c7990f63a4ebc8929daf573a21534814",
+        "sourceBodySha256": "38b184dd715d11965c698423fcf8d403bd519cf79ab880b08bfcabd13bf72c07",
+        "bodySha256": "38b184dd715d11965c698423fcf8d403bd519cf79ab880b08bfcabd13bf72c07",
         "workbookRow": 1675,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -16054,9 +16054,9 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-mineru-pdf-parsing-3.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/custom-models/mineru",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/custom-models/mineru",
-        "sourceSha256": "41ad2c003457d346fe16784386e0deadf48ddaccdf428b101be5d273dde83b07",
-        "sourceBodySha256": "3410663d9d37b6830ad4f65077eb5288cc7349277df36c10fecb8fa5845981dc",
-        "bodySha256": "3410663d9d37b6830ad4f65077eb5288cc7349277df36c10fecb8fa5845981dc",
+        "sourceSha256": "f288c011f161e67d6aa18541574977aa0c5ffc7f07af119307d0328117fa5528",
+        "sourceBodySha256": "b071802313d1b3fa4ad08ac38c3a28b5858486d09d67a76f54e87285ec16a392",
+        "bodySha256": "b071802313d1b3fa4ad08ac38c3a28b5858486d09d67a76f54e87285ec16a392",
         "workbookRow": 1676,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -34332,9 +34332,9 @@
         "sourceFile": "英文-fastgpt.io/model/fastgpt-team-plugin-removal.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/plugin/team-installation",
         "sourceReference": "https://doc.fastgpt.cn/en/plugin/team-installation",
-        "sourceSha256": "59feb40afc914b50f870ddaf8003d7abf19d4d5a332e316955f7dadf8cfef4d1",
-        "sourceBodySha256": "eb662ae89ff55df7dd0d43bea799fb26d2a30b927f81731245907a9af74c2610",
-        "bodySha256": "eb662ae89ff55df7dd0d43bea799fb26d2a30b927f81731245907a9af74c2610",
+        "sourceSha256": "852a7d5d920d716a5b9cb6bfe43b274c1b528c80cf1cffb6e40bb122fa484cd7",
+        "sourceBodySha256": "c5c8770f76f19254230bdd57e4fb5b48df006bc76bbfd203f882279d54380b7c",
+        "bodySha256": "c5c8770f76f19254230bdd57e4fb5b48df006bc76bbfd203f882279d54380b7c",
         "workbookRow": 1859,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -36194,9 +36194,9 @@
         "sourceFile": "英文-fastgpt.io/node/fastgpt-http-workflow-nodes.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/guide/build/workflow/nodes/http",
         "sourceReference": "https://doc.fastgpt.cn/en/guide/build/workflow/nodes/http",
-        "sourceSha256": "2bc759b298b209f97c375cad150b806dbc34586962758f2d40c79769a76d3ea7",
-        "sourceBodySha256": "0c2dfc3f01740b72996016dbcdb87b5b82d9bfd02893aa71e709e06247f4e178",
-        "bodySha256": "0c2dfc3f01740b72996016dbcdb87b5b82d9bfd02893aa71e709e06247f4e178",
+        "sourceSha256": "ad95ee89bd8f753666d95970d010963cc7040d5c391d23ea52f3f027d366b6ca",
+        "sourceBodySha256": "ffca2b5eda2dfacd1d0942cafb670e8d467caa58d047d47fdc3ba302078b7bc7",
+        "bodySha256": "ffca2b5eda2dfacd1d0942cafb670e8d467caa58d047d47fdc3ba302078b7bc7",
         "workbookRow": 1878,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -37762,9 +37762,9 @@
         "sourceFile": "英文-fastgpt.io/node/fastgpt-specified-reply-nodes.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/guide/build/workflow/nodes/reply",
         "sourceReference": "https://doc.fastgpt.cn/en/guide/build/workflow/nodes/reply",
-        "sourceSha256": "129fb15bdf2df8930ac28757425645ea0f907cf2c335142a73b2a0272fb09d96",
-        "sourceBodySha256": "186964ac51982b35caa6f04c30b3233c14b759e9281037d4231ee87ef05a5d85",
-        "bodySha256": "186964ac51982b35caa6f04c30b3233c14b759e9281037d4231ee87ef05a5d85",
+        "sourceSha256": "be8377fd88e48b4cf34bcf84090d5e07eb81a263f13767b15e0877f6bde0b259",
+        "sourceBodySha256": "216de54a957861d5eadfe8253ed54e635753fc623284bf83ba7d456edd0897e3",
+        "bodySha256": "216de54a957861d5eadfe8253ed54e635753fc623284bf83ba7d456edd0897e3",
         "workbookRow": 1894,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -47072,9 +47072,9 @@
         "sourceFile": "英文-fastgpt.io/tutorial/fastgpt-multiple-selectors-config.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/guide/dataset/websync",
         "sourceReference": "https://doc.fastgpt.cn/en/guide/dataset/websync",
-        "sourceSha256": "d6eb38b0bc063dacd00fc2e93673e27ebaeac36058d8fce4f0b6f761c5faf953",
-        "sourceBodySha256": "95f8fab87b95b84f2a75507ea3d1756689617ff837cd41669b33110a0ba639c4",
-        "bodySha256": "95f8fab87b95b84f2a75507ea3d1756689617ff837cd41669b33110a0ba639c4",
+        "sourceSha256": "8d4e725db4c63fafd5b1300d4ba19bd834cdcbffd960a7ef721fb720a56bc1b4",
+        "sourceBodySha256": "d4cea9e6fe9017f4a37beff0e8893c7bd891dd475ef8954d0f6b0751e694cffb",
+        "bodySha256": "d4cea9e6fe9017f4a37beff0e8893c7bd891dd475ef8954d0f6b0751e694cffb",
         "workbookRow": 1989,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -48285,9 +48285,9 @@
         "sourceFile": "英文-fastgpt.io/tutorial/fastgpt-rag-generation-phase.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/guide/dataset/rag",
         "sourceReference": "https://doc.fastgpt.cn/en/guide/dataset/rag",
-        "sourceSha256": "d37a80f86718c2887817e46903d32ee4567cf7bb7c7e64f46b5ed5be7194d263",
-        "sourceBodySha256": "31107895e16afc0bf2df3e01ef2701d28a727676c992ae198893b832434f9bf6",
-        "bodySha256": "31107895e16afc0bf2df3e01ef2701d28a727676c992ae198893b832434f9bf6",
+        "sourceSha256": "de5b36e1a0902e1f1691173b928e787d65f77cc3efa6bd3419edc7b6da22a20f",
+        "sourceBodySha256": "76e920d564e2a8eea9e0e17b4b5df051b37b43e0656e5cf3fb037ba387f38160",
+        "bodySha256": "76e920d564e2a8eea9e0e17b4b5df051b37b43e0656e5cf3fb037ba387f38160",
         "workbookRow": 2001,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -48873,9 +48873,9 @@
         "sourceFile": "英文-fastgpt.io/tutorial/fastgpt-rag-workflow-deployment.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/guide/dataset/rag",
         "sourceReference": "https://doc.fastgpt.cn/en/guide/dataset/rag",
-        "sourceSha256": "5c2f017e8f5a78f5c83548c99836352e0027d5a24dfb9af581a06e19c7fbbe4f",
-        "sourceBodySha256": "3eddd4d5ab023aa4df3f0f89dfe0a7025ab5b01d0083299b7a576cdcc48ff857",
-        "bodySha256": "3eddd4d5ab023aa4df3f0f89dfe0a7025ab5b01d0083299b7a576cdcc48ff857",
+        "sourceSha256": "57d4753f7f035d3b7195c1b55368c0b2a1e1b6210d96558185176a7943a19be1",
+        "sourceBodySha256": "0f59d2577f80d63a865ebb52921c63fdb01082f2d16b87de31009b9ae2a978b5",
+        "bodySha256": "0f59d2577f80d63a865ebb52921c63fdb01082f2d16b87de31009b9ae2a978b5",
         "workbookRow": 2007,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -55678,9 +55678,9 @@
         "sourceFile": "中文-fastgpt.cn/deploy/mineru-pdf-enhanced-parsing-test.md",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host/custom-models/mineru",
         "sourceReference": "https://doc.fastgpt.cn/zh-CN/self-host/custom-models/mineru",
-        "sourceSha256": "9714fbff054e4d68628095faf37c73d9741429f589c260c803c91727d5ab1900",
-        "sourceBodySha256": "b812440c21e777b3db8a53040b5dc402c7031d1f08c070a9a220d42405ac8ee9",
-        "bodySha256": "b812440c21e777b3db8a53040b5dc402c7031d1f08c070a9a220d42405ac8ee9",
+        "sourceSha256": "7771c8a5eebc1a56346146894d30190ae45ca786615a47ae28d0b330278e5b2c",
+        "sourceBodySha256": "7e84d903867ca62c086a1fb2a641d06e034bda4152307e2af6e81068ca59dcf4",
+        "bodySha256": "7e84d903867ca62c086a1fb2a641d06e034bda4152307e2af6e81068ca59dcf4",
         "workbookRow": 40,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -55689,7 +55689,7 @@
         "sources": [
           "https://doc.fastgpt.cn/zh-CN/self-host/custom-models/mineru"
         ],
-        "fingerprint": "# 配置Mineru自定义PDF增强解析与效果验证流程 Mineru自定义PDF增强解析的效果验证可通过知识库上传与应用配置两类场景完成，用于确认自定义解析功能的运行状态，确保解析流程符合预期。 ## 配置与效果验证步骤 知识库端验证流程：上传PDF文件时，勾选`PDF 增强解析`选项。上传完成后，需将系统LOG_LEVEL设置为info或debug级别，方可观测到对应日志。成功解析时，日志中会出现两条关键记录：`[Info] 2024-12-05 15:04:42 Pars",
+        "fingerprint": "# 配置Mineru自定义PDF增强解析与效果验证流程 Mineru自定义PDF增强解析的效果验证可通过知识库上传与应用配置两类场景完成，用于确认自定义解析功能的运行状态，确保解析流程符合预期。 ## 配置与效果验证步骤 知识库端验证步骤：上传PDF文件时，勾选`PDF 增强解析`选项。上传完成后，需将系统LOG_LEVEL设置为info或debug级别，方可观测到对应日志。成功解析时，日志中会出现两条关键记录：`[Info] 2024-12-05 15:04:42 Pars",
         "applicability": "官方文档 部署场景 content; verify the target FastGPT version before use."
       },
       "security": {
@@ -58375,9 +58375,9 @@
         "sourceFile": "中文-fastgpt.cn/deploy/upgrade-v4-14-15.md",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host/upgrading/4-14/41415",
         "sourceReference": "https://doc.fastgpt.cn/zh-CN/self-host/upgrading/4-14/41415",
-        "sourceSha256": "9d3d5eb700662aae7d6826d591f68d95023e40048dde19d62fbcf62fafdc0b9e",
-        "sourceBodySha256": "ae15ab26b73c1744ae685636231c8e14093e99b3cf9302fc8d20e2c86ad81cb3",
-        "bodySha256": "ae15ab26b73c1744ae685636231c8e14093e99b3cf9302fc8d20e2c86ad81cb3",
+        "sourceSha256": "9e49eb54d2c5d4a5029896d26def25d3771fa5d7a12f9bd21706ea81cebccdb9",
+        "sourceBodySha256": "17902438445049bdfc871b0c7d220cb3d2b22b8fb39bc7aae2002e349e5a2a94",
+        "bodySha256": "17902438445049bdfc871b0c7d220cb3d2b22b8fb39bc7aae2002e349e5a2a94",
         "workbookRow": 67,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -58669,9 +58669,9 @@
         "sourceFile": "中文-fastgpt.cn/deploy/upgrade-v4-14-18.md",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host/upgrading/4-14/41418",
         "sourceReference": "https://doc.fastgpt.cn/zh-CN/self-host/upgrading/4-14/41418",
-        "sourceSha256": "13761be819c24c814f4c452f159bf77bf8166a40271a24cae6e378564c9f6190",
-        "sourceBodySha256": "a763a4c720efa4bf17d65a3982986d0e4bcc1c7008a90c43db864b48d27c4829",
-        "bodySha256": "a763a4c720efa4bf17d65a3982986d0e4bcc1c7008a90c43db864b48d27c4829",
+        "sourceSha256": "9fc705e002eac49232ce8676027f7377945d9b6a9bc86e147d324f453c92fa7b",
+        "sourceBodySha256": "6515a892ddc62b3c50f7ccd9f73cc3af8aa5a84ed767b9a98ce841348313a8cf",
+        "bodySha256": "6515a892ddc62b3c50f7ccd9f73cc3af8aa5a84ed767b9a98ce841348313a8cf",
         "workbookRow": 70,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -69615,9 +69615,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-access-token-usage.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/57",
         "sourceReference": "https://github.com/labring/FastGPT/issues/57",
-        "sourceSha256": "d18d1e81f514b9b0c278e97ffce86a6a3344c7bba2328f756df5bfd1268febc1",
-        "sourceBodySha256": "721aafd8b4f3dcf9b1783b2b46f269900000ec09028cf8cde0725dc30e7aac17",
-        "bodySha256": "721aafd8b4f3dcf9b1783b2b46f269900000ec09028cf8cde0725dc30e7aac17",
+        "sourceSha256": "dac5a1dcf5ec470350e4f833672139afd122bee075176c6c6edb1cea1f00e237",
+        "sourceBodySha256": "4d6246147bedbfccbeabafe51a1586ae4440fff30977dc087716608c83ad9836",
+        "bodySha256": "4d6246147bedbfccbeabafe51a1586ae4440fff30977dc087716608c83ad9836",
         "workbookRow": 180,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -69824,9 +69824,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-ada-002-model-config.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/414",
         "sourceReference": "https://github.com/labring/FastGPT/issues/414",
-        "sourceSha256": "618dcffa1d332a92f39197f514bcc2916b3b1e1866eddd681d5b466724aada93",
-        "sourceBodySha256": "78025ced1eaae0d3eff54fbe901ec2e5e5c05bb0422801aebf3674cbd5eab32e",
-        "bodySha256": "78025ced1eaae0d3eff54fbe901ec2e5e5c05bb0422801aebf3674cbd5eab32e",
+        "sourceSha256": "191ce66c34aac3c8c4cdf7dd36a95b59b2a54e7f55f0fbaaa6e4666aa71d0949",
+        "sourceBodySha256": "52c62e431e8174046906537ed3be6b25b5e778e5918b883213bcd26fe85282c9",
+        "bodySha256": "52c62e431e8174046906537ed3be6b25b5e778e5918b883213bcd26fe85282c9",
         "workbookRow": 182,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -69922,9 +69922,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-address-usage-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/666",
         "sourceReference": "https://github.com/labring/FastGPT/issues/666",
-        "sourceSha256": "6e7dac9da08e36a7fed81ff058ef8fae359704b5a8ea0fa3e852bfa00476e43a",
-        "sourceBodySha256": "2346eb356ef4214ff6bec9e985498409442cf7a5fad514d1436f30e43ca5034a",
-        "bodySha256": "2346eb356ef4214ff6bec9e985498409442cf7a5fad514d1436f30e43ca5034a",
+        "sourceSha256": "e6b9b4c8b30633fc9f4db6a54f05780016cc1e8727f83d8fb313223d7180430a",
+        "sourceBodySha256": "221e733c2c77b04927015b212720c0495adaaeee74dc518536c5fe66a771a6ca",
+        "bodySha256": "221e733c2c77b04927015b212720c0495adaaeee74dc518536c5fe66a771a6ca",
         "workbookRow": 183,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -70118,9 +70118,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-after-parameter-guide.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/36",
         "sourceReference": "https://github.com/labring/FastGPT/issues/36",
-        "sourceSha256": "b79c7d4530070ff2fd8267f20af87e04c832bf25ecab920026081bfd9b7443d2",
-        "sourceBodySha256": "abf415ffe9a67cf8372fe204c0737ea9fe3fc14dd2bc19679ac426558de09651",
-        "bodySha256": "abf415ffe9a67cf8372fe204c0737ea9fe3fc14dd2bc19679ac426558de09651",
+        "sourceSha256": "60e1a8ead9929bfe37fcccfa2a5b780d2aa304b641290a34e7d6bc02640487e2",
+        "sourceBodySha256": "421dc26a7eea40dfd25b1abdc587b7651da76dc2533a535b52fa55ac6903530d",
+        "bodySha256": "421dc26a7eea40dfd25b1abdc587b7651da76dc2533a535b52fa55ac6903530d",
         "workbookRow": 185,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -71098,9 +71098,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-api-error-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/50",
         "sourceReference": "https://github.com/labring/FastGPT/issues/50",
-        "sourceSha256": "ba56219629b0f27a7bae484d9fc841d6d275662caea771fdd1410e3218cc72c6",
-        "sourceBodySha256": "42f93d11a0e637fb89e85624c3ee9c495ac0ba1277886a7297edaee99eb51a14",
-        "bodySha256": "42f93d11a0e637fb89e85624c3ee9c495ac0ba1277886a7297edaee99eb51a14",
+        "sourceSha256": "3287d96dae961c06df589474dd0144c8b110978fc4f64dc723f324da1ca995a5",
+        "sourceBodySha256": "6eee669b1e3f1cc0a23dd41031f5d8d61b5c9698bafa70c49726880920997775",
+        "bodySha256": "6eee669b1e3f1cc0a23dd41031f5d8d61b5c9698bafa70c49726880920997775",
         "workbookRow": 195,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -71540,9 +71540,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-apikey-usage-guide.md",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/guide/build/publish/openapi",
         "sourceReference": "https://doc.fastgpt.cn/zh-CN/guide/build/publish/openapi",
-        "sourceSha256": "6f90033e487def3cb874f9928b48b6e84bf8ea0a690acb47d345de383d13285d",
-        "sourceBodySha256": "d2d1ce3473c32ca95e6b7c60468cdecd96db1791f0a4e27e4b307576c2293ad4",
-        "bodySha256": "d2d1ce3473c32ca95e6b7c60468cdecd96db1791f0a4e27e4b307576c2293ad4",
+        "sourceSha256": "f708d4291fab1e5d92aa23d549ffd5495a3ff49933490096e16c9af732ac572b",
+        "sourceBodySha256": "14474bb9d63ebe201fbb75c89cde9288cd92f752e4c3bbf116e0b6fe4fc40412",
+        "bodySha256": "14474bb9d63ebe201fbb75c89cde9288cd92f752e4c3bbf116e0b6fe4fc40412",
         "workbookRow": 199,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -71638,9 +71638,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-app-model-selection-list.md",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/toc",
         "sourceReference": "https://doc.fastgpt.cn/zh-CN/toc",
-        "sourceSha256": "a2b548323bf830587cf7c8e1f3170e0fa10249a864b1a0c359d69a5ed58992eb",
-        "sourceBodySha256": "4da21ff4195848783e7c45db216e3e8832b68999ff8fc5f885b4a2b56fc28646",
-        "bodySha256": "4da21ff4195848783e7c45db216e3e8832b68999ff8fc5f885b4a2b56fc28646",
+        "sourceSha256": "36eab428ed2d06b8785678ad7d8f75f09fbbd64095d1d63abed2a8ed1444523e",
+        "sourceBodySha256": "d876f936da7600ee01240414c372c12e6b7f8575c04dc1f6a9b0f5c9ecd18409",
+        "bodySha256": "d876f936da7600ee01240414c372c12e6b7f8575c04dc1f6a9b0f5c9ecd18409",
         "workbookRow": 200,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -72925,9 +72925,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-button-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/508",
         "sourceReference": "https://github.com/labring/FastGPT/issues/508",
-        "sourceSha256": "604b25afba14c4d40d7918c8596ed26ec92a4d65384953e7d73ed24b58d7d8b6",
-        "sourceBodySha256": "429823fb69b3871fdf59f032b173fc96766ccdca2d6ed212c52fb4943fe02331",
-        "bodySha256": "429823fb69b3871fdf59f032b173fc96766ccdca2d6ed212c52fb4943fe02331",
+        "sourceSha256": "3815ad4dbaa2a4351aaaf1dbac3e68c91a3e27590828387bbb18d4bb069e26e0",
+        "sourceBodySha256": "c2ae39472ae917db60ae19b5af9c86a7d9e24ea54de06b17e25bec08994f3649",
+        "bodySha256": "c2ae39472ae917db60ae19b5af9c86a7d9e24ea54de06b17e25bec08994f3649",
         "workbookRow": 213,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -74150,9 +74150,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-common-error-fix-guide.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/152",
         "sourceReference": "https://github.com/labring/FastGPT/issues/152",
-        "sourceSha256": "9a13f97c16eb2322355e12a85910f279eaabb20aba3ba08bc657d22afb831e5e",
-        "sourceBodySha256": "2863f7705f44427a1e5423f6a07e2fb21edd6e5a17de456be2c72fdccbe98304",
-        "bodySha256": "2863f7705f44427a1e5423f6a07e2fb21edd6e5a17de456be2c72fdccbe98304",
+        "sourceSha256": "b751a4eaade1aa53576c2149f3207294f52a485162e6691db20e7ae27077714b",
+        "sourceBodySha256": "e02c02b6bd349c565468dce484ce15dd27d548fb756e3559e7a3772e3ddc315b",
+        "bodySha256": "e02c02b6bd349c565468dce484ce15dd27d548fb756e3559e7a3772e3ddc315b",
         "workbookRow": 225,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -75648,9 +75648,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-customer-service-variable-image.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/2394",
         "sourceReference": "https://github.com/labring/FastGPT/issues/2394",
-        "sourceSha256": "a115980ed1bb8481e3ff88fce521a7091caf51ec896fa8f1ba1c84f8e99c5f1d",
-        "sourceBodySha256": "13e58c30cc1f6921852e4857e303896ae98cad0d2fbe837e6b5019a724cae01a",
-        "bodySha256": "13e58c30cc1f6921852e4857e303896ae98cad0d2fbe837e6b5019a724cae01a",
+        "sourceSha256": "f9d963ed0209c263977a5fdd1b1d65bd3ff3e8c202aa434e77a5a4bfc40841a3",
+        "sourceBodySha256": "4d308869977eaf0b65ba72cc6bae6889f566a6180c7ea12280590fd9386d1b9f",
+        "bodySha256": "4d308869977eaf0b65ba72cc6bae6889f566a6180c7ea12280590fd9386d1b9f",
         "workbookRow": 240,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -76334,9 +76334,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-deploy-api-error-handling.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/152",
         "sourceReference": "https://github.com/labring/FastGPT/issues/152",
-        "sourceSha256": "03c723917a71680a9b5307c8f29c93349515ade3793b1428393b3d573f88f910",
-        "sourceBodySha256": "2c0e546a2a08d4f8cccbf50079b43b929659473dd9d439a146da81576e9353fa",
-        "bodySha256": "2c0e546a2a08d4f8cccbf50079b43b929659473dd9d439a146da81576e9353fa",
+        "sourceSha256": "481afe3f8a18b8425d3d21323f4b68f8b3fae3733fc4bb4aad03b97de0434c65",
+        "sourceBodySha256": "6071b37e8e423ce17ea597a945a4b085cf33e8db004c75b59a2297817ed3b9c4",
+        "bodySha256": "6071b37e8e423ce17ea597a945a4b085cf33e8db004c75b59a2297817ed3b9c4",
         "workbookRow": 247,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -76530,9 +76530,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-deployment-gpt4v-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/209",
         "sourceReference": "https://github.com/labring/FastGPT/issues/209",
-        "sourceSha256": "e556d034b4be5809a5a848462dd998c63ae96901d5fe63181e920fcc8c65884a",
-        "sourceBodySha256": "2acba1bd4e8429d1054d5f136f17d9158eda9f8267261453954cb80502d93ea9",
-        "bodySha256": "2acba1bd4e8429d1054d5f136f17d9158eda9f8267261453954cb80502d93ea9",
+        "sourceSha256": "5fd7bce4edbb4fb7e8a8576672dd6745e5a4d7647a44ec8a2d3efa8dc4393c3b",
+        "sourceBodySha256": "0c8ce4cb32e8bbe5acd4fb52f3c73d68c76397797bd098992245201faf78c8ea",
+        "bodySha256": "0c8ce4cb32e8bbe5acd4fb52f3c73d68c76397797bd098992245201faf78c8ea",
         "workbookRow": 249,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -77915,9 +77915,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-embeddings-docs-function.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/74",
         "sourceReference": "https://github.com/labring/FastGPT/issues/74",
-        "sourceSha256": "2bcd1d3d6a76315422aba62105a00984a0f5dee0e5b36ace5da95c359d81eaea",
-        "sourceBodySha256": "0f104056434eb53e8ee59f02280803ad08dd359395bb128e914930f9f75ccfdf",
-        "bodySha256": "0f104056434eb53e8ee59f02280803ad08dd359395bb128e914930f9f75ccfdf",
+        "sourceSha256": "e63fb770ffc1599a1b04577c4641bd3842f2637be203249f621f8e7a411aa655",
+        "sourceBodySha256": "b5838f7e113864de57514bede36bb085cab9a4a62eacb26e9f611202e7d3438b",
+        "bodySha256": "b5838f7e113864de57514bede36bb085cab9a4a62eacb26e9f611202e7d3438b",
         "workbookRow": 263,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -78013,9 +78013,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-empty-value-errors-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/579",
         "sourceReference": "https://github.com/labring/FastGPT/issues/579",
-        "sourceSha256": "1691cb1997ab0f1d751911daa92eb38243d9b4a52e69ea748bb04d7847125957",
-        "sourceBodySha256": "5224ad57a3b3a27cef660950e64580bd57cf5b80e2571903662e571228a702b9",
-        "bodySha256": "5224ad57a3b3a27cef660950e64580bd57cf5b80e2571903662e571228a702b9",
+        "sourceSha256": "f972e6c038272f15d47f31366f86a3b7e253b7f4a760472779245031ba893314",
+        "sourceBodySha256": "f9fc269cd3ea22375c0db5d95fd24ad51a215f3f1d2605fd3c7b4ff7f3304969",
+        "bodySha256": "f9fc269cd3ea22375c0db5d95fd24ad51a215f3f1d2605fd3c7b4ff7f3304969",
         "workbookRow": 264,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -78307,9 +78307,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-enough-usage-guide.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/916",
         "sourceReference": "https://github.com/labring/FastGPT/issues/916",
-        "sourceSha256": "9332e1bb1cc352e997d5033927a81124e1e7ac7f48fe2a36eb91abc1597c8065",
-        "sourceBodySha256": "a4a174bb751cdd8fc703c295766d0b9ecfd1e533db6cb1a68b446c7aecc74578",
-        "bodySha256": "a4a174bb751cdd8fc703c295766d0b9ecfd1e533db6cb1a68b446c7aecc74578",
+        "sourceSha256": "28cd290fc239e94c7adc7fc55e397b4213f8f4c82a0488990216116109a59c98",
+        "sourceBodySha256": "0b370d56f1d809ccb453e9314510c83f1e91263935d3230594d2703e78075370",
+        "bodySha256": "0b370d56f1d809ccb453e9314510c83f1e91263935d3230594d2703e78075370",
         "workbookRow": 267,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -78405,9 +78405,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-external-config-file-import.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1219",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1219",
-        "sourceSha256": "8ffb7b52c211bde1ad98513024834bd287c9ac36806cb42db77b35296e12cd13",
-        "sourceBodySha256": "bc97209f5c6330f9b2e874d794976e4ae124a0c29d22e7580d9e1aac09b8c0ce",
-        "bodySha256": "bc97209f5c6330f9b2e874d794976e4ae124a0c29d22e7580d9e1aac09b8c0ce",
+        "sourceSha256": "865da52d19e47240c6ac92a3e0c432a9f3ffa4c612b2e050eeac1416ba06e244",
+        "sourceBodySha256": "a009699f6863f3edf0c294fd0ba91071b5cef5d47af59e9fe388d9ebb6ecdc9f",
+        "bodySha256": "a009699f6863f3edf0c294fd0ba91071b5cef5d47af59e9fe388d9ebb6ecdc9f",
         "workbookRow": 268,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -78626,9 +78626,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-feishu-baseurl-workflow-variable.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/3974",
         "sourceReference": "https://github.com/labring/FastGPT/issues/3974",
-        "sourceSha256": "d8370cbd9bbee01be7c44c2b9da24cb597685b088d5e639dc86b47fd9d0fb3ee",
-        "sourceBodySha256": "c28c4aeec9a78efc895457fd53f37d89e4a8085ab6869fe5863037989ad77d5d",
-        "bodySha256": "c28c4aeec9a78efc895457fd53f37d89e4a8085ab6869fe5863037989ad77d5d",
+        "sourceSha256": "1229c4b138700754f3c5522e458d33d95d2edc1a69471eabd3859e568b0d52a3",
+        "sourceBodySha256": "0f78c9a274919d63964174655b5808367d567a4d06d76bf09435c6452ce93522",
+        "bodySha256": "0f78c9a274919d63964174655b5808367d567a4d06d76bf09435c6452ce93522",
         "workbookRow": 270,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -79240,9 +79240,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-find-query-issues.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/113",
         "sourceReference": "https://github.com/labring/FastGPT/issues/113",
-        "sourceSha256": "d727fef5d218b3911405ff4d8825cd152632358107027c1593c76d2b1a571dae",
-        "sourceBodySha256": "ffd22c3e64b3af2993572fd7d3518376839e43d120fe7aaada67f743b5ac5148",
-        "bodySha256": "ffd22c3e64b3af2993572fd7d3518376839e43d120fe7aaada67f743b5ac5148",
+        "sourceSha256": "7c545ebf1b61ff92e447de6a0b0fce4ae1811abaffbed985068ad9d67ead281a",
+        "sourceBodySha256": "6bb24336a9799d96a48fcaf7a129ecbc9b59a941298a7eead965c7fee06c9d00",
+        "bodySha256": "6bb24336a9799d96a48fcaf7a129ecbc9b59a941298a7eead965c7fee06c9d00",
         "workbookRow": 276,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -80808,9 +80808,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-http-status-code-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/750",
         "sourceReference": "https://github.com/labring/FastGPT/issues/750",
-        "sourceSha256": "d7ab315ef2ebfc782bf475522c22975aa8a724028689c7a4ad34e4d9771c8dde",
-        "sourceBodySha256": "bccadaa201acc8b9f720751ef5489d070733d450c068db1df1dec6f0a8591044",
-        "bodySha256": "bccadaa201acc8b9f720751ef5489d070733d450c068db1df1dec6f0a8591044",
+        "sourceSha256": "b965377d9701c997d1a779aeb1e024f2b526608555f5fd48a33f1ef3cca0ceb1",
+        "sourceBodySha256": "a9c2168421c7e87c22a6f72ca65db4d0c61de653e68a71d10620f83e4513ca20",
+        "bodySha256": "a9c2168421c7e87c22a6f72ca65db4d0c61de653e68a71d10620f83e4513ca20",
         "workbookRow": 292,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -81592,9 +81592,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-jina-rerank-latechunk.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1822",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1822",
-        "sourceSha256": "d1ad875b18a92a4dcce12969b1c75d13480b9b24d1b39b5ab51c32bfd2085857",
-        "sourceBodySha256": "feb0cfc093917108844922f663b0ae37fdf503c8ac1c52f380ef53c346cddfb4",
-        "bodySha256": "feb0cfc093917108844922f663b0ae37fdf503c8ac1c52f380ef53c346cddfb4",
+        "sourceSha256": "81c792f9b2446ce9216a4883a19c8236b1148426ed73aa4a44c827c04c6a6572",
+        "sourceBodySha256": "5f558c91118d08483976cf8857609b9c52cd457e18886cc324605f0f6089d133",
+        "bodySha256": "5f558c91118d08483976cf8857609b9c52cd457e18886cc324605f0f6089d133",
         "workbookRow": 300,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -83160,9 +83160,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-local-start-window-error.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/465",
         "sourceReference": "https://github.com/labring/FastGPT/issues/465",
-        "sourceSha256": "43d3d2f7a3d80a01488096d4c05ae9e07f4a14d33715b1c99539b189468144cc",
-        "sourceBodySha256": "63b36f309b51484509f7f4ff7e6792200a0f4e2db38b649d2b7e769b58db1e5b",
-        "bodySha256": "63b36f309b51484509f7f4ff7e6792200a0f4e2db38b649d2b7e769b58db1e5b",
+        "sourceSha256": "681cbd24f71bca814168ccb61de8bcc05c1e2407e70adf2f08dda601cd48ea4a",
+        "sourceBodySha256": "d286ac9fa6c1806b19cf01ba4683eabf82dbb2b60cd0cddb0f4b12019f746a6f",
+        "bodySha256": "d286ac9fa6c1806b19cf01ba4683eabf82dbb2b60cd0cddb0f4b12019f746a6f",
         "workbookRow": 316,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -83455,9 +83455,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-login-window-extension-errors.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1417",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1417",
-        "sourceSha256": "1eb8f3b55e4a45b8792cc2e1aa535474c5a121281bd44d7ae9586c373b2b419a",
-        "sourceBodySha256": "a195a6cd5fa8087264adf6b55b9bdef12a3e29a2851471e93ae1123318d0498b",
-        "bodySha256": "a195a6cd5fa8087264adf6b55b9bdef12a3e29a2851471e93ae1123318d0498b",
+        "sourceSha256": "b0524af53509faba323f4c8788fe3aa100c4df68547bdb3169d704ec94d3caa7",
+        "sourceBodySha256": "53b18553f5f945ba24bbd0f3ddc6c984617e25eae4fe97a3f1bc349050b33f69",
+        "bodySha256": "53b18553f5f945ba24bbd0f3ddc6c984617e25eae4fe97a3f1bc349050b33f69",
         "workbookRow": 319,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -86800,9 +86800,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-page-data-warnings-errors.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/3490",
         "sourceReference": "https://github.com/labring/FastGPT/issues/3490",
-        "sourceSha256": "09e0842acc317b7b67c06d4d593c1ddf5435e3645d290626d0e6d5437927e4d0",
-        "sourceBodySha256": "e24149ddafaef5d6e93ee4696dd3099a3f106362a2febe394373011090ccd132",
-        "bodySha256": "e24149ddafaef5d6e93ee4696dd3099a3f106362a2febe394373011090ccd132",
+        "sourceSha256": "63b4a3f536895b836f71ade7e2ef7ab579e33ad201aa95a92c47164448c189fa",
+        "sourceBodySha256": "e85376e26c7c593043b61486e2bb6e79dab207e2fd8db31d0ec7f1fa68fde326",
+        "bodySha256": "e85376e26c7c593043b61486e2bb6e79dab207e2fd8db31d0ec7f1fa68fde326",
         "workbookRow": 353,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -87486,9 +87486,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-permission-denied-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1059",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1059",
-        "sourceSha256": "a62e2dc4560037f9d3b4ab56ceb56311135d32faad25ce3903e9b75f0103c07d",
-        "sourceBodySha256": "4b26b3a1113e19e2eaa6bdf040d8c75136980e1662b14d68f99b812aa6706a1a",
-        "bodySha256": "4b26b3a1113e19e2eaa6bdf040d8c75136980e1662b14d68f99b812aa6706a1a",
+        "sourceSha256": "94c97ebb7cb38e3eaa24c0569e55054c0b7eeb005834b2293d7276ad9d7b3319",
+        "sourceBodySha256": "f808106026434c6b58b0b52d8ee0b0a50220135e5ef4f6017724ca0d9a2715c6",
+        "bodySha256": "f808106026434c6b58b0b52d8ee0b0a50220135e5ef4f6017724ca0d9a2715c6",
         "workbookRow": 360,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -89348,9 +89348,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-query-usage-errors.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/244",
         "sourceReference": "https://github.com/labring/FastGPT/issues/244",
-        "sourceSha256": "4bde4b2a31e06ac9d841f2406a9b81ecd3e002ca161ac5fa371bed8c76013146",
-        "sourceBodySha256": "356b80354929bda58b7874e5cd943d3388891803d547fe7fe67cbe6599d4a879",
-        "bodySha256": "356b80354929bda58b7874e5cd943d3388891803d547fe7fe67cbe6599d4a879",
+        "sourceSha256": "df98ece7bb75c0e91d0a8e45dfe5f1a85aacc73681eacb6574d99aa6293861a4",
+        "sourceBodySha256": "f76ded7251ff7bf96b7365aa620503da86c4c2551e32200fefc9a139e11f103d",
+        "bodySha256": "f76ded7251ff7bf96b7365aa620503da86c4c2551e32200fefc9a139e11f103d",
         "workbookRow": 379,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -89446,9 +89446,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-queryextension-usage.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1142",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1142",
-        "sourceSha256": "3e222cc553dd6c4f7911b484331dc689e90f8400b6316d9c8e2a4ce654b728bb",
-        "sourceBodySha256": "0cdcf88a181695d340374a0d6a69e0474f3c43f5c05baec8a39b8156ab3225a7",
-        "bodySha256": "0cdcf88a181695d340374a0d6a69e0474f3c43f5c05baec8a39b8156ab3225a7",
+        "sourceSha256": "c2a84d5eb83e0e644d892d42c5d931f5b01d02252b58c8e1abdb6ed65d2b8297",
+        "sourceBodySha256": "c721ea5ebcf9aec5cb853d3b02ed6fb4d6eee6728efd9f96d5c594be35391d54",
+        "bodySha256": "c721ea5ebcf9aec5cb853d3b02ed6fb4d6eee6728efd9f96d5c594be35391d54",
         "workbookRow": 380,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -90243,9 +90243,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-response-handling.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/56",
         "sourceReference": "https://github.com/labring/FastGPT/issues/56",
-        "sourceSha256": "55d0488a3ddc76f27de99a0ab6b783693fb38f99dd918818e47b5723a5f68173",
-        "sourceBodySha256": "5be8b50a51b884ee542d95e0ae5156d11a145d1dbb51a61890cae611ad17a62f",
-        "bodySha256": "5be8b50a51b884ee542d95e0ae5156d11a145d1dbb51a61890cae611ad17a62f",
+        "sourceSha256": "88ddab3a39afd531165069b7a2c05078d5438b0a4180f51e121043e01f9aff1d",
+        "sourceBodySha256": "43649dca497083d8b378dfcee50e5c97412a9384f84f85de1cd855d6e3d5f6e7",
+        "bodySha256": "43649dca497083d8b378dfcee50e5c97412a9384f84f85de1cd855d6e3d5f6e7",
         "workbookRow": 388,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -90341,9 +90341,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-return-statement-usage.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/2309",
         "sourceReference": "https://github.com/labring/FastGPT/issues/2309",
-        "sourceSha256": "59caa35cbb2a0c31a8183091774ef1e27d8f1a73d0d634c30e6a5e8c5ced6258",
-        "sourceBodySha256": "e76e8cd28bd62b7770a7e2924ae865c3f99e723741d2b9d3fb3bd0ff6aab9551",
-        "bodySha256": "e76e8cd28bd62b7770a7e2924ae865c3f99e723741d2b9d3fb3bd0ff6aab9551",
+        "sourceSha256": "063bcefb4fd9c272f87ece3a382cab5ce61cb33bef7d65afeede84a15d87ee18",
+        "sourceBodySha256": "e9e839af32acab7b91ab03baff5ef48c36609a28f3898a7c39b9f3c6f59ddd2b",
+        "bodySha256": "e9e839af32acab7b91ab03baff5ef48c36609a28f3898a7c39b9f3c6f59ddd2b",
         "workbookRow": 389,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -90929,9 +90929,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-self-signed-certificate-error.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/27",
         "sourceReference": "https://github.com/labring/FastGPT/issues/27",
-        "sourceSha256": "4ecf948f91a3c11fe0f80694b12369faa0bca7c4346e10e1da260a62c31e8dfe",
-        "sourceBodySha256": "7af2690af9b89474b43ab0b7eb17d4851fef821870c86d82ccf1e7c504ec3aa3",
-        "bodySha256": "7af2690af9b89474b43ab0b7eb17d4851fef821870c86d82ccf1e7c504ec3aa3",
+        "sourceSha256": "583e4c2d90d3886324d3320de3f0ae44f38e785039f1f1d9434e0f3f32c7758f",
+        "sourceBodySha256": "6d09a0fc0998d38cb8c2e4ca8f00ab4edbdd62dafa1e94f8efee587d3f9d7721",
+        "bodySha256": "6d09a0fc0998d38cb8c2e4ca8f00ab4edbdd62dafa1e94f8efee587d3f9d7721",
         "workbookRow": 395,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -91027,9 +91027,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-self-signed-certificate-error-2.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/27",
         "sourceReference": "https://github.com/labring/FastGPT/issues/27",
-        "sourceSha256": "b9c7068f7c8306a63888b8e340e60bcd891ad3f0271371bec598e1a84b363944",
-        "sourceBodySha256": "8d7cbf6420c0db8743f8d570c2b276d70ec8dd9e13c68973ec0bedbc662c535d",
-        "bodySha256": "8d7cbf6420c0db8743f8d570c2b276d70ec8dd9e13c68973ec0bedbc662c535d",
+        "sourceSha256": "f9ffbb541f8b722fc78888cdc9806e721703a3f7e74e1c0e3c9ad9b6dc76edf5",
+        "sourceBodySha256": "30c6cf72634a2460d13e56c4881f82bfb07d3afbfdc5786e51a6aaa636fa4126",
+        "bodySha256": "30c6cf72634a2460d13e56c4881f82bfb07d3afbfdc5786e51a6aaa636fa4126",
         "workbookRow": 396,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -91530,9 +91530,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-shareid-url-params.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/887",
         "sourceReference": "https://github.com/labring/FastGPT/issues/887",
-        "sourceSha256": "9e505ee65357b49f39881f956b0a160b2b969813a3f16cbc99f83415f269ba5d",
-        "sourceBodySha256": "e706a40d3a3c933ec9d295233145d96fb742296f3c45f0e4f0bb710ba4b341de",
-        "bodySha256": "e706a40d3a3c933ec9d295233145d96fb742296f3c45f0e4f0bb710ba4b341de",
+        "sourceSha256": "1d467d0fed01bd5a183c17122ea8f52afff42bb471b31b2e4d9b52c809370173",
+        "sourceBodySha256": "bc221f011ffbe3a62bced8d0b03a3051aa7372801da2096ff825a8d8b239cc59",
+        "bodySha256": "bc221f011ffbe3a62bced8d0b03a3051aa7372801da2096ff825a8d8b239cc59",
         "workbookRow": 401,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -92608,9 +92608,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-support-json-serialization.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1156",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1156",
-        "sourceSha256": "6817a314549a63f88bdee5a7e609925f9d517418b5c5272e86367f17da348be1",
-        "sourceBodySha256": "b194877cc08d196f28f7d666c3f34bcb3ede87d46302d1e8f25e9ca66e4a3e05",
-        "bodySha256": "b194877cc08d196f28f7d666c3f34bcb3ede87d46302d1e8f25e9ca66e4a3e05",
+        "sourceSha256": "a1b2dd6265e0cdbcea436b3760b5ef960afa16bbe6589264bbf8d164fb54f89c",
+        "sourceBodySha256": "3998a433a87c3e12e7d2dbf51d9aca3e3dcb8d9d487bfe3eb07bf59ad7d9fbda",
+        "bodySha256": "3998a433a87c3e12e7d2dbf51d9aca3e3dcb8d9d487bfe3eb07bf59ad7d9fbda",
         "workbookRow": 412,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -94679,9 +94679,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-usage-api-errors.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1034",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1034",
-        "sourceSha256": "9aa5b7103f05f7de4e85d27f2db0cde7a1a5541d41462cca00ef700d73cc5f4f",
-        "sourceBodySha256": "0f4de91ceb8786da74432c829464973ef3fa62e9e2c5928b548c08b954470dbf",
-        "bodySha256": "0f4de91ceb8786da74432c829464973ef3fa62e9e2c5928b548c08b954470dbf",
+        "sourceSha256": "69cd37b41bc59304564ed0e8ccf8448ef2e53c520938142633e96c92a58cb3d4",
+        "sourceBodySha256": "4756a559c67353f2c2bde042f43a9e6a9ecdee86dce5c454012d3a10936c118b",
+        "bodySha256": "4756a559c67353f2c2bde042f43a9e6a9ecdee86dce5c454012d3a10936c118b",
         "workbookRow": 433,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -94777,9 +94777,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-v412x-deployment-plugin-errors.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/5459",
         "sourceReference": "https://github.com/labring/FastGPT/issues/5459",
-        "sourceSha256": "05322df6cc55501fcc6139555b99e27bba239090b1b02b897db230a4af4c4ecc",
-        "sourceBodySha256": "49ef38be6383425548c0a8902e23aea0e1663e0c13598ce17205c2a6cab13bf7",
-        "bodySha256": "49ef38be6383425548c0a8902e23aea0e1663e0c13598ce17205c2a6cab13bf7",
+        "sourceSha256": "70c0a2086f12d2127a1c5b04ea6ccc7189bc348264baa9d820be52254dc53102",
+        "sourceBodySha256": "49fd84ff1b67e87dff216356abce69bcb82a8c90a7cbf90626fe4c76b2b001b0",
+        "bodySha256": "49fd84ff1b67e87dff216356abce69bcb82a8c90a7cbf90626fe4c76b2b001b0",
         "workbookRow": 434,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -94875,9 +94875,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-v467-interface-output-issues.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/771",
         "sourceReference": "https://github.com/labring/FastGPT/issues/771",
-        "sourceSha256": "36c6cda4e24ea60f663e8c1e9d6d0ce79e45a802a4ec66275e6770e6e7b9b6cb",
-        "sourceBodySha256": "ef6a7dc00aea39d030b7211da3b4d2a59cfc789de1df7b1c306311067b20b0e2",
-        "bodySha256": "ef6a7dc00aea39d030b7211da3b4d2a59cfc789de1df7b1c306311067b20b0e2",
+        "sourceSha256": "2e7e2cbff966e283ea06ec521465d0fbab804f276f9d002753f59b650964670b",
+        "sourceBodySha256": "3246f8757f151a3e99f7e3943b944e40e0acf31525f7817fc14ec0e831bbe999",
+        "bodySha256": "3246f8757f151a3e99f7e3943b944e40e0acf31525f7817fc14ec0e831bbe999",
         "workbookRow": 435,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -94973,9 +94973,9 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-v481-issue-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1604",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1604",
-        "sourceSha256": "e48cce6914596152d3ef1cbaf0fe88caa0dc1d98053a588cb54b9b8ec653e426",
-        "sourceBodySha256": "b0216968b83a29e4cfb22965bd05d3f2e116c408f8f40f3e9aa516717b7c14e0",
-        "bodySha256": "b0216968b83a29e4cfb22965bd05d3f2e116c408f8f40f3e9aa516717b7c14e0",
+        "sourceSha256": "5eb79e36deefddf06b68ecfdc5c1dc83dd1a43c9a5cbb3b6b0098408115ab2b7",
+        "sourceBodySha256": "216a31bf5eb7053b1d93f134e7697ac3d70d82db8604b1b906a519467a69d62b",
+        "bodySha256": "216a31bf5eb7053b1d93f134e7697ac3d70d82db8604b1b906a519467a69d62b",
         "workbookRow": 436,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -104104,9 +104104,9 @@
         "sourceFile": "中文-fastgpt.cn/troubleshoot/fastgpt-advanced-prompt-params.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1211",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1211",
-        "sourceSha256": "c130cc1a292122df781f3624ed491a910c60cf4f48fe73c8f51f7327b034e15d",
-        "sourceBodySha256": "d1b974e931d1e782fff48e1034558c1aec4e91320f9e9ff4547b802acaf5aaee",
-        "bodySha256": "d1b974e931d1e782fff48e1034558c1aec4e91320f9e9ff4547b802acaf5aaee",
+        "sourceSha256": "0f089a43f62fdd9726cdba6447036a42501e6e06ce3013b82aa3645994e6f3c0",
+        "sourceBodySha256": "dd40ef2009640bc59a2e214f7a87952bfa1bf01a6ddf1e3d31ff859aeef1cc86",
+        "bodySha256": "dd40ef2009640bc59a2e214f7a87952bfa1bf01a6ddf1e3d31ff859aeef1cc86",
         "workbookRow": 529,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -152444,9 +152444,9 @@
         "sourceFile": "中文-fastgpt.cn/troubleshoot/fastgpt-orbstack-deployment-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1594",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1594",
-        "sourceSha256": "8a6143bb711baf9bb1cb5a2970ffebc4ddde7b26978bef3a3c6c821c9f484d31",
-        "sourceBodySha256": "f5f748c13e2afa1c6728097122d8ca816f6946280843c4ce2d425839c09c39bc",
-        "bodySha256": "f5f748c13e2afa1c6728097122d8ca816f6946280843c4ce2d425839c09c39bc",
+        "sourceSha256": "202d7de897d7e99b68c33cc63bb47b64b4905c857e36b310200ac5e0558deabd",
+        "sourceBodySha256": "e98c507c8e2c72c495d9495a03e50512b72eb69e5fb4a39d77d92d0b0f7aa6e4",
+        "bodySha256": "e98c507c8e2c72c495d9495a03e50512b72eb69e5fb4a39d77d92d0b0f7aa6e4",
         "workbookRow": 1022,
         "workbookSha256": "368e4875d365f27d878aed54a67da58504d54ce62f5c9f42a4c235ef12924c0c"
       },
@@ -201380,7 +201380,7 @@
       "relations": []
     }
   ],
-  "candidateManifestSha256": "d2153f8991c6f0e63b6947b1636047597e67888e8903653107b2666d8e76e167",
+  "candidateManifestSha256": "a57b87993a1cd4257699cea08efb081ed0d2d365f9781ad121eae4b89b9abd0d",
   "baseline": {
     "batch": "week05",
     "status": "deployed-registry",
@@ -201388,9 +201388,9 @@
     "registryPath": "src/components/tech-center/entries.json",
     "registrySha256": "802ed3c993004f52a858ac9ac2d7aa3c3d11224d6b3a77f28daf3513b724290e",
     "releaseManifestPath": "src/content/tech-center/authority/week05-release-manifest.json",
-    "releaseManifestSha256": "a033816de864858f010811e2dc49eb91a9280672ac66e807f7c562b475973db7",
+    "releaseManifestSha256": "343e78af75b3a16d399955ed1d8596ca9f69b02ed478116b169170a5e9c24559",
     "authorityPath": "src/content/tech-center/authority/week05-authority.json",
-    "authoritySha256": "fe8d1c8e5d22b044272620c3d67df1ef1f94d2f15a6ac6af8cbbd2c08323c41d"
+    "authoritySha256": "558b1585b432088389bb69df3d32731b7bf0da8ae8ac43ca4439d9c5481acb34"
   },
   "duplicateRelations": [
     {
@@ -203304,7 +203304,7 @@
         "md 相对路径"
       ]
     },
-    "sourceSetSha256": "b9a235e60640bd681217638e5fdc650b025aba84c4c814aea085e32b6abf5ae3",
+    "sourceSetSha256": "039c26decb7ffbb5a6bf78c907dcfea25d4b4cd6385351a60d245c1c36811522",
     "sources": [
       {
         "candidateId": "week06-0001",
@@ -203591,8 +203591,8 @@
         "sourceFile": "英文-fastgpt.io/deploy/cloudflare-r2-fastgpt-object-storage-config.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/config/object-storage",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/config/object-storage",
-        "sourceSha256": "d1e63360cb8e0a0b2355e4711d7228f5cf55996d1c3808237336988fd2e9c0c8",
-        "bodySha256": "4e32e37dea4602f28705184c83e6eb21d2012afffc6295cf27b5f10b1c9461aa"
+        "sourceSha256": "e21069123b000fa945fdc68fd76f4ee66d7164c66fa7db413a45c5c45c34b628",
+        "bodySha256": "8809e983845e62d33883f0c45d81cfe3b2ff808824913e2a6cd364aa1c3eab03"
       },
       {
         "candidateId": "week06-0033",
@@ -203735,8 +203735,8 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-4122-admin-config-features.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/upgrading/4-12/4122",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/upgrading/4-12/4122",
-        "sourceSha256": "c9b80ef557941eb0d25e300c9ac0f438dcd1c1be5ba5bf716e9640402fc639a1",
-        "bodySha256": "90e942942390bca84f9bfc61e2d24d16d0da116263aae7b32a819c33b5ae6cba"
+        "sourceSha256": "0824ed1a9387b330de666644d4b57c3a7f6d0237e3089440747f19e67c225f7a",
+        "bodySha256": "edfcac5b5a1ac3346ef7148b39b54102957e3bcba144558e79577828b0febcf3"
       },
       {
         "candidateId": "week06-0049",
@@ -203879,8 +203879,8 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-41410-bug-security-fixes.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/upgrading/4-14/41410",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/upgrading/4-14/41410",
-        "sourceSha256": "3b3425ac913c79bcdc77bf8ed0381be82e918ceff0110e71f3bba8c4714a145b",
-        "bodySha256": "b13ca95aa47af41b297a658a8a98f5999731d0dce4c17f9d0c7eae70609bff96"
+        "sourceSha256": "973233277da228cb4d47c275919af5911a86f1de0a766af58ee02989bf1371e0",
+        "bodySha256": "fae1ab7cc2cd7b1bc5c6205f9d8c45f5d39ded4d026e587622aa317a3defff5c"
       },
       {
         "candidateId": "week06-0065",
@@ -204059,8 +204059,8 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-415-environment-variables.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/upgrading/4-15/41501",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/upgrading/4-15/41501",
-        "sourceSha256": "233d1c05ba83edd8d195dd63b14d7be5168cc82d99e427c5fff37a82a8dd64b9",
-        "bodySha256": "becd478603c1ffe81057c5749cf80359df89cd9510c2a124640603ec1d04ad8c"
+        "sourceSha256": "7379536ae4628e1a8fb5d61ad1207b900e4c37af338ac2b49a7247f7b41f1c5e",
+        "bodySha256": "d04d06f83b02de761c3c64450b916c4801b73291e9575f6c18298b22a2eadc4c"
       },
       {
         "candidateId": "week06-0085",
@@ -204680,8 +204680,8 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-marker-pdf-parsing.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/custom-models/marker",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/custom-models/marker",
-        "sourceSha256": "143b03e01bf8598a57ab5dbee50d7758e9597f32046f8c5d854b22fdfa9129f6",
-        "bodySha256": "2327cfd25974a3c9d5bb7c5bc541fd846a46a9d3af8453fca7b93050ce5684ed"
+        "sourceSha256": "4d676558c59ff0a2176629346ae5948345858dfb06144577136bef54a2c439b6",
+        "bodySha256": "215894305547dc1bc37aee946e1ddcec5313733ad987c77ed5948ed1d4b73dbe"
       },
       {
         "candidateId": "week06-0154",
@@ -204698,8 +204698,8 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-mineru-configuration.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/custom-models/mineru",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/custom-models/mineru",
-        "sourceSha256": "0f28d70bf01eee09ded66e2fc403ebddd1acb9e887a35ae4f99c6257d0893c91",
-        "bodySha256": "4a33c2e639d6088cfd4a64b0fe2640fa7220f538ab2cae8e615e22fdfd5df854"
+        "sourceSha256": "6ae30cf30a6b0a547e174d8ec0fc6022c7990f63a4ebc8929daf573a21534814",
+        "bodySha256": "38b184dd715d11965c698423fcf8d403bd519cf79ab880b08bfcabd13bf72c07"
       },
       {
         "candidateId": "week06-0156",
@@ -204707,8 +204707,8 @@
         "sourceFile": "英文-fastgpt.io/deploy/fastgpt-mineru-pdf-parsing-3.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/self-host/custom-models/mineru",
         "sourceReference": "https://doc.fastgpt.cn/en/self-host/custom-models/mineru",
-        "sourceSha256": "41ad2c003457d346fe16784386e0deadf48ddaccdf428b101be5d273dde83b07",
-        "bodySha256": "3410663d9d37b6830ad4f65077eb5288cc7349277df36c10fecb8fa5845981dc"
+        "sourceSha256": "f288c011f161e67d6aa18541574977aa0c5ffc7f07af119307d0328117fa5528",
+        "bodySha256": "b071802313d1b3fa4ad08ac38c3a28b5858486d09d67a76f54e87285ec16a392"
       },
       {
         "candidateId": "week06-0157",
@@ -206354,8 +206354,8 @@
         "sourceFile": "英文-fastgpt.io/model/fastgpt-team-plugin-removal.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/plugin/team-installation",
         "sourceReference": "https://doc.fastgpt.cn/en/plugin/team-installation",
-        "sourceSha256": "59feb40afc914b50f870ddaf8003d7abf19d4d5a332e316955f7dadf8cfef4d1",
-        "bodySha256": "eb662ae89ff55df7dd0d43bea799fb26d2a30b927f81731245907a9af74c2610"
+        "sourceSha256": "852a7d5d920d716a5b9cb6bfe43b274c1b528c80cf1cffb6e40bb122fa484cd7",
+        "bodySha256": "c5c8770f76f19254230bdd57e4fb5b48df006bc76bbfd203f882279d54380b7c"
       },
       {
         "candidateId": "week06-0340",
@@ -206525,8 +206525,8 @@
         "sourceFile": "英文-fastgpt.io/node/fastgpt-http-workflow-nodes.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/guide/build/workflow/nodes/http",
         "sourceReference": "https://doc.fastgpt.cn/en/guide/build/workflow/nodes/http",
-        "sourceSha256": "2bc759b298b209f97c375cad150b806dbc34586962758f2d40c79769a76d3ea7",
-        "bodySha256": "0c2dfc3f01740b72996016dbcdb87b5b82d9bfd02893aa71e709e06247f4e178"
+        "sourceSha256": "ad95ee89bd8f753666d95970d010963cc7040d5c391d23ea52f3f027d366b6ca",
+        "bodySha256": "ffca2b5eda2dfacd1d0942cafb670e8d467caa58d047d47fdc3ba302078b7bc7"
       },
       {
         "candidateId": "week06-0359",
@@ -206669,8 +206669,8 @@
         "sourceFile": "英文-fastgpt.io/node/fastgpt-specified-reply-nodes.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/guide/build/workflow/nodes/reply",
         "sourceReference": "https://doc.fastgpt.cn/en/guide/build/workflow/nodes/reply",
-        "sourceSha256": "129fb15bdf2df8930ac28757425645ea0f907cf2c335142a73b2a0272fb09d96",
-        "bodySha256": "186964ac51982b35caa6f04c30b3233c14b759e9281037d4231ee87ef05a5d85"
+        "sourceSha256": "be8377fd88e48b4cf34bcf84090d5e07eb81a263f13767b15e0877f6bde0b259",
+        "bodySha256": "216de54a957861d5eadfe8253ed54e635753fc623284bf83ba7d456edd0897e3"
       },
       {
         "candidateId": "week06-0375",
@@ -207524,8 +207524,8 @@
         "sourceFile": "英文-fastgpt.io/tutorial/fastgpt-multiple-selectors-config.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/guide/dataset/websync",
         "sourceReference": "https://doc.fastgpt.cn/en/guide/dataset/websync",
-        "sourceSha256": "d6eb38b0bc063dacd00fc2e93673e27ebaeac36058d8fce4f0b6f761c5faf953",
-        "bodySha256": "95f8fab87b95b84f2a75507ea3d1756689617ff837cd41669b33110a0ba639c4"
+        "sourceSha256": "8d4e725db4c63fafd5b1300d4ba19bd834cdcbffd960a7ef721fb720a56bc1b4",
+        "bodySha256": "d4cea9e6fe9017f4a37beff0e8893c7bd891dd475ef8954d0f6b0751e694cffb"
       },
       {
         "candidateId": "week06-0470",
@@ -207632,8 +207632,8 @@
         "sourceFile": "英文-fastgpt.io/tutorial/fastgpt-rag-generation-phase.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/guide/dataset/rag",
         "sourceReference": "https://doc.fastgpt.cn/en/guide/dataset/rag",
-        "sourceSha256": "d37a80f86718c2887817e46903d32ee4567cf7bb7c7e64f46b5ed5be7194d263",
-        "bodySha256": "31107895e16afc0bf2df3e01ef2701d28a727676c992ae198893b832434f9bf6"
+        "sourceSha256": "de5b36e1a0902e1f1691173b928e787d65f77cc3efa6bd3419edc7b6da22a20f",
+        "bodySha256": "76e920d564e2a8eea9e0e17b4b5df051b37b43e0656e5cf3fb037ba387f38160"
       },
       {
         "candidateId": "week06-0482",
@@ -207686,8 +207686,8 @@
         "sourceFile": "英文-fastgpt.io/tutorial/fastgpt-rag-workflow-deployment.md",
         "sourceUrl": "https://doc.fastgpt.cn/en/guide/dataset/rag",
         "sourceReference": "https://doc.fastgpt.cn/en/guide/dataset/rag",
-        "sourceSha256": "5c2f017e8f5a78f5c83548c99836352e0027d5a24dfb9af581a06e19c7fbbe4f",
-        "bodySha256": "3eddd4d5ab023aa4df3f0f89dfe0a7025ab5b01d0083299b7a576cdcc48ff857"
+        "sourceSha256": "57d4753f7f035d3b7195c1b55368c0b2a1e1b6210d96558185176a7943a19be1",
+        "bodySha256": "0f59d2577f80d63a865ebb52921c63fdb01082f2d16b87de31009b9ae2a978b5"
       },
       {
         "candidateId": "week06-0488",
@@ -208289,8 +208289,8 @@
         "sourceFile": "中文-fastgpt.cn/deploy/mineru-pdf-enhanced-parsing-test.md",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host/custom-models/mineru",
         "sourceReference": "https://doc.fastgpt.cn/zh-CN/self-host/custom-models/mineru",
-        "sourceSha256": "9714fbff054e4d68628095faf37c73d9741429f589c260c803c91727d5ab1900",
-        "bodySha256": "b812440c21e777b3db8a53040b5dc402c7031d1f08c070a9a220d42405ac8ee9"
+        "sourceSha256": "7771c8a5eebc1a56346146894d30190ae45ca786615a47ae28d0b330278e5b2c",
+        "bodySha256": "7e84d903867ca62c086a1fb2a641d06e034bda4152307e2af6e81068ca59dcf4"
       },
       {
         "candidateId": "week06-0555",
@@ -208532,8 +208532,8 @@
         "sourceFile": "中文-fastgpt.cn/deploy/upgrade-v4-14-15.md",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host/upgrading/4-14/41415",
         "sourceReference": "https://doc.fastgpt.cn/zh-CN/self-host/upgrading/4-14/41415",
-        "sourceSha256": "9d3d5eb700662aae7d6826d591f68d95023e40048dde19d62fbcf62fafdc0b9e",
-        "bodySha256": "ae15ab26b73c1744ae685636231c8e14093e99b3cf9302fc8d20e2c86ad81cb3"
+        "sourceSha256": "9e49eb54d2c5d4a5029896d26def25d3771fa5d7a12f9bd21706ea81cebccdb9",
+        "bodySha256": "17902438445049bdfc871b0c7d220cb3d2b22b8fb39bc7aae2002e349e5a2a94"
       },
       {
         "candidateId": "week06-0582",
@@ -208559,8 +208559,8 @@
         "sourceFile": "中文-fastgpt.cn/deploy/upgrade-v4-14-18.md",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/self-host/upgrading/4-14/41418",
         "sourceReference": "https://doc.fastgpt.cn/zh-CN/self-host/upgrading/4-14/41418",
-        "sourceSha256": "13761be819c24c814f4c452f159bf77bf8166a40271a24cae6e378564c9f6190",
-        "bodySha256": "a763a4c720efa4bf17d65a3982986d0e4bcc1c7008a90c43db864b48d27c4829"
+        "sourceSha256": "9fc705e002eac49232ce8676027f7377945d9b6a9bc86e147d324f453c92fa7b",
+        "bodySha256": "6515a892ddc62b3c50f7ccd9f73cc3af8aa5a84ed767b9a98ce841348313a8cf"
       },
       {
         "candidateId": "week06-0585",
@@ -209549,8 +209549,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-access-token-usage.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/57",
         "sourceReference": "https://github.com/labring/FastGPT/issues/57",
-        "sourceSha256": "d18d1e81f514b9b0c278e97ffce86a6a3344c7bba2328f756df5bfd1268febc1",
-        "bodySha256": "721aafd8b4f3dcf9b1783b2b46f269900000ec09028cf8cde0725dc30e7aac17"
+        "sourceSha256": "dac5a1dcf5ec470350e4f833672139afd122bee075176c6c6edb1cea1f00e237",
+        "bodySha256": "4d6246147bedbfccbeabafe51a1586ae4440fff30977dc087716608c83ad9836"
       },
       {
         "candidateId": "week06-0695",
@@ -209567,8 +209567,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-ada-002-model-config.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/414",
         "sourceReference": "https://github.com/labring/FastGPT/issues/414",
-        "sourceSha256": "618dcffa1d332a92f39197f514bcc2916b3b1e1866eddd681d5b466724aada93",
-        "bodySha256": "78025ced1eaae0d3eff54fbe901ec2e5e5c05bb0422801aebf3674cbd5eab32e"
+        "sourceSha256": "191ce66c34aac3c8c4cdf7dd36a95b59b2a54e7f55f0fbaaa6e4666aa71d0949",
+        "bodySha256": "52c62e431e8174046906537ed3be6b25b5e778e5918b883213bcd26fe85282c9"
       },
       {
         "candidateId": "week06-0697",
@@ -209576,8 +209576,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-address-usage-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/666",
         "sourceReference": "https://github.com/labring/FastGPT/issues/666",
-        "sourceSha256": "6e7dac9da08e36a7fed81ff058ef8fae359704b5a8ea0fa3e852bfa00476e43a",
-        "bodySha256": "2346eb356ef4214ff6bec9e985498409442cf7a5fad514d1436f30e43ca5034a"
+        "sourceSha256": "e6b9b4c8b30633fc9f4db6a54f05780016cc1e8727f83d8fb313223d7180430a",
+        "bodySha256": "221e733c2c77b04927015b212720c0495adaaeee74dc518536c5fe66a771a6ca"
       },
       {
         "candidateId": "week06-0698",
@@ -209594,8 +209594,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-after-parameter-guide.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/36",
         "sourceReference": "https://github.com/labring/FastGPT/issues/36",
-        "sourceSha256": "b79c7d4530070ff2fd8267f20af87e04c832bf25ecab920026081bfd9b7443d2",
-        "bodySha256": "abf415ffe9a67cf8372fe204c0737ea9fe3fc14dd2bc19679ac426558de09651"
+        "sourceSha256": "60e1a8ead9929bfe37fcccfa2a5b780d2aa304b641290a34e7d6bc02640487e2",
+        "bodySha256": "421dc26a7eea40dfd25b1abdc587b7651da76dc2533a535b52fa55ac6903530d"
       },
       {
         "candidateId": "week06-0700",
@@ -209684,8 +209684,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-api-error-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/50",
         "sourceReference": "https://github.com/labring/FastGPT/issues/50",
-        "sourceSha256": "ba56219629b0f27a7bae484d9fc841d6d275662caea771fdd1410e3218cc72c6",
-        "bodySha256": "42f93d11a0e637fb89e85624c3ee9c495ac0ba1277886a7297edaee99eb51a14"
+        "sourceSha256": "3287d96dae961c06df589474dd0144c8b110978fc4f64dc723f324da1ca995a5",
+        "bodySha256": "6eee669b1e3f1cc0a23dd41031f5d8d61b5c9698bafa70c49726880920997775"
       },
       {
         "candidateId": "week06-0710",
@@ -209720,8 +209720,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-apikey-usage-guide.md",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/guide/build/publish/openapi",
         "sourceReference": "https://doc.fastgpt.cn/zh-CN/guide/build/publish/openapi",
-        "sourceSha256": "6f90033e487def3cb874f9928b48b6e84bf8ea0a690acb47d345de383d13285d",
-        "bodySha256": "d2d1ce3473c32ca95e6b7c60468cdecd96db1791f0a4e27e4b307576c2293ad4"
+        "sourceSha256": "f708d4291fab1e5d92aa23d549ffd5495a3ff49933490096e16c9af732ac572b",
+        "bodySha256": "14474bb9d63ebe201fbb75c89cde9288cd92f752e4c3bbf116e0b6fe4fc40412"
       },
       {
         "candidateId": "week06-0714",
@@ -209729,8 +209729,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-app-model-selection-list.md",
         "sourceUrl": "https://doc.fastgpt.cn/zh-CN/toc",
         "sourceReference": "https://doc.fastgpt.cn/zh-CN/toc",
-        "sourceSha256": "a2b548323bf830587cf7c8e1f3170e0fa10249a864b1a0c359d69a5ed58992eb",
-        "bodySha256": "4da21ff4195848783e7c45db216e3e8832b68999ff8fc5f885b4a2b56fc28646"
+        "sourceSha256": "36eab428ed2d06b8785678ad7d8f75f09fbbd64095d1d63abed2a8ed1444523e",
+        "bodySha256": "d876f936da7600ee01240414c372c12e6b7f8575c04dc1f6a9b0f5c9ecd18409"
       },
       {
         "candidateId": "week06-0715",
@@ -209846,8 +209846,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-button-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/508",
         "sourceReference": "https://github.com/labring/FastGPT/issues/508",
-        "sourceSha256": "604b25afba14c4d40d7918c8596ed26ec92a4d65384953e7d73ed24b58d7d8b6",
-        "bodySha256": "429823fb69b3871fdf59f032b173fc96766ccdca2d6ed212c52fb4943fe02331"
+        "sourceSha256": "3815ad4dbaa2a4351aaaf1dbac3e68c91a3e27590828387bbb18d4bb069e26e0",
+        "bodySha256": "c2ae39472ae917db60ae19b5af9c86a7d9e24ea54de06b17e25bec08994f3649"
       },
       {
         "candidateId": "week06-0728",
@@ -209954,8 +209954,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-common-error-fix-guide.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/152",
         "sourceReference": "https://github.com/labring/FastGPT/issues/152",
-        "sourceSha256": "9a13f97c16eb2322355e12a85910f279eaabb20aba3ba08bc657d22afb831e5e",
-        "bodySha256": "2863f7705f44427a1e5423f6a07e2fb21edd6e5a17de456be2c72fdccbe98304"
+        "sourceSha256": "b751a4eaade1aa53576c2149f3207294f52a485162e6691db20e7ae27077714b",
+        "bodySha256": "e02c02b6bd349c565468dce484ce15dd27d548fb756e3559e7a3772e3ddc315b"
       },
       {
         "candidateId": "week06-0740",
@@ -210089,8 +210089,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-customer-service-variable-image.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/2394",
         "sourceReference": "https://github.com/labring/FastGPT/issues/2394",
-        "sourceSha256": "a115980ed1bb8481e3ff88fce521a7091caf51ec896fa8f1ba1c84f8e99c5f1d",
-        "bodySha256": "13e58c30cc1f6921852e4857e303896ae98cad0d2fbe837e6b5019a724cae01a"
+        "sourceSha256": "f9d963ed0209c263977a5fdd1b1d65bd3ff3e8c202aa434e77a5a4bfc40841a3",
+        "bodySha256": "4d308869977eaf0b65ba72cc6bae6889f566a6180c7ea12280590fd9386d1b9f"
       },
       {
         "candidateId": "week06-0755",
@@ -210152,8 +210152,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-deploy-api-error-handling.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/152",
         "sourceReference": "https://github.com/labring/FastGPT/issues/152",
-        "sourceSha256": "03c723917a71680a9b5307c8f29c93349515ade3793b1428393b3d573f88f910",
-        "bodySha256": "2c0e546a2a08d4f8cccbf50079b43b929659473dd9d439a146da81576e9353fa"
+        "sourceSha256": "481afe3f8a18b8425d3d21323f4b68f8b3fae3733fc4bb4aad03b97de0434c65",
+        "bodySha256": "6071b37e8e423ce17ea597a945a4b085cf33e8db004c75b59a2297817ed3b9c4"
       },
       {
         "candidateId": "week06-0762",
@@ -210170,8 +210170,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-deployment-gpt4v-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/209",
         "sourceReference": "https://github.com/labring/FastGPT/issues/209",
-        "sourceSha256": "e556d034b4be5809a5a848462dd998c63ae96901d5fe63181e920fcc8c65884a",
-        "bodySha256": "2acba1bd4e8429d1054d5f136f17d9158eda9f8267261453954cb80502d93ea9"
+        "sourceSha256": "5fd7bce4edbb4fb7e8a8576672dd6745e5a4d7647a44ec8a2d3efa8dc4393c3b",
+        "bodySha256": "0c8ce4cb32e8bbe5acd4fb52f3c73d68c76397797bd098992245201faf78c8ea"
       },
       {
         "candidateId": "week06-0764",
@@ -210296,8 +210296,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-embeddings-docs-function.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/74",
         "sourceReference": "https://github.com/labring/FastGPT/issues/74",
-        "sourceSha256": "2bcd1d3d6a76315422aba62105a00984a0f5dee0e5b36ace5da95c359d81eaea",
-        "bodySha256": "0f104056434eb53e8ee59f02280803ad08dd359395bb128e914930f9f75ccfdf"
+        "sourceSha256": "e63fb770ffc1599a1b04577c4641bd3842f2637be203249f621f8e7a411aa655",
+        "bodySha256": "b5838f7e113864de57514bede36bb085cab9a4a62eacb26e9f611202e7d3438b"
       },
       {
         "candidateId": "week06-0778",
@@ -210305,8 +210305,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-empty-value-errors-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/579",
         "sourceReference": "https://github.com/labring/FastGPT/issues/579",
-        "sourceSha256": "1691cb1997ab0f1d751911daa92eb38243d9b4a52e69ea748bb04d7847125957",
-        "bodySha256": "5224ad57a3b3a27cef660950e64580bd57cf5b80e2571903662e571228a702b9"
+        "sourceSha256": "f972e6c038272f15d47f31366f86a3b7e253b7f4a760472779245031ba893314",
+        "bodySha256": "f9fc269cd3ea22375c0db5d95fd24ad51a215f3f1d2605fd3c7b4ff7f3304969"
       },
       {
         "candidateId": "week06-0779",
@@ -210332,8 +210332,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-enough-usage-guide.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/916",
         "sourceReference": "https://github.com/labring/FastGPT/issues/916",
-        "sourceSha256": "9332e1bb1cc352e997d5033927a81124e1e7ac7f48fe2a36eb91abc1597c8065",
-        "bodySha256": "a4a174bb751cdd8fc703c295766d0b9ecfd1e533db6cb1a68b446c7aecc74578"
+        "sourceSha256": "28cd290fc239e94c7adc7fc55e397b4213f8f4c82a0488990216116109a59c98",
+        "bodySha256": "0b370d56f1d809ccb453e9314510c83f1e91263935d3230594d2703e78075370"
       },
       {
         "candidateId": "week06-0782",
@@ -210341,8 +210341,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-external-config-file-import.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1219",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1219",
-        "sourceSha256": "8ffb7b52c211bde1ad98513024834bd287c9ac36806cb42db77b35296e12cd13",
-        "bodySha256": "bc97209f5c6330f9b2e874d794976e4ae124a0c29d22e7580d9e1aac09b8c0ce"
+        "sourceSha256": "865da52d19e47240c6ac92a3e0c432a9f3ffa4c612b2e050eeac1416ba06e244",
+        "bodySha256": "a009699f6863f3edf0c294fd0ba91071b5cef5d47af59e9fe388d9ebb6ecdc9f"
       },
       {
         "candidateId": "week06-0783",
@@ -210359,8 +210359,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-feishu-baseurl-workflow-variable.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/3974",
         "sourceReference": "https://github.com/labring/FastGPT/issues/3974",
-        "sourceSha256": "d8370cbd9bbee01be7c44c2b9da24cb597685b088d5e639dc86b47fd9d0fb3ee",
-        "bodySha256": "c28c4aeec9a78efc895457fd53f37d89e4a8085ab6869fe5863037989ad77d5d"
+        "sourceSha256": "1229c4b138700754f3c5522e458d33d95d2edc1a69471eabd3859e568b0d52a3",
+        "bodySha256": "0f78c9a274919d63964174655b5808367d567a4d06d76bf09435c6452ce93522"
       },
       {
         "candidateId": "week06-0785",
@@ -210413,8 +210413,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-find-query-issues.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/113",
         "sourceReference": "https://github.com/labring/FastGPT/issues/113",
-        "sourceSha256": "d727fef5d218b3911405ff4d8825cd152632358107027c1593c76d2b1a571dae",
-        "bodySha256": "ffd22c3e64b3af2993572fd7d3518376839e43d120fe7aaada67f743b5ac5148"
+        "sourceSha256": "7c545ebf1b61ff92e447de6a0b0fce4ae1811abaffbed985068ad9d67ead281a",
+        "bodySha256": "6bb24336a9799d96a48fcaf7a129ecbc9b59a941298a7eead965c7fee06c9d00"
       },
       {
         "candidateId": "week06-0791",
@@ -210557,8 +210557,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-http-status-code-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/750",
         "sourceReference": "https://github.com/labring/FastGPT/issues/750",
-        "sourceSha256": "d7ab315ef2ebfc782bf475522c22975aa8a724028689c7a4ad34e4d9771c8dde",
-        "bodySha256": "bccadaa201acc8b9f720751ef5489d070733d450c068db1df1dec6f0a8591044"
+        "sourceSha256": "b965377d9701c997d1a779aeb1e024f2b526608555f5fd48a33f1ef3cca0ceb1",
+        "bodySha256": "a9c2168421c7e87c22a6f72ca65db4d0c61de653e68a71d10620f83e4513ca20"
       },
       {
         "candidateId": "week06-0807",
@@ -210629,8 +210629,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-jina-rerank-latechunk.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1822",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1822",
-        "sourceSha256": "d1ad875b18a92a4dcce12969b1c75d13480b9b24d1b39b5ab51c32bfd2085857",
-        "bodySha256": "feb0cfc093917108844922f663b0ae37fdf503c8ac1c52f380ef53c346cddfb4"
+        "sourceSha256": "81c792f9b2446ce9216a4883a19c8236b1148426ed73aa4a44c827c04c6a6572",
+        "bodySha256": "5f558c91118d08483976cf8857609b9c52cd457e18886cc324605f0f6089d133"
       },
       {
         "candidateId": "week06-0815",
@@ -210773,8 +210773,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-local-start-window-error.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/465",
         "sourceReference": "https://github.com/labring/FastGPT/issues/465",
-        "sourceSha256": "43d3d2f7a3d80a01488096d4c05ae9e07f4a14d33715b1c99539b189468144cc",
-        "bodySha256": "63b36f309b51484509f7f4ff7e6792200a0f4e2db38b649d2b7e769b58db1e5b"
+        "sourceSha256": "681cbd24f71bca814168ccb61de8bcc05c1e2407e70adf2f08dda601cd48ea4a",
+        "bodySha256": "d286ac9fa6c1806b19cf01ba4683eabf82dbb2b60cd0cddb0f4b12019f746a6f"
       },
       {
         "candidateId": "week06-0831",
@@ -210800,8 +210800,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-login-window-extension-errors.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1417",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1417",
-        "sourceSha256": "1eb8f3b55e4a45b8792cc2e1aa535474c5a121281bd44d7ae9586c373b2b419a",
-        "bodySha256": "a195a6cd5fa8087264adf6b55b9bdef12a3e29a2851471e93ae1123318d0498b"
+        "sourceSha256": "b0524af53509faba323f4c8788fe3aa100c4df68547bdb3169d704ec94d3caa7",
+        "bodySha256": "53b18553f5f945ba24bbd0f3ddc6c984617e25eae4fe97a3f1bc349050b33f69"
       },
       {
         "candidateId": "week06-0834",
@@ -211106,8 +211106,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-page-data-warnings-errors.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/3490",
         "sourceReference": "https://github.com/labring/FastGPT/issues/3490",
-        "sourceSha256": "09e0842acc317b7b67c06d4d593c1ddf5435e3645d290626d0e6d5437927e4d0",
-        "bodySha256": "e24149ddafaef5d6e93ee4696dd3099a3f106362a2febe394373011090ccd132"
+        "sourceSha256": "63b4a3f536895b836f71ade7e2ef7ab579e33ad201aa95a92c47164448c189fa",
+        "bodySha256": "e85376e26c7c593043b61486e2bb6e79dab207e2fd8db31d0ec7f1fa68fde326"
       },
       {
         "candidateId": "week06-0868",
@@ -211169,8 +211169,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-permission-denied-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1059",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1059",
-        "sourceSha256": "a62e2dc4560037f9d3b4ab56ceb56311135d32faad25ce3903e9b75f0103c07d",
-        "bodySha256": "4b26b3a1113e19e2eaa6bdf040d8c75136980e1662b14d68f99b812aa6706a1a"
+        "sourceSha256": "94c97ebb7cb38e3eaa24c0569e55054c0b7eeb005834b2293d7276ad9d7b3319",
+        "bodySha256": "f808106026434c6b58b0b52d8ee0b0a50220135e5ef4f6017724ca0d9a2715c6"
       },
       {
         "candidateId": "week06-0875",
@@ -211340,8 +211340,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-query-usage-errors.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/244",
         "sourceReference": "https://github.com/labring/FastGPT/issues/244",
-        "sourceSha256": "4bde4b2a31e06ac9d841f2406a9b81ecd3e002ca161ac5fa371bed8c76013146",
-        "bodySha256": "356b80354929bda58b7874e5cd943d3388891803d547fe7fe67cbe6599d4a879"
+        "sourceSha256": "df98ece7bb75c0e91d0a8e45dfe5f1a85aacc73681eacb6574d99aa6293861a4",
+        "bodySha256": "f76ded7251ff7bf96b7365aa620503da86c4c2551e32200fefc9a139e11f103d"
       },
       {
         "candidateId": "week06-0894",
@@ -211349,8 +211349,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-queryextension-usage.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1142",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1142",
-        "sourceSha256": "3e222cc553dd6c4f7911b484331dc689e90f8400b6316d9c8e2a4ce654b728bb",
-        "bodySha256": "0cdcf88a181695d340374a0d6a69e0474f3c43f5c05baec8a39b8156ab3225a7"
+        "sourceSha256": "c2a84d5eb83e0e644d892d42c5d931f5b01d02252b58c8e1abdb6ed65d2b8297",
+        "bodySha256": "c721ea5ebcf9aec5cb853d3b02ed6fb4d6eee6728efd9f96d5c594be35391d54"
       },
       {
         "candidateId": "week06-0895",
@@ -211421,8 +211421,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-response-handling.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/56",
         "sourceReference": "https://github.com/labring/FastGPT/issues/56",
-        "sourceSha256": "55d0488a3ddc76f27de99a0ab6b783693fb38f99dd918818e47b5723a5f68173",
-        "bodySha256": "5be8b50a51b884ee542d95e0ae5156d11a145d1dbb51a61890cae611ad17a62f"
+        "sourceSha256": "88ddab3a39afd531165069b7a2c05078d5438b0a4180f51e121043e01f9aff1d",
+        "bodySha256": "43649dca497083d8b378dfcee50e5c97412a9384f84f85de1cd855d6e3d5f6e7"
       },
       {
         "candidateId": "week06-0903",
@@ -211430,8 +211430,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-return-statement-usage.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/2309",
         "sourceReference": "https://github.com/labring/FastGPT/issues/2309",
-        "sourceSha256": "59caa35cbb2a0c31a8183091774ef1e27d8f1a73d0d634c30e6a5e8c5ced6258",
-        "bodySha256": "e76e8cd28bd62b7770a7e2924ae865c3f99e723741d2b9d3fb3bd0ff6aab9551"
+        "sourceSha256": "063bcefb4fd9c272f87ece3a382cab5ce61cb33bef7d65afeede84a15d87ee18",
+        "bodySha256": "e9e839af32acab7b91ab03baff5ef48c36609a28f3898a7c39b9f3c6f59ddd2b"
       },
       {
         "candidateId": "week06-0904",
@@ -211484,8 +211484,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-self-signed-certificate-error.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/27",
         "sourceReference": "https://github.com/labring/FastGPT/issues/27",
-        "sourceSha256": "4ecf948f91a3c11fe0f80694b12369faa0bca7c4346e10e1da260a62c31e8dfe",
-        "bodySha256": "7af2690af9b89474b43ab0b7eb17d4851fef821870c86d82ccf1e7c504ec3aa3"
+        "sourceSha256": "583e4c2d90d3886324d3320de3f0ae44f38e785039f1f1d9434e0f3f32c7758f",
+        "bodySha256": "6d09a0fc0998d38cb8c2e4ca8f00ab4edbdd62dafa1e94f8efee587d3f9d7721"
       },
       {
         "candidateId": "week06-0910",
@@ -211493,8 +211493,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-self-signed-certificate-error-2.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/27",
         "sourceReference": "https://github.com/labring/FastGPT/issues/27",
-        "sourceSha256": "b9c7068f7c8306a63888b8e340e60bcd891ad3f0271371bec598e1a84b363944",
-        "bodySha256": "8d7cbf6420c0db8743f8d570c2b276d70ec8dd9e13c68973ec0bedbc662c535d"
+        "sourceSha256": "f9ffbb541f8b722fc78888cdc9806e721703a3f7e74e1c0e3c9ad9b6dc76edf5",
+        "bodySha256": "30c6cf72634a2460d13e56c4881f82bfb07d3afbfdc5786e51a6aaa636fa4126"
       },
       {
         "candidateId": "week06-0911",
@@ -211538,8 +211538,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-shareid-url-params.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/887",
         "sourceReference": "https://github.com/labring/FastGPT/issues/887",
-        "sourceSha256": "9e505ee65357b49f39881f956b0a160b2b969813a3f16cbc99f83415f269ba5d",
-        "bodySha256": "e706a40d3a3c933ec9d295233145d96fb742296f3c45f0e4f0bb710ba4b341de"
+        "sourceSha256": "1d467d0fed01bd5a183c17122ea8f52afff42bb471b31b2e4d9b52c809370173",
+        "bodySha256": "bc221f011ffbe3a62bced8d0b03a3051aa7372801da2096ff825a8d8b239cc59"
       },
       {
         "candidateId": "week06-0916",
@@ -211637,8 +211637,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-support-json-serialization.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1156",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1156",
-        "sourceSha256": "6817a314549a63f88bdee5a7e609925f9d517418b5c5272e86367f17da348be1",
-        "bodySha256": "b194877cc08d196f28f7d666c3f34bcb3ede87d46302d1e8f25e9ca66e4a3e05"
+        "sourceSha256": "a1b2dd6265e0cdbcea436b3760b5ef960afa16bbe6589264bbf8d164fb54f89c",
+        "bodySha256": "3998a433a87c3e12e7d2dbf51d9aca3e3dcb8d9d487bfe3eb07bf59ad7d9fbda"
       },
       {
         "candidateId": "week06-0927",
@@ -211826,8 +211826,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-usage-api-errors.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1034",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1034",
-        "sourceSha256": "9aa5b7103f05f7de4e85d27f2db0cde7a1a5541d41462cca00ef700d73cc5f4f",
-        "bodySha256": "0f4de91ceb8786da74432c829464973ef3fa62e9e2c5928b548c08b954470dbf"
+        "sourceSha256": "69cd37b41bc59304564ed0e8ccf8448ef2e53c520938142633e96c92a58cb3d4",
+        "bodySha256": "4756a559c67353f2c2bde042f43a9e6a9ecdee86dce5c454012d3a10936c118b"
       },
       {
         "candidateId": "week06-0948",
@@ -211835,8 +211835,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-v412x-deployment-plugin-errors.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/5459",
         "sourceReference": "https://github.com/labring/FastGPT/issues/5459",
-        "sourceSha256": "05322df6cc55501fcc6139555b99e27bba239090b1b02b897db230a4af4c4ecc",
-        "bodySha256": "49ef38be6383425548c0a8902e23aea0e1663e0c13598ce17205c2a6cab13bf7"
+        "sourceSha256": "70c0a2086f12d2127a1c5b04ea6ccc7189bc348264baa9d820be52254dc53102",
+        "bodySha256": "49fd84ff1b67e87dff216356abce69bcb82a8c90a7cbf90626fe4c76b2b001b0"
       },
       {
         "candidateId": "week06-0949",
@@ -211844,8 +211844,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-v467-interface-output-issues.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/771",
         "sourceReference": "https://github.com/labring/FastGPT/issues/771",
-        "sourceSha256": "36c6cda4e24ea60f663e8c1e9d6d0ce79e45a802a4ec66275e6770e6e7b9b6cb",
-        "bodySha256": "ef6a7dc00aea39d030b7211da3b4d2a59cfc789de1df7b1c306311067b20b0e2"
+        "sourceSha256": "2e7e2cbff966e283ea06ec521465d0fbab804f276f9d002753f59b650964670b",
+        "bodySha256": "3246f8757f151a3e99f7e3943b944e40e0acf31525f7817fc14ec0e831bbe999"
       },
       {
         "candidateId": "week06-0950",
@@ -211853,8 +211853,8 @@
         "sourceFile": "中文-fastgpt.cn/glossary/fastgpt-v481-issue-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1604",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1604",
-        "sourceSha256": "e48cce6914596152d3ef1cbaf0fe88caa0dc1d98053a588cb54b9b8ec653e426",
-        "bodySha256": "b0216968b83a29e4cfb22965bd05d3f2e116c408f8f40f3e9aa516717b7c14e0"
+        "sourceSha256": "5eb79e36deefddf06b68ecfdc5c1dc83dd1a43c9a5cbb3b6b0098408115ab2b7",
+        "bodySha256": "216a31bf5eb7053b1d93f134e7697ac3d70d82db8604b1b906a519467a69d62b"
       },
       {
         "candidateId": "week06-0951",
@@ -212690,8 +212690,8 @@
         "sourceFile": "中文-fastgpt.cn/troubleshoot/fastgpt-advanced-prompt-params.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1211",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1211",
-        "sourceSha256": "c130cc1a292122df781f3624ed491a910c60cf4f48fe73c8f51f7327b034e15d",
-        "bodySha256": "d1b974e931d1e782fff48e1034558c1aec4e91320f9e9ff4547b802acaf5aaee"
+        "sourceSha256": "0f089a43f62fdd9726cdba6447036a42501e6e06ce3013b82aa3645994e6f3c0",
+        "bodySha256": "dd40ef2009640bc59a2e214f7a87952bfa1bf01a6ddf1e3d31ff859aeef1cc86"
       },
       {
         "candidateId": "week06-1044",
@@ -217127,8 +217127,8 @@
         "sourceFile": "中文-fastgpt.cn/troubleshoot/fastgpt-orbstack-deployment-troubleshooting.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1594",
         "sourceReference": "https://github.com/labring/FastGPT/issues/1594",
-        "sourceSha256": "8a6143bb711baf9bb1cb5a2970ffebc4ddde7b26978bef3a3c6c821c9f484d31",
-        "bodySha256": "f5f748c13e2afa1c6728097122d8ca816f6946280843c4ce2d425839c09c39bc"
+        "sourceSha256": "202d7de897d7e99b68c33cc63bb47b64b4905c857e36b310200ac5e0558deabd",
+        "bodySha256": "e98c507c8e2c72c495d9495a03e50512b72eb69e5fb4a39d77d92d0b0f7aa6e4"
       },
       {
         "candidateId": "week06-1537",
@@ -221625,7 +221625,7 @@
     "relationPageCount": 11,
     "securityFindingCount": 135,
     "operationFindingCount": 7,
-    "sourceSetSha256": "b9a235e60640bd681217638e5fdc650b025aba84c4c814aea085e32b6abf5ae3",
+    "sourceSetSha256": "039c26decb7ffbb5a6bf78c907dcfea25d4b4cd6385351a60d245c1c36811522",
     "baselinePageCount": 1172,
     "wave0PublicationCount": 0
   }

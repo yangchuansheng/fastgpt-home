@@ -4,7 +4,7 @@
   "status": "closed",
   "input": {
     "path": "src/content/tech-center/authority/week06-candidate-manifest.json",
-    "sha256": "7803bad860bb15d46529a0f7a1b0109122f93529b085afe6718fc2ffa09d81a8"
+    "sha256": "a9f5bf095aafe179f48debd3f47aa6e89d31de8d15da8243eb8c051cbd0774ea"
   },
   "scanner": {
     "id": "week06-privacy-token-scan",

@@ -45,7 +45,7 @@ test('closed Week06 authority preserves the exact candidate and exclusion contra
       comparisonRouting: 0,
       hygiene: 0
     },
-    privacyScanSha256: '413870b1ec15c1e6958be214a0eb06ccf3a00d9138e49c41dbac1914ab1309cc'
+    privacyScanSha256: 'ba257d22afeaa8aa61b4ef5123144a44b653c642876aa691e6fbcc95828fc1e3'
   });
   assert.equal(manifest.candidates.length, 2034);
   assert.equal(duplicate.relationCount, 6);

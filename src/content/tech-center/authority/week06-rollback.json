@@ -10,9 +10,9 @@
     "registryPath": "src/components/tech-center/entries.json",
     "registrySha256": "802ed3c993004f52a858ac9ac2d7aa3c3d11224d6b3a77f28daf3513b724290e",
     "releaseManifestPath": "src/content/tech-center/authority/week05-release-manifest.json",
-    "releaseManifestSha256": "a033816de864858f010811e2dc49eb91a9280672ac66e807f7c562b475973db7",
+    "releaseManifestSha256": "343e78af75b3a16d399955ed1d8596ca9f69b02ed478116b169170a5e9c24559",
     "authorityPath": "src/content/tech-center/authority/week05-authority.json",
-    "authoritySha256": "fe8d1c8e5d22b044272620c3d67df1ef1f94d2f15a6ac6af8cbbd2c08323c41d"
+    "authoritySha256": "558b1585b432088389bb69df3d32731b7bf0da8ae8ac43ca4439d9c5481acb34"
   },
   "restore": {
     "authority": "src/content/tech-center/authority/week06-candidate-manifest.json",

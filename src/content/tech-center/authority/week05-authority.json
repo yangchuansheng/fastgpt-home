@@ -26064,8 +26064,8 @@
         "workbookRow": 511,
         "sourceFile": "troubleshoot/fastgpt-oneapi-glm4-toolcall-400-error.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1823",
-        "sourceSha256": "da4f5a27befad125e779c83069eeebdb899ca77251fd5e530c35e1da2f0b3a9e",
-        "bodySha256": "da4f5a27befad125e779c83069eeebdb899ca77251fd5e530c35e1da2f0b3a9e"
+        "sourceSha256": "cac449abd1004dd2991f28b49916a182edda2e89be8dff4b16d1024889f957c8",
+        "bodySha256": "cac449abd1004dd2991f28b49916a182edda2e89be8dff4b16d1024889f957c8"
       },
       "evidence": {
         "status": "verified",
@@ -33739,8 +33739,8 @@
         "workbookRow": 659,
         "sourceFile": "troubleshoot/fastgpt-private-wenxin-test-failure.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/3727",
-        "sourceSha256": "e7def50243c0054909924e0ea14e8c86768362cb0cca2247e8f04b7d3e40d8e7",
-        "bodySha256": "e7def50243c0054909924e0ea14e8c86768362cb0cca2247e8f04b7d3e40d8e7"
+        "sourceSha256": "fd2e739a441ec791d159d16bc0ea670eed216f6e9e547bb21950c6bd7abc0616",
+        "bodySha256": "fd2e739a441ec791d159d16bc0ea670eed216f6e9e547bb21950c6bd7abc0616"
       },
       "evidence": {
         "status": "verified",
@@ -38651,8 +38651,8 @@
         "workbookRow": 755,
         "sourceFile": "troubleshoot/fastgpt-system-prompt-kb-failure.md",
         "sourceUrl": "https://github.com/labring/FastGPT/issues/1848",
-        "sourceSha256": "2d3ea581be35dc59a5940a9c6d69c23fe6207e1a5cc62f89f3b9aa7ae6d9cd20",
-        "bodySha256": "2d3ea581be35dc59a5940a9c6d69c23fe6207e1a5cc62f89f3b9aa7ae6d9cd20"
+        "sourceSha256": "be7015b5e26b968d3fd9a3e059c039a07f86d1840a2580d15c240cc30b91ee08",
+        "bodySha256": "be7015b5e26b968d3fd9a3e059c039a07f86d1840a2580d15c240cc30b91ee08"
       },
       "evidence": {
         "status": "verified",
@@ -46754,7 +46754,7 @@
     "sourceDirectory": "程序化技术页-第3批",
     "sourceFileCount": 888,
     "sourceUrlCount": 888,
-    "sourceSetSha256": "518f76fe5f2675a4a11592d2d555fb0250b5c812de46b8819174d6e01e230388",
+    "sourceSetSha256": "214d2d1834c20c1c8a70f84cc44ebd0b4a2c2a96ba8f2fe0662e60f86586b7a8",
     "artifactManifestPath": "src/content/tech-center/authority/week05-release-manifest.json"
   }
 }

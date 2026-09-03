@@ -12,11 +12,11 @@
     "registryPath": "src/components/tech-center/entries.json",
     "registrySha256": "802ed3c993004f52a858ac9ac2d7aa3c3d11224d6b3a77f28daf3513b724290e",
     "releaseManifestPath": "src/content/tech-center/authority/week05-release-manifest.json",
-    "releaseManifestSha256": "a033816de864858f010811e2dc49eb91a9280672ac66e807f7c562b475973db7",
+    "releaseManifestSha256": "343e78af75b3a16d399955ed1d8596ca9f69b02ed478116b169170a5e9c24559",
     "authorityPath": "src/content/tech-center/authority/week05-authority.json",
-    "authoritySha256": "fe8d1c8e5d22b044272620c3d67df1ef1f94d2f15a6ac6af8cbbd2c08323c41d"
+    "authoritySha256": "558b1585b432088389bb69df3d32731b7bf0da8ae8ac43ca4439d9c5481acb34"
   },
-  "sourceSetSha256": "b9a235e60640bd681217638e5fdc650b025aba84c4c814aea085e32b6abf5ae3",
+  "sourceSetSha256": "039c26decb7ffbb5a6bf78c907dcfea25d4b4cd6385351a60d245c1c36811522",
   "blockers": [],
   "projection": {
     "mode": "dry-run",
@@ -28,7 +28,7 @@
   "artifacts": [
     {
       "path": "src/content/tech-center/authority/week06-candidate-manifest.json",
-      "sha256": "7803bad860bb15d46529a0f7a1b0109122f93529b085afe6718fc2ffa09d81a8"
+      "sha256": "a9f5bf095aafe179f48debd3f47aa6e89d31de8d15da8243eb8c051cbd0774ea"
     },
     {
       "path": "src/content/tech-center/authority/week06-disposition-ledger.json",
@@ -52,11 +52,11 @@
     },
     {
       "path": "src/content/tech-center/authority/week06-provenance.json",
-      "sha256": "68aa081deb6f429541d57dcaa76f1ed08ce23012651da53bc9f7d8e5eb6afaad"
+      "sha256": "b014ec378ce796e817f7acf5c3b43b6eecf6c2bbef7001fc00d05c3665ece260"
     },
     {
       "path": "src/content/tech-center/authority/week06-wave0-content.json",
-      "sha256": "3bcb9a173d90e3e26c1fbcc4178a75e95a553458cac4f87e8501c2d14de41246"
+      "sha256": "18360b9a2f04dab5a89330e717c17ac24d90607a09375169facbdca7659910a9"
     },
     {
       "path": "src/content/tech-center/authority/week06-wave0-projection.json",
@@ -68,7 +68,7 @@
     },
     {
       "path": "src/content/tech-center/authority/week06-rollback.json",
-      "sha256": "5b2aa2270ee923b10bec554d2609351f5389dd523def752eb23b9b0bcecd5486"
+      "sha256": "e8b48249b70cdf02cde582b6d1d5e8f21405406892cb738d2f765ed99137fa92"
     },
     {
       "path": "src/content/tech-center/authority/week06-exclusion-ledger.json",

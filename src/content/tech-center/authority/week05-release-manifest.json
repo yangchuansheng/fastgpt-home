@@ -4,11 +4,11 @@
   "status": "closed",
   "governanceStatus": "governance-complete",
   "publicationCount": 0,
-  "sourceSetSha256": "518f76fe5f2675a4a11592d2d555fb0250b5c812de46b8819174d6e01e230388",
+  "sourceSetSha256": "214d2d1834c20c1c8a70f84cc44ebd0b4a2c2a96ba8f2fe0662e60f86586b7a8",
   "artifacts": [
     {
       "path": "src/content/tech-center/authority/week05-authority.json",
-      "sha256": "fe8d1c8e5d22b044272620c3d67df1ef1f94d2f15a6ac6af8cbbd2c08323c41d"
+      "sha256": "558b1585b432088389bb69df3d32731b7bf0da8ae8ac43ca4439d9c5481acb34"
     },
     {
       "path": "src/content/tech-center/authority/week05-projection.json",
@@ -36,7 +36,7 @@
     },
     {
       "path": "src/content/tech-center/authority/week05-provenance.json",
-      "sha256": "31faca36f896c26cbad5adef3d172fd305aea0188033d6aef11c33cda39ee2ad"
+      "sha256": "2e15f904ed6cfcdde5d5d218d186152febaeb37594daddcb943bf260f85027e5"
     }
   ]
 }
