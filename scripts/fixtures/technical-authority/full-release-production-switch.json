@@ -9,18 +9,18 @@
   "lineage": {
     "identityClosure": {
       "path": "src/content/tech-center/authority/full-release-identity-closure.json",
-      "sha256": "7779bb04eb10579b97afeeef39893dd623b70119204e85aa70e98488837e18b9",
+      "sha256": "3caaa33fcd418524c50341ceb4ae48b76a58d401f51003d8c2eec8a7fd399ed5",
       "issue": 274,
       "baselinePages": 1422,
       "candidatePages": 2585,
       "targetPages": 4007,
-      "recordsSha256": "9ccbac8a5bd4c3bcf3f06fff4f6937f5405e491ac0af49efccdd56372cc608b6"
+      "recordsSha256": "37b56915f8173fd3c4ecf7502ea08fd8675ff6220ea7f8d2172537847720a6de"
     },
     "buildDecision": {
       "path": "scripts/fixtures/technical-authority/full-release-build-decision.json",
-      "sha256": "0cf2e2c8957f5082ce73cdb391e6fa36664ee176655203afad993f4a8a936d21",
+      "sha256": "fb73b6ca97177025010037fd962b023c7ee79ba733f428d507c9bf85cb1c85ee",
       "issue": 276,
-      "sourceRevision": "4b13834a32e1477a39270fa0ae2ea84bd33c56ae",
+      "sourceRevision": "522cb25f86567d7f5dad736c8b925dad30d978be",
       "targetPages": 4007,
       "decision": "increase-build-resources"
     }

@@ -68,6 +68,7 @@ const PREREQUISITES = [
 ];
 const PRE_SWITCH_PREREQUISITES = PREREQUISITES.slice(0, 7);
 const POST_SWITCH_PREREQUISITES = PREREQUISITES.slice(7);
+const STALE_CAPACITY_RERUN_BLOCKER = 'successful-4007-page-capacity-rerun';
 const EVIDENCE_KINDS = {
   'successful-4007-page-capacity-rerun': 'full-release-capacity-success',
   'complete-source-and-export-validation': 'full-release-candidate-validation',
@@ -446,6 +447,13 @@ function verifyTechnicalFullReleaseProductionSwitch({
     'build decision path drift'
   );
   assert.equal(buildDecision.decision?.path, 'increase-build-resources');
+  const capacityReport = verifyArtifact(
+    rootDir,
+    buildDecision.evidence?.capacityReport,
+    'build decision capacity report'
+  );
+  const staleCapacityMeasurement =
+    capacityReport.measurementBinding?.status === 'stale-after-source-normalization';
 
   assert.deepEqual(Object.keys(contract.roles || {}), Object.keys(ROLE_BINDINGS), 'role set drift');
   for (const [name, accountableRole] of Object.entries(ROLE_BINDINGS)) {
@@ -607,6 +615,17 @@ function verifyTechnicalFullReleaseProductionSwitch({
   const prerequisiteByCode = new Map(
     contract.releasePrerequisites.map((prerequisite) => [prerequisite.code, prerequisite])
   );
+  if (staleCapacityMeasurement) {
+    assert.equal(
+      prerequisiteByCode.get(STALE_CAPACITY_RERUN_BLOCKER)?.status,
+      'blocked',
+      'stale capacity measurement must keep the rerun prerequisite blocked'
+    );
+    assert(
+      contract.switchBlockers.includes(STALE_CAPACITY_RERUN_BLOCKER),
+      'stale capacity measurement must block the production switch'
+    );
+  }
   for (const [field, code] of [
     ['productionEvidence', 'production-observation-evidence-recorded'],
     ['searchEvidence', 'search-observation-evidence-recorded']

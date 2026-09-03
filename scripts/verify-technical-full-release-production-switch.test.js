@@ -50,6 +50,27 @@ test('the production switch contract retains an evidence-driven blocked plan', (
 });
 
 test('the production switch stays bound to issues 274 and 276', () => {
+  const contract = JSON.parse(fs.readFileSync(path.join(ROOT, CONTRACT_RELATIVE_PATH), 'utf8'));
+  const identityClosure = JSON.parse(
+    fs.readFileSync(path.join(ROOT, contract.lineage.identityClosure.path), 'utf8')
+  );
+  const buildDecisionBytes = fs.readFileSync(path.join(ROOT, contract.lineage.buildDecision.path));
+  const buildDecision = JSON.parse(buildDecisionBytes);
+
+  assert.equal(
+    contract.lineage.identityClosure.sha256,
+    crypto
+      .createHash('sha256')
+      .update(fs.readFileSync(path.join(ROOT, contract.lineage.identityClosure.path)))
+      .digest('hex')
+  );
+  assert.equal(contract.lineage.identityClosure.recordsSha256, identityClosure.recordsSha256);
+  assert.equal(
+    contract.lineage.buildDecision.sha256,
+    crypto.createHash('sha256').update(buildDecisionBytes).digest('hex')
+  );
+  assert.equal(contract.lineage.buildDecision.sourceRevision, buildDecision.sourceRevision);
+
   assertContractRejected((contract) => {
     contract.lineage.identityClosure.sha256 = '0'.repeat(64);
   }, /identity closure digest drift/);
@@ -59,6 +80,12 @@ test('the production switch stays bound to issues 274 and 276', () => {
   assertContractRejected((contract) => {
     contract.lineage.buildDecision.sourceRevision = 'a'.repeat(40);
   }, /build decision source revision drift/);
+});
+
+test('stale capacity evidence keeps the production switch blocked', () => {
+  assertContractRejected((contract) => {
+    contract.switchBlockers.shift();
+  }, /stale capacity measurement must block the production switch/);
 });
 
 test('roles, window, and handoff keep one coordinated CN and IO switch', () => {
