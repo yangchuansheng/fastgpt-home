@@ -378,7 +378,7 @@
     "contractPath": "scripts/fixtures/technical-authority/week06-wave1-contract.json",
     "contractSha256": "9cdbaa814f8893f1a8909c7bfaa76fd3b5472de9a1c853a7cc9704e8392b3ce9",
     "authorityPath": "src/content/tech-center/authority/week06-candidate-manifest.json",
-    "authoritySha256": "7803bad860bb15d46529a0f7a1b0109122f93529b085afe6718fc2ffa09d81a8",
+    "authoritySha256": "a9f5bf095aafe179f48debd3f47aa6e89d31de8d15da8243eb8c051cbd0774ea",
     "sourceSetSha256": "9f509a7f3677e2d1924ef25dcee45b0f9ced9947da6fe315084eade1f91c551c"
   },
   "verification": {
