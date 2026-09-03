@@ -2,6 +2,8 @@
   "schemaVersion": 1,
   "issue": 276,
   "status": "closed",
+  "scope": "decision-contract",
+  "releaseState": "blocked",
   "decidedAt": "2026-09-03T10:15:00.000Z",
   "sourceRevision": "4b13834a32e1477a39270fa0ae2ea84bd33c56ae",
   "evidence": {
@@ -24,12 +26,12 @@
   },
   "decision": {
     "path": "increase-build-resources",
-    "coordinator": "npm run verify:release -- --retain-success-artifacts <staging-directory>",
+    "coordinator": "npm run verify:release -- --retain-success-artifacts \"$RELEASE_STAGING_DIR\"",
     "commands": {
-      "preflight": "npm run verify:technical-full-release-build-decision",
-      "build": "npm run verify:release -- --retain-success-artifacts <staging-directory>",
-      "activate": "kubectl set image deployment/fastgpt-home fastgpt-home=<immutable-artifact-image>",
-      "rollback": "kubectl set image deployment/fastgpt-home fastgpt-home=<previous-complete-artifact-image>"
+      "preflight": "npm run verify:technical-full-release-build-decision -- --preflight-resources",
+      "build": "npm run verify:release -- --retain-success-artifacts \"$RELEASE_STAGING_DIR\"",
+      "activate": "npm run verify:technical-full-release-build-decision -- --verify-bundle \"$RELEASE_BUNDLE\" \"$RELEASE_SOURCE_COMMIT\" \"$RELEASE_BUNDLE_SHA256\" && \"$RELEASE_CONTROLLER\" activate --artifact \"$RELEASE_BUNDLE\" --targets cn,io --record-previous \"$PREVIOUS_RELEASE_BUNDLE\"",
+      "rollback": "npm run verify:technical-full-release-build-decision -- --verify-bundle \"$PREVIOUS_RELEASE_BUNDLE\" \"$PREVIOUS_RELEASE_SOURCE_COMMIT\" \"$PREVIOUS_RELEASE_BUNDLE_SHA256\" && \"$RELEASE_CONTROLLER\" activate --artifact \"$PREVIOUS_RELEASE_BUNDLE\" --targets cn,io"
     },
     "rationale": [
       "All three production-style variants reached ENOSPC in Next.js build output.",
@@ -45,8 +47,7 @@
         "kind": "dedicated-ephemeral",
         "minimumFreeBytesAtStart": 17179869184,
         "successfulCapacityRerunRequired": true,
-        "postSuccessHeadroomRatio": 1.25,
-        "finalMinimumRule": "max(17179869184, ceil(max-successful-working-set-bytes * 1.25))"
+        "postSuccessHeadroomRatio": 1.25
       }
     },
     "build": {
@@ -62,7 +63,7 @@
       "id": "technical-full-release-bundle",
       "immutable": true,
       "digestAlgorithm": "sha256",
-      "layout": ["cn/out", "io/out", "preview/out", "manifest.json"],
+      "layout": ["cn/", "io/", "preview/", "manifest.json"],
       "sourceRevisionPinned": true
     },
     "integrityChecks": [
@@ -76,13 +77,14 @@
     ],
     "productionSwitch": {
       "count": 1,
-      "strategy": "artifact-id-pointer-swap",
+      "strategy": "coordinated-cn-io-artifact-pointer-swap",
       "requiresCompleteBundle": true,
-      "variants": ["cn", "io", "preview"]
+      "productionTargets": ["cn", "io"],
+      "verificationOnlyVariants": ["preview"]
     },
     "rollback": {
       "strategy": "previous-complete-artifact",
-      "command": "kubectl set image deployment/fastgpt-home fastgpt-home=<previous-complete-artifact-image>",
+      "command": "npm run verify:technical-full-release-build-decision -- --verify-bundle \"$PREVIOUS_RELEASE_BUNDLE\" \"$PREVIOUS_RELEASE_SOURCE_COMMIT\" \"$PREVIOUS_RELEASE_BUNDLE_SHA256\" && \"$RELEASE_CONTROLLER\" activate --artifact \"$PREVIOUS_RELEASE_BUNDLE\" --targets cn,io",
       "recordPreviousArtifactBeforeSwitch": true,
       "verifyPreviousArtifactDigest": true,
       "switchCount": 1,
@@ -98,12 +100,12 @@
     {
       "path": "optimize-existing-projections",
       "disposition": "rejected",
-      "reason": "Registry and search projections total 5,254,333 bytes while failures occurred in Next.js build output; the measurement provides no projection optimization target."
+      "reason": "Registry and search projections total 5,254,333 bytes while failures occurred in Next.js build output; resource expansion directly targets the measured boundary."
     },
     {
       "path": "split-build-and-merge",
       "disposition": "rejected",
-      "reason": "The measurement establishes a storage boundary and provides no evidence that a larger one-shot workspace is insufficient; splitting adds route, metadata, and digest merge failure modes."
+      "reason": "Resource expansion is the first evidence-backed path; splitting adds route, metadata, and digest merge failure modes."
     },
     {
       "path": "multiple-release-artifacts-or-switches",
@@ -115,7 +117,30 @@
     "successful-4007-page-capacity-rerun-on-selected-runner",
     "all-cn-io-preview-post-build-gates-pass",
     "full-release-prebuild-state-transition-is-approved",
-    "io-and-preview-artifact-publication-path-is-approved",
+    "coordinated-cn-io-release-controller-binding-is-approved",
     "single-bundle-manifest-and-rollback-artifact-are-recorded"
+  ],
+  "releasePrerequisites": [
+    {
+      "code": "successful-4007-page-capacity-rerun-on-selected-runner",
+      "status": "blocked",
+      "evidence": null
+    },
+    { "code": "all-cn-io-preview-post-build-gates-pass", "status": "blocked", "evidence": null },
+    {
+      "code": "full-release-prebuild-state-transition-is-approved",
+      "status": "blocked",
+      "evidence": null
+    },
+    {
+      "code": "coordinated-cn-io-release-controller-binding-is-approved",
+      "status": "blocked",
+      "evidence": null
+    },
+    {
+      "code": "single-bundle-manifest-and-rollback-artifact-are-recorded",
+      "status": "blocked",
+      "evidence": null
+    }
   ]
 }

@@ -6,6 +6,8 @@ const test = require('node:test');
 
 const {
   DECISION_RELATIVE_PATH,
+  verifyReleaseBundle,
+  verifyResourcePreflight,
   verifyTechnicalFullReleaseBuildDecision
 } = require('./verify-technical-full-release-build-decision');
 
@@ -19,6 +21,15 @@ function mutateDecision(mutate) {
   mutate(decision);
   fs.writeFileSync(decisionPath, `${JSON.stringify(decision, null, 2)}\n`);
   return { temporaryRoot, decisionPath };
+}
+
+function assertDecisionRejected(mutate, pattern) {
+  const { temporaryRoot, decisionPath } = mutateDecision(mutate);
+  try {
+    assert.throws(() => verifyTechnicalFullReleaseBuildDecision({ decisionPath }), pattern);
+  } finally {
+    fs.rmSync(temporaryRoot, { recursive: true, force: true });
+  }
 }
 
 test('the full release build decision selects a larger one-shot runner', () => {
@@ -36,77 +47,114 @@ test('the full release build decision selects a larger one-shot runner', () => {
 });
 
 test('the decision stays bound to the frozen capacity evidence', () => {
-  const { temporaryRoot, decisionPath } = mutateDecision((decision) => {
+  assertDecisionRejected((decision) => {
     decision.evidence.capacityReport.sha256 = '0'.repeat(64);
-  });
-  try {
-    assert.throws(
-      () => verifyTechnicalFullReleaseBuildDecision({ decisionPath }),
-      /capacity report digest drift/
-    );
-  } finally {
-    fs.rmSync(temporaryRoot, { recursive: true, force: true });
-  }
+  }, /capacity report digest drift/);
 });
 
 test('the decision rejects split builds and preserves release atomicity', () => {
-  const split = mutateDecision((decision) => {
+  assertDecisionRejected((decision) => {
     decision.decision.build.splitStaticGeneration = true;
-  });
-  const multipleArtifacts = mutateDecision((decision) => {
+  }, /split static generation is outside the selected path/);
+  assertDecisionRejected((decision) => {
     decision.decision.artifact.count = 3;
-  });
-  try {
-    assert.throws(
-      () => verifyTechnicalFullReleaseBuildDecision({ decisionPath: split.decisionPath }),
-      /split static generation is outside the selected path/
-    );
-    assert.throws(
-      () =>
-        verifyTechnicalFullReleaseBuildDecision({ decisionPath: multipleArtifacts.decisionPath }),
-      /exactly one release artifact is required/
-    );
-  } finally {
-    fs.rmSync(split.temporaryRoot, { recursive: true, force: true });
-    fs.rmSync(multipleArtifacts.temporaryRoot, { recursive: true, force: true });
-  }
+  }, /exactly one release artifact is required/);
 });
 
 test('the resource floor keeps measured memory headroom and requires a successful disk rerun', () => {
-  const memory = mutateDecision((decision) => {
+  assertDecisionRejected((decision) => {
     decision.decision.resources.minimumMemoryBytes =
       decision.evidence.observedBoundary.maxPeakRssBytes;
-  });
-  const disk = mutateDecision((decision) => {
+  }, /memory headroom is below policy/);
+  assertDecisionRejected((decision) => {
     decision.decision.resources.workingDisk.successfulCapacityRerunRequired = false;
-  });
-  try {
-    assert.throws(
-      () => verifyTechnicalFullReleaseBuildDecision({ decisionPath: memory.decisionPath }),
-      /memory headroom is below policy/
-    );
-    assert.throws(
-      () => verifyTechnicalFullReleaseBuildDecision({ decisionPath: disk.decisionPath }),
-      /successful capacity rerun is required/
-    );
-  } finally {
-    fs.rmSync(memory.temporaryRoot, { recursive: true, force: true });
-    fs.rmSync(disk.temporaryRoot, { recursive: true, force: true });
-  }
+  }, /successful capacity rerun is required/);
 });
 
 test('every unsafe alternative remains explicitly rejected', () => {
-  const { temporaryRoot, decisionPath } = mutateDecision((decision) => {
+  assertDecisionRejected((decision) => {
     decision.alternatives.find(
       (alternative) => alternative.path === 'split-build-and-merge'
     ).disposition = 'accepted';
-  });
+  }, /unsafe alternative disposition drift/);
+});
+
+test('resource preflight rejects a runner below the selected disk floor', () => {
+  const contract = JSON.parse(fs.readFileSync(path.join(ROOT, DECISION_RELATIVE_PATH), 'utf8'));
+  assert.throws(
+    () =>
+      verifyResourcePreflight(contract, {
+        nodeMajor: 24,
+        caseSensitiveFilesystem: true,
+        logicalCpuCount: 10,
+        memoryBytes: 25769803776,
+        freeWorkingDiskBytes: 17179869183
+      }),
+    /free working disk is below the decision floor/
+  );
+  assert.throws(
+    () =>
+      verifyResourcePreflight(contract, {
+        nodeMajor: 24,
+        caseSensitiveFilesystem: false,
+        logicalCpuCount: 10,
+        memoryBytes: 25769803776,
+        freeWorkingDiskBytes: 17179869184
+      }),
+    /filesystem case sensitivity drift/
+  );
+});
+
+test('the release gate blocks a 4,007-page activation while prerequisites remain', () => {
+  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-policy-'));
+  const contentPolicyPath = path.join(temporaryRoot, 'technical-content-policy.json');
   try {
+    fs.writeFileSync(contentPolicyPath, JSON.stringify({ expectedPageCount: 4007 }));
     assert.throws(
-      () => verifyTechnicalFullReleaseBuildDecision({ decisionPath }),
-      /unsafe alternative disposition drift/
+      () => verifyTechnicalFullReleaseBuildDecision({ contentPolicyPath }),
+      /activation is blocked until every release prerequisite/
     );
   } finally {
     fs.rmSync(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
+test('release state and blockers are derived from prerequisite evidence', () => {
+  assertDecisionRejected((decision) => {
+    decision.releaseState = 'ready';
+  }, /state does not match prerequisite evidence/);
+  assertDecisionRejected((decision) => {
+    decision.releaseBlockers.pop();
+  }, /blocker set drift/);
+  assertDecisionRejected((decision) => {
+    decision.releasePrerequisites[0] = {
+      ...decision.releasePrerequisites[0],
+      status: 'passed',
+      evidence: { path: 'package.json', sha256: '0'.repeat(64) }
+    };
+  }, /evidence digest drift/);
+});
+
+test('activation and rollback reject an unexpected bundle digest', () => {
+  const retainedRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'activation-bundle-'));
+  const variants = ['cn', 'io', 'preview'];
+  const sourceRevision = 'a'.repeat(40);
+  try {
+    for (const variant of variants) {
+      fs.mkdirSync(path.join(retainedRoot, variant), { recursive: true });
+      fs.writeFileSync(path.join(retainedRoot, variant, 'index.html'), variant);
+    }
+    const { finalizeSuccessArtifactBundle } = require('./lib/release-artifacts');
+    const manifest = finalizeSuccessArtifactBundle(retainedRoot, sourceRevision, variants);
+    assert.equal(
+      verifyReleaseBundle(retainedRoot, sourceRevision, manifest.bundleSha256).bundleSha256,
+      manifest.bundleSha256
+    );
+    assert.throws(
+      () => verifyReleaseBundle(retainedRoot, sourceRevision, '0'.repeat(64)),
+      /release bundle digest drift/
+    );
+  } finally {
+    fs.rmSync(retainedRoot, { recursive: true, force: true });
   }
 });

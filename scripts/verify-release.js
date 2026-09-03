@@ -9,7 +9,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawnSync } = require('node:child_process');
+const { execFileSync, spawnSync } = require('node:child_process');
 const { URL_ALIAS_CONTRACT } = require('./lib/url-alias-authority');
 const {
   verifyUrlAliasArtifactBundle,
@@ -26,6 +26,8 @@ const {
 const {
   assertCaseSensitiveFilesystem,
   clearBuildArtifacts,
+  clearRetainedSuccessArtifacts,
+  finalizeSuccessArtifactBundle,
   recordVariantArtifactInventory,
   recordVariantExportRollbackInventory,
   recordVariantRollbackInventory,
@@ -55,6 +57,43 @@ const ROOT = path.resolve(__dirname, '..');
 const RETAIN_DIR = path.join(ROOT, '.release-artifacts');
 const P1_BASELINE_KIB = 266.9;
 const P1_BUDGET_KIB = 260;
+
+function readSourceRevision(
+  runGit = (args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' })
+) {
+  return runGit(['rev-parse', 'HEAD']).trim();
+}
+
+function resolveCleanSourceRevision(
+  runGit = (args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' })
+) {
+  const sourceRevision = readSourceRevision(runGit);
+  if (runGit(['status', '--porcelain', '--untracked-files=all']).trim()) {
+    throw new Error('Release artifact source commit requires a clean working tree');
+  }
+  return sourceRevision;
+}
+
+function verifySourceRevision(expectedRevision, runGit) {
+  if (resolveCleanSourceRevision(runGit) !== expectedRevision) {
+    throw new Error('Release artifact source commit changed during the build');
+  }
+}
+
+function runTechnicalFullReleasePreflight(run = spawnSync) {
+  const result = run(
+    process.execPath,
+    ['scripts/verify-technical-full-release-build-decision.js', '--preflight-resources'],
+    { cwd: ROOT, encoding: 'utf8' }
+  );
+  if (result.error || result.status !== 0) {
+    throw new Error(
+      `Technical full-release resource preflight failed: ${
+        result.error?.message || `${result.stdout || ''}${result.stderr || ''}`.trim()
+      }`
+    );
+  }
+}
 
 function parseArgs(argv) {
   const options = {
@@ -115,6 +154,9 @@ function parseArgs(argv) {
   }
   if (options.solutionsHttpContract !== undefined && options.solutionsHttpTarget === undefined) {
     throw new Error('--solutions-http-contract requires --solutions-http-target');
+  }
+  if (options.variant && options.retainSuccessArtifacts) {
+    throw new Error('--retain-success-artifacts requires the full cn, io, preview build');
   }
   return options;
 }
@@ -448,6 +490,10 @@ function isReleaseGateBlocked(failures, solutionsEvidence, options = {}) {
 
 function main() {
   const options = parseArgs(process.argv.slice(2));
+  const sourceRevision = options.retainSuccessArtifacts ? resolveCleanSourceRevision() : undefined;
+  if (options.retainSuccessArtifacts) {
+    runTechnicalFullReleasePreflight();
+  }
   const failures = [];
   const advisories = [];
   const retainedPaths = [];
@@ -566,6 +612,9 @@ function main() {
     }
 
     const variants = options.variant ? [options.variant] : siteVariants;
+    if (options.retainSuccessArtifacts) {
+      clearRetainedSuccessArtifacts(options.retainSuccessArtifacts, variants);
+    }
     for (const variant of variants) {
       clearBuildArtifacts();
       const env = variantEnvironment(variant);
@@ -643,6 +692,31 @@ function main() {
       clearBuildArtifacts();
     }
 
+    if (options.retainSuccessArtifacts) {
+      if (failures.length) {
+        clearRetainedSuccessArtifacts(options.retainSuccessArtifacts, variants);
+      } else {
+        try {
+          verifySourceRevision(sourceRevision);
+          const bundle = finalizeSuccessArtifactBundle(
+            options.retainSuccessArtifacts,
+            sourceRevision,
+            variants
+          );
+          record.evidence.technicalFullReleaseBundle = bundle;
+          console.log(`[verify-release] sealed one release artifact: ${bundle.bundleSha256}`);
+        } catch (error) {
+          clearRetainedSuccessArtifacts(options.retainSuccessArtifacts, variants);
+          failures.push({
+            id: 'artifacts.seal-success',
+            label: 'single release artifact sealing',
+            command: 'in-process release artifact manifest generation',
+            output: error.message
+          });
+        }
+      }
+    }
+
     reportFailures(failures, advisories, retainedPaths);
     const solutionsEvidence = record.crossProjectInputs.solutionsPreviewHttp;
     const solutionsBlocked = solutionsEvidence.claim !== true;
@@ -696,5 +770,9 @@ module.exports = {
   getVariantSteps,
   isReleaseGateBlocked,
   loadSolutionsEvidence,
-  parseArgs
+  parseArgs,
+  readSourceRevision,
+  resolveCleanSourceRevision,
+  runTechnicalFullReleasePreflight,
+  verifySourceRevision
 };

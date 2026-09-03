@@ -4,6 +4,7 @@
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 
 const { sha256 } = require('./lib/technical-authority');
@@ -27,6 +28,13 @@ const INTEGRITY_CHECKS = [
   'sha256-file-inventory',
   'bundle-sha256'
 ];
+const RELEASE_BLOCKERS = [
+  'successful-4007-page-capacity-rerun-on-selected-runner',
+  'all-cn-io-preview-post-build-gates-pass',
+  'full-release-prebuild-state-transition-is-approved',
+  'coordinated-cn-io-release-controller-binding-is-approved',
+  'single-bundle-manifest-and-rollback-artifact-are-recorded'
+];
 
 function readJson(filePath, label) {
   try {
@@ -36,15 +44,43 @@ function readJson(filePath, label) {
   }
 }
 
+function verifyResourcePreflight(contract, observed) {
+  const resources = contract.decision.resources;
+  assert.equal(observed.nodeMajor, resources.nodeMajor, 'runner Node.js major version drift');
+  assert.equal(
+    observed.caseSensitiveFilesystem,
+    resources.caseSensitiveFilesystem,
+    'runner filesystem case sensitivity drift'
+  );
+  assert(
+    observed.logicalCpuCount >= resources.minimumLogicalCpuCount,
+    'runner logical CPU count is below the decision floor'
+  );
+  assert(
+    observed.memoryBytes >= resources.minimumMemoryBytes,
+    'runner memory is below the decision floor'
+  );
+  assert(
+    observed.freeWorkingDiskBytes >= resources.workingDisk.minimumFreeBytesAtStart,
+    'runner free working disk is below the decision floor'
+  );
+}
+
 function verifyTechnicalFullReleaseBuildDecision({
   rootDir = ROOT,
-  decisionPath = path.join(rootDir, DECISION_RELATIVE_PATH)
+  decisionPath = path.join(rootDir, DECISION_RELATIVE_PATH),
+  contentPolicyPath = path.join(rootDir, 'src/lib/technical-content-policy.json')
 } = {}) {
   const contract = readJson(decisionPath, 'Technical full-release build decision');
-  assert.equal(contract.schemaVersion, 1);
-  assert.equal(contract.issue, 276);
-  assert.equal(contract.status, 'closed');
-  assert.match(contract.sourceRevision, /^[0-9a-f]{40}$/);
+  assert.equal(contract.schemaVersion, 1, 'decision schema version drift');
+  assert.equal(contract.issue, 276, 'decision issue binding drift');
+  assert.equal(contract.status, 'closed', 'decision status must be closed');
+  assert.equal(contract.scope, 'decision-contract', 'decision scope drift');
+  assert(
+    ['blocked', 'ready'].includes(contract.releaseState),
+    'full release state must follow prerequisite evidence'
+  );
+  assert.match(contract.sourceRevision, /^[0-9a-f]{40}$/, 'decision source revision is invalid');
 
   const evidencePath = path.join(rootDir, contract.evidence.capacityReport.path);
   const evidenceBytes = fs.readFileSync(evidencePath);
@@ -54,10 +90,26 @@ function verifyTechnicalFullReleaseBuildDecision({
     'capacity report digest drift'
   );
   const capacity = validateCapacityReport(JSON.parse(evidenceBytes), rootDir);
-  assert.equal(contract.evidence.capacityReport.issue, capacity.issue);
-  assert.equal(contract.evidence.capacityReport.sourceRevision, capacity.sourceRevision);
-  assert.equal(contract.evidence.capacityReport.pages, capacity.projection.pages);
-  assert.equal(contract.evidence.capacityReport.recordsSha256, capacity.projection.recordsSha256);
+  assert.equal(
+    contract.evidence.capacityReport.issue,
+    capacity.issue,
+    'capacity issue binding drift'
+  );
+  assert.equal(
+    contract.evidence.capacityReport.sourceRevision,
+    capacity.sourceRevision,
+    'capacity source revision drift'
+  );
+  assert.equal(
+    contract.evidence.capacityReport.pages,
+    capacity.projection.pages,
+    'capacity page count drift'
+  );
+  assert.equal(
+    contract.evidence.capacityReport.recordsSha256,
+    capacity.projection.recordsSha256,
+    'capacity identity digest drift'
+  );
 
   const failedVariants = capacity.variants
     .filter((variant) => variant.buildSucceeded === false && variant.failure.includes('ENOSPC'))
@@ -70,37 +122,67 @@ function verifyTechnicalFullReleaseBuildDecision({
     capacity.projection.registry.bytes +
     capacity.projection.search.zh.bytes +
     capacity.projection.search.en.bytes;
-  assert.deepEqual(contract.evidence.observedBoundary.failingVariants, VARIANTS);
   assert.deepEqual(
-    failedVariants,
+    contract.evidence.observedBoundary.failingVariants,
     VARIANTS,
-    'capacity evidence no longer proves three ENOSPC failures'
+    'observed failing variant set drift'
   );
-  assert.equal(contract.evidence.observedBoundary.failureCode, 'ENOSPC');
-  assert.equal(contract.evidence.observedBoundary.maxPeakRssBytes, maxPeakRssBytes);
+  assert.deepEqual(failedVariants, VARIANTS, 'capacity evidence must prove three ENOSPC failures');
+  assert.equal(
+    contract.evidence.observedBoundary.failureCode,
+    'ENOSPC',
+    'observed failure class drift'
+  );
+  assert.equal(
+    contract.evidence.observedBoundary.maxPeakRssBytes,
+    maxPeakRssBytes,
+    'observed peak RSS drift'
+  );
   assert.equal(
     contract.evidence.observedBoundary.maxPartialNextBuildBytes,
-    maxPartialNextBuildBytes
+    maxPartialNextBuildBytes,
+    'observed partial Next.js build size drift'
   );
-  assert.equal(contract.evidence.observedBoundary.projectionBytes, projectionBytes);
-  assert.equal(contract.evidence.observedBoundary.conclusion, 'working-storage-boundary');
+  assert.equal(
+    contract.evidence.observedBoundary.projectionBytes,
+    projectionBytes,
+    'observed projection size drift'
+  );
+  assert.equal(
+    contract.evidence.observedBoundary.conclusion,
+    'working-storage-boundary',
+    'observed capacity conclusion drift'
+  );
 
   const decision = contract.decision;
-  assert.equal(decision.path, 'increase-build-resources');
+  assert.equal(decision.path, 'increase-build-resources', 'selected build path drift');
   assert.equal(
     decision.coordinator,
-    'npm run verify:release -- --retain-success-artifacts <staging-directory>'
+    'npm run verify:release -- --retain-success-artifacts "$RELEASE_STAGING_DIR"',
+    'release coordinator command drift'
   );
-  assert.deepEqual(decision.commands, {
-    preflight: 'npm run verify:technical-full-release-build-decision',
-    build: 'npm run verify:release -- --retain-success-artifacts <staging-directory>',
-    activate: 'kubectl set image deployment/fastgpt-home fastgpt-home=<immutable-artifact-image>',
-    rollback:
-      'kubectl set image deployment/fastgpt-home fastgpt-home=<previous-complete-artifact-image>'
-  });
-  assert.equal(decision.resources.nodeMajor, 24);
-  assert.equal(decision.resources.caseSensitiveFilesystem, true);
-  assert(decision.resources.minimumLogicalCpuCount >= capacity.environment.logicalCpuCount);
+  assert.deepEqual(
+    decision.commands,
+    {
+      preflight: 'npm run verify:technical-full-release-build-decision -- --preflight-resources',
+      build: 'npm run verify:release -- --retain-success-artifacts "$RELEASE_STAGING_DIR"',
+      activate:
+        'npm run verify:technical-full-release-build-decision -- --verify-bundle "$RELEASE_BUNDLE" "$RELEASE_SOURCE_COMMIT" "$RELEASE_BUNDLE_SHA256" && "$RELEASE_CONTROLLER" activate --artifact "$RELEASE_BUNDLE" --targets cn,io --record-previous "$PREVIOUS_RELEASE_BUNDLE"',
+      rollback:
+        'npm run verify:technical-full-release-build-decision -- --verify-bundle "$PREVIOUS_RELEASE_BUNDLE" "$PREVIOUS_RELEASE_SOURCE_COMMIT" "$PREVIOUS_RELEASE_BUNDLE_SHA256" && "$RELEASE_CONTROLLER" activate --artifact "$PREVIOUS_RELEASE_BUNDLE" --targets cn,io'
+    },
+    'release command contract drift'
+  );
+  assert.equal(decision.resources.nodeMajor, 24, 'runner Node.js major version drift');
+  assert.equal(
+    decision.resources.caseSensitiveFilesystem,
+    true,
+    'runner filesystem must be case-sensitive'
+  );
+  assert(
+    decision.resources.minimumLogicalCpuCount >= capacity.environment.logicalCpuCount,
+    'runner logical CPU floor is below measured capacity host'
+  );
   assert(
     decision.resources.minimumMemoryBytes >= capacity.environment.physicalMemoryBytes,
     'memory headroom is below policy'
@@ -118,53 +200,124 @@ function verifyTechnicalFullReleaseBuildDecision({
     true,
     'successful capacity rerun is required'
   );
-  assert(decision.resources.workingDisk.postSuccessHeadroomRatio >= 1.25);
-  assert(decision.resources.workingDisk.finalMinimumRule);
+  assert(
+    decision.resources.workingDisk.postSuccessHeadroomRatio >= 1.25,
+    'successful disk measurement headroom is below policy'
+  );
 
-  assert.equal(decision.build.sourceCommitCount, 1);
-  assert.deepEqual(decision.build.variants, VARIANTS);
-  assert.equal(decision.build.parallelism, 1);
+  assert.equal(decision.build.sourceCommitCount, 1, 'exactly one source commit is required');
+  assert.deepEqual(decision.build.variants, VARIANTS, 'build variant set drift');
+  assert.equal(decision.build.parallelism, 1, 'build variants must run sequentially');
   assert.equal(
     decision.build.splitStaticGeneration,
     false,
     'split static generation is outside the selected path'
   );
-  assert.equal(decision.build.cleanBetweenVariants, true);
-  assert.equal(decision.build.sealOnlyAfterEveryVariantPasses, true);
+  assert.equal(decision.build.cleanBetweenVariants, true, 'variant build cleanup is required');
+  assert.equal(
+    decision.build.sealOnlyAfterEveryVariantPasses,
+    true,
+    'artifact sealing must follow every variant gate'
+  );
   assert.equal(decision.artifact.count, 1, 'exactly one release artifact is required');
-  assert.equal(decision.artifact.immutable, true);
-  assert.equal(decision.artifact.digestAlgorithm, 'sha256');
-  assert.deepEqual(decision.artifact.layout, ['cn/out', 'io/out', 'preview/out', 'manifest.json']);
-  assert.equal(decision.artifact.sourceRevisionPinned, true);
-  assert.deepEqual(decision.integrityChecks, INTEGRITY_CHECKS);
+  assert.equal(decision.artifact.immutable, true, 'release artifact must be immutable');
+  assert.equal(decision.artifact.digestAlgorithm, 'sha256', 'artifact digest algorithm drift');
+  assert.deepEqual(
+    decision.artifact.layout,
+    ['cn/', 'io/', 'preview/', 'manifest.json'],
+    'release bundle layout drift'
+  );
+  assert.equal(
+    decision.artifact.sourceRevisionPinned,
+    true,
+    'release artifact must pin its source revision'
+  );
+  assert.deepEqual(decision.integrityChecks, INTEGRITY_CHECKS, 'integrity check set drift');
 
-  assert.equal(decision.productionSwitch.count, 1);
-  assert.equal(decision.productionSwitch.strategy, 'artifact-id-pointer-swap');
-  assert.equal(decision.productionSwitch.requiresCompleteBundle, true);
-  assert.deepEqual(decision.productionSwitch.variants, VARIANTS);
-  assert.equal(decision.rollback.strategy, 'previous-complete-artifact');
-  assert.equal(decision.rollback.command, decision.commands.rollback);
-  assert.equal(decision.rollback.recordPreviousArtifactBeforeSwitch, true);
-  assert.equal(decision.rollback.verifyPreviousArtifactDigest, true);
-  assert.equal(decision.rollback.switchCount, 1);
-  assert.equal(decision.rollback.rebuild, false);
+  assert.equal(decision.productionSwitch.count, 1, 'exactly one production switch is required');
+  assert.equal(
+    decision.productionSwitch.strategy,
+    'coordinated-cn-io-artifact-pointer-swap',
+    'production switch strategy drift'
+  );
+  assert.equal(
+    decision.productionSwitch.requiresCompleteBundle,
+    true,
+    'production switch must require a complete bundle'
+  );
+  assert.deepEqual(
+    decision.productionSwitch.productionTargets,
+    ['cn', 'io'],
+    'production switch target set drift'
+  );
+  assert.deepEqual(
+    decision.productionSwitch.verificationOnlyVariants,
+    ['preview'],
+    'verification-only variant set drift'
+  );
+  assert.equal(decision.rollback.strategy, 'previous-complete-artifact', 'rollback strategy drift');
+  assert.equal(decision.rollback.command, decision.commands.rollback, 'rollback command drift');
+  assert.equal(
+    decision.rollback.recordPreviousArtifactBeforeSwitch,
+    true,
+    'rollback must record the previous artifact before switching'
+  );
+  assert.equal(
+    decision.rollback.verifyPreviousArtifactDigest,
+    true,
+    'rollback must verify the previous artifact digest'
+  );
+  assert.equal(decision.rollback.switchCount, 1, 'rollback must use one switch');
+  assert.equal(decision.rollback.rebuild, false, 'rollback must reuse a complete artifact');
 
   assert.deepEqual(
     contract.alternatives.map((alternative) => alternative.path),
-    REJECTED_ALTERNATIVES
+    REJECTED_ALTERNATIVES,
+    'alternative path set drift'
   );
   contract.alternatives.forEach((alternative) => {
     assert.equal(alternative.disposition, 'rejected', 'unsafe alternative disposition drift');
     assert(alternative.reason, `${alternative.path} rejection reason is required`);
   });
-  assert(
-    contract.releaseBlockers.includes('successful-4007-page-capacity-rerun-on-selected-runner')
+  assert.deepEqual(
+    contract.releasePrerequisites.map(({ code }) => code),
+    RELEASE_BLOCKERS,
+    'full release prerequisite set drift'
   );
-  assert(contract.releaseBlockers.includes('all-cn-io-preview-post-build-gates-pass'));
-  assert(contract.releaseBlockers.includes('full-release-prebuild-state-transition-is-approved'));
-  assert(contract.releaseBlockers.includes('io-and-preview-artifact-publication-path-is-approved'));
+  for (const prerequisite of contract.releasePrerequisites) {
+    assert(
+      ['blocked', 'passed'].includes(prerequisite.status),
+      `${prerequisite.code} prerequisite status drift`
+    );
+    if (prerequisite.status === 'passed') {
+      assert.match(prerequisite.evidence?.sha256 || '', /^[a-f0-9]{64}$/);
+      const prerequisitePath = path.resolve(rootDir, prerequisite.evidence?.path || '');
+      assert(
+        prerequisitePath.startsWith(`${path.resolve(rootDir)}${path.sep}`),
+        `${prerequisite.code} evidence path escapes the repository`
+      );
+      assert.equal(
+        sha256(fs.readFileSync(prerequisitePath)),
+        prerequisite.evidence.sha256,
+        `${prerequisite.code} evidence digest drift`
+      );
+    } else {
+      assert.equal(prerequisite.evidence, null, `${prerequisite.code} blocked evidence drift`);
+    }
+  }
+  const releaseBlockers = contract.releasePrerequisites
+    .filter(({ status }) => status !== 'passed')
+    .map(({ code }) => code);
+  assert.deepEqual(contract.releaseBlockers, releaseBlockers, 'full release blocker set drift');
+  assert.equal(
+    contract.releaseState,
+    releaseBlockers.length === 0 ? 'ready' : 'blocked',
+    'full release state does not match prerequisite evidence'
+  );
+  const contentPolicy = readJson(contentPolicyPath, 'Technical content policy');
   assert(
-    contract.releaseBlockers.includes('single-bundle-manifest-and-rollback-artifact-are-recorded')
+    contentPolicy.expectedPageCount < capacity.projection.pages || releaseBlockers.length === 0,
+    '4,007-page activation is blocked until every release prerequisite has recorded evidence'
   );
 
   return {
@@ -178,8 +331,37 @@ function verifyTechnicalFullReleaseBuildDecision({
   };
 }
 
+function verifyReleaseBundle(bundlePath, sourceRevision, expectedBundleSha256) {
+  assert.match(sourceRevision, /^[a-f0-9]{40}$/, 'release bundle source commit is invalid');
+  assert.match(expectedBundleSha256, /^[a-f0-9]{64}$/, 'release bundle digest is invalid');
+  const { verifySuccessArtifactBundle } = require('./lib/release-artifacts');
+  const manifest = verifySuccessArtifactBundle(bundlePath, sourceRevision, VARIANTS);
+  assert.equal(manifest.bundleSha256, expectedBundleSha256, 'release bundle digest drift');
+  return manifest;
+}
+
 if (require.main === module) {
   try {
+    const contract = readJson(
+      path.join(ROOT, DECISION_RELATIVE_PATH),
+      'Technical full-release build decision'
+    );
+    const args = process.argv.slice(2);
+    if (args[0] === '--preflight-resources' && args.length === 1) {
+      const filesystem = fs.statfsSync(ROOT);
+      require('./lib/release-artifacts').assertCaseSensitiveFilesystem();
+      verifyResourcePreflight(contract, {
+        nodeMajor: Number(process.versions.node.split('.')[0]),
+        caseSensitiveFilesystem: true,
+        logicalCpuCount: os.cpus().length,
+        memoryBytes: os.totalmem(),
+        freeWorkingDiskBytes: Number(filesystem.bavail) * Number(filesystem.bsize)
+      });
+    } else if (args[0] === '--verify-bundle' && args.length === 4) {
+      verifyReleaseBundle(path.resolve(args[1]), args[2], args[3]);
+    } else if (args.length) {
+      throw new Error(`Unknown option: ${args[0]}`);
+    }
     const result = verifyTechnicalFullReleaseBuildDecision();
     console.log(
       `[verify-technical-full-release-build-decision] decision passed: pages=${result.pages} path=${result.path} artifact=${result.releaseArtifacts} switch=${result.productionSwitches}`
@@ -190,4 +372,9 @@ if (require.main === module) {
   }
 }
 
-module.exports = { DECISION_RELATIVE_PATH, verifyTechnicalFullReleaseBuildDecision };
+module.exports = {
+  DECISION_RELATIVE_PATH,
+  verifyReleaseBundle,
+  verifyResourcePreflight,
+  verifyTechnicalFullReleaseBuildDecision
+};

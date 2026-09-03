@@ -18,10 +18,18 @@ const {
   getVariantExecutionOrder,
   getVariantSteps,
   isReleaseGateBlocked,
-  parseArgs: parseReleaseArgs
+  parseArgs: parseReleaseArgs,
+  readSourceRevision,
+  resolveCleanSourceRevision,
+  runTechnicalFullReleasePreflight,
+  verifySourceRevision
 } = require('./verify-release');
 const { recordStep } = require('./lib/release-record');
-const { retainSuccessArtifacts } = require('./lib/release-artifacts');
+const {
+  finalizeSuccessArtifactBundle,
+  retainSuccessArtifacts,
+  verifySuccessArtifactBundle
+} = require('./lib/release-artifacts');
 const { normalizeSolutionsEvidence } = require('./lib/release-readiness');
 const { buildOwnerExpectationSet, parseArgs } = require('./verify-faq-metadata');
 const { normalizeFaqMetadataPolicy } = require('./generate-faq-metadata');
@@ -606,6 +614,93 @@ test('successful verified outputs can be retained before lifecycle cleanup', () 
     retainSuccessArtifacts: path.join(ROOT, 'tmp/release-output'),
     variant: undefined
   });
+  assert.throws(
+    () => parseReleaseArgs(['--variant', 'cn', '--retain-success-artifacts', 'tmp/release-output']),
+    /requires the full cn, io, preview build/
+  );
+});
+
+test('release artifact source binding rejects dirty or moving revisions', () => {
+  const revision = 'a'.repeat(40);
+  assert.equal(
+    resolveCleanSourceRevision((args) => (args[0] === 'rev-parse' ? `${revision}\n` : '')),
+    revision
+  );
+  assert.throws(
+    () =>
+      resolveCleanSourceRevision((args) =>
+        args[0] === 'rev-parse' ? `${revision}\n` : ' M src/app/page.tsx\n'
+      ),
+    /requires a clean working tree/
+  );
+  assert.equal(
+    readSourceRevision(() => `${revision}\n`),
+    revision
+  );
+  assert.throws(
+    () =>
+      verifySourceRevision(revision, (args) =>
+        args[0] === 'rev-parse' ? `${'b'.repeat(40)}\n` : ''
+      ),
+    /source commit changed during the build/
+  );
+});
+
+test('retained full releases run the resource preflight command', () => {
+  let observed;
+  runTechnicalFullReleasePreflight((command, args, options) => {
+    observed = { command, args, options };
+    return { status: 0 };
+  });
+  assert.equal(observed.command, process.execPath);
+  assert.deepEqual(observed.args, [
+    'scripts/verify-technical-full-release-build-decision.js',
+    '--preflight-resources'
+  ]);
+  assert.equal(observed.options.cwd, ROOT);
+  assert.throws(
+    () => runTechnicalFullReleasePreflight(() => ({ status: 1, stderr: 'disk floor' })),
+    /resource preflight failed: disk floor/
+  );
+});
+
+test('retained variants seal into one source-bound release artifact', () => {
+  const retainedRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-bundle-'));
+  const variants = ['cn', 'io', 'preview'];
+  const sourceRevision = 'a'.repeat(40);
+  try {
+    for (const variant of variants) {
+      fs.mkdirSync(path.join(retainedRoot, variant, 'out'), { recursive: true });
+      fs.writeFileSync(path.join(retainedRoot, variant, 'out', 'index.html'), variant);
+    }
+    const manifest = finalizeSuccessArtifactBundle(retainedRoot, sourceRevision, variants);
+    assert.equal(manifest.sourceRevision, sourceRevision);
+    assert.deepEqual(manifest.variants, variants);
+    assert.equal(manifest.inventories.length, 3);
+    assert.equal(
+      manifest.inventories.every((inventory) => inventory.files.length === 1),
+      true
+    );
+    assert.match(manifest.bundleSha256, /^[a-f0-9]{64}$/);
+
+    fs.writeFileSync(path.join(retainedRoot, 'io', 'out', 'index.html'), 'drift');
+    assert.throws(
+      () => verifySuccessArtifactBundle(retainedRoot, sourceRevision, variants),
+      /file inventory drift/
+    );
+    fs.writeFileSync(path.join(retainedRoot, 'io', 'out', 'index.html'), 'io');
+    fs.writeFileSync(path.join(retainedRoot, 'stale.tmp'), 'stale');
+    assert.throws(
+      () => verifySuccessArtifactBundle(retainedRoot, sourceRevision, variants),
+      /bundle layout drift/
+    );
+    assert.throws(
+      () => finalizeSuccessArtifactBundle(retainedRoot, sourceRevision, ['cn']),
+      /bundle variant set drift/
+    );
+  } finally {
+    fs.rmSync(retainedRoot, { recursive: true, force: true });
+  }
 });
 
 test('P1 successful evidence keeps the emitted KiB measurement', () => {
