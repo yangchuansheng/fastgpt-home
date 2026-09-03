@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "issue": 275,
+  "sourceRevision": "f7f847806d6ac83c17d4cc5e1fc29b591477143e",
+  "measuredAt": "2026-09-03T09:41:26.746Z",
+  "command": "npm run verify:technical-full-release-capacity -- --w5-source-root <W5_ROOT> --w6-source-root <W6_ROOT>",
+  "scope": "disposable-4007-page-production-static-export",
+  "environment": {
+    "node": "v24.13.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "logicalCpuCount": 10,
+    "physicalMemoryBytes": 25769803776
+  },
+  "projection": {
+    "baselinePages": 1422,
+    "pendingPages": 2585,
+    "pages": 4007,
+    "localePages": {
+      "zh": 3492,
+      "en": 515
+    },
+    "recordsSha256": "9ccbac8a5bd4c3bcf3f06fff4f6937f5405e491ac0af49efccdd56372cc608b6",
+    "sourceFilesVerified": 2585,
+    "registry": {
+      "bytes": 2652671,
+      "sha256": "1d51d66343cbc35ab2322b38b748c7854c8cdff4e12069e1e05a2a7b8c1e7e64"
+    },
+    "search": {
+      "zh": {
+        "bytes": 2356741,
+        "sha256": "a098b815db71198a56c99dabf270349b0d7e8485473de13368cbeceda6b2aab9"
+      },
+      "en": {
+        "bytes": 244921,
+        "sha256": "ff270b54d96e0d9cb28230e9dccce4952b930eb50eabd508a32c8b3e5110bce5"
+      }
+    }
+  },
+  "variants": [
+    {
+      "variant": "cn",
+      "status": 1,
+      "signal": null,
+      "durationMilliseconds": 83255,
+      "peakRssBytes": 5560156160,
+      "buildSucceeded": false,
+      "failure": "    at ignore-listed frames {\n  errno: -28,\n  code: 'ENOSPC',\n  syscall: 'open',\n  path: '<disposable-root>/.next/server/app/zh/troubleshoot/fastgpt-system-license-dataset-limit-error.segments/_tree.segment.rsc'\n}\nExport encountered an error on /[lang]/[section]/[slug]/page: /zh/troubleshoot/fastgpt-system-license-dataset-limit-error, exiting the build.\n⨯ Next.js build worker exited with code: 1 and signal: null",
+      "partialNextBuild": {
+        "fileCount": 75461,
+        "bytes": 3361445970
+      },
+      "staticFileCount": null,
+      "exportBytes": null,
+      "initialJavaScriptGzipBytes": null,
+      "initialJavaScriptMaxGzipBytes": null,
+      "initialJavaScriptWithinBudget": null,
+      "postBuildVerified": false,
+      "postBuildChecks": []
+    },
+    {
+      "variant": "io",
+      "status": 1,
+      "signal": null,
+      "durationMilliseconds": 97641,
+      "peakRssBytes": 5125996544,
+      "buildSucceeded": false,
+      "failure": "✓ Generating static pages using 9 workers (2626/2626) in 29.5s\n  Finalizing page optimization ...\nuncaughtException [Error: ENOSPC: no space left on device, open '<disposable-root>/.next/trace-build'] {\n  errno: -28,\n  code: 'ENOSPC',\n  syscall: 'open',\n  path: '<disposable-root>/.next/trace-build'\n}",
+      "partialNextBuild": {
+        "fileCount": 20254,
+        "bytes": 1930090493
+      },
+      "staticFileCount": null,
+      "exportBytes": null,
+      "initialJavaScriptGzipBytes": null,
+      "initialJavaScriptMaxGzipBytes": null,
+      "initialJavaScriptWithinBudget": null,
+      "postBuildVerified": false,
+      "postBuildChecks": []
+    },
+    {
+      "variant": "preview",
+      "status": 1,
+      "signal": null,
+      "durationMilliseconds": 74529,
+      "peakRssBytes": 4805099520,
+      "buildSucceeded": false,
+      "failure": "    at ignore-listed frames {\n  errno: -28,\n  code: 'ENOSPC',\n  syscall: 'open',\n  path: '<disposable-root>/.next/server/app/zh/troubleshoot/fastgpt-troubleshooting-request-errors.segments/$d$lang/$d$section/$d$slug/__PAGE__.segment.rsc'\n}\nExport encountered an error on /[lang]/[section]/[slug]/page: /zh/troubleshoot/fastgpt-troubleshooting-request-errors, exiting the build.\n⨯ Next.js build worker exited with code: 1 and signal: null",
+      "partialNextBuild": {
+        "fileCount": 29866,
+        "bytes": 3442494968
+      },
+      "staticFileCount": null,
+      "exportBytes": null,
+      "initialJavaScriptGzipBytes": null,
+      "initialJavaScriptMaxGzipBytes": null,
+      "initialJavaScriptWithinBudget": null,
+      "postBuildVerified": false,
+      "postBuildChecks": []
+    }
+  ],
+  "decision": {
+    "safeOneShotFullRelease": false,
+    "blockers": [
+      "prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure",
+      "docker-publication-is-cn-only",
+      "one-or-more-static-exports-failed",
+      "cn-post-build-gate-failed",
+      "io-post-build-gate-failed",
+      "preview-post-build-gate-failed"
+    ]
+  }
+}
