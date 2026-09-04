@@ -103,6 +103,8 @@
     "verify:technical-full-release-approval-regression": "node --test scripts/verify-technical-full-release-approval.test.js",
     "release:technical-full": "node scripts/technical-full-release-controller.js",
     "release:technical-full-regression": "node --test scripts/technical-full-release-controller.test.js",
+    "generate:technical-full-release-image-manifest": "node scripts/generate-technical-full-release-image-manifest.js",
+    "verify:technical-full-release-image-manifest-regression": "node --test scripts/generate-technical-full-release-image-manifest.test.js",
     "verify:technical-wave-observation": "node scripts/verify-technical-wave-observation.js",
     "verify:technical-wave-observation-regression": "node --test scripts/verify-technical-wave-observation.test.js",
     "verify:technical-center": "node scripts/verify-technical-center.js",
