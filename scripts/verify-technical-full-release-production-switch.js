@@ -145,6 +145,16 @@ function assertBetween(value, earliest, latest, label) {
   );
 }
 
+function getPointerSwapInterval(window) {
+  const phase = PHASES.find(({ name }) => name === 'coordinated-pointer-swap');
+  const startsAt = Date.parse(window?.startsAt);
+  assert(phase && Number.isFinite(startsAt), 'coordinated pointer swap window is invalid');
+  return {
+    start: startsAt + phase.startMinute * 60_000,
+    end: startsAt + phase.endMinute * 60_000
+  };
+}
+
 function verifyActivationCandidate(
   bundleEvidence,
   sourceRevision,
@@ -166,15 +176,16 @@ function verifyActivationCandidate(
   );
   const activationTime = typeof observedAt === 'number' ? observedAt : Date.parse(observedAt);
   assert(Number.isFinite(activationTime), 'activation time is invalid');
+  const pointerSwap = getPointerSwapInterval(window);
   assert(
-    activationTime >= Date.parse(window.startsAt) + 15 * 60_000 &&
-      activationTime < Date.parse(window.endsAt),
+    activationTime >= pointerSwap.start && activationTime < pointerSwap.end,
     'activation time is outside the approved deployment interval'
   );
 }
 
 function verifyPrerequisiteEvidence(code, reference, evidence, context) {
   const label = `${code} evidence`;
+  const latest = Number.isFinite(context?.now) ? context.now : Date.now();
   assert.equal(reference.kind, EVIDENCE_KINDS[code], `${label} reference kind drift`);
   assert.equal(evidence.schemaVersion, 1, `${label} schema version drift`);
   assert.equal(evidence.issue, 277, `${label} issue binding drift`);
@@ -308,12 +319,15 @@ function verifyPrerequisiteEvidence(code, reference, evidence, context) {
     );
     assert.deepEqual(evidence.ownerCounts, { cn: 2095, io: 490 }, `${label} owner count drift`);
     assertWindow(evidence.startedAt, evidence.endedAt, 72, `${label} window`);
+    assertAtOrBefore(evidence.startedAt, latest, `${label} startedAt`);
+    assertAtOrBefore(evidence.endedAt, latest, `${label} endedAt`);
+    assertAtOrBefore(evidence.recordedAt, latest, `${label} recordedAt`);
     assert(
       Date.parse(evidence.recordedAt) >= Date.parse(evidence.endedAt),
       `${label} was recorded before its observation window ended`
     );
     assert(
-      Date.parse(evidence.startedAt) >= Date.parse(context.window.startsAt) + 20 * 60_000,
+      Date.parse(evidence.startedAt) >= getPointerSwapInterval(context.window).end,
       `${label} starts before the coordinated pointer swap completes`
     );
     assert.deepEqual(evidence.statusCounts, { 200: 2585 }, `${label} HTTP status drift`);
@@ -339,12 +353,15 @@ function verifyPrerequisiteEvidence(code, reference, evidence, context) {
     );
     assert.deepEqual(evidence.ownerCounts, { cn: 2095, io: 490 }, `${label} owner count drift`);
     assertWindow(evidence.startedAt, evidence.endedAt, 14 * 24, `${label} window`);
+    assertAtOrBefore(evidence.startedAt, latest, `${label} startedAt`);
+    assertAtOrBefore(evidence.endedAt, latest, `${label} endedAt`);
+    assertAtOrBefore(evidence.recordedAt, latest, `${label} recordedAt`);
     assert(
       Date.parse(evidence.recordedAt) >= Date.parse(evidence.endedAt),
       `${label} was recorded before its observation window ended`
     );
     assert(
-      Date.parse(evidence.startedAt) >= Date.parse(context.window.startsAt) + 20 * 60_000,
+      Date.parse(evidence.startedAt) >= getPointerSwapInterval(context.window).end,
       `${label} starts before the coordinated pointer swap completes`
     );
     for (const field of [
@@ -595,7 +612,8 @@ function verifyTechnicalFullReleaseProductionSwitch({
         evidence,
         {
           identitySetSha256: observation.identitySetSha256,
-          window
+          window,
+          now: Date.now()
         }
       );
       candidateSourceRevisions.push(binding.sourceRevision);
@@ -742,6 +760,7 @@ if (require.main === module) {
 module.exports = {
   CONTRACT_RELATIVE_PATH,
   evaluateMajorIncident,
+  getPointerSwapInterval,
   verifyActivationCandidate,
   verifyPrerequisiteEvidence,
   verifyTechnicalFullReleaseProductionSwitch

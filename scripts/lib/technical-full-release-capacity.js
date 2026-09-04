@@ -2,8 +2,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const zlib = require('node:zlib');
 
-const policy = require('../../src/lib/technical-content-policy.json');
 const { buildSearchProjection } = require('../import-technical-content');
+const { buildReaderPage: buildW5ReaderPage } = require('./technical-wave');
+const {
+  buildReaderPage: buildW6ReaderPage,
+  readerPath: week06ReaderPath
+} = require('./week06-wave1-content');
 const {
   FULL_RELEASE_RELATIVE_PATH,
   validateClosureArtifact,
@@ -13,6 +17,7 @@ const { sha256, stableJson } = require('./technical-authority');
 
 const VARIANTS = ['cn', 'io', 'preview'];
 const CAPACITY_POLICY_RELATIVE_PATH = 'src/lib/technical-content-policy.json';
+const STALE_MEASUREMENT_BLOCKER = 'capacity-rerun-required-after-source-normalization';
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -22,48 +27,6 @@ function assertDigest(value, label) {
   if (typeof value !== 'string' || !/^[a-f0-9]{64}$/.test(value)) {
     throw new Error(`${label} must be a lowercase SHA-256 digest`);
   }
-}
-
-function resolveSourcePath(sourceRoot, batch, sourceFile) {
-  const folder = batch === 'W5' ? '程序化技术页-第3批' : '程序化技术页-第4批';
-  for (const root of [path.resolve(sourceRoot), path.resolve(sourceRoot, folder)]) {
-    const sourcePath = path.resolve(root, sourceFile);
-    if (sourcePath.startsWith(`${root}${path.sep}`) && fs.existsSync(sourcePath)) {
-      return sourcePath;
-    }
-  }
-  throw new Error(`${batch} projection source is missing: ${sourceFile}`);
-}
-
-function replaceFrontMatterSlug(source, slug, label) {
-  const normalized = source.replace(/\r\n?/g, '\n');
-  const end = normalized.indexOf('\n---', 4);
-  if (!normalized.startsWith('---\n') || end === -1) {
-    throw new Error(`${label} has invalid front matter`);
-  }
-  const header = normalized.slice(4, end);
-  if (!/^slug:\s*.+$/m.test(header)) throw new Error(`${label} has no front matter slug`);
-  const body = normalized
-    .slice(end)
-    .replace(
-      /^([ \t]*>[ \t]*(?:来源|Source|Sources|参考资料|References)[ \t]*[:：][ \t]*)(https:\/\/[^\s)]+)[ \t]*$/gimu,
-      '$1[Public source]($2)'
-    );
-  return `---\n${header.replace(/^slug:\s*.+$/m, `slug: ${slug}`)}${body}`;
-}
-
-function deriveSummary(title, source) {
-  const body = source.slice(source.indexOf('\n---', 4) + 4);
-  const summary = body
-    .replace(/^```[\s\S]*?```$/gm, '')
-    .replace(/^#{1,6}\s+/gm, '')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-    .replace(/[>*_`~]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-  if (!summary) return title;
-  return summary.length <= 155 ? summary : `${summary.slice(0, 154).trim()}…`;
 }
 
 function authorityCandidates(repoRoot) {
@@ -100,30 +63,20 @@ function projectTechnicalContent({ repoRoot, w5SourceRoot, w6SourceRoot }) {
     if (!candidate) throw new Error(`Missing authority candidate ${record.authorityId}`);
     const slug = `/${record.locale}${record.canonicalPath}`;
     if (seen.has(slug)) throw new Error(`Projected identity already exists: ${slug}`);
-    const sourcePath = resolveSourcePath(roots[record.batch], record.batch, record.sourceFile);
-    const document = replaceFrontMatterSlug(
-      fs.readFileSync(sourcePath, 'utf8'),
-      slug,
-      record.sourceFile
-    );
-    const outputPath = path.join(
-      repoRoot,
-      'src/content/tech-center',
-      record.locale,
-      `${record.canonicalPath.slice(1)}.md`
-    );
+    const page =
+      record.batch === 'W5'
+        ? buildW5ReaderPage(candidate)
+        : buildW6ReaderPage(repoRoot, candidate, roots[record.batch]);
+    if (page.projection.slug !== slug) {
+      throw new Error(`Canonical projection slug drift: ${record.authorityId}`);
+    }
+    const outputPath =
+      record.batch === 'W5'
+        ? path.join(repoRoot, `src/content/tech-center${record.canonicalPath}.md`)
+        : path.join(repoRoot, week06ReaderPath(candidate));
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-    fs.writeFileSync(outputPath, document);
-    entries.push({
-      title: candidate.title,
-      slug,
-      category: record.category,
-      categoryLabel: candidate.categoryLabel || policy.categories[record.category],
-      source: record.sourceUrl,
-      sourceType: candidate.sourceType,
-      summary: deriveSummary(candidate.title, document),
-      minutes: Math.max(1, Math.ceil(document.length / 500))
-    });
+    fs.writeFileSync(outputPath, page.document);
+    entries.push(page.projection);
     seen.add(slug);
   }
 
@@ -224,6 +177,66 @@ function summarizeExport(repoRoot, variant) {
   };
 }
 
+function currentPathBlockers(repoRoot) {
+  const packageJson = readJson(path.join(repoRoot, 'package.json'));
+  const dockerfile = fs.readFileSync(path.join(repoRoot, 'Dockerfile'), 'utf8');
+  const blockers = [];
+  if (packageJson.scripts?.prebuild?.includes('verify-technical-full-release.js')) {
+    blockers.push('prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure');
+  }
+  if (dockerfile.includes('Docker publication supports only NEXT_PUBLIC_SITE_VARIANT=cn')) {
+    blockers.push('docker-publication-is-cn-only');
+  }
+  return blockers;
+}
+
+function deriveCapacityBlockers(report, repoRoot) {
+  const blockers = currentPathBlockers(repoRoot);
+  const binding = report.measurementBinding;
+  if (binding?.status === 'stale-after-source-normalization') {
+    blockers.push(STALE_MEASUREMENT_BLOCKER);
+  }
+  if (
+    report.variants.some(
+      (variant) =>
+        variant.buildSucceeded !== true || variant.status !== 0 || variant.signal !== null
+    )
+  ) {
+    blockers.push('one-or-more-static-exports-failed');
+  }
+  if (report.variants.some((variant) => variant.initialJavaScriptWithinBudget === false)) {
+    blockers.push('technical-center-initial-javascript-budget-exceeded');
+  }
+  for (const variant of report.variants) {
+    if (variant.postBuildVerified !== true) blockers.push(`${variant.variant}-post-build-gate-failed`);
+  }
+  return [...new Set(blockers)];
+}
+
+function isCapacityVariantReady(measurement) {
+  return (
+    measurement.buildSucceeded === true &&
+    measurement.status === 0 &&
+    measurement.signal === null &&
+    measurement.initialJavaScriptWithinBudget === true &&
+    measurement.postBuildVerified === true &&
+    Array.isArray(measurement.postBuildChecks) &&
+    measurement.postBuildChecks.length > 0 &&
+    measurement.postBuildChecks.every((check) => check.status === 0)
+  );
+}
+
+function isCapacityReportReady(report) {
+  return (
+    report.measurementBinding?.status === 'current' &&
+    report.measurementBinding?.rerunRequired === false &&
+    report.decision?.safeOneShotFullRelease === true &&
+    Array.isArray(report.decision?.blockers) &&
+    report.decision.blockers.length === 0 &&
+    report.variants.every(isCapacityVariantReady)
+  );
+}
+
 function validateCapacityReport(report, repoRoot) {
   if (report?.schemaVersion !== 1 || report.issue !== 275) {
     throw new Error('Technical full-release capacity report header changed');
@@ -243,23 +256,58 @@ function validateCapacityReport(report, repoRoot) {
     throw new Error('Technical full-release capacity variant set changed');
   }
   for (const measurement of report.variants) {
-    if (measurement.buildSucceeded) {
+    if (measurement.buildSucceeded === true) {
+      if (measurement.status !== 0 || measurement.signal !== null) {
+        throw new Error(`${measurement.variant} success status evidence is inconsistent`);
+      }
       for (const field of [
         'durationMilliseconds',
         'peakRssBytes',
         'staticFileCount',
         'exportBytes',
-        'initialJavaScriptGzipBytes'
+        'initialJavaScriptGzipBytes',
+        'initialJavaScriptMaxGzipBytes'
       ]) {
         if (!(measurement[field] > 0))
           throw new Error(`${measurement.variant}.${field} is missing`);
       }
+      if (typeof measurement.initialJavaScriptWithinBudget !== 'boolean') {
+        throw new Error(`${measurement.variant}.initialJavaScriptWithinBudget is missing`);
+      }
+      if (
+        measurement.initialJavaScriptWithinBudget !==
+        (measurement.initialJavaScriptGzipBytes <= measurement.initialJavaScriptMaxGzipBytes)
+      ) {
+        throw new Error(`${measurement.variant} JavaScript budget evidence is inconsistent`);
+      }
+      if (!Array.isArray(measurement.postBuildChecks) || !measurement.postBuildChecks.length) {
+        throw new Error(`${measurement.variant} post-build checks are missing`);
+      }
+      if (
+        measurement.postBuildVerified !==
+        measurement.postBuildChecks.every((check) => Number.isInteger(check?.status) && check.status === 0)
+      ) {
+        throw new Error(`${measurement.variant} post-build evidence is inconsistent`);
+      }
     } else if (
+      measurement.buildSucceeded !== false ||
+      (measurement.status !== null &&
+        (!Number.isInteger(measurement.status) || measurement.status === 0)) ||
+      (measurement.status === null &&
+        (measurement.signal !== null ||
+          measurement.durationMilliseconds !== null ||
+          measurement.peakRssBytes !== null)) ||
+      (measurement.signal !== null && typeof measurement.signal !== 'string') ||
       typeof measurement.failure !== 'string' ||
       !measurement.failure ||
       measurement.staticFileCount !== null ||
       measurement.exportBytes !== null ||
-      measurement.initialJavaScriptGzipBytes !== null
+      measurement.initialJavaScriptGzipBytes !== null ||
+      measurement.initialJavaScriptMaxGzipBytes !== null ||
+      measurement.initialJavaScriptWithinBudget !== null ||
+      measurement.postBuildVerified !== false ||
+      !Array.isArray(measurement.postBuildChecks) ||
+      measurement.postBuildChecks.length
     ) {
       throw new Error(`${measurement.variant} failure evidence is incomplete`);
     }
@@ -267,7 +315,8 @@ function validateCapacityReport(report, repoRoot) {
   if (
     typeof report.decision?.safeOneShotFullRelease !== 'boolean' ||
     !Array.isArray(report.decision.blockers) ||
-    report.decision.safeOneShotFullRelease !== (report.decision.blockers.length === 0)
+    report.decision.blockers.some((blocker) => typeof blocker !== 'string') ||
+    new Set(report.decision.blockers).size !== report.decision.blockers.length
   ) {
     throw new Error('Technical full-release capacity decision drift');
   }
@@ -291,17 +340,27 @@ function validateCapacityReport(report, repoRoot) {
       throw new Error('Technical full-release capacity current measurement binding drift');
     }
   } else {
-    const rerunBlocker =
-      binding.rerunBlocker || 'capacity-rerun-required-after-source-normalization';
-    if (!binding.rerunRequired || binding.measuredRecordsSha256 === binding.currentRecordsSha256) {
+    if (
+      binding.rerunBlocker !== STALE_MEASUREMENT_BLOCKER ||
+      !binding.rerunRequired ||
+      binding.measuredRecordsSha256 === binding.currentRecordsSha256
+    ) {
       throw new Error('Technical full-release capacity stale measurement binding drift');
     }
     if (report.decision.safeOneShotFullRelease) {
       throw new Error('Technical full-release capacity stale measurement cannot be safe');
     }
-    if (!report.decision.blockers.includes(rerunBlocker)) {
+    if (!report.decision.blockers.includes(STALE_MEASUREMENT_BLOCKER)) {
       throw new Error('Technical full-release capacity stale measurement rerun blocker is missing');
     }
+  }
+  const expectedBlockers = deriveCapacityBlockers(report, repoRoot).sort();
+  const observedBlockers = [...report.decision.blockers].sort();
+  if (
+    JSON.stringify(observedBlockers) !== JSON.stringify(expectedBlockers) ||
+    report.decision.safeOneShotFullRelease !== (expectedBlockers.length === 0)
+  ) {
+    throw new Error('Technical full-release capacity decision blockers drift');
   }
   return report;
 }
@@ -309,10 +368,12 @@ function validateCapacityReport(report, repoRoot) {
 module.exports = {
   CAPACITY_POLICY_RELATIVE_PATH,
   VARIANTS,
+  currentPathBlockers,
+  deriveCapacityBlockers,
   initialJavaScriptGzipBytes,
+  isCapacityReportReady,
   patchCapacityPageCount,
   projectTechnicalContent,
-  replaceFrontMatterSlug,
   summarizeExport,
   validateCapacityReport
 };

@@ -136,6 +136,23 @@ test('release state and blockers are derived from prerequisite evidence', () => 
   }, /evidence digest drift/);
 });
 
+test('an unrelated JSON file cannot satisfy a passed release prerequisite', () => {
+  const packageBytes = fs.readFileSync(path.join(ROOT, 'package.json'));
+  const packageSha256 = sha256(packageBytes);
+  assertDecisionRejected((decision) => {
+    decision.releasePrerequisites[0] = {
+      ...decision.releasePrerequisites[0],
+      status: 'passed',
+      evidence: {
+        kind: 'full-release-capacity-success',
+        path: 'package.json',
+        sha256: packageSha256
+      }
+    };
+    decision.releaseBlockers.shift();
+  }, /successful-4007-page-capacity-rerun-on-selected-runner evidence schema version drift/);
+});
+
 test('stale capacity measurement keeps the release blocked', () => {
   assertDecisionRejected((decision) => {
     decision.releaseState = 'ready';

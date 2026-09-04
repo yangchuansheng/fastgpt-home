@@ -125,7 +125,10 @@ function sanitizePublicBody(value) {
       /([?&](?:token|key|secret|api[_-]?key|access[_-]?token)=)[^&\s)`]+/gi,
       '$1[REDACTED_CREDENTIAL]'
     )
-    .replace(/\b(?:mytoken|mykey|sk-fastgpt|sk-tarzan)\b/gi, '[REDACTED_CREDENTIAL]');
+    .replace(/\b(?:mytoken|mykey|sk-fastgpt|sk-tarzan)\b/gi, '[REDACTED_CREDENTIAL]')
+    .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[REDACTED_PRIVATE_DATA]')
+    .replace(/(?<!\d)(?:\+?86[- ]?)?1[3-9]\d{9}(?!\d)/g, '[REDACTED_PRIVATE_DATA]')
+    .replace(/(?<!\d)\d{17}[\dXx](?!\d)/g, '[REDACTED_PRIVATE_DATA]');
 }
 
 function normalizeSourceCitation(body, candidate) {

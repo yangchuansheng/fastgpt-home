@@ -255,13 +255,25 @@ test('production activation requires pre-switch readiness only', () => {
       ),
     /activation time is outside the approved deployment interval/
   );
+  assert.throws(
+    () =>
+      verifyActivationCandidate(
+        bundleEvidence,
+        'a'.repeat(40),
+        'b'.repeat(64),
+        contract.maintenanceWindow,
+        '2026-09-08T15:59:00.000Z'
+      ),
+    /activation time is outside the approved deployment interval/
+  );
 });
 
 test('approval, handoff, and observation evidence follows the switch timeline', () => {
   const contract = JSON.parse(fs.readFileSync(path.join(ROOT, CONTRACT_RELATIVE_PATH), 'utf8'));
   const context = {
     identitySetSha256: contract.observation.identitySetSha256,
-    window: contract.maintenanceWindow
+    window: contract.maintenanceWindow,
+    now: Date.parse('2026-09-23T17:00:00.000Z')
   };
   const common = (kind) => ({
     schemaVersion: 1,

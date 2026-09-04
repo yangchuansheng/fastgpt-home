@@ -35,6 +35,22 @@ const RELEASE_BLOCKERS = [
   'coordinated-cn-io-release-controller-binding-is-approved',
   'single-bundle-manifest-and-rollback-artifact-are-recorded'
 ];
+const PREREQUISITE_EVIDENCE_KINDS = {
+  'successful-4007-page-capacity-rerun-on-selected-runner': 'full-release-capacity-success',
+  'all-cn-io-preview-post-build-gates-pass': 'full-release-candidate-validation',
+  'full-release-prebuild-state-transition-is-approved': 'full-release-prebuild-transition',
+  'coordinated-cn-io-release-controller-binding-is-approved': 'full-release-controller-binding',
+  'single-bundle-manifest-and-rollback-artifact-are-recorded': 'full-release-bundle-pair'
+};
+const POST_BUILD_CHECKS = [
+  'sourceData',
+  'staticExport',
+  'canonical',
+  'sitemap',
+  'ownerIsolation',
+  'contentHygiene',
+  'rollback'
+];
 
 function readJson(filePath, label) {
   try {
@@ -64,6 +80,67 @@ function verifyResourcePreflight(contract, observed) {
     observed.freeWorkingDiskBytes >= resources.workingDisk.minimumFreeBytesAtStart,
     'runner free working disk is below the decision floor'
   );
+}
+
+function assertDigest(value, label) {
+  assert.match(value || '', /^[a-f0-9]{64}$/, `${label} digest is invalid`);
+}
+
+function verifyPrerequisiteEvidence(rootDir, prerequisite) {
+  const label = `${prerequisite.code} evidence`;
+  const kind = PREREQUISITE_EVIDENCE_KINDS[prerequisite.code];
+  assert.equal(prerequisite.evidence?.kind, kind, `${label} reference kind drift`);
+  assert.match(prerequisite.evidence?.sha256 || '', /^[a-f0-9]{64}$/, `${label} digest is invalid`);
+  const evidencePath = path.resolve(rootDir, prerequisite.evidence.path);
+  assert(
+    evidencePath.startsWith(`${path.resolve(rootDir)}${path.sep}`),
+    `${label} path escapes the repository`
+  );
+  const evidence = readJson(evidencePath, label);
+  assert.equal(evidence.schemaVersion, 1, `${label} schema version drift`);
+  assert.equal(evidence.issue, 276, `${label} issue binding drift`);
+  assert.equal(evidence.kind, kind, `${label} kind drift`);
+  assert.equal(evidence.status, 'passed', `${label} status must be passed`);
+  assert(Number.isFinite(Date.parse(evidence.recordedAt)), `${label} recordedAt is invalid`);
+  assert(
+    Date.parse(evidence.recordedAt) <= Date.now(),
+    `${label} recordedAt is in the future`
+  );
+  assert.match(evidence.sourceRevision || '', /^[a-f0-9]{40}$/, `${label} source revision is invalid`);
+  assert.equal(evidence.targetPages, 4007, `${label} target page count drift`);
+  assert.deepEqual(evidence.variants, VARIANTS, `${label} variant set drift`);
+  assertDigest(evidence.candidateBundleSha256, `${label} candidate bundle`);
+
+  if (prerequisite.code === 'successful-4007-page-capacity-rerun-on-selected-runner') {
+    assert.deepEqual(
+      evidence.variantResults,
+      { cn: 'passed', io: 'passed', preview: 'passed' },
+      `${label} variant result drift`
+    );
+    assertDigest(evidence.capacityReportSha256, `${label} capacity report`);
+  } else if (prerequisite.code === 'all-cn-io-preview-post-build-gates-pass') {
+    assert.deepEqual(Object.keys(evidence.checks || {}), POST_BUILD_CHECKS, `${label} check set drift`);
+    for (const check of POST_BUILD_CHECKS) {
+      assert.equal(evidence.checks[check], 'passed', `${label} ${check} must be passed`);
+    }
+  } else if (prerequisite.code === 'full-release-prebuild-state-transition-is-approved') {
+    assert.equal(evidence.approved, true, `${label} approval flag drift`);
+    assert.match(evidence.approvedBy || '', /\S/, `${label} approver missing`);
+    assert.match(evidence.transitionId || '', /\S/, `${label} transition ID missing`);
+  } else if (prerequisite.code === 'coordinated-cn-io-release-controller-binding-is-approved') {
+    assert.deepEqual(evidence.targets, ['cn', 'io'], `${label} target set drift`);
+    assert.equal(evidence.controllerBinding, true, `${label} controller binding drift`);
+    assert.match(evidence.controller || '', /\S/, `${label} controller missing`);
+  } else if (prerequisite.code === 'single-bundle-manifest-and-rollback-artifact-are-recorded') {
+    assert.equal(evidence.candidateBundle?.pageCount, 4007, `${label} candidate page count drift`);
+    assert.equal(evidence.candidateBundle?.sourceRevision, evidence.sourceRevision);
+    assertDigest(evidence.candidateBundle?.sha256, `${label} candidate bundle`);
+    assert.equal(evidence.candidateBundle.sha256, evidence.candidateBundleSha256);
+    assert.equal(evidence.baselineBundle?.pageCount, 1422, `${label} baseline page count drift`);
+    assert.equal(evidence.baselineBundle?.complete, true, `${label} baseline completeness drift`);
+    assertDigest(evidence.baselineBundle?.sha256, `${label} baseline bundle`);
+  }
+  return evidence;
 }
 
 function verifyTechnicalFullReleaseBuildDecision({
@@ -110,6 +187,23 @@ function verifyTechnicalFullReleaseBuildDecision({
     capacity.projection.recordsSha256,
     'capacity identity digest drift'
   );
+  const staleCapacityMeasurement =
+    capacity.measurementBinding?.status === 'stale-after-source-normalization';
+  const rerunPrerequisite = contract.releasePrerequisites?.find(
+    ({ code }) => code === 'successful-4007-page-capacity-rerun-on-selected-runner'
+  );
+  if (staleCapacityMeasurement && contract.releaseState === 'ready' && rerunPrerequisite?.status === 'passed') {
+    assert.equal(
+      contract.releaseState,
+      'blocked',
+      'stale capacity measurement cannot mark the release ready'
+    );
+    assert.equal(
+      rerunPrerequisite?.status,
+      'blocked',
+      'stale capacity measurement must keep the rerun prerequisite blocked'
+    );
+  }
 
   const failedVariants = capacity.variants
     .filter((variant) => variant.buildSucceeded === false && variant.failure.includes('ENOSPC'))
@@ -289,7 +383,6 @@ function verifyTechnicalFullReleaseBuildDecision({
       `${prerequisite.code} prerequisite status drift`
     );
     if (prerequisite.status === 'passed') {
-      assert.match(prerequisite.evidence?.sha256 || '', /^[a-f0-9]{64}$/);
       const prerequisitePath = path.resolve(rootDir, prerequisite.evidence?.path || '');
       assert(
         prerequisitePath.startsWith(`${path.resolve(rootDir)}${path.sep}`),
@@ -300,6 +393,7 @@ function verifyTechnicalFullReleaseBuildDecision({
         prerequisite.evidence.sha256,
         `${prerequisite.code} evidence digest drift`
       );
+      verifyPrerequisiteEvidence(rootDir, prerequisite);
     } else {
       assert.equal(prerequisite.evidence, null, `${prerequisite.code} blocked evidence drift`);
     }
@@ -313,16 +407,11 @@ function verifyTechnicalFullReleaseBuildDecision({
     releaseBlockers.length === 0 ? 'ready' : 'blocked',
     'full release state does not match prerequisite evidence'
   );
-  const staleCapacityMeasurement =
-    capacity.measurementBinding?.status === 'stale-after-source-normalization';
   if (staleCapacityMeasurement) {
     assert.equal(
       contract.releaseState,
       'blocked',
       'stale capacity measurement cannot mark the release ready'
-    );
-    const rerunPrerequisite = contract.releasePrerequisites?.find(
-      ({ code }) => code === 'successful-4007-page-capacity-rerun-on-selected-runner'
     );
     assert.equal(
       rerunPrerequisite?.status,
@@ -390,6 +479,7 @@ if (require.main === module) {
 
 module.exports = {
   DECISION_RELATIVE_PATH,
+  verifyPrerequisiteEvidence,
   verifyReleaseBundle,
   verifyResourcePreflight,
   verifyTechnicalFullReleaseBuildDecision

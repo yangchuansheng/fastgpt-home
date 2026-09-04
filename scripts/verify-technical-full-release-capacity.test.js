@@ -5,10 +5,11 @@ const path = require('node:path');
 const test = require('node:test');
 
 const {
-  replaceFrontMatterSlug,
+  isCapacityReportReady,
   summarizeExport,
   validateCapacityReport
 } = require('./lib/technical-full-release-capacity');
+const { buildReaderPage } = require('./lib/technical-wave');
 const {
   captureVariant,
   parseArgs,
@@ -65,13 +66,35 @@ test('stale capacity measurements require the rerun blocker and keep release uns
   assert.throws(() => validateCapacityReport(safeStale, root), /stale measurement cannot be safe/);
 });
 
-test('projection rewrites only the route identity in front matter', () => {
-  const source =
-    '---\ntitle: Example\nslug: /old\nsource: https://example.com\n---\n\n# Body\n\n> Source: https://example.com/docs\n';
-  assert.equal(
-    replaceFrontMatterSlug(source, '/en/api/example', 'fixture.md'),
-    '---\ntitle: Example\nslug: /en/api/example\nsource: https://example.com\n---\n\n# Body\n\n> Source: [Public source](https://example.com/docs)\n'
+test('capacity decisions reject a safe report with failed variant measurements', () => {
+  const root = path.resolve(__dirname, '..');
+  const report = JSON.parse(
+    fs.readFileSync(
+      path.join(root, 'scripts/fixtures/technical-authority/full-release-capacity.json')
+    )
   );
+  const forged = structuredClone(report);
+  forged.measurementBinding = {
+    ...forged.measurementBinding,
+    measuredRecordsSha256: forged.measurementBinding.currentRecordsSha256,
+    status: 'current',
+    rerunRequired: false
+  };
+  forged.decision = { safeOneShotFullRelease: true, blockers: [] };
+  assert.throws(() => validateCapacityReport(forged, root), /decision blockers drift/);
+  assert.equal(isCapacityReportReady(report), false);
+});
+
+test('capacity projections use the canonical Wave 1 page builder', () => {
+  const authority = JSON.parse(
+    fs.readFileSync(
+      path.join(__dirname, '..', 'src/content/tech-center/authority/week05-authority.json')
+    )
+  );
+  const page = buildReaderPage(authority.candidates[0]);
+  assert.equal(page.projection.slug, '/zh/troubleshoot/bge-rerank-v2-m3-docker-gpu-fix');
+  assert.equal(page.projection.categoryLabel, '故障排查');
+  assert.match(page.document, /## 适用环境与版本范围/);
 });
 
 test('export summary records files, bytes, and initial JavaScript budget', () => {

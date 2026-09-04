@@ -52,7 +52,8 @@ function getEvidenceContext() {
     recordsSha256: closure.recordsSha256,
     identitySetSha256: contract.releaseUnit.identitySetSha256,
     earliestProductionObservation:
-      Date.parse(productionSwitch.maintenanceWindow.startsAt) + 20 * 60_000
+      Date.parse(productionSwitch.maintenanceWindow.startsAt) + 20 * 60_000,
+    now: Date.parse('2026-09-23T17:00:00.000Z')
   };
 }
 
@@ -321,6 +322,14 @@ test('production HTTP evidence covers every frozen canonical with typed live res
         context
       ),
     /captured before the production switch completed/
+  );
+  assert.throws(
+    () =>
+      verifyProductionHttpEvidence(
+        { ...evidence, capturedAt: '2026-09-24T00:00:00.000Z' },
+        context
+      ),
+    /captured in the future/
   );
 });
 

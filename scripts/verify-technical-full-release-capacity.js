@@ -9,6 +9,7 @@ const { spawn, spawnSync } = require('node:child_process');
 
 const {
   VARIANTS,
+  deriveCapacityBlockers,
   patchCapacityPageCount,
   projectTechnicalContent,
   summarizeExport,
@@ -254,19 +255,6 @@ async function captureVariant(variant, measure) {
   }
 }
 
-function currentPathBlockers(repoRoot) {
-  const packageJson = require(path.join(repoRoot, 'package.json'));
-  const dockerfile = fs.readFileSync(path.join(repoRoot, 'Dockerfile'), 'utf8');
-  const blockers = [];
-  if (packageJson.scripts.prebuild.includes('verify-technical-full-release.js')) {
-    blockers.push('prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure');
-  }
-  if (dockerfile.includes('Docker publication supports only NEXT_PUBLIC_SITE_VARIANT=cn')) {
-    blockers.push('docker-publication-is-cn-only');
-  }
-  return blockers;
-}
-
 async function main(argv = process.argv.slice(2)) {
   const options = parseArgs(argv);
   if (options.mode === 'check') {
@@ -327,16 +315,7 @@ async function main(argv = process.argv.slice(2)) {
       );
       writeReport();
     }
-    const blockers = currentPathBlockers(ROOT);
-    if (report.variants.some((variant) => variant.buildSucceeded === false)) {
-      blockers.push('one-or-more-static-exports-failed');
-    }
-    if (report.variants.some((variant) => variant.initialJavaScriptWithinBudget === false)) {
-      blockers.push('technical-center-initial-javascript-budget-exceeded');
-    }
-    for (const variant of report.variants) {
-      if (!variant.postBuildVerified) blockers.push(`${variant.variant}-post-build-gate-failed`);
-    }
+    const blockers = deriveCapacityBlockers(report, ROOT);
     report.decision = {
       safeOneShotFullRelease: blockers.length === 0,
       blockers

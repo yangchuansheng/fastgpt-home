@@ -8,7 +8,12 @@ const path = require('node:path');
 
 const { sha256, stableJson } = require('./lib/technical-authority');
 const { validateClosureArtifact } = require('./lib/technical-full-release');
-const { validateCapacityReport, VARIANTS } = require('./lib/technical-full-release-capacity');
+const {
+  isCapacityReportReady,
+  validateCapacityReport,
+  VARIANTS
+} = require('./lib/technical-full-release-capacity');
+const { getPointerSwapInterval } = require('./verify-technical-full-release-production-switch');
 
 const ROOT = path.resolve(__dirname, '..');
 const CONTRACT_RELATIVE_PATH = 'scripts/fixtures/technical-authority/full-release-approval.json';
@@ -168,6 +173,10 @@ function verifyProductionHttpEvidence(evidence, context) {
     capturedAt >= context.earliestProductionObservation,
     'production HTTP evidence was captured before the production switch completed'
   );
+  assert(
+    capturedAt <= (Number.isFinite(context.now) ? context.now : Date.now()),
+    'production HTTP evidence was captured in the future'
+  );
   assert(Array.isArray(evidence.records), 'production HTTP evidence records must be an array');
   assert.equal(
     evidence.records.length,
@@ -320,10 +329,7 @@ function verifyTechnicalFullReleaseApproval({
     .map(({ variant }) => variant);
   const staleCapacityMeasurement =
     capacity.measurementBinding?.status === 'stale-after-source-normalization';
-  const capacityReady =
-    !staleCapacityMeasurement &&
-    failedVariants.length === 0 &&
-    capacity.decision.safeOneShotFullRelease;
+  const capacityReady = isCapacityReportReady(capacity);
   assert.equal(
     contract.lineage.capacityReport.successfulRerun,
     capacityReady,
@@ -417,8 +423,8 @@ function verifyTechnicalFullReleaseApproval({
     identityClosureSha256: contract.lineage.identityClosure.sha256,
     recordsSha256: closure.recordsSha256,
     identitySetSha256,
-    earliestProductionObservation:
-      Date.parse(productionSwitch.maintenanceWindow.startsAt) + 20 * 60_000
+    earliestProductionObservation: getPointerSwapInterval(productionSwitch.maintenanceWindow).end,
+    now: Date.now()
   };
   let approvalBinding;
   if (contract.candidate?.approvalEvidence) {
@@ -561,8 +567,10 @@ if (require.main === module) {
         identityClosureSha256: contract.lineage.identityClosure.sha256,
         recordsSha256: closure.recordsSha256,
         identitySetSha256: contract.releaseUnit.identitySetSha256,
-        earliestProductionObservation:
-          Date.parse(productionSwitch.maintenanceWindow.startsAt) + 20 * 60_000
+        earliestProductionObservation: getPointerSwapInterval(
+          productionSwitch.maintenanceWindow
+        ).end,
+        now: Date.now()
       });
     }
     console.log(
