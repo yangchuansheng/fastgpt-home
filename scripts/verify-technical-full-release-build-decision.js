@@ -102,11 +102,12 @@ function verifyPrerequisiteEvidence(rootDir, prerequisite) {
   assert.equal(evidence.kind, kind, `${label} kind drift`);
   assert.equal(evidence.status, 'passed', `${label} status must be passed`);
   assert(Number.isFinite(Date.parse(evidence.recordedAt)), `${label} recordedAt is invalid`);
-  assert(
-    Date.parse(evidence.recordedAt) <= Date.now(),
-    `${label} recordedAt is in the future`
+  assert(Date.parse(evidence.recordedAt) <= Date.now(), `${label} recordedAt is in the future`);
+  assert.match(
+    evidence.sourceRevision || '',
+    /^[a-f0-9]{40}$/,
+    `${label} source revision is invalid`
   );
-  assert.match(evidence.sourceRevision || '', /^[a-f0-9]{40}$/, `${label} source revision is invalid`);
   assert.equal(evidence.targetPages, 4007, `${label} target page count drift`);
   assert.deepEqual(evidence.variants, VARIANTS, `${label} variant set drift`);
   assertDigest(evidence.candidateBundleSha256, `${label} candidate bundle`);
@@ -119,7 +120,11 @@ function verifyPrerequisiteEvidence(rootDir, prerequisite) {
     );
     assertDigest(evidence.capacityReportSha256, `${label} capacity report`);
   } else if (prerequisite.code === 'all-cn-io-preview-post-build-gates-pass') {
-    assert.deepEqual(Object.keys(evidence.checks || {}), POST_BUILD_CHECKS, `${label} check set drift`);
+    assert.deepEqual(
+      Object.keys(evidence.checks || {}),
+      POST_BUILD_CHECKS,
+      `${label} check set drift`
+    );
     for (const check of POST_BUILD_CHECKS) {
       assert.equal(evidence.checks[check], 'passed', `${label} ${check} must be passed`);
     }
@@ -192,7 +197,11 @@ function verifyTechnicalFullReleaseBuildDecision({
   const rerunPrerequisite = contract.releasePrerequisites?.find(
     ({ code }) => code === 'successful-4007-page-capacity-rerun-on-selected-runner'
   );
-  if (staleCapacityMeasurement && contract.releaseState === 'ready' && rerunPrerequisite?.status === 'passed') {
+  if (
+    staleCapacityMeasurement &&
+    contract.releaseState === 'ready' &&
+    rerunPrerequisite?.status === 'passed'
+  ) {
     assert.equal(
       contract.releaseState,
       'blocked',
@@ -372,6 +381,11 @@ function verifyTechnicalFullReleaseBuildDecision({
     assert.equal(alternative.disposition, 'rejected', 'unsafe alternative disposition drift');
     assert(alternative.reason, `${alternative.path} rejection reason is required`);
   });
+  assert.match(
+    contract.alternatives.find(({ path }) => path === 'optimize-existing-projections').reason,
+    new RegExp(projectionBytes.toLocaleString('en-US')),
+    'projection alternative evidence drift'
+  );
   assert.deepEqual(
     contract.releasePrerequisites.map(({ code }) => code),
     RELEASE_BLOCKERS,

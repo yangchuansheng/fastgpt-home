@@ -51,6 +51,13 @@ test('the decision stays bound to the frozen capacity evidence', () => {
   assertDecisionRejected((decision) => {
     decision.evidence.capacityReport.sha256 = '0'.repeat(64);
   }, /capacity report digest drift/);
+  assertDecisionRejected((decision) => {
+    decision.evidence.observedBoundary.projectionBytes += 1;
+  }, /observed projection size drift/);
+  assertDecisionRejected((decision) => {
+    decision.alternatives.find(({ path }) => path === 'optimize-existing-projections').reason =
+      'Registry and search projections total 5,254,333 bytes.';
+  }, /projection alternative evidence drift/);
 });
 
 test('the decision rejects split builds and preserves release atomicity', () => {
