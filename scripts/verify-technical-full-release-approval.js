@@ -286,6 +286,17 @@ function verifyApprovedBaseline(approvalEvidence, sourceRevision, bundleSha256) 
   );
 }
 
+function verifyApprovedCandidate(approvalEvidence, sourceRevision, bundleSha256) {
+  assertRevision(sourceRevision, 'requested candidate source');
+  assertDigest(bundleSha256, 'requested candidate bundle');
+  assert.equal(sourceRevision, approvalEvidence.sourceRevision, 'candidate source revision drift');
+  assert.equal(
+    bundleSha256,
+    approvalEvidence.candidateBundle.sha256,
+    'candidate bundle digest drift'
+  );
+}
+
 function deriveStates(statusByCode) {
   const approvalBlockers = REQUIRED_EVIDENCE.filter(
     ([code, phase]) => phase === 'pre-release' && statusByCode[code] !== 'passed'
@@ -552,19 +563,9 @@ function verifyTechnicalFullReleaseApproval({
       expectedBaselineBundleSha256
     );
   }
-  if (requireApproved) {
-    assertRevision(expectedSourceRevision, 'requested activation source');
-    assertDigest(expectedBundleSha256, 'requested activation bundle');
-    assert.equal(
-      expectedSourceRevision,
-      approvalBinding.sourceRevision,
-      'activation source revision drift'
-    );
-    assert.equal(
-      expectedBundleSha256,
-      approvalBinding.bundleSha256,
-      'activation bundle digest drift'
-    );
+  if (expectedSourceRevision !== undefined || expectedBundleSha256 !== undefined) {
+    assert(approvalEvidence, 'approved candidate evidence is missing');
+    verifyApprovedCandidate(approvalEvidence, expectedSourceRevision, expectedBundleSha256);
   }
 
   return {
@@ -631,6 +632,7 @@ module.exports = {
   deriveStates,
   verifyApprovalEvidence,
   verifyApprovedBaseline,
+  verifyApprovedCandidate,
   verifyProductionHttpEvidence,
   verifyProductionHttpEvidenceFile,
   verifySwitchBundleBinding,

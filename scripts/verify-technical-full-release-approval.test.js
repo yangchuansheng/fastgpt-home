@@ -13,6 +13,7 @@ const {
   deriveStates,
   verifyApprovalEvidence,
   verifyApprovedBaseline,
+  verifyApprovedCandidate,
   verifyProductionHttpEvidence,
   verifyProductionHttpEvidenceFile,
   verifySwitchBundleBinding,
@@ -319,6 +320,19 @@ test('runtime rollback stays bound to the approved baseline', () => {
   assert.throws(
     () => verifyApprovedBaseline(evidence, 'd'.repeat(40), 'e'.repeat(64)),
     /baseline bundle digest drift/
+  );
+});
+
+test('rollback compensation stays bound to the approved candidate', () => {
+  const evidence = buildCandidateApprovalEvidence();
+  assert.doesNotThrow(() => verifyApprovedCandidate(evidence, 'a'.repeat(40), 'b'.repeat(64)));
+  assert.throws(
+    () => verifyApprovedCandidate(evidence, 'e'.repeat(40), 'b'.repeat(64)),
+    /candidate source revision drift/
+  );
+  assert.throws(
+    () => verifyApprovedCandidate(evidence, 'a'.repeat(40), 'e'.repeat(64)),
+    /candidate bundle digest drift/
   );
 });
 

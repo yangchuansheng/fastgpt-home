@@ -242,7 +242,7 @@ test('rollback deploys the verified previous images to both targets', () => {
   assert.match(calls[1][1].at(-1), new RegExp(`sha256:${'4'.repeat(64)}$`));
 });
 
-test('activate failure stops forward commands and restores every changed target', () => {
+test('activate failure compensates every attempted target write', () => {
   const config = loadReleaseConfig(buildValidEnvironment(), 'activate');
   const calls = [];
   assert.throws(
@@ -253,11 +253,12 @@ test('activate failure stops forward commands and restores every changed target'
       }),
     /kubectl failed for io set-image/
   );
-  assert.equal(calls.length, 4);
+  assert.equal(calls.length, 6);
   assert.match(calls[0][1].at(-1), new RegExp(`sha256:${'1'.repeat(64)}$`));
   assert.match(calls[1][1].at(-1), new RegExp(`sha256:${'3'.repeat(64)}$`));
-  assert.match(calls[2][1].at(-1), new RegExp(`sha256:${'2'.repeat(64)}$`));
-  assert.deepEqual(calls[3][1].slice(-4), [
+  assert.match(calls[2][1].at(-1), new RegExp(`sha256:${'4'.repeat(64)}$`));
+  assert.match(calls[3][1].at(-1), new RegExp(`sha256:${'2'.repeat(64)}$`));
+  assert.deepEqual(calls[4][1].slice(-4), [
     'rollout',
     'status',
     'deployment/fastgpt-home',
@@ -265,18 +266,22 @@ test('activate failure stops forward commands and restores every changed target'
   ]);
 });
 
-test('a first-target failure leaves the second target untouched', () => {
+test('an uncertain first-target write is compensated without touching the second target', () => {
   const config = loadReleaseConfig(buildValidEnvironment(), 'activate');
   const calls = [];
   assert.throws(
     () =>
       runTargetCommands(config, 'activate', (command, args) => {
         calls.push([command, args]);
-        return { status: 1 };
+        return calls.length === 1
+          ? { status: null, error: new Error('kubectl request timed out') }
+          : { status: 0 };
       }),
-    /kubectl failed for cn set-image/
+    /kubectl failed for cn set-image: kubectl request timed out/
   );
-  assert.equal(calls.length, 1);
+  assert.equal(calls.length, 3);
+  assert(calls.every(([, args]) => args.includes('fastgpt-cn')));
+  assert(calls.every(([, args]) => !args.includes('fastgpt-io')));
 });
 
 test('an IO rollout failure restores both updated targets', () => {
@@ -306,8 +311,9 @@ test('a partial rollback is compensated back to the candidate release', () => {
       }),
     /kubectl failed for io set-image/
   );
-  assert.equal(calls.length, 4);
-  assert.match(calls[2][1].at(-1), new RegExp(`sha256:${'1'.repeat(64)}$`));
+  assert.equal(calls.length, 6);
+  assert.match(calls[2][1].at(-1), new RegExp(`sha256:${'3'.repeat(64)}$`));
+  assert.match(calls[3][1].at(-1), new RegExp(`sha256:${'1'.repeat(64)}$`));
 });
 
 test('CLI rejects a mismatched candidate bundle before release contract gates', () => {

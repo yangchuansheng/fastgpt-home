@@ -157,6 +157,10 @@ function loadReleaseConfig(environment, action) {
     action,
     candidate,
     baseline,
+    approvedCandidate: {
+      sourceRevision: imageManifest.candidate.sourceRevision,
+      sha256: imageManifest.candidate.bundleSha256
+    },
     targets: ['cn', 'io'].map((site) => ({
       ...readTarget(environment, site),
       image: imageManifest.candidate.images[site],
@@ -265,14 +269,17 @@ function compensateTargets(targets, failedAction, run) {
 }
 
 function runTargetCommands(config, action, run = spawnSync) {
-  const updatedTargets = [];
+  const attemptedTargets = [];
   for (const command of buildKubectlCommands(config, action)) {
     console.log(
       `[technical-full-release-controller] Running ${action} ${command.site} ${command.step}`
     );
+    if (command.step === 'set-image') {
+      attemptedTargets.push(config.targets.find(({ site }) => site === command.site));
+    }
     const result = run('kubectl', command.args, { stdio: 'inherit' });
     if (result.error || result.status !== 0) {
-      const compensationFailures = compensateTargets(updatedTargets, action, run);
+      const compensationFailures = compensateTargets(attemptedTargets, action, run);
       throw new Error(
         `kubectl failed for ${command.site} ${command.step}: ${
           result.error?.message || `exit ${result.status}`
@@ -282,9 +289,6 @@ function runTargetCommands(config, action, run = spawnSync) {
             : ''
         }`
       );
-    }
-    if (command.step === 'set-image') {
-      updatedTargets.push(config.targets.find(({ site }) => site === command.site));
     }
   }
 }
@@ -303,6 +307,8 @@ function execute(action, environment = process.env) {
       `[technical-full-release-controller] Previous baseline bundle verified: ${baselineBinding}`
     );
     verifyTechnicalFullReleaseApproval({
+      expectedSourceRevision: config.approvedCandidate.sourceRevision,
+      expectedBundleSha256: config.approvedCandidate.sha256,
       expectedBaselineSourceRevision: config.baseline.sourceRevision,
       expectedBaselineBundleSha256: config.baseline.sha256
     });
