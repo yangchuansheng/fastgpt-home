@@ -5,23 +5,23 @@
   "scope": "decision-contract",
   "releaseState": "blocked",
   "decidedAt": "2026-09-03T10:15:00.000Z",
-  "sourceRevision": "c2774f29e03d916f91ea4f968c7d8e40c110e633",
+  "sourceRevision": "36c7b31a93197cb05c026dee0f9111d2919fef13",
   "evidence": {
     "capacityReport": {
       "path": "scripts/fixtures/technical-authority/full-release-capacity.json",
-      "sha256": "cb8b0f273b89620c12f7f87826bdb04b2bb09d7265ded83a6b405a03807cdf75",
+      "sha256": "8d19a799d64174c6679b48fb9a28abb8dccd3f1691bbc1d59a884e1af7116278",
       "issue": 275,
-      "sourceRevision": "bf026d79655eb296ea1d8101a5bf49523a9a7fda",
+      "sourceRevision": "b8b94710e7659fe1ceb8726158c268d021bb08cb",
       "pages": 4007,
       "recordsSha256": "37b56915f8173fd3c4ecf7502ea08fd8675ff6220ea7f8d2172537847720a6de"
     },
     "observedBoundary": {
-      "failingVariants": ["cn", "io", "preview"],
-      "failureCode": "ENOSPC",
-      "maxPeakRssBytes": 5560156160,
-      "maxPartialNextBuildBytes": 3442494968,
+      "failingVariants": [],
+      "failureCode": null,
+      "maxPeakRssBytes": 3985747968,
+      "maxPartialNextBuildBytes": 0,
       "projectionBytes": 5254285,
-      "conclusion": "working-storage-boundary"
+      "conclusion": "within-measured-capacity"
     }
   },
   "decision": {
@@ -34,9 +34,9 @@
       "rollback": "npm run verify:technical-full-release-build-decision -- --verify-bundle \"$PREVIOUS_RELEASE_BUNDLE\" \"$PREVIOUS_RELEASE_SOURCE_COMMIT\" \"$PREVIOUS_RELEASE_BUNDLE_SHA256\" && \"$RELEASE_CONTROLLER\" activate --artifact \"$PREVIOUS_RELEASE_BUNDLE\" --targets cn,io"
     },
     "rationale": [
-      "All three production-style variants reached ENOSPC in Next.js build output.",
-      "Measured peak RSS stayed below the measured host memory, so working storage is the observed capacity boundary.",
-      "The existing release coordinator already builds variants sequentially, cleans between variants, runs artifact gates, and retains namespaced outputs."
+      "All three production-style variants completed the 4,007-page static export and every recorded post-build gate on the measured runner.",
+      "The successful measurement stayed within the selected runner resource floors; the increase-build-resources path preserves repeatable headroom for the one-shot release bundle.",
+      "The existing release coordinator already builds variants sequentially, cleans between variants, runs artifact gates, and retains namespaced outputs; the release remains blocked until dual-site bundle and controller evidence is recorded."
     ],
     "resources": {
       "nodeMajor": 24,
@@ -95,17 +95,17 @@
     {
       "path": "reuse-current-resources",
       "disposition": "rejected",
-      "reason": "CN, IO, and Preview each terminated with ENOSPC."
+      "reason": "The measured runner completed all variants, while its 4 logical CPUs and 15.6 GiB memory remain below the selected repeatable release-resource floors."
     },
     {
       "path": "optimize-existing-projections",
       "disposition": "rejected",
-      "reason": "Registry and search projections total 5,254,285 bytes while failures occurred in Next.js build output; resource expansion directly targets the measured boundary."
+      "reason": "Registry and search projections total 5,254,285 bytes, and all variants already completed; projection optimization does not provide repeatable runner headroom or dual-site publication evidence."
     },
     {
       "path": "split-build-and-merge",
       "disposition": "rejected",
-      "reason": "Resource expansion is the first evidence-backed path; splitting adds route, metadata, and digest merge failure modes."
+      "reason": "The measured sequential build completed all variants; splitting adds route, metadata, and digest merge failure modes without improving the selected repeatable resource path."
     },
     {
       "path": "multiple-release-artifacts-or-switches",

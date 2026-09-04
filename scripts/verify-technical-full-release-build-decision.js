@@ -51,6 +51,13 @@ const POST_BUILD_CHECKS = [
   'contentHygiene',
   'rollback'
 ];
+const MINIMUM_LOGICAL_CPU_COUNT = 10;
+const MINIMUM_MEMORY_BYTES = 25769803776;
+const MINIMUM_WORKING_DISK_BYTES = 17179869184;
+const DECISION_SOURCE_REVISION = '36c7b31a93197cb05c026dee0f9111d2919fef13';
+const SUCCESS_POST_BUILD_CHECK_COUNT = 8;
+const SUCCESS_CAPACITY_CONCLUSION = 'within-measured-capacity';
+const HISTORICAL_FAILURE_CAPACITY_CONCLUSION = 'working-storage-boundary';
 
 function readJson(filePath, label) {
   try {
@@ -84,6 +91,134 @@ function verifyResourcePreflight(contract, observed) {
 
 function assertDigest(value, label) {
   assert.match(value || '', /^[a-f0-9]{64}$/, `${label} digest is invalid`);
+}
+
+function assertMeasuredInteger(value, label) {
+  assert(Number.isSafeInteger(value) && value > 0, `${label} is invalid`);
+  return value;
+}
+
+function isSuccessfulCapacityVariant(variant) {
+  return (
+    variant.buildSucceeded === true &&
+    variant.status === 0 &&
+    variant.signal === null &&
+    variant.initialJavaScriptWithinBudget === true &&
+    variant.postBuildVerified === true &&
+    Array.isArray(variant.postBuildChecks) &&
+    variant.postBuildChecks.length === SUCCESS_POST_BUILD_CHECK_COUNT &&
+    variant.postBuildChecks.every((check) => check?.status === 0)
+  );
+}
+
+function isHistoricalEnospcVariant(variant) {
+  return (
+    variant.buildSucceeded === false &&
+    Number.isInteger(variant.status) &&
+    variant.status !== 0 &&
+    variant.signal === null &&
+    typeof variant.failure === 'string' &&
+    variant.failure.includes('ENOSPC') &&
+    variant.postBuildVerified === false &&
+    Array.isArray(variant.postBuildChecks) &&
+    variant.postBuildChecks.length === 0
+  );
+}
+
+function deriveObservedBoundary(capacity) {
+  assert(Array.isArray(capacity?.variants), 'capacity variant evidence is missing');
+  assert.deepEqual(
+    capacity.variants.map(({ variant }) => variant),
+    VARIANTS,
+    'capacity variant set drift'
+  );
+
+  const successful = capacity.variants.every(isSuccessfulCapacityVariant);
+  const historicalFailure = capacity.variants.every(isHistoricalEnospcVariant);
+  assert(
+    successful || historicalFailure,
+    'capacity evidence must contain one homogeneous successful run or three historical ENOSPC failures'
+  );
+
+  const maxPeakRssBytes = Math.max(
+    ...capacity.variants.map(({ variant, peakRssBytes }) =>
+      assertMeasuredInteger(peakRssBytes, `${variant}.peakRssBytes`)
+    )
+  );
+  const maxPartialNextBuildBytes = Math.max(
+    ...capacity.variants.map((variant) => {
+      if (successful) {
+        assert(
+          variant.partialNextBuild == null,
+          `${variant.variant} successful capacity must omit partial Next.js build evidence`
+        );
+        return 0;
+      }
+      assert(
+        variant.partialNextBuild && typeof variant.partialNextBuild === 'object',
+        `${variant.variant} historical failure partial Next.js build evidence is missing`
+      );
+      assertMeasuredInteger(
+        variant.partialNextBuild.fileCount,
+        `${variant.variant}.partialNextBuild.fileCount`
+      );
+      return assertMeasuredInteger(
+        variant.partialNextBuild.bytes,
+        `${variant.variant}.partialNextBuild.bytes`
+      );
+    })
+  );
+  const projectionBytes = [
+    capacity.projection?.registry?.bytes,
+    capacity.projection?.search?.zh?.bytes,
+    capacity.projection?.search?.en?.bytes
+  ].reduce(
+    (total, bytes, index) =>
+      total + assertMeasuredInteger(bytes, `capacity projection bytes[${index}]`),
+    0
+  );
+
+  return {
+    failingVariants: historicalFailure ? VARIANTS : [],
+    failureCode: historicalFailure ? 'ENOSPC' : null,
+    maxPeakRssBytes,
+    maxPartialNextBuildBytes,
+    projectionBytes,
+    conclusion: historicalFailure
+      ? HISTORICAL_FAILURE_CAPACITY_CONCLUSION
+      : SUCCESS_CAPACITY_CONCLUSION
+  };
+}
+
+function verifyObservedBoundary(capacity, observedBoundary) {
+  const expected = deriveObservedBoundary(capacity);
+  assert.deepEqual(
+    observedBoundary?.failingVariants,
+    expected.failingVariants,
+    'observed failing variant set drift'
+  );
+  assert.equal(observedBoundary?.failureCode, expected.failureCode, 'observed failure class drift');
+  assert.equal(
+    observedBoundary?.maxPeakRssBytes,
+    expected.maxPeakRssBytes,
+    'observed peak RSS drift'
+  );
+  assert.equal(
+    observedBoundary?.maxPartialNextBuildBytes,
+    expected.maxPartialNextBuildBytes,
+    'observed partial Next.js build size drift'
+  );
+  assert.equal(
+    observedBoundary?.projectionBytes,
+    expected.projectionBytes,
+    'observed projection size drift'
+  );
+  assert.equal(
+    observedBoundary?.conclusion,
+    expected.conclusion,
+    'observed capacity conclusion drift'
+  );
+  return expected;
 }
 
 function verifyPrerequisiteEvidence(rootDir, prerequisite) {
@@ -163,6 +298,7 @@ function verifyTechnicalFullReleaseBuildDecision({
     'full release state must follow prerequisite evidence'
   );
   assert.match(contract.sourceRevision, /^[0-9a-f]{40}$/, 'decision source revision is invalid');
+  assert.equal(contract.sourceRevision, DECISION_SOURCE_REVISION, 'decision source revision drift');
 
   const evidencePath = path.join(rootDir, contract.evidence.capacityReport.path);
   const evidenceBytes = fs.readFileSync(evidencePath);
@@ -214,48 +350,8 @@ function verifyTechnicalFullReleaseBuildDecision({
     );
   }
 
-  const failedVariants = capacity.variants
-    .filter((variant) => variant.buildSucceeded === false && variant.failure.includes('ENOSPC'))
-    .map((variant) => variant.variant);
-  const maxPeakRssBytes = Math.max(...capacity.variants.map((variant) => variant.peakRssBytes));
-  const maxPartialNextBuildBytes = Math.max(
-    ...capacity.variants.map((variant) => variant.partialNextBuild.bytes)
-  );
-  const projectionBytes =
-    capacity.projection.registry.bytes +
-    capacity.projection.search.zh.bytes +
-    capacity.projection.search.en.bytes;
-  assert.deepEqual(
-    contract.evidence.observedBoundary.failingVariants,
-    VARIANTS,
-    'observed failing variant set drift'
-  );
-  assert.deepEqual(failedVariants, VARIANTS, 'capacity evidence must prove three ENOSPC failures');
-  assert.equal(
-    contract.evidence.observedBoundary.failureCode,
-    'ENOSPC',
-    'observed failure class drift'
-  );
-  assert.equal(
-    contract.evidence.observedBoundary.maxPeakRssBytes,
-    maxPeakRssBytes,
-    'observed peak RSS drift'
-  );
-  assert.equal(
-    contract.evidence.observedBoundary.maxPartialNextBuildBytes,
-    maxPartialNextBuildBytes,
-    'observed partial Next.js build size drift'
-  );
-  assert.equal(
-    contract.evidence.observedBoundary.projectionBytes,
-    projectionBytes,
-    'observed projection size drift'
-  );
-  assert.equal(
-    contract.evidence.observedBoundary.conclusion,
-    'working-storage-boundary',
-    'observed capacity conclusion drift'
-  );
+  const observedBoundary = verifyObservedBoundary(capacity, contract.evidence.observedBoundary);
+  const { maxPeakRssBytes, maxPartialNextBuildBytes, projectionBytes } = observedBoundary;
   const decision = contract.decision;
   assert.equal(decision.path, 'increase-build-resources', 'selected build path drift');
   assert.equal(
@@ -286,8 +382,16 @@ function verifyTechnicalFullReleaseBuildDecision({
     'runner logical CPU floor is below measured capacity host'
   );
   assert(
+    decision.resources.minimumLogicalCpuCount >= MINIMUM_LOGICAL_CPU_COUNT,
+    'runner logical CPU floor is below selected release policy'
+  );
+  assert(
     decision.resources.minimumMemoryBytes >= capacity.environment.physicalMemoryBytes,
     'memory headroom is below policy'
+  );
+  assert(
+    decision.resources.minimumMemoryBytes >= MINIMUM_MEMORY_BYTES,
+    'memory floor is below selected release policy'
   );
   assert(
     decision.resources.minimumMemoryBytes >= maxPeakRssBytes * 1.4,
@@ -296,6 +400,10 @@ function verifyTechnicalFullReleaseBuildDecision({
   assert(
     decision.resources.workingDisk.minimumFreeBytesAtStart >= maxPartialNextBuildBytes * 4,
     'working disk bootstrap floor is below policy'
+  );
+  assert(
+    decision.resources.workingDisk.minimumFreeBytesAtStart >= MINIMUM_WORKING_DISK_BYTES,
+    'working disk floor is below selected release policy'
   );
   assert.equal(
     decision.resources.workingDisk.successfulCapacityRerunRequired,
@@ -493,8 +601,10 @@ if (require.main === module) {
 
 module.exports = {
   DECISION_RELATIVE_PATH,
+  deriveObservedBoundary,
   verifyPrerequisiteEvidence,
   verifyReleaseBundle,
   verifyResourcePreflight,
+  verifyObservedBoundary,
   verifyTechnicalFullReleaseBuildDecision
 };

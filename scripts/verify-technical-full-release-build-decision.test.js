@@ -6,8 +6,10 @@ const test = require('node:test');
 
 const {
   DECISION_RELATIVE_PATH,
+  deriveObservedBoundary,
   verifyReleaseBundle,
   verifyResourcePreflight,
+  verifyObservedBoundary,
   verifyTechnicalFullReleaseBuildDecision
 } = require('./verify-technical-full-release-build-decision');
 const { sha256 } = require('./lib/technical-authority');
@@ -33,6 +35,32 @@ function assertDecisionRejected(mutate, pattern) {
   }
 }
 
+function historicalFailureVariant(variant, index) {
+  const peakRssBytes = [5560156160, 5125996544, 4805099520][index];
+  const partialNextBuild = [
+    { fileCount: 75461, bytes: 3361445970 },
+    { fileCount: 20254, bytes: 1930090493 },
+    { fileCount: 29866, bytes: 3442494968 }
+  ][index];
+  return {
+    variant,
+    status: 1,
+    signal: null,
+    durationMilliseconds: 80000 + index,
+    peakRssBytes,
+    buildSucceeded: false,
+    failure: `ENOSPC historical fixture for ${variant}`,
+    partialNextBuild,
+    staticFileCount: null,
+    exportBytes: null,
+    initialJavaScriptGzipBytes: null,
+    initialJavaScriptMaxGzipBytes: null,
+    initialJavaScriptWithinBudget: null,
+    postBuildVerified: false,
+    postBuildChecks: []
+  };
+}
+
 test('the full release build decision selects a larger one-shot runner', () => {
   const result = verifyTechnicalFullReleaseBuildDecision();
 
@@ -49,6 +77,9 @@ test('the full release build decision selects a larger one-shot runner', () => {
 
 test('the decision stays bound to the frozen capacity evidence', () => {
   assertDecisionRejected((decision) => {
+    decision.sourceRevision = '0'.repeat(40);
+  }, /decision source revision drift/);
+  assertDecisionRejected((decision) => {
     decision.evidence.capacityReport.sha256 = '0'.repeat(64);
   }, /capacity report digest drift/);
   assertDecisionRejected((decision) => {
@@ -58,6 +89,73 @@ test('the decision stays bound to the frozen capacity evidence', () => {
     decision.alternatives.find(({ path }) => path === 'optimize-existing-projections').reason =
       'Registry and search projections total 5,254,333 bytes.';
   }, /projection alternative evidence drift/);
+});
+
+test('the observed boundary accepts the successful runner report', () => {
+  const report = JSON.parse(
+    fs.readFileSync(
+      path.join(ROOT, 'scripts/fixtures/technical-authority/full-release-capacity.json')
+    )
+  );
+  const observedBoundary = deriveObservedBoundary(report);
+
+  assert.deepEqual(observedBoundary, {
+    failingVariants: [],
+    failureCode: null,
+    maxPeakRssBytes: 3985747968,
+    maxPartialNextBuildBytes: 0,
+    projectionBytes: 5254285,
+    conclusion: 'within-measured-capacity'
+  });
+  assert.deepEqual(verifyObservedBoundary(report, observedBoundary), observedBoundary);
+});
+
+test('the observed boundary preserves the historical three-variant ENOSPC report', () => {
+  const report = JSON.parse(
+    fs.readFileSync(
+      path.join(ROOT, 'scripts/fixtures/technical-authority/full-release-capacity.json')
+    )
+  );
+  report.variants = report.variants.map(({ variant }, index) =>
+    historicalFailureVariant(variant, index)
+  );
+
+  assert.deepEqual(deriveObservedBoundary(report), {
+    failingVariants: ['cn', 'io', 'preview'],
+    failureCode: 'ENOSPC',
+    maxPeakRssBytes: 5560156160,
+    maxPartialNextBuildBytes: 3442494968,
+    projectionBytes: 5254285,
+    conclusion: 'working-storage-boundary'
+  });
+});
+
+test('the observed boundary rejects mixed or inconsistent capacity measurements', () => {
+  const report = JSON.parse(
+    fs.readFileSync(
+      path.join(ROOT, 'scripts/fixtures/technical-authority/full-release-capacity.json')
+    )
+  );
+  const mixed = structuredClone(report);
+  mixed.variants[0] = historicalFailureVariant(mixed.variants[0].variant, 0);
+  assert.throws(
+    () => deriveObservedBoundary(mixed),
+    /one homogeneous successful run or three historical ENOSPC failures/
+  );
+
+  const forged = structuredClone(report);
+  forged.variants[0].partialNextBuild = { fileCount: 1, bytes: 1 };
+  assert.throws(
+    () => deriveObservedBoundary(forged),
+    /successful capacity must omit partial Next.js build evidence/
+  );
+
+  const missingGate = structuredClone(report);
+  missingGate.variants[0].postBuildChecks.pop();
+  assert.throws(
+    () => deriveObservedBoundary(missingGate),
+    /one homogeneous successful run or three historical ENOSPC failures/
+  );
 });
 
 test('the decision rejects split builds and preserves release atomicity', () => {
@@ -74,6 +172,9 @@ test('the resource floor keeps measured memory headroom and requires a successfu
     decision.decision.resources.minimumMemoryBytes =
       decision.evidence.observedBoundary.maxPeakRssBytes;
   }, /memory headroom is below policy/);
+  assertDecisionRejected((decision) => {
+    decision.decision.resources.minimumMemoryBytes = 25769803775;
+  }, /memory floor is below selected release policy/);
   assertDecisionRejected((decision) => {
     decision.decision.resources.workingDisk.successfulCapacityRerunRequired = false;
   }, /successful capacity rerun is required/);
@@ -160,7 +261,7 @@ test('an unrelated JSON file cannot satisfy a passed release prerequisite', () =
   }, /successful-4007-page-capacity-rerun-on-selected-runner evidence schema version drift/);
 });
 
-test('stale capacity measurement keeps the release blocked', () => {
+test('capacity evidence cannot be paired with forged passed prerequisites', () => {
   assertDecisionRejected((decision) => {
     decision.releaseState = 'ready';
     decision.releaseBlockers = [];
@@ -172,7 +273,7 @@ test('stale capacity measurement keeps the release blocked', () => {
         sha256: sha256(fs.readFileSync(path.join(ROOT, 'package.json')))
       }
     }));
-  }, /stale capacity measurement cannot mark the release ready/);
+  }, /evidence reference kind drift/);
 });
 
 test('activation and rollback reject an unexpected bundle digest', () => {
