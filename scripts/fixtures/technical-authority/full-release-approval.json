@@ -16,10 +16,10 @@
     },
     "capacityReport": {
       "path": "scripts/fixtures/technical-authority/full-release-capacity.json",
-      "sha256": "c950c7283916dbe9dbe315819e0d47886c7b12fccdc57c1f62c8e6d3aaad807c",
+      "sha256": "cb8b0f273b89620c12f7f87826bdb04b2bb09d7265ded83a6b405a03807cdf75",
       "issue": 275,
       "sourceRevision": "bf026d79655eb296ea1d8101a5bf49523a9a7fda",
-      "reportRevision": "522cb25f86567d7f5dad736c8b925dad30d978be",
+      "reportRevision": "c2774f29e03d916f91ea4f968c7d8e40c110e633",
       "targetPages": 4007,
       "successfulRerun": false,
       "failedVariants": ["cn", "io", "preview"],
@@ -27,17 +27,17 @@
     },
     "buildDecision": {
       "path": "scripts/fixtures/technical-authority/full-release-build-decision.json",
-      "sha256": "fb73b6ca97177025010037fd962b023c7ee79ba733f428d507c9bf85cb1c85ee",
+      "sha256": "7a6869c57f2fb0d00f72089e5f8528ebebf46705ce338448a03257088bfba55d",
       "issue": 276,
-      "sourceRevision": "522cb25f86567d7f5dad736c8b925dad30d978be",
-      "contractRevision": "1d2bf27b5fbaed5ace9a20566241cf1bbdbba8bc",
+      "sourceRevision": "c2774f29e03d916f91ea4f968c7d8e40c110e633",
+      "contractRevision": "daeee332c111d05ba6da3b954c8d4114edd31319",
       "pathDecision": "increase-build-resources"
     },
     "productionSwitch": {
       "path": "scripts/fixtures/technical-authority/full-release-production-switch.json",
-      "sha256": "3c9b06cac0adc184b99859aa07687ba77d4c0ff8034d161c09457f5a10643c32",
+      "sha256": "3a65b81674241180d91f5ce5855d4a6dca9156904ac8309e37a9491450d3e688",
       "issue": 277,
-      "sourceRevision": "37d7eec36d1741f6139c062d3549ff33d11d2bbf",
+      "sourceRevision": "024ea05b356435033033abf6118d2a8989292aa1",
       "window": {
         "timezone": "Asia/Shanghai",
         "startsAt": "2026-09-08T14:00:00.000Z",

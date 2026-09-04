@@ -59,9 +59,9 @@ const ACCEPTANCE_COMMANDS = {
 };
 const UPSTREAM_REVISIONS = {
   identityClosure: 'bf026d79655eb296ea1d8101a5bf49523a9a7fda',
-  capacityReport: '522cb25f86567d7f5dad736c8b925dad30d978be',
-  buildDecision: '1d2bf27b5fbaed5ace9a20566241cf1bbdbba8bc',
-  productionSwitch: '37d7eec36d1741f6139c062d3549ff33d11d2bbf'
+  capacityReport: 'c2774f29e03d916f91ea4f968c7d8e40c110e633',
+  buildDecision: 'daeee332c111d05ba6da3b954c8d4114edd31319',
+  productionSwitch: '024ea05b356435033033abf6118d2a8989292aa1'
 };
 const FAILURE_THRESHOLDS = [
   { metric: 'owner-unavailable', operator: '>=', value: 1 },
@@ -567,9 +567,8 @@ if (require.main === module) {
         identityClosureSha256: contract.lineage.identityClosure.sha256,
         recordsSha256: closure.recordsSha256,
         identitySetSha256: contract.releaseUnit.identitySetSha256,
-        earliestProductionObservation: getPointerSwapInterval(
-          productionSwitch.maintenanceWindow
-        ).end,
+        earliestProductionObservation: getPointerSwapInterval(productionSwitch.maintenanceWindow)
+          .end,
         now: Date.now()
       });
     }
