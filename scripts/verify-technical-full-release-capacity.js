@@ -10,6 +10,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const {
   VARIANTS,
   deriveCapacityBlockers,
+  isCapacityReportReady,
   patchCapacityPageCount,
   projectTechnicalContent,
   summarizeExport,
@@ -50,9 +51,6 @@ function parseArgs(argv = process.argv.slice(2)) {
     } else {
       throw new Error(`Unknown option: ${token}`);
     }
-  }
-  if (!options.w5SourceRoot || !options.w6SourceRoot) {
-    throw new Error('W5 and W6 source roots are required');
   }
   return options;
 }
@@ -174,22 +172,28 @@ function buildEnvironment(variant) {
   return { ...variantEnvironment(variant), NEXT_TELEMETRY_DISABLED: '1' };
 }
 
+function assertCapacityReportReady(report) {
+  if (!isCapacityReportReady(report)) {
+    throw new Error(
+      `One-shot static export capacity failed: ${report.decision.blockers.join(', ')}`
+    );
+  }
+}
+
 async function measureVariant(repoRoot, variant, logRoot) {
   cleanBuild(repoRoot);
   try {
     const env = buildEnvironment(variant);
+    const logPath = path.join(logRoot, `${variant}.log`);
     runChecked(process.execPath, ['scripts/generate-robots.js'], { cwd: repoRoot, env });
     runChecked(process.execPath, ['scripts/generate-llms.js'], { cwd: repoRoot, env });
     const build = await runMeasured(
       process.execPath,
       ['node_modules/next/dist/bin/next', 'build'],
-      { cwd: repoRoot, env, logPath: path.join(logRoot, `${variant}.log`) }
+      { cwd: repoRoot, env, logPath }
     );
     if (build.status !== 0) {
-      const output = sanitizeFailure(
-        fs.readFileSync(path.join(logRoot, `${variant}.log`), 'utf8'),
-        repoRoot
-      );
+      const output = sanitizeFailure(fs.readFileSync(logPath, 'utf8'), repoRoot);
       return {
         variant,
         ...build,
@@ -281,8 +285,7 @@ async function main(argv = process.argv.slice(2)) {
         .execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' })
         .trim(),
       measuredAt: new Date().toISOString(),
-      command:
-        'npm run verify:technical-full-release-capacity -- --w5-source-root <W5_ROOT> --w6-source-root <W6_ROOT>',
+      command: 'npm run verify:technical-full-release-capacity -- --report <REPORT_PATH>',
       scope: 'disposable-4007-page-production-static-export',
       environment: {
         node: process.version,
@@ -322,6 +325,7 @@ async function main(argv = process.argv.slice(2)) {
     };
     writeReport();
     console.log(`TECHNICAL_FULL_RELEASE_CAPACITY_RESULT=${JSON.stringify(report)}`);
+    assertCapacityReportReady(report);
     return report;
   } finally {
     if (cleanup) fs.rmSync(disposableRoot, { recursive: true, force: true });
@@ -335,4 +339,11 @@ if (require.main === module) {
   });
 }
 
-module.exports = { captureVariant, descendantsRssKilobytes, main, parseArgs, sanitizeFailure };
+module.exports = {
+  assertCapacityReportReady,
+  captureVariant,
+  descendantsRssKilobytes,
+  main,
+  parseArgs,
+  sanitizeFailure
+};

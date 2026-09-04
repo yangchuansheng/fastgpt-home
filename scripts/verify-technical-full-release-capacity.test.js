@@ -18,13 +18,29 @@ const {
 } = require('./lib/technical-full-release');
 const { buildReaderPage } = require('./lib/technical-wave');
 const {
+  assertCapacityReportReady,
   captureVariant,
   parseArgs,
   sanitizeFailure
 } = require('./verify-technical-full-release-capacity');
 
-test('capacity runner requires both frozen source roots', () => {
-  assert.throws(() => parseArgs([]), /source roots are required/);
+const ROOT = path.resolve(__dirname, '..');
+
+function readCapacityFixture() {
+  return JSON.parse(
+    fs.readFileSync(
+      path.join(ROOT, 'scripts/fixtures/technical-authority/full-release-capacity.json')
+    )
+  );
+}
+
+test('capacity runner can measure the repository projection without external source roots', () => {
+  assert.deepEqual(parseArgs([]), {
+    mode: 'run',
+    w5SourceRoot: undefined,
+    w6SourceRoot: undefined,
+    report: path.resolve(__dirname, 'fixtures/technical-authority/full-release-capacity.json')
+  });
   assert.deepEqual(
     parseArgs(['--w5-source-root', '/w5', '--w6-source-root', '/w6', '--report', '/report']),
     {
@@ -37,54 +53,39 @@ test('capacity runner requires both frozen source roots', () => {
 });
 
 test('committed capacity evidence stays bound to the current closure', () => {
-  const root = path.resolve(__dirname, '..');
-  const report = JSON.parse(
-    fs.readFileSync(
-      path.join(root, 'scripts/fixtures/technical-authority/full-release-capacity.json')
-    )
-  );
+  const report = readCapacityFixture();
   assert(
     report.decision.blockers.includes(
       'prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure'
     )
   );
-  validateCapacityReport(report, root);
+  validateCapacityReport(report, ROOT);
   const mutated = structuredClone(report);
   mutated.projection.pages += 1;
-  assert.throws(() => validateCapacityReport(mutated, root), /projection drift/);
+  assert.throws(() => validateCapacityReport(mutated, ROOT), /projection drift/);
 });
 
 test('stale capacity measurements require the rerun blocker and keep release unsafe', () => {
-  const root = path.resolve(__dirname, '..');
-  const report = JSON.parse(
-    fs.readFileSync(
-      path.join(root, 'scripts/fixtures/technical-authority/full-release-capacity.json')
-    )
-  );
-  validateCapacityReport(report, root);
+  const report = readCapacityFixture();
+  validateCapacityReport(report, ROOT);
 
   const digestDrift = structuredClone(report);
   digestDrift.measurementBinding.currentRecordsSha256 = '0'.repeat(64);
-  assert.throws(() => validateCapacityReport(digestDrift, root), /current digest drift/);
+  assert.throws(() => validateCapacityReport(digestDrift, ROOT), /current digest drift/);
 
   const missingBlocker = structuredClone(report);
   missingBlocker.decision.blockers = missingBlocker.decision.blockers.filter(
     (blocker) => blocker !== 'capacity-rerun-required-after-source-normalization'
   );
-  assert.throws(() => validateCapacityReport(missingBlocker, root), /rerun blocker is missing/);
+  assert.throws(() => validateCapacityReport(missingBlocker, ROOT), /rerun blocker is missing/);
 
   const safeStale = structuredClone(report);
   safeStale.decision = { safeOneShotFullRelease: true, blockers: [] };
-  assert.throws(() => validateCapacityReport(safeStale, root), /stale measurement cannot be safe/);
+  assert.throws(() => validateCapacityReport(safeStale, ROOT), /stale measurement cannot be safe/);
 });
 
 test('capacity decisions reject a safe report with failed variant measurements', () => {
-  const root = path.resolve(__dirname, '..');
-  const report = JSON.parse(
-    fs.readFileSync(
-      path.join(root, 'scripts/fixtures/technical-authority/full-release-capacity.json')
-    )
-  );
+  const report = readCapacityFixture();
   const forged = structuredClone(report);
   forged.measurementBinding = {
     ...forged.measurementBinding,
@@ -93,8 +94,28 @@ test('capacity decisions reject a safe report with failed variant measurements',
     rerunRequired: false
   };
   forged.decision = { safeOneShotFullRelease: true, blockers: [] };
-  assert.throws(() => validateCapacityReport(forged, root), /decision blockers drift/);
+  assert.throws(() => validateCapacityReport(forged, ROOT), /decision blockers drift/);
   assert.equal(isCapacityReportReady(report), false);
+  assert.throws(() => assertCapacityReportReady(report), /static export capacity failed/);
+});
+
+test('capacity evidence rejects registry and search digest drift', () => {
+  const report = readCapacityFixture();
+
+  const registryDrift = structuredClone(report);
+  registryDrift.projection.registry.sha256 = '0'.repeat(64);
+  assert.throws(() => validateCapacityReport(registryDrift, ROOT), /capacity projection drift/);
+
+  const searchDrift = structuredClone(report);
+  searchDrift.projection.search.en.bytes += 1;
+  assert.throws(() => validateCapacityReport(searchDrift, ROOT), /capacity projection drift/);
+
+  const sourceVerificationDrift = structuredClone(report);
+  sourceVerificationDrift.projection.sourceFilesVerified = 2585;
+  assert.throws(
+    () => validateCapacityReport(sourceVerificationDrift, ROOT),
+    /capacity projection drift/
+  );
 });
 
 test('capacity projections use the canonical Wave 1 page builder', () => {
@@ -122,16 +143,13 @@ test('capacity projection reuses a repository-consistent import without rewritin
       fs.readFileSync(path.join(root, relativePath))
     ])
   );
-  const projection = projectTechnicalContent({
-    repoRoot: root,
-    sourceVerifier(records) {
-      return { verified: records.length, missing: [], drift: [] };
-    }
-  });
+  const projection = projectTechnicalContent({ repoRoot: root });
 
   assert.deepEqual(projection.localePages, { zh: 3492, en: 515 });
   assert.equal(projection.pages, 4007);
-  assert.equal(projection.sourceFilesVerified, 2585);
+  assert.equal(projection.sourceFilesVerified, 0);
+  assert.equal(projection.sourceVerification, 'authority-recorded');
+  assert.equal(projection.repositoryProjectionVerified, 2585);
   for (const [relativePath, content] of before) {
     assert.deepEqual(fs.readFileSync(path.join(root, relativePath)), content);
   }

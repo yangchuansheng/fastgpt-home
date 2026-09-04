@@ -1,0 +1,37 @@
+name: Technical full release capacity
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Measure 4,007-page static exports
+        run: npm run verify:technical-full-release-capacity -- --report capacity-report.json
+
+      - name: Upload capacity evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: technical-full-release-capacity-${{ github.sha }}
+          path: capacity-report.json
+          if-no-files-found: error
+          retention-days: 14

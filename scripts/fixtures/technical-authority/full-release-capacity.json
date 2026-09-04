@@ -21,19 +21,21 @@
       "en": 515
     },
     "recordsSha256": "37b56915f8173fd3c4ecf7502ea08fd8675ff6220ea7f8d2172537847720a6de",
-    "sourceFilesVerified": 2585,
+    "sourceFilesVerified": 0,
+    "sourceVerification": "authority-recorded",
+    "repositoryProjectionVerified": 2585,
     "registry": {
-      "bytes": 2652671,
-      "sha256": "4013cf51d4012a54d9e9daa523a446ae7e5d64cae895cc4356f1feb30152aaa4"
+      "bytes": 2652647,
+      "sha256": "cdcb1bd3fe428ba3aea38c166b9f6ba2f627a0257ef4aae1f1558f2b1027da45"
     },
     "search": {
       "zh": {
-        "bytes": 2356741,
-        "sha256": "0d4e855738d793460e37fa98208b6680e12ca0ba05cd139996ad10902db94679"
+        "bytes": 2356716,
+        "sha256": "8fd0729ff366681a8ab22521cbfc5b4aab24ba7eba9e29f72860b6f572883a52"
       },
       "en": {
-        "bytes": 244921,
-        "sha256": "ff270b54d96e0d9cb28230e9dccce4952b930eb50eabd508a32c8b3e5110bce5"
+        "bytes": 244922,
+        "sha256": "546f2db01d6eea69db8f0f3bb71f6634a00428e3209d4d345c3b3836a552f228"
       }
     }
   },

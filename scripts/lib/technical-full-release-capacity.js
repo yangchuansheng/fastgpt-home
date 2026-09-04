@@ -166,14 +166,13 @@ function projectTechnicalContent({
     readJson(path.join(repoRoot, FULL_RELEASE_RELATIVE_PATH))
   );
   if (closure.status !== 'closed') throw new Error('Technical full-release closure is blocked');
-  const verification = sourceVerifier(closure.records, { w5SourceRoot, w6SourceRoot });
-  if (verification.verified !== closure.records.length) {
-    throw new Error(`Technical source verification failed: ${JSON.stringify(verification)}`);
-  }
-
   const registryPath = path.join(repoRoot, REGISTRY_RELATIVE_PATH);
   const entries = readJson(registryPath);
   const reuseImportedProjection = validateImportedProjection(repoRoot, closure, entries);
+  const verification = sourceVerifier(closure.records, { w5SourceRoot, w6SourceRoot });
+  if (!reuseImportedProjection && verification.verified !== closure.records.length) {
+    throw new Error(`Technical source verification failed: ${JSON.stringify(verification)}`);
+  }
   if (!reuseImportedProjection) {
     const candidates = authorityCandidates(repoRoot);
     const seen = new Set(entries.map((entry) => entry.slug));
@@ -220,13 +219,20 @@ function projectTechnicalContent({
   if (entries.length !== closure.counts.target || counts.zh + counts.en !== entries.length) {
     throw new Error(`Projected page count drift: ${entries.length}`);
   }
+  return buildProjectionEvidence(repoRoot, closure, entries, verification);
+}
+
+function buildProjectionEvidence(repoRoot, closure, entries, sourceVerification) {
+  const registryPath = path.join(repoRoot, REGISTRY_RELATIVE_PATH);
   return {
     baselinePages: closure.counts.baseline,
     pendingPages: closure.counts.pending,
     pages: entries.length,
-    localePages: counts,
+    localePages: projectionCounts(entries),
     recordsSha256: closure.recordsSha256,
-    sourceFilesVerified: verification.verified,
+    sourceFilesVerified: sourceVerification.verified,
+    sourceVerification: sourceVerification.mode,
+    repositoryProjectionVerified: closure.records.length,
     registry: fileEvidence(registryPath),
     search: {
       zh: fileEvidence(path.join(repoRoot, SEARCH_RELATIVE_PATHS.zh)),
@@ -358,11 +364,24 @@ function validateCapacityReport(report, repoRoot) {
   const closure = validateClosureArtifact(
     readJson(path.join(repoRoot, FULL_RELEASE_RELATIVE_PATH))
   );
+  const registryPath = path.join(repoRoot, REGISTRY_RELATIVE_PATH);
+  const entries = readJson(registryPath);
+  if (!validateImportedProjection(repoRoot, closure, entries)) {
+    throw new Error('Technical full-release capacity requires the repository projection');
+  }
+  const sourceVerification = {
+    mode: report.projection?.sourceVerification,
+    verified: report.projection?.sourceFilesVerified
+  };
+  const validSourceVerification =
+    (sourceVerification.mode === 'authority-recorded' && sourceVerification.verified === 0) ||
+    (sourceVerification.mode === 'external-source-root' &&
+      sourceVerification.verified === closure.records.length);
+  const currentProjection = buildProjectionEvidence(repoRoot, closure, entries, sourceVerification);
   if (
-    report.projection?.pages !== closure.counts.target ||
-    report.projection?.pendingPages !== closure.counts.pending ||
-    report.projection?.sourceFilesVerified !== closure.records.length ||
-    report.projection?.recordsSha256 !== closure.recordsSha256
+    currentProjection.pages !== closure.counts.target ||
+    !validSourceVerification ||
+    stableJson(report.projection) !== stableJson(currentProjection)
   ) {
     throw new Error('Technical full-release capacity projection drift');
   }
