@@ -276,6 +276,10 @@ function writeDualSitePackagingPath(root, workflowTransform = (workflow) => work
     workflowTransform(workflow)
   );
   fs.copyFileSync(
+    path.join(ROOT, '.github/workflows/technical-full-release-image-bootstrap.yml'),
+    path.join(root, '.github/workflows/technical-full-release-image-bootstrap.yml')
+  );
+  fs.copyFileSync(
     path.join(ROOT, '.github/workflows/technical-full-release-production.yml'),
     path.join(root, '.github/workflows/technical-full-release-production.yml')
   );
@@ -283,6 +287,13 @@ function writeDualSitePackagingPath(root, workflowTransform = (workflow) => work
     path.join(ROOT, 'scripts/generate-technical-full-release-image-manifest.js'),
     path.join(root, 'scripts/generate-technical-full-release-image-manifest.js')
   );
+}
+
+function removeWorkflowStep(workflow, name) {
+  const marker = `      - name: ${name}`;
+  const start = workflow.indexOf(marker);
+  const end = workflow.indexOf('\n      - name:', start + marker.length);
+  return `${workflow.slice(0, start)}${workflow.slice(end < 0 ? workflow.length : end + 1)}`;
 }
 
 test('capacity blockers accept the manual dual-site release-runtime packaging path', () => {
@@ -302,6 +313,18 @@ test('capacity blockers require both release-runtime image builds and manual dis
       workflow
         .replace('  workflow_dispatch:', '  pull_request:')
         .replace('technical-release-io', 'technical-release-cn')
+    );
+    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('capacity blockers reject an additional packaging trigger', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
+  try {
+    writeDualSitePackagingPath(root, (workflow) =>
+      workflow.replace('  workflow_dispatch:\n', '  workflow_dispatch:\n  workflow_call:\n')
     );
     assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
   } finally {
@@ -333,11 +356,102 @@ test('capacity blockers require the upstream main packaging guard', () => {
   }
 });
 
+test('capacity blockers require previous manifest download and bundle verifier bindings', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
+  try {
+    writeDualSitePackagingPath(root, (workflow) =>
+      removeWorkflowStep(workflow, 'Download previous signed release image manifest')
+    );
+    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
+
+    writeDualSitePackagingPath(root, (workflow) =>
+      workflow.replace('          RELEASE_BUNDLE: ${{ runner.temp }}/candidate-release\n', '')
+    );
+    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('capacity blockers require runtime files in each isolated context', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
+  try {
+    writeDualSitePackagingPath(root, (workflow) =>
+      workflow.replace(
+        '            cp Dockerfile nginx.conf nginx-security-headers.conf nginx-embeddable-security-headers.conf "$context/"\n',
+        ''
+      )
+    );
+    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('capacity blockers report a missing signed image-manifest generator', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
   try {
     writeDualSitePackagingPath(root);
     fs.rmSync(path.join(root, 'scripts/generate-technical-full-release-image-manifest.js'));
+    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('capacity blockers require the trusted baseline bootstrap path', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
+  try {
+    writeDualSitePackagingPath(root);
+    fs.rmSync(path.join(root, '.github/workflows/technical-full-release-image-bootstrap.yml'));
+    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('capacity blockers bind bootstrap images to their site build digests', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
+  try {
+    writeDualSitePackagingPath(root);
+    const bootstrapPath = path.join(
+      root,
+      '.github/workflows/technical-full-release-image-bootstrap.yml'
+    );
+    const bootstrap = fs
+      .readFileSync(bootstrapPath, 'utf8')
+      .replace(
+        'steps.build-bootstrap-io.outputs.digest',
+        'steps.build-bootstrap-cn.outputs.digest'
+      );
+    fs.writeFileSync(bootstrapPath, bootstrap);
+    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('capacity blockers require bootstrap bundle verification inside the generator mode', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
+  try {
+    writeDualSitePackagingPath(root);
+    const generatorPath = path.join(
+      root,
+      'scripts/generate-technical-full-release-image-manifest.js'
+    );
+    const generator = fs.readFileSync(generatorPath, 'utf8');
+    const start = generator.indexOf('function buildBootstrapSignedImageManifest(');
+    const end = generator.indexOf('function writeSignedImageManifest(', start);
+    const bootstrapFunction = generator
+      .slice(start, end)
+      .replace(
+        '  verifyReleaseBundle(path.resolve(bundlePath), candidate.sourceRevision, candidate.bundleSha256);\n',
+        ''
+      );
+    fs.writeFileSync(
+      generatorPath,
+      `${generator.slice(0, start)}${bootstrapFunction}${generator.slice(end)}`
+    );
     assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

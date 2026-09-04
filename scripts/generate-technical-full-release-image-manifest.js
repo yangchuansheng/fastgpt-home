@@ -28,6 +28,29 @@ function validateMatching(value, name, pattern, label) {
   return value;
 }
 
+function readCandidate(environment) {
+  const bundlePath = readRequired(environment, 'RELEASE_BUNDLE');
+  const candidate = {
+    sourceRevision: readMatching(
+      environment,
+      'RELEASE_SOURCE_COMMIT',
+      REVISION_PATTERN,
+      'a 40-character commit SHA'
+    ),
+    bundleSha256: readMatching(
+      environment,
+      'RELEASE_BUNDLE_SHA256',
+      DIGEST_PATTERN,
+      'a SHA-256 digest'
+    ),
+    images: {
+      cn: readMatching(environment, 'RELEASE_CN_IMAGE', IMAGE_PATTERN, 'an immutable image digest'),
+      io: readMatching(environment, 'RELEASE_IO_IMAGE', IMAGE_PATTERN, 'an immutable image digest')
+    }
+  };
+  return { bundlePath, candidate };
+}
+
 function readPreviousRelease(environment, signingKey) {
   const rawManifest = readRequired(environment, 'PREVIOUS_RELEASE_IMAGE_MANIFEST');
   const signature = readMatching(
@@ -80,26 +103,14 @@ function readPreviousRelease(environment, signingKey) {
   };
 }
 
+function signManifest(candidate, baseline, signingKey) {
+  const manifest = JSON.stringify({ schemaVersion: 1, candidate, baseline });
+  const signature = createHmac('sha256', signingKey).update(manifest).digest('hex');
+  return { manifest, signature };
+}
+
 function buildSignedImageManifest(environment = process.env) {
-  const bundlePath = readRequired(environment, 'RELEASE_BUNDLE');
-  const candidate = {
-    sourceRevision: readMatching(
-      environment,
-      'RELEASE_SOURCE_COMMIT',
-      REVISION_PATTERN,
-      'a 40-character commit SHA'
-    ),
-    bundleSha256: readMatching(
-      environment,
-      'RELEASE_BUNDLE_SHA256',
-      DIGEST_PATTERN,
-      'a SHA-256 digest'
-    ),
-    images: {
-      cn: readMatching(environment, 'RELEASE_CN_IMAGE', IMAGE_PATTERN, 'an immutable image digest'),
-      io: readMatching(environment, 'RELEASE_IO_IMAGE', IMAGE_PATTERN, 'an immutable image digest')
-    }
-  };
+  const { bundlePath, candidate } = readCandidate(environment);
   const signingKey = readRequired(environment, 'RELEASE_IMAGE_MANIFEST_KEY');
   const expectedBaseline = {
     sourceRevision: readMatching(
@@ -124,10 +135,14 @@ function buildSignedImageManifest(environment = process.env) {
   }
 
   verifyReleaseBundle(path.resolve(bundlePath), candidate.sourceRevision, candidate.bundleSha256);
+  return signManifest(candidate, baseline, signingKey);
+}
 
-  const manifest = JSON.stringify({ schemaVersion: 1, candidate, baseline });
-  const signature = createHmac('sha256', signingKey).update(manifest).digest('hex');
-  return { manifest, signature };
+function buildBootstrapSignedImageManifest(environment = process.env) {
+  const { bundlePath, candidate } = readCandidate(environment);
+  const signingKey = readRequired(environment, 'RELEASE_IMAGE_MANIFEST_KEY');
+  verifyReleaseBundle(path.resolve(bundlePath), candidate.sourceRevision, candidate.bundleSha256);
+  return signManifest(candidate, candidate, signingKey);
 }
 
 function writeSignedImageManifest(environment = process.env) {
@@ -138,7 +153,10 @@ function writeSignedImageManifest(environment = process.env) {
   if (manifestOutput === signatureOutput) {
     throw new Error('release image manifest output paths must differ');
   }
-  const result = buildSignedImageManifest(environment);
+  const result =
+    environment.RELEASE_IMAGE_MANIFEST_BOOTSTRAP === '1'
+      ? buildBootstrapSignedImageManifest(environment)
+      : buildSignedImageManifest(environment);
   fs.mkdirSync(path.dirname(manifestOutput), { recursive: true });
   fs.mkdirSync(path.dirname(signatureOutput), { recursive: true });
   fs.writeFileSync(manifestOutput, result.manifest);
@@ -158,4 +176,8 @@ if (require.main === module) {
   }
 }
 
-module.exports = { buildSignedImageManifest, writeSignedImageManifest };
+module.exports = {
+  buildBootstrapSignedImageManifest,
+  buildSignedImageManifest,
+  writeSignedImageManifest
+};

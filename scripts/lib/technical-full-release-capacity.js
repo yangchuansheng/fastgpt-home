@@ -304,16 +304,22 @@ function currentPathBlockers(repoRoot) {
   const requiredFiles = {
     dockerfile: 'Dockerfile',
     workflow: '.github/workflows/technical-full-release-images.yml',
+    bootstrapWorkflow: '.github/workflows/technical-full-release-image-bootstrap.yml',
     productionWorkflow: '.github/workflows/technical-full-release-production.yml',
     generator: 'scripts/generate-technical-full-release-image-manifest.js'
   };
   let dockerfile;
   let workflow;
+  let bootstrapWorkflow;
   let productionWorkflow;
   let generator;
   try {
     dockerfile = fs.readFileSync(path.join(repoRoot, requiredFiles.dockerfile), 'utf8');
     workflow = fs.readFileSync(path.join(repoRoot, requiredFiles.workflow), 'utf8');
+    bootstrapWorkflow = fs.readFileSync(
+      path.join(repoRoot, requiredFiles.bootstrapWorkflow),
+      'utf8'
+    );
     productionWorkflow = fs.readFileSync(
       path.join(repoRoot, requiredFiles.productionWorkflow),
       'utf8'
@@ -334,6 +340,12 @@ function currentPathBlockers(repoRoot) {
     const events = [...block.matchAll(/^\s{2}([a-z_]+):/gmu)].map((match) => match[1]);
     return JSON.stringify(events) === JSON.stringify(['workflow_dispatch']);
   };
+  const readFunctionBlock = (source, name, nextName) => {
+    const start = source.indexOf(`function ${name}(`);
+    if (start < 0) return '';
+    const end = source.indexOf(`function ${nextName}(`, start + 1);
+    return source.slice(start, end < 0 ? undefined : end);
+  };
   const releaseStageStart = dockerfile.search(/\bAS\s+release-runtime\b/u);
   const nextStage =
     releaseStageStart < 0 ? -1 : dockerfile.indexOf('\nFROM ', releaseStageStart + 1);
@@ -342,11 +354,60 @@ function currentPathBlockers(repoRoot) {
       ? ''
       : dockerfile.slice(releaseStageStart, nextStage < 0 ? undefined : nextStage);
   const verifyStep = readWorkflowStep(workflow, 'Verify the retained full-release bundle');
+  const candidateDownloadStep = readWorkflowStep(
+    workflow,
+    'Download candidate retained release bundle'
+  );
+  const previousManifestDownloadStep = readWorkflowStep(
+    workflow,
+    'Download previous signed release image manifest'
+  );
   const prepareStep = readWorkflowStep(workflow, 'Prepare isolated CN and IO runtime contexts');
   const cnBuildStep = readWorkflowStep(workflow, 'Build and push immutable CN runtime');
   const ioBuildStep = readWorkflowStep(workflow, 'Build and push immutable IO runtime');
   const manifestStep = readWorkflowStep(workflow, 'Generate signed release image manifest');
   const uploadStep = readWorkflowStep(workflow, 'Upload signed release image manifest');
+  const bootstrapVerifyStep = readWorkflowStep(
+    bootstrapWorkflow,
+    'Verify retained baseline release bundle'
+  );
+  const bootstrapDownloadStep = readWorkflowStep(
+    bootstrapWorkflow,
+    'Download retained baseline release bundle'
+  );
+  const bootstrapPrepareStep = readWorkflowStep(
+    bootstrapWorkflow,
+    'Prepare isolated bootstrap runtime contexts'
+  );
+  const bootstrapCnBuildStep = readWorkflowStep(
+    bootstrapWorkflow,
+    'Build and push immutable bootstrap CN runtime'
+  );
+  const bootstrapIoBuildStep = readWorkflowStep(
+    bootstrapWorkflow,
+    'Build and push immutable bootstrap IO runtime'
+  );
+  const bootstrapManifestStep = readWorkflowStep(
+    bootstrapWorkflow,
+    'Generate bootstrap signed release image manifest'
+  );
+  const bootstrapUploadStep = readWorkflowStep(
+    bootstrapWorkflow,
+    'Upload bootstrap signed release image manifest'
+  );
+  const productionDownloadStep = readWorkflowStep(
+    productionWorkflow,
+    'Download signed release image manifest'
+  );
+  const productionControllerStep = readWorkflowStep(
+    productionWorkflow,
+    'Run production release controller'
+  );
+  const bootstrapGenerator = readFunctionBlock(
+    generator,
+    'buildBootstrapSignedImageManifest',
+    'writeSignedImageManifest'
+  );
   const packagingChecks = [
     /COPY\s+release-out\/\s+\/usr\/share\/nginx\/html\//u.test(releaseStage),
     /COPY\s+release-out\/__release\/nginx-redirects\.conf\s+\/etc\/nginx\/generated-redirects\.conf/u.test(
@@ -354,15 +415,33 @@ function currentPathBlockers(repoRoot) {
     ),
     /test\s+-s\s+\/etc\/nginx\/generated-redirects\.conf/u.test(releaseStage),
     workflowDispatchOnly(workflow),
-    /if:\s+github\.repository == 'labring\/fastgpt-home' && github\.ref == 'refs\/heads\/main'/u.test(
+    /jobs:\s*\n\s{2}package:\s*\n\s{4}if:\s+github\.repository == 'labring\/fastgpt-home' && github\.ref == 'refs\/heads\/main'/u.test(
       workflow
     ),
     /test\s+"\$GITHUB_SHA"\s+=\s+"\$RELEASE_SOURCE_COMMIT"/u.test(workflow),
     /--verify-bundle\s+"\$RELEASE_BUNDLE"\s+"\$RELEASE_SOURCE_COMMIT"\s+"\$RELEASE_BUNDLE_SHA256"/u.test(
       verifyStep
     ),
+    /RELEASE_BUNDLE:\s+\$\{\{ runner\.temp \}\}\/candidate-release/u.test(verifyStep),
+    /RELEASE_SOURCE_COMMIT:\s+\$\{\{ inputs\.source_revision \}\}/u.test(verifyStep),
+    /RELEASE_BUNDLE_SHA256:\s+\$\{\{ inputs\.bundle_sha256 \}\}/u.test(verifyStep),
+    /actions\/download-artifact@v4/u.test(candidateDownloadStep),
+    /run-id:\s+\$\{\{ inputs\.candidate_artifact_run_id \}\}/u.test(candidateDownloadStep),
+    /name:\s+\$\{\{ inputs\.candidate_artifact_name \}\}/u.test(candidateDownloadStep),
+    /path:\s+\$\{\{ runner\.temp \}\}\/candidate-release/u.test(candidateDownloadStep),
+    /actions\/download-artifact@v4/u.test(previousManifestDownloadStep),
+    /run-id:\s+\$\{\{ inputs\.previous_image_manifest_run_id \}\}/u.test(
+      previousManifestDownloadStep
+    ),
+    /name:\s+\$\{\{ inputs\.previous_image_manifest_artifact_name \}\}/u.test(
+      previousManifestDownloadStep
+    ),
+    /path:\s+\$\{\{ runner\.temp \}\}\/previous-image-manifest/u.test(previousManifestDownloadStep),
     /for\s+site\s+in\s+cn\s+io/u.test(prepareStep),
     /context="\$RUNNER_TEMP\/technical-release-\$site"/u.test(prepareStep),
+    /cp\s+Dockerfile\s+nginx\.conf\s+nginx-security-headers\.conf\s+nginx-embeddable-security-headers\.conf\s+"\$context\/"/u.test(
+      prepareStep
+    ),
     /cp\s+-R\s+"\$RELEASE_BUNDLE\/\$site\/out"\s+"\$context\/release-out"/u.test(prepareStep),
     /id:\s+build-cn/u.test(cnBuildStep),
     /docker\/build-push-action@v6/u.test(cnBuildStep),
@@ -388,6 +467,12 @@ function currentPathBlockers(repoRoot) {
     /PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE_PATH:.*previous-image-manifest\/manifest\.sig/u.test(
       manifestStep
     ),
+    /export\s+PREVIOUS_RELEASE_IMAGE_MANIFEST="\$\(cat\s+"\$PREVIOUS_RELEASE_IMAGE_MANIFEST_PATH"\)"/u.test(
+      manifestStep
+    ),
+    /export\s+PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE="\$\(cat\s+"\$PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE_PATH"\)"/u.test(
+      manifestStep
+    ),
     /TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY/u.test(manifestStep),
     /npm run generate:technical-full-release-image-manifest/u.test(manifestStep),
     /actions\/upload-artifact@v4/u.test(uploadStep),
@@ -399,13 +484,74 @@ function currentPathBlockers(repoRoot) {
     /RELEASE_IO_IMAGE/u.test(generator),
     /PREVIOUS_RELEASE_IMAGE_MANIFEST/u.test(generator),
     /PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE/u.test(generator),
+    /RELEASE_IMAGE_MANIFEST_BOOTSTRAP\s+===\s+'1'/u.test(generator),
+    /verifyReleaseBundle\s*\(/u.test(bootstrapGenerator),
+    workflowDispatchOnly(bootstrapWorkflow),
+    /jobs:\s*\n\s{2}bootstrap:\s*\n\s{4}if:\s+github\.repository == 'labring\/fastgpt-home' && github\.ref == 'refs\/heads\/main'/u.test(
+      bootstrapWorkflow
+    ),
+    /test\s+"\$\(git rev-parse HEAD\)"\s+=\s+"\$GITHUB_SHA"/u.test(bootstrapWorkflow),
+    /actions\/download-artifact@v4/u.test(bootstrapDownloadStep),
+    /run-id:\s+\$\{\{ inputs\.artifact_run_id \}\}/u.test(bootstrapDownloadStep),
+    /name:\s+\$\{\{ inputs\.artifact_name \}\}/u.test(bootstrapDownloadStep),
+    /path:\s+\$\{\{ runner\.temp \}\}\/bootstrap-release/u.test(bootstrapDownloadStep),
+    /--verify-bundle\s+"\$RELEASE_BUNDLE"\s+"\$RELEASE_SOURCE_COMMIT"\s+"\$RELEASE_BUNDLE_SHA256"/u.test(
+      bootstrapVerifyStep
+    ),
+    /RELEASE_BUNDLE:\s+\$\{\{ runner\.temp \}\}\/bootstrap-release/u.test(bootstrapVerifyStep),
+    /RELEASE_SOURCE_COMMIT:\s+\$\{\{ inputs\.source_revision \}\}/u.test(bootstrapVerifyStep),
+    /RELEASE_BUNDLE_SHA256:\s+\$\{\{ inputs\.bundle_sha256 \}\}/u.test(bootstrapVerifyStep),
+    /for\s+site\s+in\s+cn\s+io/u.test(bootstrapPrepareStep),
+    /context="\$RUNNER_TEMP\/technical-release-bootstrap-\$site"/u.test(bootstrapPrepareStep),
+    /cp\s+Dockerfile\s+nginx\.conf\s+nginx-security-headers\.conf\s+nginx-embeddable-security-headers\.conf\s+"\$context\/"/u.test(
+      bootstrapPrepareStep
+    ),
+    /cp\s+-R\s+"\$RELEASE_BUNDLE\/\$site\/out"\s+"\$context\/release-out"/u.test(
+      bootstrapPrepareStep
+    ),
+    /id:\s+build-bootstrap-cn/u.test(bootstrapCnBuildStep),
+    /docker\/build-push-action@v6/u.test(bootstrapCnBuildStep),
+    /context:\s+\$\{\{ runner\.temp \}\}\/technical-release-bootstrap-cn/u.test(
+      bootstrapCnBuildStep
+    ),
+    /target:\s+release-runtime/u.test(bootstrapCnBuildStep),
+    /push:\s+true/u.test(bootstrapCnBuildStep),
+    /tags:.*-bootstrap-cn/u.test(bootstrapCnBuildStep),
+    /id:\s+build-bootstrap-io/u.test(bootstrapIoBuildStep),
+    /docker\/build-push-action@v6/u.test(bootstrapIoBuildStep),
+    /context:\s+\$\{\{ runner\.temp \}\}\/technical-release-bootstrap-io/u.test(
+      bootstrapIoBuildStep
+    ),
+    /target:\s+release-runtime/u.test(bootstrapIoBuildStep),
+    /push:\s+true/u.test(bootstrapIoBuildStep),
+    /tags:.*-bootstrap-io/u.test(bootstrapIoBuildStep),
+    /RELEASE_IMAGE_MANIFEST_BOOTSTRAP:\s+'1'/u.test(bootstrapManifestStep),
+    /RELEASE_CN_IMAGE:\s+\$\{\{ inputs\.cn_image_repository \}\}@\$\{\{ steps\.build-bootstrap-cn\.outputs\.digest \}\}/u.test(
+      bootstrapManifestStep
+    ),
+    /RELEASE_IO_IMAGE:\s+\$\{\{ inputs\.io_image_repository \}\}@\$\{\{ steps\.build-bootstrap-io\.outputs\.digest \}\}/u.test(
+      bootstrapManifestStep
+    ),
+    /TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY/u.test(bootstrapManifestStep),
+    /npm run generate:technical-full-release-image-manifest/u.test(bootstrapManifestStep),
+    /actions\/upload-artifact@v4/u.test(bootstrapUploadStep),
+    /path:.*image-manifest/u.test(bootstrapUploadStep),
     workflowDispatchOnly(productionWorkflow),
-    /if:\s+github\.repository == 'labring\/fastgpt-home' && github\.ref == 'refs\/heads\/main'/u.test(
+    /jobs:\s*\n\s{2}controller:\s*\n\s{4}if:\s+github\.repository == 'labring\/fastgpt-home' && github\.ref == 'refs\/heads\/main'/u.test(
       productionWorkflow
     ),
-    /actions\/download-artifact@v4/u.test(productionWorkflow),
-    /image-manifest\/manifest\.json/u.test(productionWorkflow),
-    /image-manifest\/manifest\.sig/u.test(productionWorkflow)
+    /actions\/download-artifact@v4/u.test(productionDownloadStep),
+    /path:\s+\$\{\{ runner\.temp \}\}\/image-manifest/u.test(productionDownloadStep),
+    /image-manifest\/manifest\.json/u.test(productionControllerStep),
+    /image-manifest\/manifest\.sig/u.test(productionControllerStep),
+    /export\s+RELEASE_IMAGE_MANIFEST="\$\(cat\s+"\$RELEASE_IMAGE_MANIFEST_PATH"\)"/u.test(
+      productionControllerStep
+    ),
+    /export\s+RELEASE_IMAGE_MANIFEST_SIGNATURE="\$\(cat\s+"\$RELEASE_IMAGE_MANIFEST_SIGNATURE_PATH"\)"/u.test(
+      productionControllerStep
+    ),
+    /TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY/u.test(productionControllerStep),
+    /npm run release:technical-full -- \$\{\{ inputs\.action \}\}/u.test(productionControllerStep)
   ];
   return packagingChecks.every(Boolean) ? [] : ['docker-publication-is-cn-only'];
 }

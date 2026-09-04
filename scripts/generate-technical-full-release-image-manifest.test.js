@@ -6,7 +6,10 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 
-const { buildSignedImageManifest } = require('./generate-technical-full-release-image-manifest');
+const {
+  buildBootstrapSignedImageManifest,
+  buildSignedImageManifest
+} = require('./generate-technical-full-release-image-manifest');
 const { finalizeSuccessArtifactBundle } = require('./lib/release-artifacts');
 const { loadReleaseConfig } = require('./technical-full-release-controller');
 
@@ -22,13 +25,13 @@ const IMAGES = {
   baselineIo: `ghcr.io/labring/fastgpt-home-io@sha256:${'4'.repeat(64)}`
 };
 
-function makeBundle(root) {
-  const bundlePath = path.join(root, 'candidate');
+function makeBundle(root, name, sourceRevision) {
+  const bundlePath = path.join(root, name);
   for (const variant of ['cn', 'io', 'preview']) {
     fs.mkdirSync(path.join(bundlePath, variant), { recursive: true });
     fs.writeFileSync(path.join(bundlePath, variant, 'index.html'), variant);
   }
-  const manifest = finalizeSuccessArtifactBundle(bundlePath, SOURCE_REVISION, [
+  const manifest = finalizeSuccessArtifactBundle(bundlePath, sourceRevision, [
     'cn',
     'io',
     'preview'
@@ -36,8 +39,8 @@ function makeBundle(root) {
   return { bundlePath, manifest };
 }
 
-function buildEnvironment(bundlePath, bundleSha256) {
-  const previousManifest = JSON.stringify({
+function previousManifestEnvironment() {
+  const manifest = JSON.stringify({
     schemaVersion: 1,
     candidate: {
       sourceRevision: BASELINE_REVISION,
@@ -51,18 +54,24 @@ function buildEnvironment(bundlePath, bundleSha256) {
     }
   });
   return {
-    RELEASE_BUNDLE: bundlePath,
+    PREVIOUS_RELEASE_IMAGE_MANIFEST: manifest,
+    PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE: createHmac('sha256', SIGNING_KEY)
+      .update(manifest)
+      .digest('hex')
+  };
+}
+
+function buildEnvironment(candidateBundle) {
+  return {
+    RELEASE_BUNDLE: candidateBundle.bundlePath,
     RELEASE_SOURCE_COMMIT: SOURCE_REVISION,
-    RELEASE_BUNDLE_SHA256: bundleSha256,
+    RELEASE_BUNDLE_SHA256: candidateBundle.manifest.bundleSha256,
     RELEASE_CN_IMAGE: IMAGES.candidateCn,
     RELEASE_IO_IMAGE: IMAGES.candidateIo,
     PREVIOUS_RELEASE_SOURCE_COMMIT: BASELINE_REVISION,
     PREVIOUS_RELEASE_BUNDLE_SHA256: BASELINE_SHA256,
     RELEASE_IMAGE_MANIFEST_KEY: SIGNING_KEY,
-    PREVIOUS_RELEASE_IMAGE_MANIFEST: previousManifest,
-    PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE: createHmac('sha256', SIGNING_KEY)
-      .update(previousManifest)
-      .digest('hex')
+    ...previousManifestEnvironment()
   };
 }
 
@@ -93,7 +102,17 @@ test('CLI fails fast when a required input is missing', () => {
 });
 
 test('input validation rejects mutable images and malformed bindings', () => {
-  const environment = buildEnvironment('/release/candidate', 'd'.repeat(64));
+  const environment = {
+    RELEASE_BUNDLE: '/release/candidate',
+    RELEASE_SOURCE_COMMIT: SOURCE_REVISION,
+    RELEASE_BUNDLE_SHA256: 'd'.repeat(64),
+    RELEASE_CN_IMAGE: IMAGES.candidateCn,
+    RELEASE_IO_IMAGE: IMAGES.candidateIo,
+    PREVIOUS_RELEASE_SOURCE_COMMIT: BASELINE_REVISION,
+    PREVIOUS_RELEASE_BUNDLE_SHA256: 'c'.repeat(64),
+    RELEASE_IMAGE_MANIFEST_KEY: SIGNING_KEY,
+    ...previousManifestEnvironment()
+  };
   assert.throws(
     () => buildSignedImageManifest({ ...environment, RELEASE_SOURCE_COMMIT: 'main' }),
     /RELEASE_SOURCE_COMMIT must use a 40-character commit SHA/
@@ -141,9 +160,13 @@ test('input validation rejects mutable images and malformed bindings', () => {
 test('candidate bundle content must match its source and digest', () => {
   const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'release-image-manifest-'));
   try {
-    const bundle = makeBundle(temporaryRoot);
+    const candidate = makeBundle(temporaryRoot, 'candidate', SOURCE_REVISION);
     assert.throws(
-      () => buildSignedImageManifest(buildEnvironment(bundle.bundlePath, '0'.repeat(64))),
+      () =>
+        buildSignedImageManifest({
+          ...buildEnvironment(candidate),
+          RELEASE_BUNDLE_SHA256: '0'.repeat(64)
+        }),
       /release bundle digest drift/
     );
   } finally {
@@ -154,8 +177,8 @@ test('candidate bundle content must match its source and digest', () => {
 test('output is deterministic and consumed directly by the release controller', () => {
   const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'release-image-manifest-'));
   try {
-    const bundle = makeBundle(temporaryRoot);
-    const environment = buildEnvironment(bundle.bundlePath, bundle.manifest.bundleSha256);
+    const candidate = makeBundle(temporaryRoot, 'candidate', SOURCE_REVISION);
+    const environment = buildEnvironment(candidate);
     const first = buildSignedImageManifest(environment);
     const second = buildSignedImageManifest(environment);
     assert.deepEqual(second, first);
@@ -214,6 +237,74 @@ test('output is deterministic and consumed directly by the release controller', 
     );
     assert.equal(config.targets[0].image, IMAGES.candidateCn);
     assert.equal(config.targets[1].previousImage, IMAGES.baselineIo);
+  } finally {
+    fs.rmSync(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
+test('bootstrap signs one verified release as both candidate and baseline', () => {
+  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'release-image-manifest-'));
+  try {
+    const release = makeBundle(temporaryRoot, 'baseline', BASELINE_REVISION);
+    const environment = {
+      RELEASE_BUNDLE: release.bundlePath,
+      RELEASE_SOURCE_COMMIT: BASELINE_REVISION,
+      RELEASE_BUNDLE_SHA256: release.manifest.bundleSha256,
+      RELEASE_CN_IMAGE: IMAGES.baselineCn,
+      RELEASE_IO_IMAGE: IMAGES.baselineIo,
+      RELEASE_IMAGE_MANIFEST_KEY: SIGNING_KEY
+    };
+    assert.throws(
+      () =>
+        buildBootstrapSignedImageManifest({
+          ...environment,
+          RELEASE_BUNDLE_SHA256: '0'.repeat(64)
+        }),
+      /release bundle digest drift/
+    );
+    assert.throws(
+      () =>
+        buildBootstrapSignedImageManifest({
+          ...environment,
+          RELEASE_SOURCE_COMMIT: 'c'.repeat(40)
+        }),
+      /release bundle source commit drift/
+    );
+    const result = buildBootstrapSignedImageManifest(environment);
+    const manifest = JSON.parse(result.manifest);
+    assert.deepEqual(manifest.baseline, manifest.candidate);
+    assert.equal(
+      result.signature,
+      createHmac('sha256', SIGNING_KEY).update(result.manifest).digest('hex')
+    );
+    const cli = spawnSync(
+      process.execPath,
+      ['scripts/generate-technical-full-release-image-manifest.js'],
+      {
+        cwd: ROOT,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          RELEASE_IMAGE_MANIFEST_BOOTSTRAP: '1',
+          RELEASE_BUNDLE: release.bundlePath,
+          RELEASE_SOURCE_COMMIT: BASELINE_REVISION,
+          RELEASE_BUNDLE_SHA256: release.manifest.bundleSha256,
+          RELEASE_CN_IMAGE: IMAGES.baselineCn,
+          RELEASE_IO_IMAGE: IMAGES.baselineIo,
+          RELEASE_IMAGE_MANIFEST_KEY: SIGNING_KEY,
+          RELEASE_IMAGE_MANIFEST_OUTPUT: path.join(temporaryRoot, 'bootstrap/manifest.json'),
+          RELEASE_IMAGE_MANIFEST_SIGNATURE_OUTPUT: path.join(
+            temporaryRoot,
+            'bootstrap/manifest.sig'
+          )
+        }
+      }
+    );
+    assert.equal(cli.status, 0, cli.stderr);
+    const cliManifest = JSON.parse(
+      fs.readFileSync(path.join(temporaryRoot, 'bootstrap/manifest.json'), 'utf8')
+    );
+    assert.deepEqual(cliManifest.baseline, cliManifest.candidate);
   } finally {
     fs.rmSync(temporaryRoot, { recursive: true, force: true });
   }
