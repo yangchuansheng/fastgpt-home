@@ -14,10 +14,13 @@ const {
 } = require('./lib/redirects');
 const { verifyTechnicalExport } = require('./verify-technical-export');
 const TECHNICAL_CONTENT_POLICY = require('../src/lib/technical-content-policy.json');
+const FULL_RELEASE_IMPORT_MANIFEST = require(
+  '../src/content/tech-center/authority/full-release-import-manifest.json'
+);
 
 const root = path.resolve(__dirname, '..');
 const baseUrls = { cn: 'https://fastgpt.cn', io: 'https://fastgpt.io' };
-const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
+const EXPECTED_TECHNICAL_PAGE_COUNT = FULL_RELEASE_IMPORT_MANIFEST.counts.total;
 const bilingualSamePathIdentities = [
   {
     key: 'zh|/api/shared-guide',
@@ -45,6 +48,7 @@ function writeArticle(outDir, route, canonical, language, robots) {
 test('technical identities are unique and retain their owner-relative paths', () => {
   const identities = getTechIdentities(root);
   assert.equal(identities.length, EXPECTED_TECHNICAL_PAGE_COUNT);
+  assert.equal(TECHNICAL_CONTENT_POLICY.expectedPageCount, FULL_RELEASE_IMPORT_MANIFEST.counts.baseline);
   assert.equal(new Set(identities.map((identity) => identity.key)).size, identities.length);
   assert.equal(identities[0].sourcePath, '/zh/tutorial/private-deployment-topology');
   assert.equal(identities[0].canonicalPath, '/tutorial/private-deployment-topology');

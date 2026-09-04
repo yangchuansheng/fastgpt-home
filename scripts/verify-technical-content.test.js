@@ -20,7 +20,9 @@ const {
 
 const root = path.resolve(__dirname, '..');
 const fixture = path.join(root, 'scripts/fixtures/technical-page-delivery');
-const EXPECTED_TECHNICAL_PAGE_COUNT = TECHNICAL_CONTENT_POLICY.expectedPageCount;
+const FULL_RELEASE_IMPORT_MANIFEST = require(
+  '../src/content/tech-center/authority/full-release-import-manifest.json'
+);
 
 test('representative delivery normalizes the canonical path and body', () => {
   const plan = buildImportPlan({ repoRoot: root, sourcePath: fixture });
@@ -324,7 +326,7 @@ test('public search projection contains only discovery fields and matches the re
   );
 });
 
-test('committed technical authority covers the complete accepted identity projection', () => {
+test('committed historical authority accepts the full-release registry projection', () => {
   const manifest = verifyCommittedAuthority(root);
   const entries = JSON.parse(
     fs.readFileSync(path.join(root, 'src/components/tech-center/entries.json'), 'utf8')
@@ -338,6 +340,7 @@ test('committed technical authority covers the complete accepted identity projec
 
   assert.equal(manifest.pages.length, TECHNICAL_CONTENT_POLICY.expectedAcceptedCount);
   assert.equal(manifest.source.deniedCount, TECHNICAL_CONTENT_POLICY.expectedDeniedCount);
-  assert.equal(entries.length, EXPECTED_TECHNICAL_PAGE_COUNT);
-  assert.equal(searchProjection.length, EXPECTED_TECHNICAL_PAGE_COUNT);
+  assert.equal(TECHNICAL_CONTENT_POLICY.expectedPageCount, FULL_RELEASE_IMPORT_MANIFEST.counts.baseline);
+  assert.equal(entries.length, FULL_RELEASE_IMPORT_MANIFEST.counts.total);
+  assert.equal(searchProjection.length, entries.length);
 });

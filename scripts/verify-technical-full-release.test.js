@@ -16,6 +16,10 @@ const {
 const { sha256 } = require('./lib/technical-authority');
 const { parseArgs: parseGenerateArgs } = require('./generate-technical-full-release');
 const { parseArgs: parseVerifyArgs } = require('./verify-technical-full-release');
+const {
+  parseArgs: parseImportArgs,
+  verifyImport
+} = require('./verify-technical-full-release-import');
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -44,6 +48,17 @@ test('full-release closure is deterministic and preserves the 2,585-page contrac
     drift: []
   });
   assert.deepEqual(result.evidence, { missing: [], drift: [], crossBatchConflicts: [] });
+});
+
+test('full-release import verifies the committed 4,007-page projection without host source paths', () => {
+  assert.deepEqual(parseImportArgs([]), {});
+  assert.deepEqual(verifyImport(), {
+    baseline: 1422,
+    imported: 2585,
+    total: 4007,
+    zh: 3492,
+    en: 515
+  });
 });
 
 test('source verification normalizes Week06 line endings and reports missing or drifted bodies', () => {

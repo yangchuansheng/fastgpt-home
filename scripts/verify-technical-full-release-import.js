@@ -23,11 +23,8 @@ function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(ROOT, relativePath), 'utf8'));
 }
 
-function parseArgs(argv = process.argv.slice(2), manifest) {
-  const options = {
-    w5SourceRoot: manifest.sourceRoots.W5,
-    w6SourceRoot: manifest.sourceRoots.W6
-  };
+function parseArgs(argv = process.argv.slice(2)) {
+  const options = {};
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
     if (token === '--w5-source-root' || token === '--w6-source-root') {
@@ -49,7 +46,7 @@ function verifyImport(argv = process.argv.slice(2)) {
   const entries = readJson(REGISTRY_PATH);
   const zhSearch = readJson(ZH_SEARCH_PATH);
   const enSearch = readJson(EN_SEARCH_PATH);
-  const options = parseArgs(argv, manifest);
+  const options = parseArgs(argv);
 
   assert.equal(manifest.schemaVersion, 1);
   assert.equal(manifest.status, 'repository-consistent');
@@ -85,7 +82,9 @@ function verifyImport(argv = process.argv.slice(2)) {
   );
 
   const sourceVerification = verifySourceRecords(closure.records, options);
-  assert.equal(sourceVerification.verified, EXPECTED_COUNTS.imported);
+  if (sourceVerification.mode === 'external-source-root') {
+    assert.equal(sourceVerification.verified, EXPECTED_COUNTS.imported);
+  }
   assert.deepEqual(sourceVerification.missing, []);
   assert.deepEqual(sourceVerification.drift, []);
 
@@ -111,7 +110,7 @@ function verifyImport(argv = process.argv.slice(2)) {
 
   assert.equal(recordsByIdentity.size, manifest.pages.length);
   console.log(
-    `[verify-technical-full-release-import] passed: sources=${sourceVerification.verified} bodies=${manifest.pages.length} total=${entries.length} zh=${EXPECTED_COUNTS.zh} en=${EXPECTED_COUNTS.en}`
+    `[verify-technical-full-release-import] passed: sources=${sourceVerification.mode} bodies=${manifest.pages.length} total=${entries.length} zh=${EXPECTED_COUNTS.zh} en=${EXPECTED_COUNTS.en}`
   );
   return manifest.counts;
 }

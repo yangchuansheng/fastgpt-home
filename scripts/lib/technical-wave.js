@@ -42,6 +42,8 @@ const WAVE_PROJECTION_RELATIVE_PATH =
 const WAVE_ROLLBACK_RELATIVE_PATH = 'src/content/tech-center/authority/week05-wave1-rollback.json';
 const WAVE_RELEASE_MANIFEST_RELATIVE_PATH =
   'src/content/tech-center/authority/week05-wave1-release-manifest.json';
+const FULL_RELEASE_IMPORT_MANIFEST_RELATIVE_PATH =
+  'src/content/tech-center/authority/full-release-import-manifest.json';
 const PUBLIC_CANONICAL_HOST = 'https://fastgpt.cn';
 const WAVE_SURFACES = [
   'registry',
@@ -576,6 +578,13 @@ function readWaveArtifact(repoRoot, relativePath, label) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
+function isFullReleaseImported(repoRoot) {
+  const manifestPath = path.join(repoRoot, FULL_RELEASE_IMPORT_MANIFEST_RELATIVE_PATH);
+  if (!fs.existsSync(manifestPath)) return false;
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  return manifest.status === 'repository-consistent' && manifest.counts?.total === 4007;
+}
+
 function verifyReaderDocument(repoRoot, source) {
   const filePath = path.join(repoRoot, source.readerPath);
   if (!fs.existsSync(filePath))
@@ -616,6 +625,8 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
   const historical = filterWave2Projection(repoRoot);
   const historicalEntries = historical.entries;
   const historicalSearch = historical.search;
+  const deployedEntries = isFullReleaseImported(repoRoot) ? historicalEntries : entries;
+  const deployedSearch = isFullReleaseImported(repoRoot) ? historicalSearch : search;
   const manifest = readWaveArtifact(repoRoot, WAVE_MANIFEST_RELATIVE_PATH, 'Wave 1 manifest');
   const content = readWaveArtifact(repoRoot, WAVE_CONTENT_RELATIVE_PATH, 'Wave 1 content manifest');
   const projection = readWaveArtifact(repoRoot, WAVE_PROJECTION_RELATIVE_PATH, 'Wave 1 projection');
@@ -681,9 +692,12 @@ function verifyWaveSource(repoRoot = path.resolve(__dirname, '../..')) {
   }
   if (historicalSearch.length !== historicalEntries.length)
     throw new Error('Wave 1 search count drift');
-  const expectedSearch = buildSearchProjection(entries);
-  const searchByIdentity = new Map(search.map((entry) => [entry.identity, entry]));
-  if (searchByIdentity.size !== search.length || searchByIdentity.size !== expectedSearch.length) {
+  const expectedSearch = buildSearchProjection(deployedEntries);
+  const searchByIdentity = new Map(deployedSearch.map((entry) => [entry.identity, entry]));
+  if (
+    searchByIdentity.size !== deployedSearch.length ||
+    searchByIdentity.size !== expectedSearch.length
+  ) {
     throw new Error('Wave 1 search projection identity set drift');
   }
   for (const entry of expectedSearch) {

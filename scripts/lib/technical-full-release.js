@@ -16,6 +16,8 @@ const { verifyWeek06TechnicalAuthority } = require('../verify-week06-technical-a
 
 const FULL_RELEASE_RELATIVE_PATH =
   'src/content/tech-center/authority/full-release-identity-closure.json';
+const FULL_RELEASE_IMPORT_MANIFEST_RELATIVE_PATH =
+  'src/content/tech-center/authority/full-release-import-manifest.json';
 const REGISTRY_RELATIVE_PATH = 'src/components/tech-center/entries.json';
 const W5_AUTHORITY_RELATIVE_PATH = 'src/content/tech-center/authority/week05-authority.json';
 const W6_AUTHORITY_RELATIVE_PATH =
@@ -116,8 +118,7 @@ function parseEntryIdentity(entry, index) {
   return { locale: match[1], canonicalPath: match[2] };
 }
 
-function loadRegistry(repoRoot) {
-  const registry = readJson(repoRoot, REGISTRY_RELATIVE_PATH);
+function createRegistry(registry) {
   if (!Array.isArray(registry)) throw new Error('Technical registry must be an array');
   const entriesByIdentity = new Map();
   registry.forEach((entry, index) => {
@@ -128,6 +129,23 @@ function loadRegistry(repoRoot) {
     entriesByIdentity.set(key, { entry, identity });
   });
   return { entries: registry, entriesByIdentity };
+}
+
+function loadRegistry(repoRoot) {
+  return createRegistry(readJson(repoRoot, REGISTRY_RELATIVE_PATH));
+}
+
+function loadClosureRegistry(repoRoot, replayedState) {
+  const manifestPath = path.join(repoRoot, FULL_RELEASE_IMPORT_MANIFEST_RELATIVE_PATH);
+  if (!fs.existsSync(manifestPath)) return loadRegistry(repoRoot);
+  const fullReleaseImport = readJson(repoRoot, FULL_RELEASE_IMPORT_MANIFEST_RELATIVE_PATH);
+  if (
+    fullReleaseImport.status === 'repository-consistent' &&
+    fullReleaseImport.counts?.total === TARGET_PAGE_COUNT
+  ) {
+    return createRegistry(replayedState.entries);
+  }
+  return loadRegistry(repoRoot);
 }
 
 function validateCandidateForClosure(candidate, batch, index) {
@@ -294,8 +312,8 @@ function identitySetSha256(records) {
 
 function buildClosure(repoRoot = path.resolve(__dirname, '../..')) {
   const authorities = loadAndValidateAuthorities(repoRoot);
-  const registry = loadRegistry(repoRoot);
   const replayedState = loadTechnicalWaveState(repoRoot, 'week06-wave1');
+  const registry = loadClosureRegistry(repoRoot, replayedState);
   const evidence = buildEvidence();
   compareRegistryToReplay(registry, replayedState, evidence);
 
@@ -386,7 +404,7 @@ function buildClosure(repoRoot = path.resolve(__dirname, '../..')) {
     baseline: {
       pageCount: registry.entries.length,
       registryPath: REGISTRY_RELATIVE_PATH,
-      registrySha256: fileSha256(path.join(repoRoot, REGISTRY_RELATIVE_PATH)),
+      registrySha256: sha256(stableJson(registry.entries)),
       identitySetSha256: identitySetSha256(
         [...registry.entriesByIdentity.keys()].map((key) => ({ identityKey: key }))
       ),

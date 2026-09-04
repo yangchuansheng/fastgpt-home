@@ -1407,12 +1407,24 @@ function verifyCommittedAuthority(repoRoot = REPOSITORY_ROOT) {
     fs.readFileSync(path.join(repoRoot, 'src/components/tech-center/entries.json'), 'utf8')
   );
   if (!Array.isArray(entries)) throw new Error('Technical content registry must be an array');
-  if (entries.length !== EXPECTED_TECHNICAL_PAGE_COUNT) {
+  const fullReleaseManifestPath = path.join(
+    repoRoot,
+    'src/content/tech-center/authority/full-release-import-manifest.json'
+  );
+  const fullReleaseManifest = fs.existsSync(fullReleaseManifestPath)
+    ? JSON.parse(fs.readFileSync(fullReleaseManifestPath, 'utf8'))
+    : undefined;
+  const fullReleasePageCount =
+    fullReleaseManifest?.status === 'repository-consistent' &&
+    fullReleaseManifest.counts?.total === 4007
+      ? fullReleaseManifest.counts.total
+      : undefined;
+  const expectedRegistryCounts = [EXPECTED_TECHNICAL_PAGE_COUNT, fullReleasePageCount].filter(
+    Number.isInteger
+  );
+  if (!expectedRegistryCounts.includes(entries.length)) {
     throw new Error(
-      [
-        `Technical content registry count drift: expected ${EXPECTED_TECHNICAL_PAGE_COUNT}, `,
-        `found ${entries.length}`
-      ].join('')
+      `Technical content registry count drift: expected ${expectedRegistryCounts.join(' or ')}, found ${entries.length}`
     );
   }
   entries.forEach((entry, index) =>
@@ -1433,11 +1445,11 @@ function verifyCommittedAuthority(repoRoot = REPOSITORY_ROOT) {
     throw new Error('Technical content search projection must be an array');
   }
   const searchProjection = [...localizedSearch.zh, ...localizedSearch.en];
-  if (searchProjection.length !== EXPECTED_TECHNICAL_PAGE_COUNT) {
+  if (searchProjection.length !== entries.length) {
     throw new Error(
       [
-        'Technical content search projection count drift: expected ',
-        EXPECTED_TECHNICAL_PAGE_COUNT,
+        'Technical content search projection count drift: expected registry count ',
+        entries.length,
         ', ',
         `found ${searchProjection.length}`
       ].join('')

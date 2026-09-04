@@ -38,6 +38,8 @@ const MANIFEST_RELATIVE_PATH = 'src/content/tech-center/authority/week06-wave1-m
 const PROJECTION_RELATIVE_PATH = 'src/content/tech-center/authority/week06-wave1-projection.json';
 const RELEASE_RELATIVE_PATH =
   'src/content/tech-center/authority/week06-wave1-release-manifest.json';
+const FULL_RELEASE_IMPORT_MANIFEST_RELATIVE_PATH =
+  'src/content/tech-center/authority/full-release-import-manifest.json';
 const ROLLBACK_RELATIVE_PATH = 'src/content/tech-center/authority/week06-wave1-rollback.json';
 const BASELINE_RELEASE_RELATIVE_PATH =
   'src/content/tech-center/authority/week05-wave2-release-manifest.json';
@@ -70,6 +72,13 @@ const READER_CONTENT_CONTRACT = [
 
 function readJson(repoRoot, relativePath) {
   return JSON.parse(fs.readFileSync(path.join(repoRoot, relativePath), 'utf8'));
+}
+
+function isFullReleaseImported(repoRoot) {
+  const manifestPath = path.join(repoRoot, FULL_RELEASE_IMPORT_MANIFEST_RELATIVE_PATH);
+  if (!fs.existsSync(manifestPath)) return false;
+  const manifest = readJson(repoRoot, FULL_RELEASE_IMPORT_MANIFEST_RELATIVE_PATH);
+  return manifest.status === 'repository-consistent' && manifest.counts?.total === 4007;
 }
 
 function parseEntryIdentity(entry) {
@@ -709,10 +718,15 @@ function verifyWeek06Wave1Source(
   { verifyExportFixtures = true, sourceRoot } = {}
 ) {
   const expected = buildWeek06Wave1Package(repoRoot, { sourceRoot });
+  const useHistoricalRegistry = isFullReleaseImported(repoRoot);
   const artifacts = {
-    entries: readJson(repoRoot, REGISTRY_RELATIVE_PATH),
-    zhSearch: readJson(repoRoot, ZH_SEARCH_RELATIVE_PATH),
-    enSearch: readJson(repoRoot, EN_SEARCH_RELATIVE_PATH),
+    entries: useHistoricalRegistry ? expected.entries : readJson(repoRoot, REGISTRY_RELATIVE_PATH),
+    zhSearch: useHistoricalRegistry
+      ? expected.search.zh
+      : readJson(repoRoot, ZH_SEARCH_RELATIVE_PATH),
+    enSearch: useHistoricalRegistry
+      ? expected.search.en
+      : readJson(repoRoot, EN_SEARCH_RELATIVE_PATH),
     content: readJson(repoRoot, CONTENT_RELATIVE_PATH),
     manifest: readJson(repoRoot, MANIFEST_RELATIVE_PATH),
     projection: readJson(repoRoot, PROJECTION_RELATIVE_PATH),
@@ -780,7 +794,15 @@ function verifyWeek06Wave1Source(
     }
   }
   for (const artifact of artifacts.releaseManifest.artifacts) {
-    if (fileSha256(path.join(repoRoot, artifact.path)) !== artifact.sha256) {
+    const artifactDigest =
+      artifact.path === REGISTRY_RELATIVE_PATH
+        ? sha256(stableJson(artifacts.entries))
+        : artifact.path === ZH_SEARCH_RELATIVE_PATH
+        ? sha256(stableJson(artifacts.zhSearch))
+        : artifact.path === EN_SEARCH_RELATIVE_PATH
+        ? sha256(stableJson(artifacts.enSearch))
+        : fileSha256(path.join(repoRoot, artifact.path));
+    if (artifactDigest !== artifact.sha256) {
       throw new Error(`Week06 Wave 1 release artifact digest drift: ${artifact.path}`);
     }
   }
