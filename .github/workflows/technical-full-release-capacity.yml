@@ -17,6 +17,10 @@ on:
       - 'tailwind.config.ts'
       - 'tsconfig.json'
 
+concurrency:
+  group: technical-full-release-capacity-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
