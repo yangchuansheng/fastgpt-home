@@ -14,9 +14,19 @@ const {
   verifySourceRecords
 } = require('./technical-full-release');
 const { sha256, stableJson } = require('./technical-authority');
+const { looseFrontMatter } = require('./week06-technical-candidate');
 
 const VARIANTS = ['cn', 'io', 'preview'];
 const CAPACITY_POLICY_RELATIVE_PATH = 'src/lib/technical-content-policy.json';
+const FULL_RELEASE_IMPORT_MANIFEST_RELATIVE_PATH =
+  'src/content/tech-center/authority/full-release-import-manifest.json';
+const REGISTRY_RELATIVE_PATH = 'src/components/tech-center/entries.json';
+const SEARCH_RELATIVE_PATHS = {
+  zh: 'public/tech-center/search-index.json',
+  en: 'public/tech-center/search-index.en.json'
+};
+const LEGACY_PREBUILD_BLOCKER =
+  'prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure';
 const STALE_MEASUREMENT_BLOCKER = 'capacity-rerun-required-after-source-normalization';
 
 function readJson(filePath) {
@@ -42,42 +52,153 @@ function authorityCandidates(repoRoot) {
   };
 }
 
-function projectTechnicalContent({ repoRoot, w5SourceRoot, w6SourceRoot }) {
+function projectionCounts(entries) {
+  return entries.reduce(
+    (counts, entry) => {
+      const match = entry.slug?.match(/^\/(zh|en)\//);
+      if (!match) throw new Error(`Unsupported projected identity: ${entry.slug}`);
+      counts[match[1]] += 1;
+      return counts;
+    },
+    { zh: 0, en: 0 }
+  );
+}
+
+function validateImportedProjection(repoRoot, closure, entries) {
+  const manifestPath = path.join(repoRoot, FULL_RELEASE_IMPORT_MANIFEST_RELATIVE_PATH);
+  if (!fs.existsSync(manifestPath)) return false;
+  const manifest = readJson(manifestPath);
+  if (manifest.status !== 'repository-consistent') return false;
+
+  const closurePath = path.join(repoRoot, FULL_RELEASE_RELATIVE_PATH);
+  const expectedCounts = {
+    baseline: closure.counts.baseline,
+    imported: closure.counts.pending,
+    total: closure.counts.target
+  };
+  if (
+    manifest.schemaVersion !== 1 ||
+    manifest.closure?.path !== FULL_RELEASE_RELATIVE_PATH ||
+    manifest.closure?.sha256 !== sha256(fs.readFileSync(closurePath)) ||
+    manifest.closure?.recordsSha256 !== closure.recordsSha256 ||
+    manifest.pages?.length !== closure.records.length ||
+    Object.entries(expectedCounts).some(([key, value]) => manifest.counts?.[key] !== value) ||
+    entries.length !== closure.counts.target ||
+    sha256(stableJson(entries.slice(0, closure.counts.baseline))) !==
+      closure.baseline.registrySha256
+  ) {
+    throw new Error('Repository-consistent full-release import evidence drift');
+  }
+
+  const identities = new Set(entries.map((entry) => entry.slug));
+  if (identities.size !== entries.length) {
+    throw new Error('Repository-consistent full-release registry contains duplicate identities');
+  }
+  closure.records.forEach((record, index) => {
+    const page = manifest.pages[index];
+    const entry = entries[closure.counts.baseline + index];
+    const expectedSlug = `/${record.locale}${record.canonicalPath}`;
+    const expectedReaderPath = `src/content/tech-center/${
+      record.locale === 'en' ? 'en/' : ''
+    }${record.canonicalPath.slice(1)}.md`;
+    if (
+      page.batch !== record.batch ||
+      page.authorityId !== record.authorityId ||
+      page.identity !== record.identityKey ||
+      page.sourceFile !== record.sourceFile ||
+      page.sourceUrl !== record.sourceUrl ||
+      page.sourceSha256 !== record.sourceSha256 ||
+      page.approvedBodySha256 !== record.bodySha256 ||
+      page.readerPath !== expectedReaderPath ||
+      entry?.slug !== expectedSlug ||
+      entry.category !== record.category ||
+      page.registryEntrySha256 !== sha256(stableJson(entry))
+    ) {
+      throw new Error(`Repository-consistent imported projection drift: ${record.authorityId}`);
+    }
+    const readerPath = path.resolve(repoRoot, page.readerPath);
+    const resolvedRoot = path.resolve(repoRoot);
+    if (
+      !readerPath.startsWith(`${resolvedRoot}${path.sep}`) ||
+      !fs.existsSync(readerPath) ||
+      !fs.statSync(readerPath).isFile()
+    ) {
+      throw new Error(`Repository-consistent reader path is invalid: ${record.authorityId}`);
+    }
+    const document = fs.readFileSync(readerPath, 'utf8');
+    const parsed = looseFrontMatter(document.replace(/\r\n?/g, '\n'));
+    if (
+      page.readerSha256 !== sha256(document) ||
+      page.importedBodySha256 !== sha256(parsed.body.trim()) ||
+      parsed.values.slug !== expectedSlug ||
+      parsed.values.source !== record.sourceUrl
+    ) {
+      throw new Error(`Repository-consistent reader content drift: ${record.authorityId}`);
+    }
+  });
+
+  const counts = projectionCounts(entries);
+  if (
+    counts.zh !== manifest.counts.zh ||
+    counts.en !== manifest.counts.en ||
+    counts.zh + counts.en !== entries.length
+  ) {
+    throw new Error('Repository-consistent full-release locale count drift');
+  }
+  const expectedSearch = buildSearchProjection(entries);
+  for (const locale of ['zh', 'en']) {
+    const observed = readJson(path.join(repoRoot, SEARCH_RELATIVE_PATHS[locale]));
+    const expected = expectedSearch.filter((entry) => entry.locale === locale);
+    if (stableJson(observed) !== stableJson(expected)) {
+      throw new Error(`Repository-consistent ${locale} search projection drift`);
+    }
+  }
+  return true;
+}
+
+function projectTechnicalContent({
+  repoRoot,
+  w5SourceRoot,
+  w6SourceRoot,
+  sourceVerifier = verifySourceRecords
+}) {
   const closure = validateClosureArtifact(
     readJson(path.join(repoRoot, FULL_RELEASE_RELATIVE_PATH))
   );
   if (closure.status !== 'closed') throw new Error('Technical full-release closure is blocked');
-  const verification = verifySourceRecords(closure.records, { w5SourceRoot, w6SourceRoot });
+  const verification = sourceVerifier(closure.records, { w5SourceRoot, w6SourceRoot });
   if (verification.verified !== closure.records.length) {
     throw new Error(`Technical source verification failed: ${JSON.stringify(verification)}`);
   }
 
-  const candidates = authorityCandidates(repoRoot);
-  const registryPath = path.join(repoRoot, 'src/components/tech-center/entries.json');
+  const registryPath = path.join(repoRoot, REGISTRY_RELATIVE_PATH);
   const entries = readJson(registryPath);
-  const seen = new Set(entries.map((entry) => entry.slug));
-  const roots = { W5: w5SourceRoot, W6: w6SourceRoot };
-
-  for (const record of closure.records) {
-    const candidate = candidates[record.batch].get(record.authorityId);
-    if (!candidate) throw new Error(`Missing authority candidate ${record.authorityId}`);
-    const slug = `/${record.locale}${record.canonicalPath}`;
-    if (seen.has(slug)) throw new Error(`Projected identity already exists: ${slug}`);
-    const page =
-      record.batch === 'W5'
-        ? buildW5ReaderPage(candidate)
-        : buildW6ReaderPage(repoRoot, candidate, roots[record.batch]);
-    if (page.projection.slug !== slug) {
-      throw new Error(`Canonical projection slug drift: ${record.authorityId}`);
+  const reuseImportedProjection = validateImportedProjection(repoRoot, closure, entries);
+  if (!reuseImportedProjection) {
+    const candidates = authorityCandidates(repoRoot);
+    const seen = new Set(entries.map((entry) => entry.slug));
+    const roots = { W5: w5SourceRoot, W6: w6SourceRoot };
+    for (const record of closure.records) {
+      const candidate = candidates[record.batch].get(record.authorityId);
+      if (!candidate) throw new Error(`Missing authority candidate ${record.authorityId}`);
+      const slug = `/${record.locale}${record.canonicalPath}`;
+      if (seen.has(slug)) throw new Error(`Projected identity already exists: ${slug}`);
+      const page =
+        record.batch === 'W5'
+          ? buildW5ReaderPage(candidate)
+          : buildW6ReaderPage(repoRoot, candidate, roots[record.batch]);
+      if (page.projection.slug !== slug) {
+        throw new Error(`Canonical projection slug drift: ${record.authorityId}`);
+      }
+      const outputPath =
+        record.batch === 'W5'
+          ? path.join(repoRoot, `src/content/tech-center${record.canonicalPath}.md`)
+          : path.join(repoRoot, week06ReaderPath(candidate));
+      fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+      fs.writeFileSync(outputPath, page.document);
+      entries.push(page.projection);
+      seen.add(slug);
     }
-    const outputPath =
-      record.batch === 'W5'
-        ? path.join(repoRoot, `src/content/tech-center${record.canonicalPath}.md`)
-        : path.join(repoRoot, week06ReaderPath(candidate));
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-    fs.writeFileSync(outputPath, page.document);
-    entries.push(page.projection);
-    seen.add(slug);
   }
 
   const search = buildSearchProjection(entries);
@@ -85,21 +206,17 @@ function projectTechnicalContent({ repoRoot, w5SourceRoot, w6SourceRoot }) {
     zh: search.filter((entry) => entry.locale === 'zh'),
     en: search.filter((entry) => entry.locale === 'en')
   };
-  fs.writeFileSync(registryPath, stableJson(entries));
-  for (const locale of ['zh', 'en']) {
-    fs.writeFileSync(
-      path.join(repoRoot, `public/tech-center/search-index${locale === 'en' ? '.en' : ''}.json`),
-      stableJson(localizedSearch[locale])
-    );
+  if (!reuseImportedProjection) {
+    fs.writeFileSync(registryPath, stableJson(entries));
+    for (const locale of ['zh', 'en']) {
+      fs.writeFileSync(
+        path.join(repoRoot, SEARCH_RELATIVE_PATHS[locale]),
+        stableJson(localizedSearch[locale])
+      );
+    }
   }
 
-  const counts = entries.reduce(
-    (result, entry) => {
-      result[entry.slug.startsWith('/zh/') ? 'zh' : 'en'] += 1;
-      return result;
-    },
-    { zh: 0, en: 0 }
-  );
+  const counts = projectionCounts(entries);
   if (entries.length !== closure.counts.target || counts.zh + counts.en !== entries.length) {
     throw new Error(`Projected page count drift: ${entries.length}`);
   }
@@ -112,8 +229,8 @@ function projectTechnicalContent({ repoRoot, w5SourceRoot, w6SourceRoot }) {
     sourceFilesVerified: verification.verified,
     registry: fileEvidence(registryPath),
     search: {
-      zh: fileEvidence(path.join(repoRoot, 'public/tech-center/search-index.json')),
-      en: fileEvidence(path.join(repoRoot, 'public/tech-center/search-index.en.json'))
+      zh: fileEvidence(path.join(repoRoot, SEARCH_RELATIVE_PATHS.zh)),
+      en: fileEvidence(path.join(repoRoot, SEARCH_RELATIVE_PATHS.en))
     }
   };
 }
@@ -178,13 +295,9 @@ function summarizeExport(repoRoot, variant) {
 }
 
 function currentPathBlockers(repoRoot) {
-  const packageJson = readJson(path.join(repoRoot, 'package.json'));
   const dockerfile = fs.readFileSync(path.join(repoRoot, 'Dockerfile'), 'utf8');
   const blockers = [];
-  if (packageJson.scripts?.prebuild?.includes('verify-technical-full-release.js')) {
-    blockers.push('prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure');
-  }
-  if (dockerfile.includes('Docker publication supports only NEXT_PUBLIC_SITE_VARIANT=cn')) {
+  if (/RUN\s+test\s+"\$NEXT_PUBLIC_SITE_VARIANT"\s*=\s*"cn"\s*\|\|/.test(dockerfile)) {
     blockers.push('docker-publication-is-cn-only');
   }
   return blockers;
@@ -208,7 +321,8 @@ function deriveCapacityBlockers(report, repoRoot) {
     blockers.push('technical-center-initial-javascript-budget-exceeded');
   }
   for (const variant of report.variants) {
-    if (variant.postBuildVerified !== true) blockers.push(`${variant.variant}-post-build-gate-failed`);
+    if (variant.postBuildVerified !== true)
+      blockers.push(`${variant.variant}-post-build-gate-failed`);
   }
   return [...new Set(blockers)];
 }
@@ -276,7 +390,7 @@ function validateCapacityReport(report, repoRoot) {
       }
       if (
         measurement.initialJavaScriptWithinBudget !==
-        (measurement.initialJavaScriptGzipBytes <= measurement.initialJavaScriptMaxGzipBytes)
+        measurement.initialJavaScriptGzipBytes <= measurement.initialJavaScriptMaxGzipBytes
       ) {
         throw new Error(`${measurement.variant} JavaScript budget evidence is inconsistent`);
       }
@@ -285,7 +399,9 @@ function validateCapacityReport(report, repoRoot) {
       }
       if (
         measurement.postBuildVerified !==
-        measurement.postBuildChecks.every((check) => Number.isInteger(check?.status) && check.status === 0)
+        measurement.postBuildChecks.every(
+          (check) => Number.isInteger(check?.status) && check.status === 0
+        )
       ) {
         throw new Error(`${measurement.variant} post-build evidence is inconsistent`);
       }
@@ -355,7 +471,13 @@ function validateCapacityReport(report, repoRoot) {
     }
   }
   const expectedBlockers = deriveCapacityBlockers(report, repoRoot).sort();
-  const observedBlockers = [...report.decision.blockers].sort();
+  // Downstream contracts digest-bind the stale report, so preserve its obsolete blocker as history.
+  const observedBlockers = report.decision.blockers
+    .filter(
+      (blocker) =>
+        blocker !== LEGACY_PREBUILD_BLOCKER || binding.status !== 'stale-after-source-normalization'
+    )
+    .sort();
   if (
     JSON.stringify(observedBlockers) !== JSON.stringify(expectedBlockers) ||
     report.decision.safeOneShotFullRelease !== (expectedBlockers.length === 0)
@@ -375,5 +497,6 @@ module.exports = {
   patchCapacityPageCount,
   projectTechnicalContent,
   summarizeExport,
+  validateImportedProjection,
   validateCapacityReport
 };

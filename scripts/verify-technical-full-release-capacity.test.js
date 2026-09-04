@@ -5,10 +5,17 @@ const path = require('node:path');
 const test = require('node:test');
 
 const {
+  currentPathBlockers,
   isCapacityReportReady,
+  projectTechnicalContent,
   summarizeExport,
-  validateCapacityReport
+  validateCapacityReport,
+  validateImportedProjection
 } = require('./lib/technical-full-release-capacity');
+const {
+  FULL_RELEASE_RELATIVE_PATH,
+  validateClosureArtifact
+} = require('./lib/technical-full-release');
 const { buildReaderPage } = require('./lib/technical-wave');
 const {
   captureVariant,
@@ -34,6 +41,11 @@ test('committed capacity evidence stays bound to the current closure', () => {
   const report = JSON.parse(
     fs.readFileSync(
       path.join(root, 'scripts/fixtures/technical-authority/full-release-capacity.json')
+    )
+  );
+  assert(
+    report.decision.blockers.includes(
+      'prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure'
     )
   );
   validateCapacityReport(report, root);
@@ -95,6 +107,92 @@ test('capacity projections use the canonical Wave 1 page builder', () => {
   assert.equal(page.projection.slug, '/zh/troubleshoot/bge-rerank-v2-m3-docker-gpu-fix');
   assert.equal(page.projection.categoryLabel, '故障排查');
   assert.match(page.document, /## 适用环境与版本范围/);
+});
+
+test('capacity projection reuses a repository-consistent import without rewriting surfaces', () => {
+  const root = path.resolve(__dirname, '..');
+  const surfacePaths = [
+    'src/components/tech-center/entries.json',
+    'public/tech-center/search-index.json',
+    'public/tech-center/search-index.en.json'
+  ];
+  const before = new Map(
+    surfacePaths.map((relativePath) => [
+      relativePath,
+      fs.readFileSync(path.join(root, relativePath))
+    ])
+  );
+  const projection = projectTechnicalContent({
+    repoRoot: root,
+    sourceVerifier(records) {
+      return { verified: records.length, missing: [], drift: [] };
+    }
+  });
+
+  assert.deepEqual(projection.localePages, { zh: 3492, en: 515 });
+  assert.equal(projection.pages, 4007);
+  assert.equal(projection.sourceFilesVerified, 2585);
+  for (const [relativePath, content] of before) {
+    assert.deepEqual(fs.readFileSync(path.join(root, relativePath)), content);
+  }
+});
+
+test('repository-consistent projection rejects a reader path drift', () => {
+  const sourceRoot = path.resolve(__dirname, '..');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-import-'));
+  try {
+    const closurePath = path.join(sourceRoot, FULL_RELEASE_RELATIVE_PATH);
+    const closure = validateClosureArtifact(JSON.parse(fs.readFileSync(closurePath, 'utf8')));
+    const manifest = JSON.parse(
+      fs.readFileSync(
+        path.join(sourceRoot, 'src/content/tech-center/authority/full-release-import-manifest.json')
+      )
+    );
+    manifest.pages[0].readerPath = '../outside.md';
+    const authorityRoot = path.join(root, 'src/content/tech-center/authority');
+    fs.mkdirSync(authorityRoot, { recursive: true });
+    fs.copyFileSync(closurePath, path.join(authorityRoot, 'full-release-identity-closure.json'));
+    fs.writeFileSync(
+      path.join(authorityRoot, 'full-release-import-manifest.json'),
+      JSON.stringify(manifest)
+    );
+    const entries = JSON.parse(
+      fs.readFileSync(path.join(sourceRoot, 'src/components/tech-center/entries.json'))
+    );
+    assert.throws(
+      () => validateImportedProjection(root, closure, entries),
+      /imported projection drift/
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('capacity blockers ignore the historical prebuild command heuristic', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
+  try {
+    fs.writeFileSync(
+      path.join(root, 'package.json'),
+      JSON.stringify({ scripts: { prebuild: 'node scripts/verify-technical-full-release.js' } })
+    );
+    fs.writeFileSync(path.join(root, 'Dockerfile'), 'FROM node:22-alpine\n');
+    assert.deepEqual(currentPathBlockers(root), []);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('capacity blockers retain the CN-only Docker publication constraint', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
+  try {
+    fs.writeFileSync(
+      path.join(root, 'Dockerfile'),
+      'RUN test "$NEXT_PUBLIC_SITE_VARIANT" = "cn" || (echo "unsupported" >&2; exit 1)\n'
+    );
+    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('export summary records files, bytes, and initial JavaScript budget', () => {
