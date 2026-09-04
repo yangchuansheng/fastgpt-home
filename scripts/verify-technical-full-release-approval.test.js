@@ -163,13 +163,13 @@ test('the approval contract records the current evidence-driven block', () => {
   });
 });
 
-test('successful capacity measurement remains separate from release safety', () => {
+test('successful capacity and packaging remain separate from release approval', () => {
   const contract = JSON.parse(fs.readFileSync(path.join(ROOT, CONTRACT_RELATIVE_PATH), 'utf8'));
   const capacity = JSON.parse(
     fs.readFileSync(path.join(ROOT, contract.lineage.capacityReport.path), 'utf8')
   );
-  assert.equal(capacity.decision.safeOneShotFullRelease, false);
-  assert.deepEqual(capacity.decision.blockers, ['docker-publication-is-cn-only']);
+  assert.equal(capacity.decision.safeOneShotFullRelease, true);
+  assert.deepEqual(capacity.decision.blockers, []);
   assert.equal(contract.requiredEvidence[0].status, 'passed');
   assert.equal(contract.approved, false);
   assert.equal(contract.releaseState, 'blocked');

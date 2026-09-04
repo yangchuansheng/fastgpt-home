@@ -74,11 +74,7 @@ function buildSignedImageManifest(environment = process.env) {
   };
   const signingKey = readRequired(environment, 'RELEASE_IMAGE_MANIFEST_KEY');
 
-  verifyReleaseBundle(
-    path.resolve(bundlePath),
-    candidate.sourceRevision,
-    candidate.bundleSha256
-  );
+  verifyReleaseBundle(path.resolve(bundlePath), candidate.sourceRevision, candidate.bundleSha256);
 
   const manifest = JSON.stringify({ schemaVersion: 1, candidate, baseline });
   const signature = createHmac('sha256', signingKey).update(manifest).digest('hex');
@@ -86,9 +82,7 @@ function buildSignedImageManifest(environment = process.env) {
 }
 
 function writeSignedImageManifest(environment = process.env) {
-  const manifestOutput = path.resolve(
-    readRequired(environment, 'RELEASE_IMAGE_MANIFEST_OUTPUT')
-  );
+  const manifestOutput = path.resolve(readRequired(environment, 'RELEASE_IMAGE_MANIFEST_OUTPUT'));
   const signatureOutput = path.resolve(
     readRequired(environment, 'RELEASE_IMAGE_MANIFEST_SIGNATURE_OUTPUT')
   );
@@ -96,6 +90,8 @@ function writeSignedImageManifest(environment = process.env) {
     throw new Error('release image manifest output paths must differ');
   }
   const result = buildSignedImageManifest(environment);
+  fs.mkdirSync(path.dirname(manifestOutput), { recursive: true });
+  fs.mkdirSync(path.dirname(signatureOutput), { recursive: true });
   fs.writeFileSync(manifestOutput, result.manifest);
   fs.writeFileSync(signatureOutput, result.signature);
   return { ...result, manifestOutput, signatureOutput };
@@ -106,9 +102,7 @@ if (require.main === module) {
     if (process.argv.length > 2) throw new Error(`Unknown option: ${process.argv[2]}`);
     const result = writeSignedImageManifest();
     const outputs = `${result.manifestOutput} and ${result.signatureOutput}`;
-    console.log(
-      `[generate-technical-full-release-image-manifest] Generated ${outputs}`
-    );
+    console.log(`[generate-technical-full-release-image-manifest] Generated ${outputs}`);
   } catch (error) {
     console.error(`[generate-technical-full-release-image-manifest] ${error.message}`);
     process.exitCode = 1;

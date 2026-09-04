@@ -18,7 +18,7 @@
     },
     "buildDecision": {
       "path": "scripts/fixtures/technical-authority/full-release-build-decision.json",
-      "sha256": "ae843c1ade7477b07dfe0e1cfacd3bcb5a2e2958ae441b351aeaafd465cba4f6",
+      "sha256": "4c8a829163d487ae396e77f29d3e8bba7fb0bf2281c48f4098c9a3c25e6c298c",
       "issue": 276,
       "sourceRevision": "36c7b31a93197cb05c026dee0f9111d2919fef13",
       "contractRevision": "a037fd114a6e52762253f9324065dffdca92599f",

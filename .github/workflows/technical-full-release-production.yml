@@ -46,12 +46,12 @@ on:
         required: true
         default: technical-full-release-bundle
         type: string
-      image_manifest:
-        description: 'Signed JSON mapping release bundles to immutable CN and IO images'
+      image_manifest_run_id:
+        description: 'Workflow run containing the signed release image manifest'
         required: true
         type: string
-      image_manifest_signature:
-        description: 'HMAC-SHA256 signature for the image manifest'
+      image_manifest_artifact_name:
+        description: 'Signed release image manifest artifact name'
         required: true
         type: string
       maintenance_window_start:
@@ -113,6 +113,14 @@ jobs:
           name: ${{ inputs.previous_artifact_name }}
           path: ${{ runner.temp }}/previous-release
 
+      - name: Download signed release image manifest
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.image_manifest_run_id }}
+          name: ${{ inputs.image_manifest_artifact_name }}
+          path: ${{ runner.temp }}/image-manifest
+
       - name: Configure Kubernetes credentials
         if: inputs.action != 'preflight'
         env:
@@ -139,11 +147,14 @@ jobs:
           RELEASE_IO_NAMESPACE: ${{ vars.TECHNICAL_RELEASE_IO_NAMESPACE }}
           RELEASE_IO_TARGET: ${{ vars.TECHNICAL_RELEASE_IO_TARGET }}
           RELEASE_IO_CONTAINER: ${{ vars.TECHNICAL_RELEASE_IO_CONTAINER }}
-          RELEASE_IMAGE_MANIFEST: ${{ inputs.image_manifest }}
-          RELEASE_IMAGE_MANIFEST_SIGNATURE: ${{ inputs.image_manifest_signature }}
           RELEASE_IMAGE_MANIFEST_KEY: ${{ secrets.TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY }}
+          RELEASE_IMAGE_MANIFEST_PATH: ${{ runner.temp }}/image-manifest/manifest.json
+          RELEASE_IMAGE_MANIFEST_SIGNATURE_PATH: ${{ runner.temp }}/image-manifest/manifest.sig
           RELEASE_MAINTENANCE_WINDOW_START: ${{ inputs.maintenance_window_start }}
           RELEASE_MAINTENANCE_WINDOW_END: ${{ inputs.maintenance_window_end }}
           RELEASE_APPROVAL_TOKEN: ${{ secrets.TECHNICAL_RELEASE_APPROVAL_TOKEN }}
           RELEASE_APPROVAL_TOKEN_SHA256: ${{ vars.TECHNICAL_RELEASE_APPROVAL_TOKEN_SHA256 }}
-        run: npm run release:technical-full -- ${{ inputs.action }}
+        run: |
+          export RELEASE_IMAGE_MANIFEST="$(cat "$RELEASE_IMAGE_MANIFEST_PATH")"
+          export RELEASE_IMAGE_MANIFEST_SIGNATURE="$(cat "$RELEASE_IMAGE_MANIFEST_SIGNATURE_PATH")"
+          npm run release:technical-full -- ${{ inputs.action }}

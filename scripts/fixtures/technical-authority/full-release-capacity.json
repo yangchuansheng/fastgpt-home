@@ -264,9 +264,7 @@
     }
   ],
   "decision": {
-    "safeOneShotFullRelease": false,
-    "blockers": [
-      "docker-publication-is-cn-only"
-    ]
+    "safeOneShotFullRelease": true,
+    "blockers": []
   }
 }

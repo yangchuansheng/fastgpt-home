@@ -128,9 +128,10 @@ test('output is deterministic and consumed directly by the release controller', 
         env: {
           ...process.env,
           ...environment,
-          RELEASE_IMAGE_MANIFEST_OUTPUT: path.join(temporaryRoot, 'image-manifest.json'),
+          RELEASE_IMAGE_MANIFEST_OUTPUT: path.join(temporaryRoot, 'output', 'image-manifest.json'),
           RELEASE_IMAGE_MANIFEST_SIGNATURE_OUTPUT: path.join(
             temporaryRoot,
+            'output',
             'image-manifest.sha256'
           )
         }
@@ -139,11 +140,11 @@ test('output is deterministic and consumed directly by the release controller', 
     assert.equal(cli.status, 0, cli.stderr);
     assert.match(cli.stdout, /^\[generate-technical-full-release-image-manifest\] Generated /u);
     assert.equal(
-      fs.readFileSync(path.join(temporaryRoot, 'image-manifest.json'), 'utf8'),
+      fs.readFileSync(path.join(temporaryRoot, 'output/image-manifest.json'), 'utf8'),
       first.manifest
     );
     assert.equal(
-      fs.readFileSync(path.join(temporaryRoot, 'image-manifest.sha256'), 'utf8'),
+      fs.readFileSync(path.join(temporaryRoot, 'output/image-manifest.sha256'), 'utf8'),
       first.signature
     );
 

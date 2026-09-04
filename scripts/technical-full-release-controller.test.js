@@ -414,5 +414,9 @@ test('production workflow exposes only a manual controller entry point', () => {
   assert.match(workflow, /^on:\n  workflow_dispatch:/mu);
   assert.doesNotMatch(workflow, /\n\s+pull_request:/u);
   assert.doesNotMatch(workflow, /\n\s+push:/u);
+  assert.match(workflow, /image_manifest_run_id:/u);
+  assert.match(workflow, /actions\/download-artifact@v4/u);
+  assert.match(workflow, /image-manifest\/manifest\.json/u);
+  assert.match(workflow, /image-manifest\/manifest\.sig/u);
   assert.match(workflow, /npm run release:technical-full -- \$\{\{ inputs\.action \}\}/u);
 });

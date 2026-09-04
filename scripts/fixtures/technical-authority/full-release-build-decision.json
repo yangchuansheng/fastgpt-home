@@ -9,7 +9,7 @@
   "evidence": {
     "capacityReport": {
       "path": "scripts/fixtures/technical-authority/full-release-capacity.json",
-      "sha256": "8d19a799d64174c6679b48fb9a28abb8dccd3f1691bbc1d59a884e1af7116278",
+      "sha256": "23b352f7479bdc048e7b2c95e7a8c5545cbf30195f4ef23aa7d86886e753f8f9",
       "issue": 275,
       "sourceRevision": "b8b94710e7659fe1ceb8726158c268d021bb08cb",
       "pages": 4007,

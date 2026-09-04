@@ -62,8 +62,8 @@ test('committed capacity evidence records a successful three-variant measurement
     rerunRequired: false
   });
   assert.deepEqual(report.decision, {
-    safeOneShotFullRelease: false,
-    blockers: ['docker-publication-is-cn-only']
+    safeOneShotFullRelease: true,
+    blockers: []
   });
   assert.deepEqual(
     report.variants.map(
@@ -103,8 +103,8 @@ test('committed capacity evidence records a successful three-variant measurement
     report.variants.every((variant) => variant.postBuildChecks.every((check) => check.status === 0))
   );
   validateCapacityReport(report, ROOT);
-  assert.equal(isCapacityReportReady(report), false);
-  assert.throws(() => assertCapacityReportReady(report), /docker-publication-is-cn-only/);
+  assert.equal(isCapacityReportReady(report), true);
+  assert.doesNotThrow(() => assertCapacityReportReady(report));
 
   const mutated = structuredClone(report);
   mutated.projection.pages += 1;
@@ -125,7 +125,6 @@ test('stale capacity measurements require the rerun blocker and keep release uns
     safeOneShotFullRelease: false,
     blockers: [
       'prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure',
-      'docker-publication-is-cn-only',
       'capacity-rerun-required-after-source-normalization'
     ]
   };
@@ -166,11 +165,7 @@ test('capacity decisions reject a report with failed variant measurements', () =
   };
   failed.decision = {
     safeOneShotFullRelease: false,
-    blockers: [
-      'docker-publication-is-cn-only',
-      'one-or-more-static-exports-failed',
-      'io-post-build-gate-failed'
-    ]
+    blockers: ['one-or-more-static-exports-failed', 'io-post-build-gate-failed']
   };
   validateCapacityReport(failed, ROOT);
   assert.equal(isCapacityReportReady(failed), false);
@@ -268,27 +263,81 @@ test('repository-consistent projection rejects a reader path drift', () => {
   }
 });
 
-test('capacity blockers ignore the historical prebuild command heuristic', () => {
+function writeDualSitePackagingPath(root, workflowTransform = (workflow) => workflow) {
+  const workflow = `on:
+  workflow_dispatch:
+jobs:
+  package:
+    steps:
+      - run: npm run verify:technical-full-release-build-decision -- --verify-bundle "$RELEASE_BUNDLE" "$RELEASE_SOURCE_COMMIT" "$RELEASE_BUNDLE_SHA256"
+      - run: |
+          for site in cn io; do
+            cp -R "$RELEASE_BUNDLE/$site/out" release-out
+          done
+      - uses: docker/build-push-action@v6
+        with:
+          context: \${{ runner.temp }}/technical-release-cn
+          target: release-runtime
+          push: true
+      - uses: docker/build-push-action@v6
+        with:
+          context: \${{ runner.temp }}/technical-release-io
+          target: release-runtime
+          push: true
+      - run: npm run generate:technical-full-release-image-manifest
+        env:
+          RELEASE_IMAGE_MANIFEST_KEY: \${{ secrets.TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY }}
+      - uses: actions/upload-artifact@v4
+`;
+  fs.mkdirSync(path.join(root, '.github/workflows'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'scripts'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'Dockerfile'), 'FROM nginx AS release-runtime\n');
+  fs.writeFileSync(
+    path.join(root, '.github/workflows/technical-full-release-images.yml'),
+    workflowTransform(workflow)
+  );
+  fs.writeFileSync(
+    path.join(root, 'scripts/generate-technical-full-release-image-manifest.js'),
+    `const { createHmac } = require('node:crypto');
+verifyReleaseBundle();
+createHmac('sha256');
+process.env.RELEASE_CN_IMAGE;
+process.env.RELEASE_IO_IMAGE;
+process.env.PREVIOUS_RELEASE_CN_IMAGE;
+process.env.PREVIOUS_RELEASE_IO_IMAGE;
+`
+  );
+}
+
+test('capacity blockers accept the manual dual-site release-runtime packaging path', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
   try {
-    fs.writeFileSync(
-      path.join(root, 'package.json'),
-      JSON.stringify({ scripts: { prebuild: 'node scripts/verify-technical-full-release.js' } })
-    );
-    fs.writeFileSync(path.join(root, 'Dockerfile'), 'FROM node:22-alpine\n');
+    writeDualSitePackagingPath(root);
     assert.deepEqual(currentPathBlockers(root), []);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
 
-test('capacity blockers retain the CN-only Docker publication constraint', () => {
+test('capacity blockers require both release-runtime image builds and manual dispatch', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
   try {
-    fs.writeFileSync(
-      path.join(root, 'Dockerfile'),
-      'RUN test "$NEXT_PUBLIC_SITE_VARIANT" = "cn" || (echo "unsupported" >&2; exit 1)\n'
+    writeDualSitePackagingPath(root, (workflow) =>
+      workflow
+        .replace('  workflow_dispatch:', '  pull_request:')
+        .replace('technical-release-io', 'technical-release-cn')
     );
+    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('capacity blockers report a missing signed image-manifest generator', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
+  try {
+    writeDualSitePackagingPath(root);
+    fs.rmSync(path.join(root, 'scripts/generate-technical-full-release-image-manifest.js'));
     assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

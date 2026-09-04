@@ -301,12 +301,46 @@ function summarizeExport(repoRoot, variant) {
 }
 
 function currentPathBlockers(repoRoot) {
-  const dockerfile = fs.readFileSync(path.join(repoRoot, 'Dockerfile'), 'utf8');
-  const blockers = [];
-  if (/RUN\s+test\s+"\$NEXT_PUBLIC_SITE_VARIANT"\s*=\s*"cn"\s*\|\|/.test(dockerfile)) {
-    blockers.push('docker-publication-is-cn-only');
+  const requiredFiles = {
+    dockerfile: 'Dockerfile',
+    workflow: '.github/workflows/technical-full-release-images.yml',
+    generator: 'scripts/generate-technical-full-release-image-manifest.js'
+  };
+  let dockerfile;
+  let workflow;
+  let generator;
+  try {
+    dockerfile = fs.readFileSync(path.join(repoRoot, requiredFiles.dockerfile), 'utf8');
+    workflow = fs.readFileSync(path.join(repoRoot, requiredFiles.workflow), 'utf8');
+    generator = fs.readFileSync(path.join(repoRoot, requiredFiles.generator), 'utf8');
+  } catch {
+    return ['docker-publication-is-cn-only'];
   }
-  return blockers;
+  const packagingChecks = [
+    /\bAS\s+release-runtime\b/u.test(dockerfile),
+    /^on:\s*\n\s{2}workflow_dispatch:\s*$/mu.test(workflow),
+    !/^\s{2}(?:push|pull_request|schedule):/mu.test(workflow),
+    /--verify-bundle\s+"\$RELEASE_BUNDLE"\s+"\$RELEASE_SOURCE_COMMIT"\s+"\$RELEASE_BUNDLE_SHA256"/u.test(
+      workflow
+    ),
+    /for\s+site\s+in\s+cn\s+io/u.test(workflow),
+    /"\$RELEASE_BUNDLE\/\$site\/out"/u.test(workflow),
+    (workflow.match(/docker\/build-push-action@v6/gu) || []).length === 2,
+    (workflow.match(/^\s+target:\s+release-runtime\s*$/gmu) || []).length === 2,
+    /context:\s+\$\{\{ runner\.temp \}\}\/technical-release-cn/u.test(workflow),
+    /context:\s+\$\{\{ runner\.temp \}\}\/technical-release-io/u.test(workflow),
+    (workflow.match(/^\s+push:\s+true\s*$/gmu) || []).length === 2,
+    /npm run generate:technical-full-release-image-manifest/u.test(workflow),
+    /TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY/u.test(workflow),
+    /actions\/upload-artifact@v4/u.test(workflow),
+    /verifyReleaseBundle\s*\(/u.test(generator),
+    /createHmac\(['"]sha256['"]/u.test(generator),
+    /RELEASE_CN_IMAGE/u.test(generator),
+    /RELEASE_IO_IMAGE/u.test(generator),
+    /PREVIOUS_RELEASE_CN_IMAGE/u.test(generator),
+    /PREVIOUS_RELEASE_IO_IMAGE/u.test(generator)
+  ];
+  return packagingChecks.every(Boolean) ? [] : ['docker-publication-is-cn-only'];
 }
 
 function deriveCapacityBlockers(report, repoRoot) {
