@@ -69,6 +69,7 @@ const PREREQUISITES = [
 const PRE_SWITCH_PREREQUISITES = PREREQUISITES.slice(0, 7);
 const POST_SWITCH_PREREQUISITES = PREREQUISITES.slice(7);
 const STALE_CAPACITY_RERUN_BLOCKER = 'successful-4007-page-capacity-rerun';
+const BUILD_DECISION_CONTRACT_REVISION = 'a037fd114a6e52762253f9324065dffdca92599f';
 const EVIDENCE_KINDS = {
   'successful-4007-page-capacity-rerun': 'full-release-capacity-success',
   'complete-source-and-export-validation': 'full-release-candidate-validation',
@@ -447,6 +448,11 @@ function verifyTechnicalFullReleaseProductionSwitch({
 
   const buildDecision = verifyArtifact(rootDir, contract.lineage?.buildDecision, 'build decision');
   assert.equal(contract.lineage.buildDecision.issue, 276, 'build decision issue binding drift');
+  assert.equal(
+    contract.lineage.buildDecision.contractRevision,
+    BUILD_DECISION_CONTRACT_REVISION,
+    'build decision contract revision drift'
+  );
   assert.equal(buildDecision.issue, 276, 'build decision source issue drift');
   assert.equal(
     contract.lineage.buildDecision.sourceRevision,
@@ -468,6 +474,21 @@ function verifyTechnicalFullReleaseProductionSwitch({
     rootDir,
     buildDecision.evidence?.capacityReport,
     'build decision capacity report'
+  );
+  assert.equal(
+    buildDecision.evidence.capacityReport.issue,
+    275,
+    'build decision capacity report issue binding drift'
+  );
+  assert.equal(
+    buildDecision.evidence.capacityReport.sourceRevision,
+    capacityReport.sourceRevision,
+    'build decision capacity report source revision drift'
+  );
+  assert.equal(
+    buildDecision.evidence.capacityReport.recordsSha256,
+    capacityReport.projection?.recordsSha256,
+    'build decision capacity report records digest drift'
   );
   const staleCapacityMeasurement =
     capacityReport.measurementBinding?.status === 'stale-after-source-normalization';

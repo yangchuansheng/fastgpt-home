@@ -18,9 +18,10 @@
     },
     "buildDecision": {
       "path": "scripts/fixtures/technical-authority/full-release-build-decision.json",
-      "sha256": "7a6869c57f2fb0d00f72089e5f8528ebebf46705ce338448a03257088bfba55d",
+      "sha256": "ae843c1ade7477b07dfe0e1cfacd3bcb5a2e2958ae441b351aeaafd465cba4f6",
       "issue": 276,
-      "sourceRevision": "c2774f29e03d916f91ea4f968c7d8e40c110e633",
+      "sourceRevision": "36c7b31a93197cb05c026dee0f9111d2919fef13",
+      "contractRevision": "a037fd114a6e52762253f9324065dffdca92599f",
       "targetPages": 4007,
       "decision": "increase-build-resources"
     }
