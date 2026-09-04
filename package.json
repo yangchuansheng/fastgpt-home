@@ -91,6 +91,7 @@
     "generate:technical-full-release": "node scripts/generate-technical-full-release.js --write",
     "verify:technical-full-release": "node scripts/verify-technical-full-release.js",
     "verify:technical-full-release-regression": "node --test scripts/verify-technical-full-release.test.js",
+    "verify:technical-full-release-import": "node scripts/verify-technical-full-release-import.js",
     "verify:technical-full-release-capacity": "node scripts/verify-technical-full-release-capacity.js",
     "verify:technical-full-release-capacity-evidence": "node scripts/verify-technical-full-release-capacity.js --check-report",
     "verify:technical-full-release-capacity-regression": "node --test scripts/verify-technical-full-release-capacity.test.js",
