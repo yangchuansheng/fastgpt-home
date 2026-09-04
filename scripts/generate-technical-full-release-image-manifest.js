@@ -2,7 +2,7 @@
 
 /** Generate the signed image mapping consumed by the Technical Center release controller. */
 
-const { createHmac } = require('node:crypto');
+const { createHmac, timingSafeEqual } = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -20,8 +20,64 @@ function readRequired(environment, name) {
 
 function readMatching(environment, name, pattern, label) {
   const value = readRequired(environment, name);
+  return validateMatching(value, name, pattern, label);
+}
+
+function validateMatching(value, name, pattern, label) {
   if (!pattern.test(value)) throw new Error(`${name} must use ${label}`);
   return value;
+}
+
+function readPreviousRelease(environment, signingKey) {
+  const rawManifest = readRequired(environment, 'PREVIOUS_RELEASE_IMAGE_MANIFEST');
+  const signature = readMatching(
+    environment,
+    'PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE',
+    DIGEST_PATTERN,
+    'a SHA-256 digest'
+  );
+  const expected = createHmac('sha256', signingKey).update(rawManifest).digest();
+  if (!timingSafeEqual(expected, Buffer.from(signature, 'hex'))) {
+    throw new Error('previous release image manifest signature is invalid');
+  }
+  let manifest;
+  try {
+    manifest = JSON.parse(rawManifest);
+  } catch (error) {
+    throw new Error(`previous release image manifest is unreadable: ${error.message}`);
+  }
+  if (manifest?.schemaVersion !== 1) {
+    throw new Error('previous release image manifest schema version drift');
+  }
+  const candidate = manifest.candidate || {};
+  return {
+    sourceRevision: validateMatching(
+      candidate.sourceRevision || '',
+      'previous release candidate source revision',
+      REVISION_PATTERN,
+      'a 40-character commit SHA'
+    ),
+    bundleSha256: validateMatching(
+      candidate.bundleSha256 || '',
+      'previous release candidate bundle digest',
+      DIGEST_PATTERN,
+      'a SHA-256 digest'
+    ),
+    images: {
+      cn: validateMatching(
+        candidate.images?.cn || '',
+        'previous release candidate CN image',
+        IMAGE_PATTERN,
+        'an immutable image digest'
+      ),
+      io: validateMatching(
+        candidate.images?.io || '',
+        'previous release candidate IO image',
+        IMAGE_PATTERN,
+        'an immutable image digest'
+      )
+    }
+  };
 }
 
 function buildSignedImageManifest(environment = process.env) {
@@ -44,7 +100,8 @@ function buildSignedImageManifest(environment = process.env) {
       io: readMatching(environment, 'RELEASE_IO_IMAGE', IMAGE_PATTERN, 'an immutable image digest')
     }
   };
-  const baseline = {
+  const signingKey = readRequired(environment, 'RELEASE_IMAGE_MANIFEST_KEY');
+  const expectedBaseline = {
     sourceRevision: readMatching(
       environment,
       'PREVIOUS_RELEASE_SOURCE_COMMIT',
@@ -56,23 +113,15 @@ function buildSignedImageManifest(environment = process.env) {
       'PREVIOUS_RELEASE_BUNDLE_SHA256',
       DIGEST_PATTERN,
       'a SHA-256 digest'
-    ),
-    images: {
-      cn: readMatching(
-        environment,
-        'PREVIOUS_RELEASE_CN_IMAGE',
-        IMAGE_PATTERN,
-        'an immutable image digest'
-      ),
-      io: readMatching(
-        environment,
-        'PREVIOUS_RELEASE_IO_IMAGE',
-        IMAGE_PATTERN,
-        'an immutable image digest'
-      )
-    }
+    )
   };
-  const signingKey = readRequired(environment, 'RELEASE_IMAGE_MANIFEST_KEY');
+  const baseline = readPreviousRelease(environment, signingKey);
+  if (
+    baseline.sourceRevision !== expectedBaseline.sourceRevision ||
+    baseline.bundleSha256 !== expectedBaseline.bundleSha256
+  ) {
+    throw new Error('previous release bundle differs from its signed image manifest');
+  }
 
   verifyReleaseBundle(path.resolve(bundlePath), candidate.sourceRevision, candidate.bundleSha256);
 

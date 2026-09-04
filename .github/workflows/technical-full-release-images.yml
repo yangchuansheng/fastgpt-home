@@ -36,12 +36,12 @@ on:
         description: 'Previous complete release bundle SHA-256'
         required: true
         type: string
-      previous_cn_image:
-        description: 'Previous immutable CN image reference'
+      previous_image_manifest_run_id:
+        description: 'Workflow run containing the previous signed image manifest'
         required: true
         type: string
-      previous_io_image:
-        description: 'Previous immutable IO image reference'
+      previous_image_manifest_artifact_name:
+        description: 'Previous signed image manifest artifact name'
         required: true
         type: string
 
@@ -67,29 +67,25 @@ jobs:
           RELEASE_BUNDLE_SHA256: ${{ inputs.bundle_sha256 }}
           PREVIOUS_RELEASE_SOURCE_COMMIT: ${{ inputs.previous_source_revision }}
           PREVIOUS_RELEASE_BUNDLE_SHA256: ${{ inputs.previous_bundle_sha256 }}
-          PREVIOUS_RELEASE_CN_IMAGE: ${{ inputs.previous_cn_image }}
-          PREVIOUS_RELEASE_IO_IMAGE: ${{ inputs.previous_io_image }}
           RELEASE_CN_IMAGE_REPOSITORY: ${{ inputs.cn_image_repository }}
           RELEASE_IO_IMAGE_REPOSITORY: ${{ inputs.io_image_repository }}
           RELEASE_ARTIFACT_RUN_ID: ${{ inputs.candidate_artifact_run_id }}
+          PREVIOUS_RELEASE_IMAGE_MANIFEST_RUN_ID: ${{ inputs.previous_image_manifest_run_id }}
         run: |
+          test "$GITHUB_SHA" = "$RELEASE_SOURCE_COMMIT"
           test "$(printf '%s' "$RELEASE_SOURCE_COMMIT" | wc -c)" -eq 40
           test "$(printf '%s' "$RELEASE_BUNDLE_SHA256" | wc -c)" -eq 64
           test "$(printf '%s' "$PREVIOUS_RELEASE_SOURCE_COMMIT" | wc -c)" -eq 40
           test "$(printf '%s' "$PREVIOUS_RELEASE_BUNDLE_SHA256" | wc -c)" -eq 64
           printf '%s\n' "$RELEASE_SOURCE_COMMIT$RELEASE_BUNDLE_SHA256$PREVIOUS_RELEASE_SOURCE_COMMIT$PREVIOUS_RELEASE_BUNDLE_SHA256" | grep -Eq '^[a-f0-9]+$'
           printf '%s\n' "$RELEASE_ARTIFACT_RUN_ID" | grep -Eq '^[1-9][0-9]*$'
-          for image in "$PREVIOUS_RELEASE_CN_IMAGE" "$PREVIOUS_RELEASE_IO_IMAGE"; do
-            printf '%s\n' "$image" | grep -Eq '^ghcr\.io/[a-z0-9._/-]+@sha256:[a-f0-9]{64}$'
-          done
+          printf '%s\n' "$PREVIOUS_RELEASE_IMAGE_MANIFEST_RUN_ID" | grep -Eq '^[1-9][0-9]*$'
           for repository in "$RELEASE_CN_IMAGE_REPOSITORY" "$RELEASE_IO_IMAGE_REPOSITORY"; do
             printf '%s\n' "$repository" | grep -Eq '^ghcr\.io/[a-z0-9._/-]+$'
           done
 
       - name: Checkout candidate source
         uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.source_revision }}
 
       - name: Verify checked-out source revision
         env:
@@ -108,6 +104,14 @@ jobs:
           run-id: ${{ inputs.candidate_artifact_run_id }}
           name: ${{ inputs.candidate_artifact_name }}
           path: ${{ runner.temp }}/candidate-release
+
+      - name: Download previous signed release image manifest
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.previous_image_manifest_run_id }}
+          name: ${{ inputs.previous_image_manifest_artifact_name }}
+          path: ${{ runner.temp }}/previous-image-manifest
 
       - name: Verify the retained full-release bundle
         env:
@@ -176,12 +180,15 @@ jobs:
           RELEASE_IO_IMAGE: ${{ inputs.io_image_repository }}@${{ steps.build-io.outputs.digest }}
           PREVIOUS_RELEASE_SOURCE_COMMIT: ${{ inputs.previous_source_revision }}
           PREVIOUS_RELEASE_BUNDLE_SHA256: ${{ inputs.previous_bundle_sha256 }}
-          PREVIOUS_RELEASE_CN_IMAGE: ${{ inputs.previous_cn_image }}
-          PREVIOUS_RELEASE_IO_IMAGE: ${{ inputs.previous_io_image }}
           RELEASE_IMAGE_MANIFEST_KEY: ${{ secrets.TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY }}
+          PREVIOUS_RELEASE_IMAGE_MANIFEST_PATH: ${{ runner.temp }}/previous-image-manifest/manifest.json
+          PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE_PATH: ${{ runner.temp }}/previous-image-manifest/manifest.sig
           RELEASE_IMAGE_MANIFEST_OUTPUT: ${{ runner.temp }}/image-manifest/manifest.json
           RELEASE_IMAGE_MANIFEST_SIGNATURE_OUTPUT: ${{ runner.temp }}/image-manifest/manifest.sig
-        run: npm run generate:technical-full-release-image-manifest
+        run: |
+          export PREVIOUS_RELEASE_IMAGE_MANIFEST="$(cat "$PREVIOUS_RELEASE_IMAGE_MANIFEST_PATH")"
+          export PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE="$(cat "$PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE_PATH")"
+          npm run generate:technical-full-release-image-manifest
 
       - name: Upload signed release image manifest
         uses: actions/upload-artifact@v4

@@ -264,48 +264,24 @@ test('repository-consistent projection rejects a reader path drift', () => {
 });
 
 function writeDualSitePackagingPath(root, workflowTransform = (workflow) => workflow) {
-  const workflow = `on:
-  workflow_dispatch:
-jobs:
-  package:
-    steps:
-      - run: npm run verify:technical-full-release-build-decision -- --verify-bundle "$RELEASE_BUNDLE" "$RELEASE_SOURCE_COMMIT" "$RELEASE_BUNDLE_SHA256"
-      - run: |
-          for site in cn io; do
-            cp -R "$RELEASE_BUNDLE/$site/out" release-out
-          done
-      - uses: docker/build-push-action@v6
-        with:
-          context: \${{ runner.temp }}/technical-release-cn
-          target: release-runtime
-          push: true
-      - uses: docker/build-push-action@v6
-        with:
-          context: \${{ runner.temp }}/technical-release-io
-          target: release-runtime
-          push: true
-      - run: npm run generate:technical-full-release-image-manifest
-        env:
-          RELEASE_IMAGE_MANIFEST_KEY: \${{ secrets.TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY }}
-      - uses: actions/upload-artifact@v4
-`;
   fs.mkdirSync(path.join(root, '.github/workflows'), { recursive: true });
   fs.mkdirSync(path.join(root, 'scripts'), { recursive: true });
-  fs.writeFileSync(path.join(root, 'Dockerfile'), 'FROM nginx AS release-runtime\n');
+  fs.copyFileSync(path.join(ROOT, 'Dockerfile'), path.join(root, 'Dockerfile'));
+  const workflow = fs.readFileSync(
+    path.join(ROOT, '.github/workflows/technical-full-release-images.yml'),
+    'utf8'
+  );
   fs.writeFileSync(
     path.join(root, '.github/workflows/technical-full-release-images.yml'),
     workflowTransform(workflow)
   );
-  fs.writeFileSync(
-    path.join(root, 'scripts/generate-technical-full-release-image-manifest.js'),
-    `const { createHmac } = require('node:crypto');
-verifyReleaseBundle();
-createHmac('sha256');
-process.env.RELEASE_CN_IMAGE;
-process.env.RELEASE_IO_IMAGE;
-process.env.PREVIOUS_RELEASE_CN_IMAGE;
-process.env.PREVIOUS_RELEASE_IO_IMAGE;
-`
+  fs.copyFileSync(
+    path.join(ROOT, '.github/workflows/technical-full-release-production.yml'),
+    path.join(root, '.github/workflows/technical-full-release-production.yml')
+  );
+  fs.copyFileSync(
+    path.join(ROOT, 'scripts/generate-technical-full-release-image-manifest.js'),
+    path.join(root, 'scripts/generate-technical-full-release-image-manifest.js')
   );
 }
 
@@ -326,6 +302,30 @@ test('capacity blockers require both release-runtime image builds and manual dis
       workflow
         .replace('  workflow_dispatch:', '  pull_request:')
         .replace('technical-release-io', 'technical-release-cn')
+    );
+    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('capacity blockers bind each site image to its own build digest', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
+  try {
+    writeDualSitePackagingPath(root, (workflow) =>
+      workflow.replace('steps.build-io.outputs.digest', 'steps.build-cn.outputs.digest')
+    );
+    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('capacity blockers require the upstream main packaging guard', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
+  try {
+    writeDualSitePackagingPath(root, (workflow) =>
+      workflow.replace("github.repository == 'labring/fastgpt-home'", 'always()')
     );
     assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
   } finally {

@@ -37,6 +37,19 @@ function makeBundle(root) {
 }
 
 function buildEnvironment(bundlePath, bundleSha256) {
+  const previousManifest = JSON.stringify({
+    schemaVersion: 1,
+    candidate: {
+      sourceRevision: BASELINE_REVISION,
+      bundleSha256: BASELINE_SHA256,
+      images: { cn: IMAGES.baselineCn, io: IMAGES.baselineIo }
+    },
+    baseline: {
+      sourceRevision: 'c'.repeat(40),
+      bundleSha256: 'd'.repeat(64),
+      images: { cn: IMAGES.baselineCn, io: IMAGES.baselineIo }
+    }
+  });
   return {
     RELEASE_BUNDLE: bundlePath,
     RELEASE_SOURCE_COMMIT: SOURCE_REVISION,
@@ -45,9 +58,11 @@ function buildEnvironment(bundlePath, bundleSha256) {
     RELEASE_IO_IMAGE: IMAGES.candidateIo,
     PREVIOUS_RELEASE_SOURCE_COMMIT: BASELINE_REVISION,
     PREVIOUS_RELEASE_BUNDLE_SHA256: BASELINE_SHA256,
-    PREVIOUS_RELEASE_CN_IMAGE: IMAGES.baselineCn,
-    PREVIOUS_RELEASE_IO_IMAGE: IMAGES.baselineIo,
-    RELEASE_IMAGE_MANIFEST_KEY: SIGNING_KEY
+    RELEASE_IMAGE_MANIFEST_KEY: SIGNING_KEY,
+    PREVIOUS_RELEASE_IMAGE_MANIFEST: previousManifest,
+    PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE: createHmac('sha256', SIGNING_KEY)
+      .update(previousManifest)
+      .digest('hex')
   };
 }
 
@@ -90,6 +105,36 @@ test('input validation rejects mutable images and malformed bindings', () => {
   assert.throws(
     () => buildSignedImageManifest({ ...environment, PREVIOUS_RELEASE_BUNDLE_SHA256: 'bad' }),
     /PREVIOUS_RELEASE_BUNDLE_SHA256 must use a SHA-256 digest/
+  );
+  assert.throws(
+    () =>
+      buildSignedImageManifest({
+        ...environment,
+        PREVIOUS_RELEASE_BUNDLE_SHA256: 'e'.repeat(64)
+      }),
+    /previous release bundle differs from its signed image manifest/
+  );
+  const mutablePrevious = JSON.parse(environment.PREVIOUS_RELEASE_IMAGE_MANIFEST);
+  mutablePrevious.candidate.images.io = 'image:latest';
+  const rawMutablePrevious = JSON.stringify(mutablePrevious);
+  assert.throws(
+    () =>
+      buildSignedImageManifest({
+        ...environment,
+        PREVIOUS_RELEASE_IMAGE_MANIFEST: rawMutablePrevious,
+        PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE: createHmac('sha256', SIGNING_KEY)
+          .update(rawMutablePrevious)
+          .digest('hex')
+      }),
+    /previous release candidate IO image must use an immutable image digest/
+  );
+  assert.throws(
+    () =>
+      buildSignedImageManifest({
+        ...environment,
+        PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE: '0'.repeat(64)
+      }),
+    /previous release image manifest signature is invalid/
   );
 });
 

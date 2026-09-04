@@ -304,41 +304,108 @@ function currentPathBlockers(repoRoot) {
   const requiredFiles = {
     dockerfile: 'Dockerfile',
     workflow: '.github/workflows/technical-full-release-images.yml',
+    productionWorkflow: '.github/workflows/technical-full-release-production.yml',
     generator: 'scripts/generate-technical-full-release-image-manifest.js'
   };
   let dockerfile;
   let workflow;
+  let productionWorkflow;
   let generator;
   try {
     dockerfile = fs.readFileSync(path.join(repoRoot, requiredFiles.dockerfile), 'utf8');
     workflow = fs.readFileSync(path.join(repoRoot, requiredFiles.workflow), 'utf8');
+    productionWorkflow = fs.readFileSync(
+      path.join(repoRoot, requiredFiles.productionWorkflow),
+      'utf8'
+    );
     generator = fs.readFileSync(path.join(repoRoot, requiredFiles.generator), 'utf8');
   } catch {
     return ['docker-publication-is-cn-only'];
   }
+  const readWorkflowStep = (source, name) => {
+    const marker = `      - name: ${name}`;
+    const start = source.indexOf(marker);
+    if (start < 0) return '';
+    const end = source.indexOf('\n      - name:', start + marker.length);
+    return source.slice(start, end < 0 ? undefined : end);
+  };
+  const workflowDispatchOnly = (source) => {
+    const block = source.match(/^on:\s*\n([\s\S]*?)(?=^[^\s#])/mu)?.[1] || '';
+    const events = [...block.matchAll(/^\s{2}([a-z_]+):/gmu)].map((match) => match[1]);
+    return JSON.stringify(events) === JSON.stringify(['workflow_dispatch']);
+  };
+  const releaseStageStart = dockerfile.search(/\bAS\s+release-runtime\b/u);
+  const nextStage =
+    releaseStageStart < 0 ? -1 : dockerfile.indexOf('\nFROM ', releaseStageStart + 1);
+  const releaseStage =
+    releaseStageStart < 0
+      ? ''
+      : dockerfile.slice(releaseStageStart, nextStage < 0 ? undefined : nextStage);
+  const verifyStep = readWorkflowStep(workflow, 'Verify the retained full-release bundle');
+  const prepareStep = readWorkflowStep(workflow, 'Prepare isolated CN and IO runtime contexts');
+  const cnBuildStep = readWorkflowStep(workflow, 'Build and push immutable CN runtime');
+  const ioBuildStep = readWorkflowStep(workflow, 'Build and push immutable IO runtime');
+  const manifestStep = readWorkflowStep(workflow, 'Generate signed release image manifest');
+  const uploadStep = readWorkflowStep(workflow, 'Upload signed release image manifest');
   const packagingChecks = [
-    /\bAS\s+release-runtime\b/u.test(dockerfile),
-    /^on:\s*\n\s{2}workflow_dispatch:\s*$/mu.test(workflow),
-    !/^\s{2}(?:push|pull_request|schedule):/mu.test(workflow),
-    /--verify-bundle\s+"\$RELEASE_BUNDLE"\s+"\$RELEASE_SOURCE_COMMIT"\s+"\$RELEASE_BUNDLE_SHA256"/u.test(
+    /COPY\s+release-out\/\s+\/usr\/share\/nginx\/html\//u.test(releaseStage),
+    /COPY\s+release-out\/__release\/nginx-redirects\.conf\s+\/etc\/nginx\/generated-redirects\.conf/u.test(
+      releaseStage
+    ),
+    /test\s+-s\s+\/etc\/nginx\/generated-redirects\.conf/u.test(releaseStage),
+    workflowDispatchOnly(workflow),
+    /if:\s+github\.repository == 'labring\/fastgpt-home' && github\.ref == 'refs\/heads\/main'/u.test(
       workflow
     ),
-    /for\s+site\s+in\s+cn\s+io/u.test(workflow),
-    /"\$RELEASE_BUNDLE\/\$site\/out"/u.test(workflow),
-    (workflow.match(/docker\/build-push-action@v6/gu) || []).length === 2,
-    (workflow.match(/^\s+target:\s+release-runtime\s*$/gmu) || []).length === 2,
-    /context:\s+\$\{\{ runner\.temp \}\}\/technical-release-cn/u.test(workflow),
-    /context:\s+\$\{\{ runner\.temp \}\}\/technical-release-io/u.test(workflow),
-    (workflow.match(/^\s+push:\s+true\s*$/gmu) || []).length === 2,
-    /npm run generate:technical-full-release-image-manifest/u.test(workflow),
-    /TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY/u.test(workflow),
-    /actions\/upload-artifact@v4/u.test(workflow),
+    /test\s+"\$GITHUB_SHA"\s+=\s+"\$RELEASE_SOURCE_COMMIT"/u.test(workflow),
+    /--verify-bundle\s+"\$RELEASE_BUNDLE"\s+"\$RELEASE_SOURCE_COMMIT"\s+"\$RELEASE_BUNDLE_SHA256"/u.test(
+      verifyStep
+    ),
+    /for\s+site\s+in\s+cn\s+io/u.test(prepareStep),
+    /context="\$RUNNER_TEMP\/technical-release-\$site"/u.test(prepareStep),
+    /cp\s+-R\s+"\$RELEASE_BUNDLE\/\$site\/out"\s+"\$context\/release-out"/u.test(prepareStep),
+    /id:\s+build-cn/u.test(cnBuildStep),
+    /docker\/build-push-action@v6/u.test(cnBuildStep),
+    /context:\s+\$\{\{ runner\.temp \}\}\/technical-release-cn/u.test(cnBuildStep),
+    /target:\s+release-runtime/u.test(cnBuildStep),
+    /push:\s+true/u.test(cnBuildStep),
+    /tags:.*-cn/u.test(cnBuildStep),
+    /id:\s+build-io/u.test(ioBuildStep),
+    /docker\/build-push-action@v6/u.test(ioBuildStep),
+    /context:\s+\$\{\{ runner\.temp \}\}\/technical-release-io/u.test(ioBuildStep),
+    /target:\s+release-runtime/u.test(ioBuildStep),
+    /push:\s+true/u.test(ioBuildStep),
+    /tags:.*-io/u.test(ioBuildStep),
+    /RELEASE_CN_IMAGE:\s+\$\{\{ inputs\.cn_image_repository \}\}@\$\{\{ steps\.build-cn\.outputs\.digest \}\}/u.test(
+      manifestStep
+    ),
+    /RELEASE_IO_IMAGE:\s+\$\{\{ inputs\.io_image_repository \}\}@\$\{\{ steps\.build-io\.outputs\.digest \}\}/u.test(
+      manifestStep
+    ),
+    /PREVIOUS_RELEASE_IMAGE_MANIFEST_PATH:.*previous-image-manifest\/manifest\.json/u.test(
+      manifestStep
+    ),
+    /PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE_PATH:.*previous-image-manifest\/manifest\.sig/u.test(
+      manifestStep
+    ),
+    /TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY/u.test(manifestStep),
+    /npm run generate:technical-full-release-image-manifest/u.test(manifestStep),
+    /actions\/upload-artifact@v4/u.test(uploadStep),
+    /path:.*image-manifest/u.test(uploadStep),
     /verifyReleaseBundle\s*\(/u.test(generator),
     /createHmac\(['"]sha256['"]/u.test(generator),
+    /timingSafeEqual/u.test(generator),
     /RELEASE_CN_IMAGE/u.test(generator),
     /RELEASE_IO_IMAGE/u.test(generator),
-    /PREVIOUS_RELEASE_CN_IMAGE/u.test(generator),
-    /PREVIOUS_RELEASE_IO_IMAGE/u.test(generator)
+    /PREVIOUS_RELEASE_IMAGE_MANIFEST/u.test(generator),
+    /PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE/u.test(generator),
+    workflowDispatchOnly(productionWorkflow),
+    /if:\s+github\.repository == 'labring\/fastgpt-home' && github\.ref == 'refs\/heads\/main'/u.test(
+      productionWorkflow
+    ),
+    /actions\/download-artifact@v4/u.test(productionWorkflow),
+    /image-manifest\/manifest\.json/u.test(productionWorkflow),
+    /image-manifest\/manifest\.sig/u.test(productionWorkflow)
   ];
   return packagingChecks.every(Boolean) ? [] : ['docker-publication-is-cn-only'];
 }
