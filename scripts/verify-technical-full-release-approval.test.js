@@ -12,6 +12,7 @@ const {
   COUNTS,
   deriveStates,
   verifyApprovalEvidence,
+  verifyApprovedBaseline,
   verifyProductionHttpEvidence,
   verifyProductionHttpEvidenceFile,
   verifySwitchBundleBinding,
@@ -305,6 +306,19 @@ test('candidate approval evidence binds the source, candidate bundle, and immuta
         context
       ),
     /Expected values to be strictly equal/
+  );
+});
+
+test('runtime rollback stays bound to the approved baseline', () => {
+  const evidence = buildCandidateApprovalEvidence();
+  assert.doesNotThrow(() => verifyApprovedBaseline(evidence, 'd'.repeat(40), 'c'.repeat(64)));
+  assert.throws(
+    () => verifyApprovedBaseline(evidence, 'e'.repeat(40), 'c'.repeat(64)),
+    /baseline source revision drift/
+  );
+  assert.throws(
+    () => verifyApprovedBaseline(evidence, 'd'.repeat(40), 'e'.repeat(64)),
+    /baseline bundle digest drift/
   );
 });
 

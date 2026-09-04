@@ -271,6 +271,21 @@ function verifySwitchBundleBinding(approvalEvidence, switchBundleEvidence) {
   );
 }
 
+function verifyApprovedBaseline(approvalEvidence, sourceRevision, bundleSha256) {
+  assertRevision(sourceRevision, 'requested baseline source');
+  assertDigest(bundleSha256, 'requested baseline bundle');
+  assert.equal(
+    sourceRevision,
+    approvalEvidence.previousBundle.sourceRevision,
+    'baseline source revision drift'
+  );
+  assert.equal(
+    bundleSha256,
+    approvalEvidence.previousBundle.sha256,
+    'baseline bundle digest drift'
+  );
+}
+
 function deriveStates(statusByCode) {
   const approvalBlockers = REQUIRED_EVIDENCE.filter(
     ([code, phase]) => phase === 'pre-release' && statusByCode[code] !== 'passed'
@@ -292,7 +307,9 @@ function verifyTechnicalFullReleaseApproval({
   contractPath = path.join(rootDir, CONTRACT_RELATIVE_PATH),
   requireApproved = false,
   expectedSourceRevision,
-  expectedBundleSha256
+  expectedBundleSha256,
+  expectedBaselineSourceRevision,
+  expectedBaselineBundleSha256
 } = {}) {
   const contract = readJson(contractPath, 'Technical full-release approval contract');
   assert.equal(contract.schemaVersion, 1, 'approval schema version drift');
@@ -444,17 +461,18 @@ function verifyTechnicalFullReleaseApproval({
     now: Date.now()
   };
   let approvalBinding;
+  let approvalEvidence;
   if (contract.candidate?.approvalEvidence) {
-    const evidence = verifyArtifact(
+    approvalEvidence = verifyArtifact(
       rootDir,
       contract.candidate.approvalEvidence,
       'candidate approval evidence'
     );
-    approvalBinding = verifyApprovalEvidence(evidence, context);
+    approvalBinding = verifyApprovalEvidence(approvalEvidence, context);
     assert.equal(contract.candidate.sourceRevision, approvalBinding.sourceRevision);
-    assert.deepEqual(contract.candidate.bundle, evidence.candidateBundle);
+    assert.deepEqual(contract.candidate.bundle, approvalEvidence.candidateBundle);
     if (switchBundleEvidence) {
-      verifySwitchBundleBinding(evidence, switchBundleEvidence);
+      verifySwitchBundleBinding(approvalEvidence, switchBundleEvidence);
     }
   } else {
     assert.equal(contract.candidate?.sourceRevision, null);
@@ -525,6 +543,14 @@ function verifyTechnicalFullReleaseApproval({
 
   if (requireApproved && !states.approved) {
     throw new Error(`full release approval is blocked: ${states.approvalBlockers.join(', ')}`);
+  }
+  if (expectedBaselineSourceRevision !== undefined || expectedBaselineBundleSha256 !== undefined) {
+    assert(approvalEvidence, 'approved baseline evidence is missing');
+    verifyApprovedBaseline(
+      approvalEvidence,
+      expectedBaselineSourceRevision,
+      expectedBaselineBundleSha256
+    );
   }
   if (requireApproved) {
     assertRevision(expectedSourceRevision, 'requested activation source');
@@ -604,6 +630,7 @@ module.exports = {
   COUNTS,
   deriveStates,
   verifyApprovalEvidence,
+  verifyApprovedBaseline,
   verifyProductionHttpEvidence,
   verifyProductionHttpEvidenceFile,
   verifySwitchBundleBinding,

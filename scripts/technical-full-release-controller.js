@@ -5,7 +5,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { createHash, timingSafeEqual } = require('node:crypto');
+const { createHash, createHmac, timingSafeEqual } = require('node:crypto');
 
 const { verifyReleaseBundle } = require('./verify-technical-full-release-build-decision');
 const {
@@ -17,7 +17,7 @@ const { verifyTechnicalFullReleaseApproval } = require('./verify-technical-full-
 const ROOT = path.resolve(__dirname, '..');
 const ACTIONS = ['preflight', 'activate', 'rollback'];
 
-function required(environment, name) {
+function readRequired(environment, name) {
   const value = environment[name]?.trim();
   if (!value) throw new Error(`${name} is required`);
   return value;
@@ -36,20 +36,21 @@ function validateImage(value, name) {
 
 function readTarget(environment, site) {
   const prefix = `RELEASE_${site.toUpperCase()}`;
-  const context = validateArgument(required(environment, `${prefix}_CONTEXT`), `${prefix}_CONTEXT`);
+  const context = validateArgument(
+    readRequired(environment, `${prefix}_CONTEXT`),
+    `${prefix}_CONTEXT`
+  );
   const namespace = validateArgument(
-    required(environment, `${prefix}_NAMESPACE`),
+    readRequired(environment, `${prefix}_NAMESPACE`),
     `${prefix}_NAMESPACE`
   );
-  const target = validateArgument(required(environment, `${prefix}_TARGET`), `${prefix}_TARGET`);
-  const container = validateArgument(
-    required(environment, `${prefix}_CONTAINER`),
-    `${prefix}_CONTAINER`
+  const target = validateArgument(
+    readRequired(environment, `${prefix}_TARGET`),
+    `${prefix}_TARGET`
   );
-  const image = validateImage(required(environment, `${prefix}_IMAGE`), `${prefix}_IMAGE`);
-  const previousImage = validateImage(
-    required(environment, `${prefix}_PREVIOUS_IMAGE`),
-    `${prefix}_PREVIOUS_IMAGE`
+  const container = validateArgument(
+    readRequired(environment, `${prefix}_CONTAINER`),
+    `${prefix}_CONTAINER`
   );
   if (!/^(deployment|statefulset|daemonset)\/[a-z0-9]([-a-z0-9.]*[a-z0-9])?$/u.test(target)) {
     throw new Error(`${prefix}_TARGET is invalid`);
@@ -60,12 +61,12 @@ function readTarget(environment, site) {
   if (!/^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$/u.test(container)) {
     throw new Error(`${prefix}_CONTAINER is invalid`);
   }
-  return { site, context, namespace, target, container, image, previousImage };
+  return { site, context, namespace, target, container };
 }
 
 function readMaintenanceWindow(environment) {
-  const startsAt = required(environment, 'RELEASE_MAINTENANCE_WINDOW_START');
-  const endsAt = required(environment, 'RELEASE_MAINTENANCE_WINDOW_END');
+  const startsAt = readRequired(environment, 'RELEASE_MAINTENANCE_WINDOW_START');
+  const endsAt = readRequired(environment, 'RELEASE_MAINTENANCE_WINDOW_END');
   const start = Date.parse(startsAt);
   const end = Date.parse(endsAt);
   if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end) {
@@ -75,8 +76,8 @@ function readMaintenanceWindow(environment) {
 }
 
 function verifyApprovalToken(environment) {
-  const token = required(environment, 'RELEASE_APPROVAL_TOKEN');
-  const expectedSha256 = required(environment, 'RELEASE_APPROVAL_TOKEN_SHA256');
+  const token = readRequired(environment, 'RELEASE_APPROVAL_TOKEN');
+  const expectedSha256 = readRequired(environment, 'RELEASE_APPROVAL_TOKEN_SHA256');
   if (!/^[a-f0-9]{64}$/u.test(expectedSha256)) {
     throw new Error('RELEASE_APPROVAL_TOKEN_SHA256 is invalid');
   }
@@ -86,23 +87,83 @@ function verifyApprovalToken(environment) {
   }
 }
 
+function readSignedImageManifest(environment) {
+  const rawManifest = readRequired(environment, 'RELEASE_IMAGE_MANIFEST');
+  const signature = readRequired(environment, 'RELEASE_IMAGE_MANIFEST_SIGNATURE');
+  const signingKey = readRequired(environment, 'RELEASE_IMAGE_MANIFEST_KEY');
+  if (!/^[a-f0-9]{64}$/u.test(signature)) {
+    throw new Error('RELEASE_IMAGE_MANIFEST_SIGNATURE is invalid');
+  }
+  const expectedSignature = createHmac('sha256', signingKey).update(rawManifest).digest();
+  if (!timingSafeEqual(expectedSignature, Buffer.from(signature, 'hex'))) {
+    throw new Error('release image manifest signature is invalid');
+  }
+  let manifest;
+  try {
+    manifest = JSON.parse(rawManifest);
+  } catch (error) {
+    throw new Error(`release image manifest is unreadable: ${error.message}`);
+  }
+  if (manifest?.schemaVersion !== 1) {
+    throw new Error('release image manifest schema version drift');
+  }
+  for (const release of ['candidate', 'baseline']) {
+    if (!/^[a-f0-9]{40}$/u.test(manifest[release]?.sourceRevision || '')) {
+      throw new Error(`release image manifest ${release} source revision is invalid`);
+    }
+    if (!/^[a-f0-9]{64}$/u.test(manifest[release]?.bundleSha256 || '')) {
+      throw new Error(`release image manifest ${release} bundle digest is invalid`);
+    }
+    for (const site of ['cn', 'io']) {
+      validateImage(
+        manifest[release]?.images?.[site] || '',
+        `release image manifest ${release}.${site}`
+      );
+    }
+  }
+  return manifest;
+}
+
 function loadReleaseConfig(environment, action) {
   if (!ACTIONS.includes(action)) throw new Error(`Unknown action: ${action || ''}`);
+  const candidate =
+    action === 'rollback'
+      ? undefined
+      : {
+          path: readRequired(environment, 'RELEASE_BUNDLE'),
+          sourceRevision: readRequired(environment, 'RELEASE_SOURCE_COMMIT'),
+          sha256: readRequired(environment, 'RELEASE_BUNDLE_SHA256')
+        };
+  const baseline = {
+    path: readRequired(environment, 'PREVIOUS_RELEASE_BUNDLE'),
+    sourceRevision: readRequired(environment, 'PREVIOUS_RELEASE_SOURCE_COMMIT'),
+    sha256: readRequired(environment, 'PREVIOUS_RELEASE_BUNDLE_SHA256')
+  };
+  const imageManifest = readSignedImageManifest(environment);
+  if (
+    candidate &&
+    (imageManifest.candidate.sourceRevision !== candidate.sourceRevision ||
+      imageManifest.candidate.bundleSha256 !== candidate.sha256)
+  ) {
+    throw new Error('candidate bundle differs from the signed image manifest');
+  }
+  if (
+    imageManifest.baseline.sourceRevision !== baseline.sourceRevision ||
+    imageManifest.baseline.bundleSha256 !== baseline.sha256
+  ) {
+    throw new Error('previous bundle differs from the signed image manifest');
+  }
   const config = {
     action,
-    candidate: {
-      path: required(environment, 'RELEASE_BUNDLE'),
-      sourceRevision: required(environment, 'RELEASE_SOURCE_COMMIT'),
-      sha256: required(environment, 'RELEASE_BUNDLE_SHA256')
-    },
-    baseline: {
-      path: required(environment, 'PREVIOUS_RELEASE_BUNDLE'),
-      sourceRevision: required(environment, 'PREVIOUS_RELEASE_SOURCE_COMMIT'),
-      sha256: required(environment, 'PREVIOUS_RELEASE_BUNDLE_SHA256')
-    },
-    targets: [readTarget(environment, 'cn'), readTarget(environment, 'io')]
+    candidate,
+    baseline,
+    targets: ['cn', 'io'].map((site) => ({
+      ...readTarget(environment, site),
+      image: imageManifest.candidate.images[site],
+      previousImage: imageManifest.baseline.images[site]
+    }))
   };
-  if (action === 'activate' || action === 'rollback') {
+  if (action === 'activate') {
     verifyApprovalToken(environment);
   }
   if (action === 'preflight' || action === 'activate') {
@@ -133,32 +194,40 @@ function verifyPreflight(config, requireActiveWindow = false) {
     config.candidate.sourceRevision,
     config.candidate.sha256
   );
-  console.log(
-    `[technical-full-release-controller] Candidate bundle verified: source=${config.candidate.sourceRevision} sha256=${config.candidate.sha256}`
-  );
+  const candidateBinding =
+    `source=${config.candidate.sourceRevision} ` + `sha256=${config.candidate.sha256}`;
+  console.log(`[technical-full-release-controller] Candidate bundle verified: ${candidateBinding}`);
   verifyReleaseBundle(
     path.resolve(config.baseline.path),
     config.baseline.sourceRevision,
     config.baseline.sha256
   );
+  const baselineBinding =
+    `source=${config.baseline.sourceRevision} ` + `sha256=${config.baseline.sha256}`;
   console.log(
-    `[technical-full-release-controller] Previous baseline bundle verified: source=${config.baseline.sourceRevision} sha256=${config.baseline.sha256}`
+    `[technical-full-release-controller] Previous baseline bundle verified: ${baselineBinding}`
   );
   verifyMaintenanceWindow(config.maintenanceWindow, requireActiveWindow);
   verifyTechnicalFullReleaseApproval({
     requireApproved: true,
     expectedSourceRevision: config.candidate.sourceRevision,
-    expectedBundleSha256: config.candidate.sha256
+    expectedBundleSha256: config.candidate.sha256,
+    expectedBaselineSourceRevision: config.baseline.sourceRevision,
+    expectedBaselineBundleSha256: config.baseline.sha256
   });
-  verifyTechnicalFullReleaseProductionSwitch({
-    requireReady: true,
-    expectedSourceRevision: config.candidate.sourceRevision,
-    expectedBundleSha256: config.candidate.sha256
-  });
+  verifyTechnicalFullReleaseProductionSwitch(
+    requireActiveWindow
+      ? {
+          requireReady: true,
+          expectedSourceRevision: config.candidate.sourceRevision,
+          expectedBundleSha256: config.candidate.sha256
+        }
+      : undefined
+  );
   console.log('[technical-full-release-controller] Production release gates verified');
 }
 
-function kubectlCommands(config, action) {
+function buildKubectlCommands(config, action) {
   const imageKey = action === 'rollback' ? 'previousImage' : 'image';
   const baseArgs = ({ context, namespace }) => ['--context', context, '--namespace', namespace];
   return [
@@ -181,38 +250,10 @@ function kubectlCommands(config, action) {
   ];
 }
 
-function compensateTargets(targets, run) {
+function compensateTargets(targets, failedAction, run) {
   const failures = [];
-  const commands = [
-    ...targets.toReversed().map((target) => ({
-      site: target.site,
-      step: 'restore-image',
-      args: [
-        '--context',
-        target.context,
-        '--namespace',
-        target.namespace,
-        'set',
-        'image',
-        target.target,
-        `${target.container}=${target.previousImage}`
-      ]
-    })),
-    ...targets.toReversed().map((target) => ({
-      site: target.site,
-      step: 'restore-status',
-      args: [
-        '--context',
-        target.context,
-        '--namespace',
-        target.namespace,
-        'rollout',
-        'status',
-        target.target,
-        '--timeout=10m'
-      ]
-    }))
-  ];
+  const compensationAction = failedAction === 'activate' ? 'rollback' : 'activate';
+  const commands = buildKubectlCommands({ targets: [...targets].reverse() }, compensationAction);
   for (const command of commands) {
     console.error(
       `[technical-full-release-controller] Running compensation ${command.site} ${command.step}`
@@ -225,14 +266,13 @@ function compensateTargets(targets, run) {
 
 function runTargetCommands(config, action, run = spawnSync) {
   const updatedTargets = [];
-  for (const command of kubectlCommands(config, action)) {
+  for (const command of buildKubectlCommands(config, action)) {
     console.log(
       `[technical-full-release-controller] Running ${action} ${command.site} ${command.step}`
     );
     const result = run('kubectl', command.args, { stdio: 'inherit' });
     if (result.error || result.status !== 0) {
-      const compensationFailures =
-        action === 'activate' ? compensateTargets(updatedTargets, run) : [];
+      const compensationFailures = compensateTargets(updatedTargets, action, run);
       throw new Error(
         `kubectl failed for ${command.site} ${command.step}: ${
           result.error?.message || `exit ${result.status}`
@@ -243,7 +283,7 @@ function runTargetCommands(config, action, run = spawnSync) {
         }`
       );
     }
-    if (action === 'activate' && command.step === 'set-image') {
+    if (command.step === 'set-image') {
       updatedTargets.push(config.targets.find(({ site }) => site === command.site));
     }
   }
@@ -257,9 +297,15 @@ function execute(action, environment = process.env) {
       config.baseline.sourceRevision,
       config.baseline.sha256
     );
+    const baselineBinding =
+      `source=${config.baseline.sourceRevision} ` + `sha256=${config.baseline.sha256}`;
     console.log(
-      `[technical-full-release-controller] Previous baseline bundle verified: source=${config.baseline.sourceRevision} sha256=${config.baseline.sha256}`
+      `[technical-full-release-controller] Previous baseline bundle verified: ${baselineBinding}`
     );
+    verifyTechnicalFullReleaseApproval({
+      expectedBaselineSourceRevision: config.baseline.sourceRevision,
+      expectedBaselineBundleSha256: config.baseline.sha256
+    });
     runTargetCommands(config, action);
     return;
   }

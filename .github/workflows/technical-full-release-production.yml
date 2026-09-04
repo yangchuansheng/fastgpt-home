@@ -13,20 +13,20 @@ on:
           - activate
           - rollback
       source_revision:
-        description: 'Candidate source revision'
-        required: true
+        description: 'Candidate source revision (preflight/activate)'
+        required: false
         type: string
       bundle_sha256:
-        description: 'Candidate release bundle SHA-256'
-        required: true
+        description: 'Candidate release bundle SHA-256 (preflight/activate)'
+        required: false
         type: string
       candidate_artifact_run_id:
-        description: 'Workflow run containing the candidate release bundle'
-        required: true
+        description: 'Workflow run containing the candidate bundle (preflight/activate)'
+        required: false
         type: string
       candidate_artifact_name:
         description: 'Candidate release bundle artifact name'
-        required: true
+        required: false
         default: technical-full-release-bundle
         type: string
       previous_source_revision:
@@ -46,29 +46,21 @@ on:
         required: true
         default: technical-full-release-bundle
         type: string
-      cn_image:
-        description: 'Immutable CN image reference built from the candidate bundle'
+      image_manifest:
+        description: 'Signed JSON mapping release bundles to immutable CN and IO images'
         required: true
         type: string
-      io_image:
-        description: 'Immutable IO image reference built from the candidate bundle'
-        required: true
-        type: string
-      cn_previous_image:
-        description: 'Immutable CN image reference for the previous complete bundle'
-        required: true
-        type: string
-      io_previous_image:
-        description: 'Immutable IO image reference for the previous complete bundle'
+      image_manifest_signature:
+        description: 'HMAC-SHA256 signature for the image manifest'
         required: true
         type: string
       maintenance_window_start:
         description: 'Approved maintenance window start in ISO 8601 UTC'
-        required: true
+        required: false
         type: string
       maintenance_window_end:
         description: 'Approved maintenance window end in ISO 8601 UTC'
-        required: true
+        required: false
         type: string
 
 concurrency:
@@ -95,6 +87,7 @@ jobs:
           node-version: 24
 
       - name: Verify candidate source selection
+        if: inputs.action != 'rollback'
         env:
           RELEASE_SOURCE_COMMIT: ${{ inputs.source_revision }}
         run: test "$GITHUB_SHA" = "$RELEASE_SOURCE_COMMIT"
@@ -104,6 +97,7 @@ jobs:
         uses: azure/setup-kubectl@v4
 
       - name: Download candidate release bundle
+        if: inputs.action != 'rollback'
         uses: actions/download-artifact@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -141,14 +135,13 @@ jobs:
           RELEASE_CN_NAMESPACE: ${{ vars.TECHNICAL_RELEASE_CN_NAMESPACE }}
           RELEASE_CN_TARGET: ${{ vars.TECHNICAL_RELEASE_CN_TARGET }}
           RELEASE_CN_CONTAINER: ${{ vars.TECHNICAL_RELEASE_CN_CONTAINER }}
-          RELEASE_CN_IMAGE: ${{ inputs.cn_image }}
-          RELEASE_CN_PREVIOUS_IMAGE: ${{ inputs.cn_previous_image }}
           RELEASE_IO_CONTEXT: ${{ vars.TECHNICAL_RELEASE_IO_CONTEXT }}
           RELEASE_IO_NAMESPACE: ${{ vars.TECHNICAL_RELEASE_IO_NAMESPACE }}
           RELEASE_IO_TARGET: ${{ vars.TECHNICAL_RELEASE_IO_TARGET }}
           RELEASE_IO_CONTAINER: ${{ vars.TECHNICAL_RELEASE_IO_CONTAINER }}
-          RELEASE_IO_IMAGE: ${{ inputs.io_image }}
-          RELEASE_IO_PREVIOUS_IMAGE: ${{ inputs.io_previous_image }}
+          RELEASE_IMAGE_MANIFEST: ${{ inputs.image_manifest }}
+          RELEASE_IMAGE_MANIFEST_SIGNATURE: ${{ inputs.image_manifest_signature }}
+          RELEASE_IMAGE_MANIFEST_KEY: ${{ secrets.TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY }}
           RELEASE_MAINTENANCE_WINDOW_START: ${{ inputs.maintenance_window_start }}
           RELEASE_MAINTENANCE_WINDOW_END: ${{ inputs.maintenance_window_end }}
           RELEASE_APPROVAL_TOKEN: ${{ secrets.TECHNICAL_RELEASE_APPROVAL_TOKEN }}
