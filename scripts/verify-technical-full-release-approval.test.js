@@ -156,12 +156,51 @@ test('the approval contract records the current evidence-driven block', () => {
     approved: false,
     candidateCount: 2585,
     targetCount: 4007,
-    approvalBlockers: 4,
-    releaseBlockers: 5
+    approvalBlockers: 3,
+    releaseBlockers: 4
   });
 });
 
+test('successful capacity measurement remains separate from release safety', () => {
+  const contract = JSON.parse(fs.readFileSync(path.join(ROOT, CONTRACT_RELATIVE_PATH), 'utf8'));
+  const capacity = JSON.parse(
+    fs.readFileSync(path.join(ROOT, contract.lineage.capacityReport.path), 'utf8')
+  );
+  assert.equal(capacity.decision.safeOneShotFullRelease, false);
+  assert.deepEqual(capacity.decision.blockers, ['docker-publication-is-cn-only']);
+  assert.equal(contract.requiredEvidence[0].status, 'passed');
+  assert.equal(contract.approved, false);
+  assert.equal(contract.releaseState, 'blocked');
+});
+
 test('the release unit remains bound to issues 274 through 277', () => {
+  const contract = JSON.parse(fs.readFileSync(path.join(ROOT, CONTRACT_RELATIVE_PATH), 'utf8'));
+  const capacityBytes = fs.readFileSync(path.join(ROOT, contract.lineage.capacityReport.path));
+  const capacity = JSON.parse(capacityBytes);
+  const buildDecisionBytes = fs.readFileSync(path.join(ROOT, contract.lineage.buildDecision.path));
+  const productionSwitchBytes = fs.readFileSync(
+    path.join(ROOT, contract.lineage.productionSwitch.path)
+  );
+  assert.equal(contract.lineage.capacityReport.sha256, sha256(capacityBytes));
+  assert.equal(contract.lineage.capacityReport.sourceRevision, capacity.sourceRevision);
+  assert.equal(
+    contract.lineage.capacityReport.reportRevision,
+    '36c7b31a93197cb05c026dee0f9111d2919fef13'
+  );
+  assert.equal(contract.lineage.buildDecision.sha256, sha256(buildDecisionBytes));
+  assert.equal(
+    contract.lineage.buildDecision.sourceRevision,
+    '36c7b31a93197cb05c026dee0f9111d2919fef13'
+  );
+  assert.equal(
+    contract.lineage.buildDecision.contractRevision,
+    'a037fd114a6e52762253f9324065dffdca92599f'
+  );
+  assert.equal(contract.lineage.productionSwitch.sha256, sha256(productionSwitchBytes));
+  assert.equal(
+    contract.lineage.productionSwitch.sourceRevision,
+    '38ef16c5eb87918873666a6f657c2017047dbb3e'
+  );
   for (const [name, pattern] of [
     ['identityClosure', /identity closure digest drift/],
     ['capacityReport', /capacity report digest drift/],
@@ -214,17 +253,20 @@ test('post-switch HTTP evidence does not deadlock pre-release approval', () => {
   );
   assert.throws(
     () => verifyTechnicalFullReleaseApproval({ requireApproved: true }),
-    /full release approval is blocked: successful-4007-page-capacity-rerun, build-decision-ready, production-switch-ready, candidate-approval-evidence-recorded/
+    /full release approval is blocked: build-decision-ready, production-switch-ready, candidate-approval-evidence-recorded/
   );
 });
 
-test('stale capacity measurement keeps approval and release blocked', () => {
+test('successful capacity rerun clears only its approval blocker', () => {
   assertContractRejected((contract) => {
-    contract.requiredEvidence[0].status = 'passed';
+    contract.requiredEvidence[0].status = 'blocked';
   }, /successful-4007-page-capacity-rerun status does not match evidence/);
   assertContractRejected((contract) => {
-    contract.lineage.capacityReport.successfulRerun = true;
+    contract.lineage.capacityReport.successfulRerun = false;
   }, /capacity rerun state drift/);
+  assertContractRejected((contract) => {
+    contract.lineage.capacityReport.failureCode = 'ENOSPC';
+  }, /Expected values to be strictly equal/);
 });
 
 test('unrelated JSON cannot forge candidate approval evidence', () => {

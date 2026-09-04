@@ -16,28 +16,28 @@
     },
     "capacityReport": {
       "path": "scripts/fixtures/technical-authority/full-release-capacity.json",
-      "sha256": "cb8b0f273b89620c12f7f87826bdb04b2bb09d7265ded83a6b405a03807cdf75",
+      "sha256": "8d19a799d64174c6679b48fb9a28abb8dccd3f1691bbc1d59a884e1af7116278",
       "issue": 275,
-      "sourceRevision": "bf026d79655eb296ea1d8101a5bf49523a9a7fda",
-      "reportRevision": "c2774f29e03d916f91ea4f968c7d8e40c110e633",
+      "sourceRevision": "b8b94710e7659fe1ceb8726158c268d021bb08cb",
+      "reportRevision": "36c7b31a93197cb05c026dee0f9111d2919fef13",
       "targetPages": 4007,
-      "successfulRerun": false,
-      "failedVariants": ["cn", "io", "preview"],
-      "failureCode": "ENOSPC"
+      "successfulRerun": true,
+      "failedVariants": [],
+      "failureCode": null
     },
     "buildDecision": {
       "path": "scripts/fixtures/technical-authority/full-release-build-decision.json",
-      "sha256": "7a6869c57f2fb0d00f72089e5f8528ebebf46705ce338448a03257088bfba55d",
+      "sha256": "ae843c1ade7477b07dfe0e1cfacd3bcb5a2e2958ae441b351aeaafd465cba4f6",
       "issue": 276,
-      "sourceRevision": "c2774f29e03d916f91ea4f968c7d8e40c110e633",
-      "contractRevision": "daeee332c111d05ba6da3b954c8d4114edd31319",
+      "sourceRevision": "36c7b31a93197cb05c026dee0f9111d2919fef13",
+      "contractRevision": "a037fd114a6e52762253f9324065dffdca92599f",
       "pathDecision": "increase-build-resources"
     },
     "productionSwitch": {
       "path": "scripts/fixtures/technical-authority/full-release-production-switch.json",
-      "sha256": "3a65b81674241180d91f5ce5855d4a6dca9156904ac8309e37a9491450d3e688",
+      "sha256": "b4d039a299ef379673a71b5588990960533feaed7c5ee8b8f69b327fa3efc184",
       "issue": 277,
-      "sourceRevision": "024ea05b356435033033abf6118d2a8989292aa1",
+      "sourceRevision": "38ef16c5eb87918873666a6f657c2017047dbb3e",
       "window": {
         "timezone": "Asia/Shanghai",
         "startsAt": "2026-09-08T14:00:00.000Z",
@@ -108,7 +108,7 @@
     {
       "code": "successful-4007-page-capacity-rerun",
       "phase": "pre-release",
-      "status": "blocked",
+      "status": "passed",
       "evidence": null
     },
     {
@@ -137,13 +137,11 @@
     }
   ],
   "approvalBlockers": [
-    "successful-4007-page-capacity-rerun",
     "build-decision-ready",
     "production-switch-ready",
     "candidate-approval-evidence-recorded"
   ],
   "releaseBlockers": [
-    "successful-4007-page-capacity-rerun",
     "build-decision-ready",
     "production-switch-ready",
     "candidate-approval-evidence-recorded",

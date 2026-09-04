@@ -8,11 +8,7 @@ const path = require('node:path');
 
 const { sha256, stableJson } = require('./lib/technical-authority');
 const { validateClosureArtifact } = require('./lib/technical-full-release');
-const {
-  isCapacityReportReady,
-  validateCapacityReport,
-  VARIANTS
-} = require('./lib/technical-full-release-capacity');
+const { validateCapacityReport, VARIANTS } = require('./lib/technical-full-release-capacity');
 const { getPointerSwapInterval } = require('./verify-technical-full-release-production-switch');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -59,9 +55,9 @@ const ACCEPTANCE_COMMANDS = {
 };
 const UPSTREAM_REVISIONS = {
   identityClosure: 'bf026d79655eb296ea1d8101a5bf49523a9a7fda',
-  capacityReport: 'c2774f29e03d916f91ea4f968c7d8e40c110e633',
-  buildDecision: 'daeee332c111d05ba6da3b954c8d4114edd31319',
-  productionSwitch: '024ea05b356435033033abf6118d2a8989292aa1'
+  capacityReport: '36c7b31a93197cb05c026dee0f9111d2919fef13',
+  buildDecision: 'a037fd114a6e52762253f9324065dffdca92599f',
+  productionSwitch: '38ef16c5eb87918873666a6f657c2017047dbb3e'
 };
 const FAILURE_THRESHOLDS = [
   { metric: 'owner-unavailable', operator: '>=', value: 1 },
@@ -104,6 +100,24 @@ function assertRevision(value, label) {
 
 function assertDigest(value, label) {
   assert.match(value || '', /^[a-f0-9]{64}$/, `${label} digest is invalid`);
+}
+
+function isCapacityMeasurementReady(report) {
+  return (
+    report.measurementBinding?.status === 'current' &&
+    report.measurementBinding?.rerunRequired === false &&
+    report.variants.every(
+      (variant) =>
+        variant.buildSucceeded === true &&
+        variant.status === 0 &&
+        variant.signal === null &&
+        variant.initialJavaScriptWithinBudget === true &&
+        variant.postBuildVerified === true &&
+        Array.isArray(variant.postBuildChecks) &&
+        variant.postBuildChecks.length > 0 &&
+        variant.postBuildChecks.every((check) => check.status === 0)
+    )
+  );
 }
 
 function verifyApprovalEvidence(evidence, context) {
@@ -329,16 +343,19 @@ function verifyTechnicalFullReleaseApproval({
     .map(({ variant }) => variant);
   const staleCapacityMeasurement =
     capacity.measurementBinding?.status === 'stale-after-source-normalization';
-  const capacityReady = isCapacityReportReady(capacity);
+  // Capacity measurement success is independent from the release safety decision.
+  const capacityMeasurementReady = isCapacityMeasurementReady(capacity);
   assert.equal(
     contract.lineage.capacityReport.successfulRerun,
-    capacityReady,
+    capacityMeasurementReady,
     'capacity rerun state drift'
   );
   assert.deepEqual(contract.lineage.capacityReport.failedVariants, failedVariants);
-  if (!capacityReady) {
+  if (!capacityMeasurementReady) {
     assert(capacity.variants.every(({ failure }) => failure?.includes('ENOSPC')));
     assert.equal(contract.lineage.capacityReport.failureCode, 'ENOSPC');
+  } else {
+    assert.equal(contract.lineage.capacityReport.failureCode, null);
   }
 
   const decision = verifyArtifact(rootDir, contract.lineage?.buildDecision, 'build decision');
@@ -455,7 +472,7 @@ function verifyTechnicalFullReleaseApproval({
   }
 
   const statusByCode = {
-    'successful-4007-page-capacity-rerun': capacityReady ? 'passed' : 'blocked',
+    'successful-4007-page-capacity-rerun': capacityMeasurementReady ? 'passed' : 'blocked',
     'build-decision-ready': decision.releaseState === 'ready' ? 'passed' : 'blocked',
     'production-switch-ready': productionSwitch.switchState === 'ready' ? 'passed' : 'blocked',
     'candidate-approval-evidence-recorded': approvalBinding ? 'passed' : 'blocked',
