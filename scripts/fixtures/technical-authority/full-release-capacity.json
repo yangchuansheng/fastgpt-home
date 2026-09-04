@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "issue": 275,
-  "sourceRevision": "bf026d79655eb296ea1d8101a5bf49523a9a7fda",
-  "measuredAt": "2026-09-03T09:41:26.746Z",
-  "command": "npm run verify:technical-full-release-capacity -- --w5-source-root <W5_ROOT> --w6-source-root <W6_ROOT>",
+  "sourceRevision": "b8b94710e7659fe1ceb8726158c268d021bb08cb",
+  "measuredAt": "2026-09-04T12:58:37.531Z",
+  "command": "npm run verify:technical-full-release-capacity -- --report <REPORT_PATH>",
   "scope": "disposable-4007-page-production-static-export",
   "environment": {
-    "node": "v24.13.0",
-    "platform": "darwin",
-    "arch": "arm64",
-    "logicalCpuCount": 10,
-    "physicalMemoryBytes": 25769803776
+    "node": "v24.20.0",
+    "platform": "linux",
+    "arch": "x64",
+    "logicalCpuCount": 4,
+    "physicalMemoryBytes": 16766414848
   },
   "projection": {
     "baselinePages": 1422,
@@ -40,84 +40,233 @@
     }
   },
   "measurementBinding": {
-    "measuredRecordsSha256": "9ccbac8a5bd4c3bcf3f06fff4f6937f5405e491ac0af49efccdd56372cc608b6",
+    "measuredRecordsSha256": "37b56915f8173fd3c4ecf7502ea08fd8675ff6220ea7f8d2172537847720a6de",
     "currentRecordsSha256": "37b56915f8173fd3c4ecf7502ea08fd8675ff6220ea7f8d2172537847720a6de",
-    "status": "stale-after-source-normalization",
-    "rerunRequired": true,
-    "rerunBlocker": "capacity-rerun-required-after-source-normalization"
+    "status": "current",
+    "rerunRequired": false
   },
   "variants": [
     {
       "variant": "cn",
-      "status": 1,
+      "status": 0,
       "signal": null,
-      "durationMilliseconds": 83255,
-      "peakRssBytes": 5560156160,
-      "buildSucceeded": false,
-      "failure": "    at ignore-listed frames {\n  errno: -28,\n  code: 'ENOSPC',\n  syscall: 'open',\n  path: '<disposable-root>/.next/server/app/zh/troubleshoot/fastgpt-system-license-dataset-limit-error.segments/_tree.segment.rsc'\n}\nExport encountered an error on /[lang]/[section]/[slug]/page: /zh/troubleshoot/fastgpt-system-license-dataset-limit-error, exiting the build.\n⨯ Next.js build worker exited with code: 1 and signal: null",
-      "partialNextBuild": {
-        "fileCount": 75461,
-        "bytes": 3361445970
-      },
-      "staticFileCount": null,
-      "exportBytes": null,
-      "initialJavaScriptGzipBytes": null,
-      "initialJavaScriptMaxGzipBytes": null,
-      "initialJavaScriptWithinBudget": null,
-      "postBuildVerified": false,
-      "postBuildChecks": []
+      "durationMilliseconds": 185560,
+      "peakRssBytes": 3465560064,
+      "buildSucceeded": true,
+      "staticFileCount": 6949,
+      "exportBytes": 684432010,
+      "initialJavaScriptGzipBytes": 251076,
+      "initialJavaScriptMaxGzipBytes": 1773974,
+      "initialJavaScriptWithinBudget": true,
+      "postBuildVerified": true,
+      "postBuildChecks": [
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/clean-locale-output.js",
+          "status": 0,
+          "outputBytes": 79,
+          "outputSha256": "511970404e2f10ea003fe8d173fb72b6c76a186b41073bd8aa630401885c48fc",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/clean-faq-rsc.js",
+          "status": 0,
+          "outputBytes": 42,
+          "outputSha256": "f38e3a4329401660b0428eeba9bc8892cc232ad36522f8d5ced90954488b8973",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-technical-center.js",
+          "status": 0,
+          "outputBytes": 122,
+          "outputSha256": "d9f7459e045d5d2106923cf951113c88026643acf09f7fa52918361729d949a9",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-customers-export.js",
+          "status": 0,
+          "outputBytes": 76,
+          "outputSha256": "2950b357887ca5552053a202d3a33091ef4e6ab296f1670ee9408e735d5c9e63",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/fix-html-lang.js",
+          "status": 0,
+          "outputBytes": 47,
+          "outputSha256": "ebbe2af9887476d80ea87dd69d1246b42e3e12b3e10b3ca15bfac2f600d29c81",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node --test scripts/verify-content-sidebar-cta.test.js",
+          "status": 0,
+          "outputBytes": 303,
+          "outputSha256": "fb15ab2ffbc1513899c00c6394ed8da98bd9e2cf37edd1c457cccf0da20bfd71",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-technical-export.js",
+          "status": 0,
+          "outputBytes": 69,
+          "outputSha256": "83ff1797606fa7d28924f99672c774377599f5c7038aaae735ec0f25a7270de7",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-content-hygiene.js --mode html --root out",
+          "status": 0,
+          "outputBytes": 40,
+          "outputSha256": "19b5c6abfa06b82563af3cb05ba4e91cc02d31da5268b7e53bd73f25c5e8447d",
+          "firstFailure": null
+        }
+      ]
     },
     {
       "variant": "io",
-      "status": 1,
+      "status": 0,
       "signal": null,
-      "durationMilliseconds": 97641,
-      "peakRssBytes": 5125996544,
-      "buildSucceeded": false,
-      "failure": "✓ Generating static pages using 9 workers (2626/2626) in 29.5s\n  Finalizing page optimization ...\nuncaughtException [Error: ENOSPC: no space left on device, open '<disposable-root>/.next/trace-build'] {\n  errno: -28,\n  code: 'ENOSPC',\n  syscall: 'open',\n  path: '<disposable-root>/.next/trace-build'\n}",
-      "partialNextBuild": {
-        "fileCount": 20254,
-        "bytes": 1930090493
-      },
-      "staticFileCount": null,
-      "exportBytes": null,
-      "initialJavaScriptGzipBytes": null,
-      "initialJavaScriptMaxGzipBytes": null,
-      "initialJavaScriptWithinBudget": null,
-      "postBuildVerified": false,
-      "postBuildChecks": []
+      "durationMilliseconds": 114910,
+      "peakRssBytes": 3920031744,
+      "buildSucceeded": true,
+      "staticFileCount": 2420,
+      "exportBytes": 379126200,
+      "initialJavaScriptGzipBytes": 251081,
+      "initialJavaScriptMaxGzipBytes": 1773974,
+      "initialJavaScriptWithinBudget": true,
+      "postBuildVerified": true,
+      "postBuildChecks": [
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/clean-locale-output.js",
+          "status": 0,
+          "outputBytes": 104,
+          "outputSha256": "2982dae2d264c05d568bebbe03ef286c5a4c77165702b60d8a40006d2af68243",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/clean-faq-rsc.js",
+          "status": 0,
+          "outputBytes": 42,
+          "outputSha256": "3d7a7ad3a1d56ce3cf1bb3307a296e7d4ef30749ffa1facf80517d9c04cf52c1",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-technical-center.js",
+          "status": 0,
+          "outputBytes": 121,
+          "outputSha256": "4084bec751e4484927827e4b0a19c678195469ab9e41e0755d0bf3f6b819b350",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-customers-export.js",
+          "status": 0,
+          "outputBytes": 76,
+          "outputSha256": "2950b357887ca5552053a202d3a33091ef4e6ab296f1670ee9408e735d5c9e63",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/fix-html-lang.js",
+          "status": 0,
+          "outputBytes": 48,
+          "outputSha256": "74f41c0c57c764b51e2bac2f57075c71af705c83b1f9872f4360b38a4c78c285",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node --test scripts/verify-content-sidebar-cta.test.js",
+          "status": 0,
+          "outputBytes": 301,
+          "outputSha256": "95b9959726a80957726cb5eb8e32c4bfc14103c79fd6fcda2ba0def0ced4a87a",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-technical-export.js",
+          "status": 0,
+          "outputBytes": 69,
+          "outputSha256": "56ea5bb9fd3c1f5bbb97eeb72177b4d0d96cc34ca9cc7ddbd57899b4b3c87104",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-content-hygiene.js --mode html --root out",
+          "status": 0,
+          "outputBytes": 40,
+          "outputSha256": "b4f2b655f41f37fa120b738fcc598721d4b40c626b8ff17353138a0940a0a7a1",
+          "firstFailure": null
+        }
+      ]
     },
     {
       "variant": "preview",
-      "status": 1,
+      "status": 0,
       "signal": null,
-      "durationMilliseconds": 74529,
-      "peakRssBytes": 4805099520,
-      "buildSucceeded": false,
-      "failure": "    at ignore-listed frames {\n  errno: -28,\n  code: 'ENOSPC',\n  syscall: 'open',\n  path: '<disposable-root>/.next/server/app/zh/troubleshoot/fastgpt-troubleshooting-request-errors.segments/$d$lang/$d$section/$d$slug/__PAGE__.segment.rsc'\n}\nExport encountered an error on /[lang]/[section]/[slug]/page: /zh/troubleshoot/fastgpt-troubleshooting-request-errors, exiting the build.\n⨯ Next.js build worker exited with code: 1 and signal: null",
-      "partialNextBuild": {
-        "fileCount": 29866,
-        "bytes": 3442494968
-      },
-      "staticFileCount": null,
-      "exportBytes": null,
-      "initialJavaScriptGzipBytes": null,
-      "initialJavaScriptMaxGzipBytes": null,
-      "initialJavaScriptWithinBudget": null,
-      "postBuildVerified": false,
-      "postBuildChecks": []
+      "durationMilliseconds": 232246,
+      "peakRssBytes": 3985747968,
+      "buildSucceeded": true,
+      "staticFileCount": 7432,
+      "exportBytes": 1883864101,
+      "initialJavaScriptGzipBytes": 244635,
+      "initialJavaScriptMaxGzipBytes": 1773974,
+      "initialJavaScriptWithinBudget": true,
+      "postBuildVerified": true,
+      "postBuildChecks": [
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/clean-locale-output.js",
+          "status": 0,
+          "outputBytes": 113,
+          "outputSha256": "84f2f0983311569d23fd81951657787255a8f52cf55874079665c7963826b572",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/clean-faq-rsc.js",
+          "status": 0,
+          "outputBytes": 42,
+          "outputSha256": "52569878441e2b9d521f6fdc9e56f5899ce34b8de52bd573e47dce5222af31fd",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-technical-center.js",
+          "status": 0,
+          "outputBytes": 125,
+          "outputSha256": "b63837ac5107526ba14bd028c0f375fee4499919452510361f9024f125d7b405",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-customers-export.js",
+          "status": 0,
+          "outputBytes": 76,
+          "outputSha256": "2950b357887ca5552053a202d3a33091ef4e6ab296f1670ee9408e735d5c9e63",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/fix-html-lang.js",
+          "status": 0,
+          "outputBytes": 50,
+          "outputSha256": "2c15eeb833ad5648513f090bae8ee13f315cfaedd7f892c30ed66bbdf797e5e2",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node --test scripts/verify-content-sidebar-cta.test.js",
+          "status": 0,
+          "outputBytes": 303,
+          "outputSha256": "012200e302615b193300fa3e7aa5bbf1e3834072a872e00149d8a6fa8dd47004",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-technical-export.js",
+          "status": 0,
+          "outputBytes": 74,
+          "outputSha256": "87904016686ab0da6110f3bcf9a71f45235e0fbe0fc0fefaf3c4834d37af4b21",
+          "firstFailure": null
+        },
+        {
+          "command": "/opt/hostedtoolcache/node/24.20.0/x64/bin/node scripts/verify-content-hygiene.js --mode html --root out",
+          "status": 0,
+          "outputBytes": 40,
+          "outputSha256": "1e70f42664c85192cf693839b2809222622d84738e246f7132d4facee95817cd",
+          "firstFailure": null
+        }
+      ]
     }
   ],
   "decision": {
     "safeOneShotFullRelease": false,
     "blockers": [
-      "prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure",
-      "docker-publication-is-cn-only",
-      "capacity-rerun-required-after-source-normalization",
-      "one-or-more-static-exports-failed",
-      "cn-post-build-gate-failed",
-      "io-post-build-gate-failed",
-      "preview-post-build-gate-failed"
+      "docker-publication-is-cn-only"
     ]
   }
 }

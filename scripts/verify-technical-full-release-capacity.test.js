@@ -52,22 +52,85 @@ test('capacity runner can measure the repository projection without external sou
   );
 });
 
-test('committed capacity evidence stays bound to the current closure', () => {
+test('committed capacity evidence records a successful three-variant measurement', () => {
   const report = readCapacityFixture();
+  assert.equal(report.sourceRevision, 'b8b94710e7659fe1ceb8726158c268d021bb08cb');
+  assert.deepEqual(report.measurementBinding, {
+    measuredRecordsSha256: report.projection.recordsSha256,
+    currentRecordsSha256: report.projection.recordsSha256,
+    status: 'current',
+    rerunRequired: false
+  });
+  assert.deepEqual(report.decision, {
+    safeOneShotFullRelease: false,
+    blockers: ['docker-publication-is-cn-only']
+  });
+  assert.deepEqual(
+    report.variants.map(
+      ({ variant, status, buildSucceeded, postBuildVerified, postBuildChecks }) => ({
+        variant,
+        status,
+        buildSucceeded,
+        postBuildVerified,
+        postBuildCheckCount: postBuildChecks.length
+      })
+    ),
+    [
+      {
+        variant: 'cn',
+        status: 0,
+        buildSucceeded: true,
+        postBuildVerified: true,
+        postBuildCheckCount: 8
+      },
+      {
+        variant: 'io',
+        status: 0,
+        buildSucceeded: true,
+        postBuildVerified: true,
+        postBuildCheckCount: 8
+      },
+      {
+        variant: 'preview',
+        status: 0,
+        buildSucceeded: true,
+        postBuildVerified: true,
+        postBuildCheckCount: 8
+      }
+    ]
+  );
   assert(
-    report.decision.blockers.includes(
-      'prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure'
-    )
+    report.variants.every((variant) => variant.postBuildChecks.every((check) => check.status === 0))
   );
   validateCapacityReport(report, ROOT);
+  assert.equal(isCapacityReportReady(report), false);
+  assert.throws(() => assertCapacityReportReady(report), /docker-publication-is-cn-only/);
+
   const mutated = structuredClone(report);
   mutated.projection.pages += 1;
   assert.throws(() => validateCapacityReport(mutated, ROOT), /projection drift/);
 });
 
 test('stale capacity measurements require the rerun blocker and keep release unsafe', () => {
-  const report = readCapacityFixture();
+  const current = readCapacityFixture();
+  const report = structuredClone(current);
+  report.measurementBinding = {
+    measuredRecordsSha256: '9'.repeat(64),
+    currentRecordsSha256: current.projection.recordsSha256,
+    status: 'stale-after-source-normalization',
+    rerunRequired: true,
+    rerunBlocker: 'capacity-rerun-required-after-source-normalization'
+  };
+  report.decision = {
+    safeOneShotFullRelease: false,
+    blockers: [
+      'prebuild-rejects-a-registry-that-has-consumed-the-frozen-pending-closure',
+      'docker-publication-is-cn-only',
+      'capacity-rerun-required-after-source-normalization'
+    ]
+  };
   validateCapacityReport(report, ROOT);
+  assert.equal(isCapacityReportReady(report), false);
 
   const digestDrift = structuredClone(report);
   digestDrift.measurementBinding.currentRecordsSha256 = '0'.repeat(64);
@@ -84,19 +147,38 @@ test('stale capacity measurements require the rerun blocker and keep release uns
   assert.throws(() => validateCapacityReport(safeStale, ROOT), /stale measurement cannot be safe/);
 });
 
-test('capacity decisions reject a safe report with failed variant measurements', () => {
+test('capacity decisions reject a report with failed variant measurements', () => {
   const report = readCapacityFixture();
-  const forged = structuredClone(report);
-  forged.measurementBinding = {
-    ...forged.measurementBinding,
-    measuredRecordsSha256: forged.measurementBinding.currentRecordsSha256,
-    status: 'current',
-    rerunRequired: false
+  const failed = structuredClone(report);
+  failed.variants[1] = {
+    ...failed.variants[1],
+    status: 1,
+    buildSucceeded: false,
+    failure: 'ENOSPC fixture',
+    partialNextBuild: { fileCount: 1, bytes: 1 },
+    staticFileCount: null,
+    exportBytes: null,
+    initialJavaScriptGzipBytes: null,
+    initialJavaScriptMaxGzipBytes: null,
+    initialJavaScriptWithinBudget: null,
+    postBuildVerified: false,
+    postBuildChecks: []
   };
-  forged.decision = { safeOneShotFullRelease: true, blockers: [] };
-  assert.throws(() => validateCapacityReport(forged, ROOT), /decision blockers drift/);
-  assert.equal(isCapacityReportReady(report), false);
-  assert.throws(() => assertCapacityReportReady(report), /static export capacity failed/);
+  failed.decision = {
+    safeOneShotFullRelease: false,
+    blockers: [
+      'docker-publication-is-cn-only',
+      'one-or-more-static-exports-failed',
+      'io-post-build-gate-failed'
+    ]
+  };
+  validateCapacityReport(failed, ROOT);
+  assert.equal(isCapacityReportReady(failed), false);
+  assert.throws(() => assertCapacityReportReady(failed), /static export capacity failed/);
+
+  const forgedSafe = structuredClone(failed);
+  forgedSafe.decision = { safeOneShotFullRelease: true, blockers: [] };
+  assert.throws(() => validateCapacityReport(forgedSafe, ROOT), /decision blockers drift/);
 });
 
 test('capacity evidence rejects registry and search digest drift', () => {
