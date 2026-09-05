@@ -1,17 +1,25 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { URL_ALIAS_CONTRACT } = require('./url-alias-authority');
-const { writeUrlAliasArtifactBundle } = require('./url-alias-artifacts');
 const { directoryInventory } = require('./release-readiness');
-const { sha256, stableJson } = require('./technical-authority');
 const { EXPECTED_FAQ_COUNTS } = require('./release-record');
-const { GENERATED_PUBLIC_PATHS } = require('./release-cross-project');
+const GENERATED_PUBLIC_PATHS = [
+  'public/llms.txt',
+  'public/robots.txt',
+  'public/ar/llms.txt',
+  'public/en/llms.txt',
+  'public/id/llms.txt',
+  'public/ja/llms.txt',
+  'public/ms/llms.txt',
+  'public/th/llms.txt',
+  'public/vi/llms.txt',
+  'public/zh-hant/llms.txt',
+  'public/zh/llms.txt'
+];
 
 const ROOT = path.resolve(__dirname, '../..');
 const NEXT_DIR = path.join(ROOT, '.next');
 const OUT_DIR = path.join(ROOT, 'out');
 const RETAIN_DIR = path.join(ROOT, '.release-artifacts');
-const FULL_RELEASE_VARIANTS = ['cn', 'io', 'preview'];
 
 function clearBuildArtifacts() {
   fs.rmSync(NEXT_DIR, { recursive: true, force: true });
@@ -199,120 +207,15 @@ function retainFailureArtifacts(variant) {
   return retainedPath;
 }
 
-function retainSuccessArtifacts(variant, retainDir) {
-  const retainedPath = path.join(retainDir, variant);
-  fs.rmSync(retainedPath, { recursive: true, force: true });
-  fs.mkdirSync(retainedPath, { recursive: true });
-  const retainedOut = path.join(retainedPath, 'out');
-  const redirectMap = path.join(NEXT_DIR, 'nginx-redirects.conf');
-  if (!fs.existsSync(redirectMap)) {
-    throw new Error(`Missing generated redirect map: ${redirectMap}`);
-  }
-  fs.cpSync(OUT_DIR, retainedOut, { recursive: true });
-  fs.mkdirSync(path.join(retainedOut, '__release'), { recursive: true });
-  fs.copyFileSync(redirectMap, path.join(retainedOut, '__release', 'nginx-redirects.conf'));
-  const aliasBundle = writeUrlAliasArtifactBundle(ROOT, retainedPath, variant);
-  if (aliasBundle.releaseManifest.authority.sourceCount !== URL_ALIAS_CONTRACT.sources) {
-    throw new Error(`URL Alias artifact source count drift for ${variant}`);
-  }
-  return retainedPath;
-}
-
-function clearRetainedSuccessArtifacts(retainDir, variants) {
-  for (const variant of variants) {
-    fs.rmSync(path.join(retainDir, variant), { recursive: true, force: true });
-  }
-  fs.rmSync(path.join(retainDir, 'manifest.json'), { force: true });
-}
-
-function bundleInventory(retainDir, variant) {
-  const inventory = directoryInventory(path.join(retainDir, variant), { root: retainDir });
-  return {
-    variant,
-    path: inventory.path,
-    bytes: inventory.bytes,
-    sha256: inventory.sha256,
-    files: inventory.files.map(({ path: filePath, bytes, sha256: fileSha256 }) => ({
-      path: filePath,
-      bytes,
-      sha256: fileSha256
-    }))
-  };
-}
-
-function verifyBundleLayout(retainDir, variants) {
-  if (JSON.stringify(variants) !== JSON.stringify(FULL_RELEASE_VARIANTS)) {
-    throw new Error('Technical full-release bundle variant set drift');
-  }
-  const entries = fs.readdirSync(retainDir).sort();
-  const expectedEntries = [...variants, 'manifest.json'].sort();
-  if (JSON.stringify(entries) !== JSON.stringify(expectedEntries)) {
-    throw new Error('Technical full-release bundle layout drift');
-  }
-}
-
-function verifySuccessArtifactBundle(retainDir, expectedSourceRevision, variants) {
-  const manifestPath = path.join(retainDir, 'manifest.json');
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  if (manifest.schemaVersion !== 1 || manifest.artifactId !== 'technical-full-release-bundle') {
-    throw new Error('Technical full-release bundle header drift');
-  }
-  if (manifest.sourceRevision !== expectedSourceRevision) {
-    throw new Error('Technical full-release bundle source commit drift');
-  }
-  if (JSON.stringify(manifest.variants) !== JSON.stringify(variants)) {
-    throw new Error('Technical full-release bundle variant set drift');
-  }
-  verifyBundleLayout(retainDir, variants);
-  const inventories = variants.map((variant) => bundleInventory(retainDir, variant));
-  if (JSON.stringify(manifest.inventories) !== JSON.stringify(inventories)) {
-    throw new Error('Technical full-release bundle file inventory drift');
-  }
-  const bundleSha256 = sha256(stableJson({ sourceRevision: expectedSourceRevision, inventories }));
-  if (manifest.bundleSha256 !== bundleSha256) {
-    throw new Error('Technical full-release bundle digest drift');
-  }
-  return manifest;
-}
-
-function finalizeSuccessArtifactBundle(retainDir, sourceRevision, variants) {
-  if (JSON.stringify(variants) !== JSON.stringify(FULL_RELEASE_VARIANTS)) {
-    throw new Error('Technical full-release bundle variant set drift');
-  }
-  const inventories = variants.map((variant) => {
-    if (!fs.existsSync(path.join(retainDir, variant))) {
-      throw new Error(`Missing retained ${variant} release output`);
-    }
-    return bundleInventory(retainDir, variant);
-  });
-  const manifest = {
-    schemaVersion: 1,
-    artifactId: 'technical-full-release-bundle',
-    sourceRevision,
-    variants,
-    inventories,
-    bundleSha256: sha256(stableJson({ sourceRevision, inventories }))
-  };
-  fs.mkdirSync(retainDir, { recursive: true });
-  const temporaryPath = path.join(retainDir, `.manifest-${process.pid}.tmp`);
-  fs.writeFileSync(temporaryPath, stableJson(manifest));
-  fs.renameSync(temporaryPath, path.join(retainDir, 'manifest.json'));
-  return verifySuccessArtifactBundle(retainDir, sourceRevision, variants);
-}
-
 module.exports = {
   assertCaseSensitiveFilesystem,
   clearBuildArtifacts,
-  clearRetainedSuccessArtifacts,
-  finalizeSuccessArtifactBundle,
   recordVariantArtifactInventory,
   recordVariantExportRollbackInventory,
   recordVariantRollbackInventory,
   restoreGeneratedPublicFiles,
   retainFailureArtifacts,
-  retainSuccessArtifacts,
   snapshotGeneratedPublicFiles,
   variantEnvironment,
-  verifySuccessArtifactBundle,
   verifyExportCardinality
 };

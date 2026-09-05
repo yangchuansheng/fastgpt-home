@@ -13,14 +13,9 @@ const {
   writeNginxRedirectMap
 } = require('./lib/redirects');
 const { verifyTechnicalExport } = require('./verify-technical-export');
-const TECHNICAL_CONTENT_POLICY = require('../src/lib/technical-content-policy.json');
-const FULL_RELEASE_IMPORT_MANIFEST = require(
-  '../src/content/tech-center/authority/full-release-import-manifest.json'
-);
-
 const root = path.resolve(__dirname, '..');
 const baseUrls = { cn: 'https://fastgpt.cn', io: 'https://fastgpt.io' };
-const EXPECTED_TECHNICAL_PAGE_COUNT = FULL_RELEASE_IMPORT_MANIFEST.counts.total;
+const EXPECTED_TECHNICAL_PAGE_COUNT = require('../src/components/tech-center/entries.json').length;
 const bilingualSamePathIdentities = [
   {
     key: 'zh|/api/shared-guide',
@@ -48,7 +43,6 @@ function writeArticle(outDir, route, canonical, language, robots) {
 test('technical identities are unique and retain their owner-relative paths', () => {
   const identities = getTechIdentities(root);
   assert.equal(identities.length, EXPECTED_TECHNICAL_PAGE_COUNT);
-  assert.equal(TECHNICAL_CONTENT_POLICY.expectedPageCount, FULL_RELEASE_IMPORT_MANIFEST.counts.baseline);
   assert.equal(new Set(identities.map((identity) => identity.key)).size, identities.length);
   assert.equal(identities[0].sourcePath, '/zh/tutorial/private-deployment-topology');
   assert.equal(identities[0].canonicalPath, '/tutorial/private-deployment-topology');
@@ -155,6 +149,38 @@ test('technical export verifier accepts the same canonical path in every site va
         }),
         { count: 2, variant }
       );
+      const verify = () =>
+        verifyTechnicalExport({
+          outDir,
+          nextDir,
+          variant,
+          env,
+          identities: bilingualSamePathIdentities
+        });
+      const articlePath = path.join(
+        outDir,
+        variant === 'preview' ? 'zh/api/shared-guide.html' : 'api/shared-guide.html'
+      );
+      const html = fs.readFileSync(articlePath, 'utf8');
+      for (const mutate of [
+        (body) => body.replace('rel="canonical"', 'rel="invalid-canonical"'),
+        (body) => body.replace('name="robots"', 'name="invalid-robots"')
+      ]) {
+        fs.writeFileSync(articlePath, mutate(html));
+        assert.throws(verify);
+        fs.writeFileSync(articlePath, html);
+      }
+      fs.unlinkSync(articlePath);
+      assert.throws(verify, /Missing Technical Page HTML/);
+      fs.writeFileSync(articlePath, html);
+      if (variant !== 'preview') {
+        const sitemapPath = path.join(outDir, 'sitemap.xml');
+        const sitemap = fs.readFileSync(sitemapPath, 'utf8');
+        fs.writeFileSync(sitemapPath, '<urlset></urlset>');
+        assert.throws(verify, /sitemap/i);
+        fs.writeFileSync(sitemapPath, sitemap);
+      }
+      assert.doesNotThrow(verify);
     }
   } finally {
     fs.rmSync(tempRoot, { recursive: true, force: true });

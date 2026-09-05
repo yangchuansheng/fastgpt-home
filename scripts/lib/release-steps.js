@@ -79,122 +79,13 @@ function getSourceNodeSteps() {
       'FAQ redirect source verification',
       'scripts/verify-faq-redirects.js',
       ['--source']
-    ],
-    [
-      'technical-authority.source',
-      'technical authority source verification',
-      'scripts/verify-technical-authority.js',
-      []
-    ],
-    [
-      'technical-wave.source',
-      'technical wave source verification',
-      'scripts/verify-technical-wave.js',
-      []
-    ],
-    [
-      'technical-wave2.source',
-      'technical wave 2 source verification',
-      'scripts/verify-technical-wave2.js',
-      []
-    ],
-    [
-      'technical-full-release.source',
-      'Frozen technical import audit',
-      'scripts/verify-technical-full-release.js',
-      []
-    ],
-    [
-      'technical-full-release-build-decision.source',
-      'Technical full-release build decision verification',
-      'scripts/verify-technical-full-release-build-decision.js',
-      []
-    ],
-    [
-      'technical-full-release-production-switch.source',
-      'Technical full-release production switch contract verification',
-      'scripts/verify-technical-full-release-production-switch.js',
-      []
-    ],
-    [
-      'technical-full-release-approval.source',
-      'Technical full-release approval contract verification',
-      'scripts/verify-technical-full-release-approval.js',
-      []
-    ],
-    [
-      'week06-wave0-readiness.source',
-      'Week06 bilingual Technical Wave 0 readiness verification',
-      'scripts/verify-week06-wave0-readiness.js',
-      []
-    ],
-    [
-      'week06-wave1.source',
-      'Week06 bilingual Technical Wave 1 source verification',
-      'scripts/verify-week06-wave1.js',
-      []
-    ],
-    [
-      'week06-wave1.rollback',
-      'Week06 bilingual Technical Wave 1 rollback-on-error verification',
-      'scripts/verify-week06-wave1.js',
-      ['--rollback-on-error']
     ]
   ];
 }
 
 function getSourceNpmSteps() {
   return [
-    [
-      'technical-content.source',
-      'technical content authority verification',
-      ['verify:technical-content']
-    ],
-    [
-      'technical-authority.regression',
-      'technical authority regression',
-      ['verify:technical-authority-regression']
-    ],
-    [
-      'technical-wave.regression',
-      'technical wave regression',
-      ['verify:technical-wave-regression']
-    ],
-    [
-      'technical-wave2.regression',
-      'technical wave 2 regression',
-      ['verify:technical-wave2-regression']
-    ],
-    [
-      'technical-full-release.regression',
-      'Technical import and release regression',
-      ['verify:technical-full-release-regression']
-    ],
-    [
-      'technical-full-release-build-decision.regression',
-      'Technical full-release build decision regression',
-      ['verify:technical-full-release-build-decision-regression']
-    ],
-    [
-      'technical-full-release-production-switch.regression',
-      'Technical full-release production switch contract regression',
-      ['verify:technical-full-release-production-switch-regression']
-    ],
-    [
-      'technical-full-release-approval.regression',
-      'Technical full-release approval contract regression',
-      ['verify:technical-full-release-approval-regression']
-    ],
-    [
-      'week06-wave0-readiness.regression',
-      'Week06 bilingual Technical Wave 0 readiness regression',
-      ['verify:week06-wave0-readiness-regression']
-    ],
-    [
-      'week06-wave1.regression',
-      'Week06 bilingual Technical Wave 1 regression',
-      ['verify:week06-wave1-regression']
-    ],
+    ['technical-content.source', 'technical content verification', ['verify:technical-content']],
     [
       'technical-content.regression',
       'technical content regression',
@@ -267,24 +158,6 @@ function getVariantSteps(variant) {
       id: 'technical-export.export',
       label: `technical export artifact verification (${variant})`,
       args: ['verify:technical-export']
-    },
-    {
-      runner: 'npm',
-      id: 'technical-wave.export',
-      label: `technical wave export verification (${variant})`,
-      args: ['verify:technical-wave', '--', '--export', '--variant', variant, '--out-dir', 'out']
-    },
-    {
-      runner: 'npm',
-      id: 'technical-wave2.export',
-      label: `technical wave 2 export verification (${variant})`,
-      args: ['verify:technical-wave2', '--', '--export', '--variant', variant, '--out-dir', 'out']
-    },
-    {
-      runner: 'npm',
-      id: 'week06-wave1.export',
-      label: `Week06 bilingual Technical Wave 1 export verification (${variant})`,
-      args: ['verify:week06-wave1', '--', '--export', '--variant', variant, '--out-dir', 'out']
     },
     ...(variant === 'preview'
       ? []
