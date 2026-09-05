@@ -28,6 +28,7 @@ const { recordStep } = require('./lib/release-record');
 const {
   finalizeSuccessArtifactBundle,
   retainSuccessArtifacts,
+  variantEnvironment,
   verifySuccessArtifactBundle
 } = require('./lib/release-artifacts');
 const { normalizeSolutionsEvidence } = require('./lib/release-readiness');
@@ -218,6 +219,22 @@ test('release coordinator accepts the preview Site Variant', () => {
     retainSuccessArtifacts: undefined,
     variant: 'preview'
   });
+});
+
+test('capacity measurement requires the same complete three-variant release build', () => {
+  assert.equal(
+    parseReleaseArgs(['--capacity-report', 'capacity.json']).capacityReport,
+    path.join(ROOT, 'capacity.json')
+  );
+  assert.throws(() => parseReleaseArgs(['--capacity-report']), /requires a path/);
+  assert.throws(
+    () => parseReleaseArgs(['--capacity-report', 'capacity.json', '--variant', 'cn']),
+    /requires the full cn, io, preview build/
+  );
+  assert.throws(
+    () => parseReleaseArgs(['--capacity-report', 'capacity.json', '--source-only']),
+    /requires the full cn, io, preview build/
+  );
 });
 
 test('release coordinator accepts a separately supplied Solutions preview evidence file', () => {
@@ -723,6 +740,73 @@ test('P1 successful evidence keeps the emitted KiB measurement', () => {
   assert.equal(extractP1SuccessMeasurement('P1 verification passed'), undefined);
 });
 
+test('release variants inherit shared configuration and isolate site overrides', () => {
+  const baseEnv = {
+    NEXT_PUBLIC_CRM_API_URL: 'https://crm.example.com',
+    CN_NEXT_PUBLIC_USER_URL: 'https://cloud.fastgpt.cn',
+    CN_NEXT_PUBLIC_FILING_ADDRESS: 'CN filing',
+    IO_NEXT_PUBLIC_ATTRIBUTION_COOKIE_DOMAIN: '.fastgpt.io',
+    CN_NEXT_PUBLIC_HOME_URL: 'https://untrusted.example.com'
+  };
+  for (const variant of ['cn', 'io', 'preview']) {
+    const env = variantEnvironment(variant, baseEnv);
+    assert.equal(env.NEXT_PUBLIC_CRM_API_URL, baseEnv.NEXT_PUBLIC_CRM_API_URL);
+    assert.equal(env.NEXT_PUBLIC_SITE_VARIANT, variant);
+    assert.equal(env.NEXT_PUBLIC_HOME_URL, `https://fastgpt.${variant === 'cn' ? 'cn' : 'io'}`);
+    assert.equal(env.NEXT_PUBLIC_FILING_ADDRESS, variant === 'cn' ? 'CN filing' : undefined);
+    assert.equal(
+      env.NEXT_PUBLIC_USER_URL,
+      variant === 'cn' ? 'https://cloud.fastgpt.cn' : undefined
+    );
+    assert.equal(
+      env.NEXT_PUBLIC_ATTRIBUTION_COOKIE_DOMAIN,
+      variant === 'io' ? '.fastgpt.io' : undefined
+    );
+  }
+});
+
+test('the CI build executes one coordinator with capacity and optional bundle retention', () => {
+  const yaml = require('js-yaml');
+  const workflow = yaml.load(
+    fs.readFileSync(path.join(ROOT, '.github/workflows/guide-release-verification.yml'), 'utf8')
+  );
+  const step = workflow.jobs.verify.steps.find((step) => step.env?.RETAIN_RELEASE_BUNDLE);
+  for (const [event, retain] of [
+    ['pull_request', 'false'],
+    ['workflow_dispatch', 'true']
+  ]) {
+    const result = spawnSync(
+      'bash',
+      ['-eu', '-c', `npm() { printf '<%s>' "$@"; printf '\\n'; }\n${step.run}`],
+      {
+        env: {
+          ...process.env,
+          GITHUB_EVENT_NAME: event,
+          RETAIN_RELEASE_BUNDLE: retain,
+          NEXT_PUBLIC_CRM_API_URL: 'https://crm.example.com',
+          RUNNER_TEMP: '/tmp/release evidence'
+        },
+        encoding: 'utf8'
+      }
+    );
+    assert.equal(result.status, 0, result.stderr);
+    const calls = result.stdout.trim().split('\n');
+    assert.equal(calls.length, 2);
+    assert.equal(calls[0], '<ci>');
+    assert.equal(
+      calls[1],
+      '<run><verify:release><--><--keep-artifacts><--capacity-report><.release-artifacts/capacity-report.json>' +
+        (event === 'pull_request'
+          ? '<--allow-missing-solutions-evidence>'
+          : '<--retain-success-artifacts></tmp/release evidence/technical-full-release-bundle>')
+    );
+  }
+  const missingCrm = spawnSync('bash', ['-eu', '-c', step.run], {
+    env: { ...process.env, RETAIN_RELEASE_BUNDLE: 'true', NEXT_PUBLIC_CRM_API_URL: '' }
+  });
+  assert.equal(missingCrm.status, 1);
+});
+
 test('Linux release evidence stays build-only', () => {
   const workflowPath = path.join(ROOT, '.github/workflows/guide-release-verification.yml');
   const dockerfilePath = path.join(ROOT, 'Dockerfile.verify');
@@ -736,7 +820,7 @@ test('Linux release evidence stays build-only', () => {
   assert.match(workflow, /node-version: 24/);
   assert.match(workflow, /cache: npm/);
   assert.match(workflow, /npm ci/);
-  assert.match(workflow, /npm run verify:release -- --keep-artifacts/);
+  assert.match(workflow, /npm run verify:release --/);
   assert.match(workflow, /allow-missing-solutions-evidence/);
   assert.match(workflow, /if: \$\{\{ always\(\)/);
   assert.match(workflow, /actions\/upload-artifact@v4/);

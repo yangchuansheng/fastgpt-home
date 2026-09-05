@@ -1,90 +1,216 @@
-name: Build FastGPT landing page image
+name: Build immutable FastGPT release images
+
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - 'main'
+    inputs:
+      bootstrap:
+        description: 'Initialize the signed manifest for an existing complete baseline'
+        required: true
+        default: false
+        type: boolean
+      source_revision:
+        description: 'Candidate source revision recorded by the retained release bundle'
+        required: true
+        type: string
+      bundle_sha256:
+        description: 'Candidate retained release bundle SHA-256'
+        required: true
+        type: string
+      candidate_artifact_run_id:
+        description: 'Workflow run containing the candidate retained release bundle'
+        required: true
+        type: string
+      candidate_artifact_name:
+        description: 'Candidate retained release bundle artifact name'
+        required: true
+        default: technical-full-release-bundle
+        type: string
+      cn_image_repository:
+        description: 'CN GHCR image repository without a tag'
+        required: true
+        type: string
+      io_image_repository:
+        description: 'IO GHCR image repository without a tag'
+        required: true
+        type: string
+      previous_source_revision:
+        description: 'Previous complete release source revision'
+        required: false
+        type: string
+      previous_bundle_sha256:
+        description: 'Previous complete release bundle SHA-256'
+        required: false
+        type: string
+      previous_image_manifest_run_id:
+        description: 'Workflow run containing the previous signed image manifest'
+        required: false
+        type: string
+      previous_image_manifest_artifact_name:
+        description: 'Previous signed image manifest artifact name'
+        required: false
+        type: string
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  # Production must always deploy the upstream package, even when this workflow
-  # is inspected or dispatched from a fork.
-  IMAGE_NAME: ghcr.io/labring/fastgpt-home
+concurrency:
+  group: technical-full-release-images
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: read
+  packages: write
 
 jobs:
-  build-fastgpt-landingpage-images:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+  package:
+    if: github.repository == 'labring/fastgpt-home' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
     steps:
-      - name: Checkout
+      - name: Validate immutable release inputs
+        env:
+          RELEASE_IMAGE_MANIFEST_BOOTSTRAP: ${{ inputs.bootstrap }}
+          RELEASE_SOURCE_COMMIT: ${{ inputs.source_revision }}
+          RELEASE_BUNDLE_SHA256: ${{ inputs.bundle_sha256 }}
+          PREVIOUS_RELEASE_SOURCE_COMMIT: ${{ inputs.previous_source_revision }}
+          PREVIOUS_RELEASE_BUNDLE_SHA256: ${{ inputs.previous_bundle_sha256 }}
+          RELEASE_CN_IMAGE_REPOSITORY: ${{ inputs.cn_image_repository }}
+          RELEASE_IO_IMAGE_REPOSITORY: ${{ inputs.io_image_repository }}
+          RELEASE_ARTIFACT_RUN_ID: ${{ inputs.candidate_artifact_run_id }}
+          PREVIOUS_RELEASE_IMAGE_MANIFEST_RUN_ID: ${{ inputs.previous_image_manifest_run_id }}
+          PREVIOUS_RELEASE_IMAGE_MANIFEST_ARTIFACT_NAME: ${{ inputs.previous_image_manifest_artifact_name }}
+        run: |
+          test "$(printf '%s' "$RELEASE_SOURCE_COMMIT" | wc -c)" -eq 40
+          test "$(printf '%s' "$RELEASE_BUNDLE_SHA256" | wc -c)" -eq 64
+          printf '%s\n' "$RELEASE_SOURCE_COMMIT$RELEASE_BUNDLE_SHA256$PREVIOUS_RELEASE_SOURCE_COMMIT$PREVIOUS_RELEASE_BUNDLE_SHA256" | grep -Eq '^[a-f0-9]+$'
+          printf '%s\n' "$RELEASE_ARTIFACT_RUN_ID" | grep -Eq '^[1-9][0-9]*$'
+          if [ "$RELEASE_IMAGE_MANIFEST_BOOTSTRAP" != "true" ]; then
+            test "$(printf '%s' "$PREVIOUS_RELEASE_SOURCE_COMMIT" | wc -c)" -eq 40
+            test "$(printf '%s' "$PREVIOUS_RELEASE_BUNDLE_SHA256" | wc -c)" -eq 64
+            printf '%s\n' "$PREVIOUS_RELEASE_IMAGE_MANIFEST_RUN_ID" | grep -Eq '^[1-9][0-9]*$'
+            test -n "$PREVIOUS_RELEASE_IMAGE_MANIFEST_ARTIFACT_NAME"
+          fi
+          for repository in "$RELEASE_CN_IMAGE_REPOSITORY" "$RELEASE_IO_IMAGE_REPOSITORY"; do
+            printf '%s\n' "$repository" | grep -Eq '^ghcr\.io/[a-z0-9._/-]+$'
+          done
+
+      - name: Checkout trusted packaging source
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Get current date and time
-        id: datetime
-        run: |-
-          echo "datetime=$(date +'%Y%m%d%H%M%S')" >> "$GITHUB_OUTPUT"
-
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          # list of Docker images to use as base name for tags
-          images: |
-            ${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=${{ steps.datetime.outputs.datetime }}
-            type=raw,value=latest
-          flavor: latest=false
+          node-version: 24
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Verify approved source ancestry
+        env:
+          RELEASE_SOURCE_COMMIT: ${{ inputs.source_revision }}
+        run: node scripts/verify-release-source.js "$RELEASE_SOURCE_COMMIT" "$GITHUB_SHA"
+
+      - name: Download candidate retained release bundle
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.candidate_artifact_run_id }}
+          name: ${{ inputs.candidate_artifact_name }}
+          path: ${{ runner.temp }}/candidate-release
+
+      - name: Download previous signed release image manifest
+        if: ${{ !inputs.bootstrap }}
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.previous_image_manifest_run_id }}
+          name: ${{ inputs.previous_image_manifest_artifact_name }}
+          path: ${{ runner.temp }}/previous-image-manifest
+
+      - name: Verify the retained full-release bundle
+        env:
+          RELEASE_BUNDLE: ${{ runner.temp }}/candidate-release
+          RELEASE_SOURCE_COMMIT: ${{ inputs.source_revision }}
+          RELEASE_BUNDLE_SHA256: ${{ inputs.bundle_sha256 }}
+        run: npm run verify:technical-full-release-build-decision -- --verify-bundle "$RELEASE_BUNDLE" "$RELEASE_SOURCE_COMMIT" "$RELEASE_BUNDLE_SHA256"
+
+      - name: Prepare isolated CN and IO runtime contexts
+        env:
+          RELEASE_BUNDLE: ${{ runner.temp }}/candidate-release
+          # Historical baselines predate the release-runtime Docker stage.
+          RELEASE_RUNTIME_COMMIT: ${{ inputs.bootstrap && github.sha || inputs.source_revision }}
+        run: |
+          for site in cn io; do
+            context="$RUNNER_TEMP/technical-release-$site"
+            install -d "$context"
+            git archive "$RELEASE_RUNTIME_COMMIT" Dockerfile nginx.conf nginx-security-headers.conf nginx-embeddable-security-headers.conf | tar -x -C "$context"
+            cp -R "$RELEASE_BUNDLE/$site/out" "$context/release-out"
+          done
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to GitHub Container Registry
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Validate production CRM configuration
-        env:
-          NEXT_PUBLIC_CRM_API_URL: ${{ secrets.NEXT_PUBLIC_CRM_API_URL }}
-        run: test -n "$NEXT_PUBLIC_CRM_API_URL"
-
-      - name: Build and push Docker image to GitHub Container Registry
+      - name: Build and push immutable CN runtime
+        id: build-cn
         uses: docker/build-push-action@v6
         with:
-          file: Dockerfile
+          context: ${{ runner.temp }}/technical-release-cn
+          target: release-runtime
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ inputs.cn_image_repository }}:${{ inputs.source_revision }}-${{ inputs.bundle_sha256 }}-cn
           build-args: |
-            NEXT_PUBLIC_BAIDU_TONGJI=${{ secrets.NEXT_PUBLIC_BAIDU_TONGJI }}
-            NEXT_PUBLIC_BAIDU_KEY=${{ secrets.NEXT_PUBLIC_BAIDU_KEY }}
-            NEXT_PUBLIC_HOME_URL=${{ secrets.NEXT_PUBLIC_HOME_URL }}
-            NEXT_PUBLIC_SITE_VARIANT=cn
-            NEXT_PUBLIC_CN_HOME_URL=https://fastgpt.cn
-            NEXT_PUBLIC_IO_HOME_URL=https://fastgpt.io
-            NEXT_PUBLIC_USER_URL=${{ secrets.NEXT_PUBLIC_USER_URL }}
-            NEXT_PUBLIC_FILING_ADDRESS=${{ secrets.NEXT_PUBLIC_FILING_ADDRESS }}
-            NEXT_PUBLIC_POLICE_FILING=${{ secrets.NEXT_PUBLIC_POLICE_FILING }}
-            NEXT_PUBLIC_RYBBIT_TONGJI=${{ secrets.NEXT_PUBLIC_RYBBIT_TONGJI }}
-            NEXT_PUBLIC_RYBBIT_TONGJI_SITEID=${{ secrets.NEXT_PUBLIC_RYBBIT_TONGJI_SITEID }}
-            NEXT_PUBLIC_CRM_API_URL=${{ secrets.NEXT_PUBLIC_CRM_API_URL }}
-            NEXT_PUBLIC_ATTRIBUTION_COOKIE_DOMAIN=.fastgpt.cn
-            NEXT_PUBLIC_ATTRIBUTION_STORAGE_MODE=${{ vars.NEXT_PUBLIC_ATTRIBUTION_STORAGE_MODE }}
-            NEXT_PUBLIC_ATTRIBUTION_SOURCE=${{ secrets.NEXT_PUBLIC_ATTRIBUTION_SOURCE }}
-      - uses: actions-hub/kubectl@master
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+            RELEASE_SOURCE_COMMIT=${{ inputs.source_revision }}
+            RELEASE_TREE_DIGEST=${{ inputs.bundle_sha256 }}
+            RELEASE_ROLLBACK_TARGET=${{ inputs.bootstrap && inputs.bundle_sha256 || inputs.previous_bundle_sha256 }}
+            RELEASE_ARTIFACT_ID=${{ inputs.source_revision }}
+            RELEASE_PROVIDER=kubernetes
+
+      - name: Build and push immutable IO runtime
+        id: build-io
+        uses: docker/build-push-action@v6
         with:
-          args: set image deployment/fastgpt-home fastgpt-home=${{ env.IMAGE_NAME }}:${{ steps.datetime.outputs.datetime }}
+          context: ${{ runner.temp }}/technical-release-io
+          target: release-runtime
+          push: true
+          tags: ${{ inputs.io_image_repository }}:${{ inputs.source_revision }}-${{ inputs.bundle_sha256 }}-io
+          build-args: |
+            RELEASE_SOURCE_COMMIT=${{ inputs.source_revision }}
+            RELEASE_TREE_DIGEST=${{ inputs.bundle_sha256 }}
+            RELEASE_ROLLBACK_TARGET=${{ inputs.bootstrap && inputs.bundle_sha256 || inputs.previous_bundle_sha256 }}
+            RELEASE_ARTIFACT_ID=${{ inputs.source_revision }}
+            RELEASE_PROVIDER=kubernetes
+
+      - name: Generate signed release image manifest
+        env:
+          RELEASE_IMAGE_MANIFEST_BOOTSTRAP: ${{ inputs.bootstrap && '1' || '0' }}
+          RELEASE_BUNDLE: ${{ runner.temp }}/candidate-release
+          RELEASE_SOURCE_COMMIT: ${{ inputs.source_revision }}
+          RELEASE_BUNDLE_SHA256: ${{ inputs.bundle_sha256 }}
+          RELEASE_CN_IMAGE: ${{ inputs.cn_image_repository }}@${{ steps.build-cn.outputs.digest }}
+          RELEASE_IO_IMAGE: ${{ inputs.io_image_repository }}@${{ steps.build-io.outputs.digest }}
+          PREVIOUS_RELEASE_SOURCE_COMMIT: ${{ inputs.previous_source_revision }}
+          PREVIOUS_RELEASE_BUNDLE_SHA256: ${{ inputs.previous_bundle_sha256 }}
+          RELEASE_IMAGE_MANIFEST_KEY: ${{ secrets.TECHNICAL_RELEASE_IMAGE_MANIFEST_KEY }}
+          PREVIOUS_RELEASE_IMAGE_MANIFEST_PATH: ${{ runner.temp }}/previous-image-manifest/manifest.json
+          PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE_PATH: ${{ runner.temp }}/previous-image-manifest/manifest.sig
+          RELEASE_IMAGE_MANIFEST_OUTPUT: ${{ runner.temp }}/image-manifest/manifest.json
+          RELEASE_IMAGE_MANIFEST_SIGNATURE_OUTPUT: ${{ runner.temp }}/image-manifest/manifest.sig
+        run: |
+          if [ "$RELEASE_IMAGE_MANIFEST_BOOTSTRAP" != "1" ]; then
+            export PREVIOUS_RELEASE_IMAGE_MANIFEST="$(cat "$PREVIOUS_RELEASE_IMAGE_MANIFEST_PATH")"
+            export PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE="$(cat "$PREVIOUS_RELEASE_IMAGE_MANIFEST_SIGNATURE_PATH")"
+          fi
+          npm run generate:technical-full-release-image-manifest
+
+      - name: Upload signed release image manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: technical-full-release-image-manifest-${{ inputs.source_revision }}
+          path: ${{ runner.temp }}/image-manifest
+          if-no-files-found: error
+          retention-days: 90

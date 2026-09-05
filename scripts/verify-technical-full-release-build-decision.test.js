@@ -61,13 +61,13 @@ function historicalFailureVariant(variant, index) {
   };
 }
 
-test('the full release build decision selects a larger one-shot runner', () => {
+test('the full release build decision reuses the successfully measured runner', () => {
   const result = verifyTechnicalFullReleaseBuildDecision();
 
   assert.deepEqual(result, {
     issue: 276,
     pages: 4007,
-    path: 'increase-build-resources',
+    path: 'reuse-current-resources',
     variants: ['cn', 'io', 'preview'],
     releaseArtifacts: 1,
     productionSwitches: 1,
@@ -151,7 +151,7 @@ test('the observed boundary rejects mixed or inconsistent capacity measurements'
   );
 
   const missingGate = structuredClone(report);
-  missingGate.variants[0].postBuildChecks.pop();
+  missingGate.variants[0].postBuildChecks = [];
   assert.throws(
     () => deriveObservedBoundary(missingGate),
     /one homogeneous successful run or three historical ENOSPC failures/
@@ -173,8 +173,8 @@ test('the resource floor keeps measured memory headroom and requires a successfu
       decision.evidence.observedBoundary.maxPeakRssBytes;
   }, /memory headroom is below policy/);
   assertDecisionRejected((decision) => {
-    decision.decision.resources.minimumMemoryBytes = 25769803775;
-  }, /memory floor is below selected release policy/);
+    decision.decision.resources.minimumLogicalCpuCount = 3;
+  }, /logical CPU floor is below measured capacity host/);
   assertDecisionRejected((decision) => {
     decision.decision.resources.workingDisk.successfulCapacityRerunRequired = false;
   }, /successful capacity rerun is required/);

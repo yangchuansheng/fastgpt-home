@@ -25,7 +25,7 @@
     }
   },
   "decision": {
-    "path": "increase-build-resources",
+    "path": "reuse-current-resources",
     "coordinator": "npm run verify:release -- --retain-success-artifacts \"$RELEASE_STAGING_DIR\"",
     "commands": {
       "preflight": "npm run verify:technical-full-release-build-decision -- --preflight-resources",
@@ -35,14 +35,14 @@
     },
     "rationale": [
       "All three production-style variants completed the 4,007-page static export and every recorded post-build gate on the measured runner.",
-      "The successful measurement stayed within the selected runner resource floors; the increase-build-resources path preserves repeatable headroom for the one-shot release bundle.",
+      "Reuse the measured 4-core runner with a rounded-down 15 GiB memory floor, which retains more than the measured peak RSS plus 40 percent headroom. Validate retained-bundle disk use in the release build.",
       "The existing release coordinator already builds variants sequentially, cleans between variants, runs artifact gates, and retains namespaced outputs; the release remains blocked until dual-site bundle and controller evidence is recorded."
     ],
     "resources": {
       "nodeMajor": 24,
       "caseSensitiveFilesystem": true,
-      "minimumLogicalCpuCount": 10,
-      "minimumMemoryBytes": 25769803776,
+      "minimumLogicalCpuCount": 4,
+      "minimumMemoryBytes": 16106127360,
       "workingDisk": {
         "kind": "dedicated-ephemeral",
         "minimumFreeBytesAtStart": 17179869184,
@@ -93,9 +93,9 @@
   },
   "alternatives": [
     {
-      "path": "reuse-current-resources",
+      "path": "increase-build-resources",
       "disposition": "rejected",
-      "reason": "The measured runner completed all variants, while its 4 logical CPUs and 15.6 GiB memory remain below the selected repeatable release-resource floors."
+      "reason": "The measured 4-core, 15.6 GiB runner completed every variant; additional CPU and memory require evidence from a retained-bundle run."
     },
     {
       "path": "optimize-existing-projections",

@@ -395,7 +395,7 @@ function verifyTechnicalFullReleaseApproval({
   );
   assert.equal(contract.lineage.buildDecision.sourceRevision, decision.sourceRevision);
   assert.equal(contract.lineage.buildDecision.pathDecision, decision.decision?.path);
-  assert.equal(decision.decision?.path, 'increase-build-resources');
+  assert.equal(decision.decision?.path, 'reuse-current-resources');
 
   const productionSwitch = verifyArtifact(
     rootDir,

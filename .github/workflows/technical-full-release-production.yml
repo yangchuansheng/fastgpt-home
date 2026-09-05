@@ -80,6 +80,8 @@ jobs:
     steps:
       - name: Checkout controller source
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -90,7 +92,7 @@ jobs:
         if: inputs.action != 'rollback'
         env:
           RELEASE_SOURCE_COMMIT: ${{ inputs.source_revision }}
-        run: test "$GITHUB_SHA" = "$RELEASE_SOURCE_COMMIT"
+        run: node scripts/verify-release-source.js "$RELEASE_SOURCE_COMMIT" "$GITHUB_SHA"
 
       - name: Set up kubectl
         if: inputs.action != 'preflight'

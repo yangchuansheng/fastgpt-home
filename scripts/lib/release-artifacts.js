@@ -74,11 +74,18 @@ function assertCaseSensitiveFilesystem() {
   }
 }
 
-function variantEnvironment(variant) {
+function variantEnvironment(variant, baseEnv = process.env) {
   const baseUrl = variant === 'cn' ? 'https://fastgpt.cn' : 'https://fastgpt.io';
+  const prefix = `${variant.toUpperCase()}_`;
+  const overrides = Object.fromEntries(
+    Object.entries(baseEnv)
+      .filter(([key]) => key.startsWith(`${prefix}NEXT_PUBLIC_`))
+      .map(([key, value]) => [key.slice(prefix.length), value])
+  );
   return {
-    ...process.env,
-    CI: process.env.CI || '1',
+    ...baseEnv,
+    ...overrides,
+    CI: baseEnv.CI || '1',
     NODE_ENV: 'production',
     NEXT_PUBLIC_SITE_VARIANT: variant,
     NEXT_PUBLIC_HOME_URL: baseUrl,

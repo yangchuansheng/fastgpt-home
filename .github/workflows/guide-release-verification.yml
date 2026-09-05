@@ -3,6 +3,11 @@ name: Guide Release Verification
 on:
   workflow_dispatch:
     inputs:
+      retain_release_bundle:
+        description: 'Retain the complete verified CN, IO, and Preview release bundle'
+        required: false
+        default: false
+        type: boolean
       solutions_preview_target:
         description: 'Approved Solutions preview HTTPS target'
         required: false
@@ -22,6 +27,8 @@ on:
   pull_request:
     paths:
       - '.github/workflows/guide-release-verification.yml'
+      - '.github/workflows/fastgpt-home-image.yml'
+      - '.github/workflows/technical-full-release-production.yml'
       - 'src/**'
       - 'content/**'
       - 'content/competitors/**'
@@ -36,6 +43,9 @@ on:
       - 'next.config.js'
       - 'package.json'
       - 'package-lock.json'
+      - 'postcss.config.js'
+      - 'tailwind.config.ts'
+      - 'tsconfig.json'
       - 'nginx.conf'
       - 'nginx-security-headers.conf'
       - 'nginx-embeddable-security-headers.conf'
@@ -56,6 +66,7 @@ env:
 
 jobs:
   verify:
+    if: ${{ !inputs.retain_release_bundle || (github.repository == 'labring/fastgpt-home' && github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-24.04
 
     steps:
@@ -69,18 +80,53 @@ jobs:
           cache: npm
 
       - name: Verify three-variant release evidence
+        env:
+          RETAIN_RELEASE_BUNDLE: ${{ inputs.retain_release_bundle }}
+          NEXT_PUBLIC_CRM_API_URL: ${{ inputs.retain_release_bundle && secrets.NEXT_PUBLIC_CRM_API_URL || '' }}
+          NEXT_PUBLIC_ATTRIBUTION_STORAGE_MODE: ${{ inputs.retain_release_bundle && vars.NEXT_PUBLIC_ATTRIBUTION_STORAGE_MODE || '' }}
+          CN_NEXT_PUBLIC_BAIDU_TONGJI: ${{ inputs.retain_release_bundle && secrets.NEXT_PUBLIC_BAIDU_TONGJI || '' }}
+          CN_NEXT_PUBLIC_BAIDU_KEY: ${{ inputs.retain_release_bundle && secrets.NEXT_PUBLIC_BAIDU_KEY || '' }}
+          CN_NEXT_PUBLIC_USER_URL: ${{ inputs.retain_release_bundle && secrets.NEXT_PUBLIC_USER_URL || '' }}
+          CN_NEXT_PUBLIC_FILING_ADDRESS: ${{ inputs.retain_release_bundle && secrets.NEXT_PUBLIC_FILING_ADDRESS || '' }}
+          CN_NEXT_PUBLIC_POLICE_FILING: ${{ inputs.retain_release_bundle && secrets.NEXT_PUBLIC_POLICE_FILING || '' }}
+          CN_NEXT_PUBLIC_RYBBIT_TONGJI: ${{ inputs.retain_release_bundle && secrets.NEXT_PUBLIC_RYBBIT_TONGJI || '' }}
+          CN_NEXT_PUBLIC_RYBBIT_TONGJI_SITEID: ${{ inputs.retain_release_bundle && secrets.NEXT_PUBLIC_RYBBIT_TONGJI_SITEID || '' }}
+          CN_NEXT_PUBLIC_ATTRIBUTION_COOKIE_DOMAIN: ${{ inputs.retain_release_bundle && '.fastgpt.cn' || '' }}
+          CN_NEXT_PUBLIC_ATTRIBUTION_SOURCE: ${{ inputs.retain_release_bundle && secrets.NEXT_PUBLIC_ATTRIBUTION_SOURCE || '' }}
+          IO_NEXT_PUBLIC_ATTRIBUTION_COOKIE_DOMAIN: ${{ inputs.retain_release_bundle && '.fastgpt.io' || '' }}
+          IO_NEXT_PUBLIC_ATTRIBUTION_SOURCE: ${{ inputs.retain_release_bundle && 'home-io' || '' }}
         run: |
+          if [ "$RETAIN_RELEASE_BUNDLE" = "true" ]; then
+            test -n "$NEXT_PUBLIC_CRM_API_URL"
+          fi
           npm ci
-          npm run verify:release -- --keep-artifacts ${{ github.event_name == 'pull_request' && '--allow-missing-solutions-evidence' || '' }}
+          args=(--keep-artifacts --capacity-report .release-artifacts/capacity-report.json)
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            args+=(--allow-missing-solutions-evidence)
+          fi
+          if [ "$RETAIN_RELEASE_BUNDLE" = "true" ]; then
+            args+=(--retain-success-artifacts "$RUNNER_TEMP/technical-full-release-bundle")
+          fi
+          npm run verify:release -- "${args[@]}"
+
+      - name: Upload complete verified release bundle
+        if: ${{ success() && inputs.retain_release_bundle }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: technical-full-release-bundle
+          path: ${{ runner.temp }}/technical-full-release-bundle
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 90
 
       - name: Verify postdeploy owner URLs
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.retain_release_bundle }}
         run: |
           mkdir -p .release-artifacts/postdeploy
           npm run verify:week06-wave1-live | tee .release-artifacts/postdeploy/week06-wave1-live.log
 
       - name: Verify postdeploy observation window
-        if: ${{ always() && github.event_name == 'workflow_dispatch' }}
+        if: ${{ always() && github.event_name == 'workflow_dispatch' && !inputs.retain_release_bundle }}
         run: |
           mkdir -p .release-artifacts/postdeploy
           npm run verify:week06-wave1-observation | tee .release-artifacts/postdeploy/week06-wave1-observation.log

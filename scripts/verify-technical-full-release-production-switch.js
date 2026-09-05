@@ -469,7 +469,7 @@ function verifyTechnicalFullReleaseProductionSwitch({
     buildDecision.decision?.path,
     'build decision path drift'
   );
-  assert.equal(buildDecision.decision?.path, 'increase-build-resources');
+  assert.equal(buildDecision.decision?.path, 'reuse-current-resources');
   const capacityReport = verifyArtifact(
     rootDir,
     buildDecision.evidence?.capacityReport,

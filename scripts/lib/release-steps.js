@@ -99,6 +99,12 @@ function getSourceNodeSteps() {
       []
     ],
     [
+      'technical-full-release.source',
+      'Frozen technical import audit',
+      'scripts/verify-technical-full-release.js',
+      []
+    ],
+    [
       'technical-full-release-build-decision.source',
       'Technical full-release build decision verification',
       'scripts/verify-technical-full-release-build-decision.js',
@@ -158,6 +164,11 @@ function getSourceNpmSteps() {
       'technical-wave2.regression',
       'technical wave 2 regression',
       ['verify:technical-wave2-regression']
+    ],
+    [
+      'technical-full-release.regression',
+      'Technical import and release regression',
+      ['verify:technical-full-release-regression']
     ],
     [
       'technical-full-release-build-decision.regression',

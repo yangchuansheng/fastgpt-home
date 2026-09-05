@@ -5,7 +5,6 @@ const path = require('node:path');
 const test = require('node:test');
 
 const {
-  currentPathBlockers,
   isCapacityReportReady,
   projectTechnicalContent,
   summarizeExport,
@@ -19,9 +18,10 @@ const {
 const { buildReaderPage } = require('./lib/technical-wave');
 const {
   assertCapacityReportReady,
-  captureVariant,
   parseArgs,
-  sanitizeFailure
+  runMeasured,
+  createCapacityReport,
+  writeCapacityReport
 } = require('./verify-technical-full-release-capacity');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -34,22 +34,13 @@ function readCapacityFixture() {
   );
 }
 
-test('capacity runner can measure the repository projection without external source roots', () => {
+test('capacity runner delegates to the shared release coordinator', () => {
   assert.deepEqual(parseArgs([]), {
     mode: 'run',
-    w5SourceRoot: undefined,
-    w6SourceRoot: undefined,
-    report: path.resolve(__dirname, 'fixtures/technical-authority/full-release-capacity.json')
+    report: path.join(ROOT, '.release-artifacts/capacity-report.json')
   });
-  assert.deepEqual(
-    parseArgs(['--w5-source-root', '/w5', '--w6-source-root', '/w6', '--report', '/report']),
-    {
-      mode: 'run',
-      w5SourceRoot: '/w5',
-      w6SourceRoot: '/w6',
-      report: '/report'
-    }
-  );
+  assert.deepEqual(parseArgs(['--report', '/report']), { mode: 'run', report: '/report' });
+  assert.throws(() => parseArgs(['--report']), /requires a path/);
 });
 
 test('committed capacity evidence records a successful three-variant measurement', () => {
@@ -263,201 +254,6 @@ test('repository-consistent projection rejects a reader path drift', () => {
   }
 });
 
-function writeDualSitePackagingPath(root, workflowTransform = (workflow) => workflow) {
-  fs.mkdirSync(path.join(root, '.github/workflows'), { recursive: true });
-  fs.mkdirSync(path.join(root, 'scripts'), { recursive: true });
-  fs.copyFileSync(path.join(ROOT, 'Dockerfile'), path.join(root, 'Dockerfile'));
-  const workflow = fs.readFileSync(
-    path.join(ROOT, '.github/workflows/technical-full-release-images.yml'),
-    'utf8'
-  );
-  fs.writeFileSync(
-    path.join(root, '.github/workflows/technical-full-release-images.yml'),
-    workflowTransform(workflow)
-  );
-  fs.copyFileSync(
-    path.join(ROOT, '.github/workflows/technical-full-release-image-bootstrap.yml'),
-    path.join(root, '.github/workflows/technical-full-release-image-bootstrap.yml')
-  );
-  fs.copyFileSync(
-    path.join(ROOT, '.github/workflows/technical-full-release-production.yml'),
-    path.join(root, '.github/workflows/technical-full-release-production.yml')
-  );
-  fs.copyFileSync(
-    path.join(ROOT, 'scripts/generate-technical-full-release-image-manifest.js'),
-    path.join(root, 'scripts/generate-technical-full-release-image-manifest.js')
-  );
-}
-
-function removeWorkflowStep(workflow, name) {
-  const marker = `      - name: ${name}`;
-  const start = workflow.indexOf(marker);
-  const end = workflow.indexOf('\n      - name:', start + marker.length);
-  return `${workflow.slice(0, start)}${workflow.slice(end < 0 ? workflow.length : end + 1)}`;
-}
-
-test('capacity blockers accept the manual dual-site release-runtime packaging path', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
-  try {
-    writeDualSitePackagingPath(root);
-    assert.deepEqual(currentPathBlockers(root), []);
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test('capacity blockers require both release-runtime image builds and manual dispatch', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
-  try {
-    writeDualSitePackagingPath(root, (workflow) =>
-      workflow
-        .replace('  workflow_dispatch:', '  pull_request:')
-        .replace('technical-release-io', 'technical-release-cn')
-    );
-    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test('capacity blockers reject an additional packaging trigger', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
-  try {
-    writeDualSitePackagingPath(root, (workflow) =>
-      workflow.replace('  workflow_dispatch:\n', '  workflow_dispatch:\n  workflow_call:\n')
-    );
-    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test('capacity blockers bind each site image to its own build digest', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
-  try {
-    writeDualSitePackagingPath(root, (workflow) =>
-      workflow.replace('steps.build-io.outputs.digest', 'steps.build-cn.outputs.digest')
-    );
-    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test('capacity blockers require the upstream main packaging guard', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
-  try {
-    writeDualSitePackagingPath(root, (workflow) =>
-      workflow.replace("github.repository == 'labring/fastgpt-home'", 'always()')
-    );
-    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test('capacity blockers require previous manifest download and bundle verifier bindings', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
-  try {
-    writeDualSitePackagingPath(root, (workflow) =>
-      removeWorkflowStep(workflow, 'Download previous signed release image manifest')
-    );
-    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
-
-    writeDualSitePackagingPath(root, (workflow) =>
-      workflow.replace('          RELEASE_BUNDLE: ${{ runner.temp }}/candidate-release\n', '')
-    );
-    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test('capacity blockers require runtime files in each isolated context', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
-  try {
-    writeDualSitePackagingPath(root, (workflow) =>
-      workflow.replace(
-        '            cp Dockerfile nginx.conf nginx-security-headers.conf nginx-embeddable-security-headers.conf "$context/"\n',
-        ''
-      )
-    );
-    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test('capacity blockers report a missing signed image-manifest generator', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
-  try {
-    writeDualSitePackagingPath(root);
-    fs.rmSync(path.join(root, 'scripts/generate-technical-full-release-image-manifest.js'));
-    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test('capacity blockers require the trusted baseline bootstrap path', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
-  try {
-    writeDualSitePackagingPath(root);
-    fs.rmSync(path.join(root, '.github/workflows/technical-full-release-image-bootstrap.yml'));
-    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test('capacity blockers bind bootstrap images to their site build digests', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
-  try {
-    writeDualSitePackagingPath(root);
-    const bootstrapPath = path.join(
-      root,
-      '.github/workflows/technical-full-release-image-bootstrap.yml'
-    );
-    const bootstrap = fs
-      .readFileSync(bootstrapPath, 'utf8')
-      .replace(
-        'steps.build-bootstrap-io.outputs.digest',
-        'steps.build-bootstrap-cn.outputs.digest'
-      );
-    fs.writeFileSync(bootstrapPath, bootstrap);
-    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test('capacity blockers require bootstrap bundle verification inside the generator mode', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-path-'));
-  try {
-    writeDualSitePackagingPath(root);
-    const generatorPath = path.join(
-      root,
-      'scripts/generate-technical-full-release-image-manifest.js'
-    );
-    const generator = fs.readFileSync(generatorPath, 'utf8');
-    const start = generator.indexOf('function buildBootstrapSignedImageManifest(');
-    const end = generator.indexOf('function writeSignedImageManifest(', start);
-    const bootstrapFunction = generator
-      .slice(start, end)
-      .replace(
-        '  verifyReleaseBundle(path.resolve(bundlePath), candidate.sourceRevision, candidate.bundleSha256);\n',
-        ''
-      );
-    fs.writeFileSync(
-      generatorPath,
-      `${generator.slice(0, start)}${bootstrapFunction}${generator.slice(end)}`
-    );
-    assert.deepEqual(currentPathBlockers(root), ['docker-publication-is-cn-only']);
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
 test('export summary records files, bytes, and initial JavaScript budget', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-capacity-'));
   try {
@@ -484,19 +280,42 @@ test('export summary records files, bytes, and initial JavaScript budget', () =>
   }
 });
 
-test('a failed variant is recorded without interrupting the capacity run', async () => {
-  const result = await captureVariant('preview', async () => {
-    throw new Error('ENOSPC fixture');
-  });
-  assert.equal(result.variant, 'preview');
-  assert.equal(result.buildSucceeded, false);
-  assert.equal(result.failure, 'ENOSPC fixture');
-  assert.equal(result.staticFileCount, null);
+test('the measurement wrapper records child exit status and positive resource samples', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-measurement-'));
+  try {
+    for (const status of [0, 2]) {
+      const result = await runMeasured(
+        process.execPath,
+        ['-e', `setTimeout(() => process.exit(${status}), 400)`],
+        {
+          cwd: root,
+          env: process.env,
+          logPath: path.join(root, `${status}.log`)
+        }
+      );
+      assert.equal(result.status, status);
+      assert.equal(result.signal, null);
+      assert(result.durationMilliseconds >= 400);
+      assert(result.peakRssBytes > 0);
+    }
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
 
-test('failure evidence omits the disposable host path', () => {
-  assert.equal(
-    sanitizeFailure('ENOSPC at /tmp/capacity/repo/.next/trace', '/tmp/capacity/repo'),
-    'ENOSPC at <disposable-root>/.next/trace'
-  );
+test('a partially measured release remains blocked until every variant has completed', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-capacity-report-'));
+  try {
+    const report = createCapacityReport('a'.repeat(40));
+    writeCapacityReport(report, path.join(root, 'report.json'));
+    assert.equal(report.decision.safeOneShotFullRelease, false);
+    assert(report.decision.blockers.includes('incomplete-variant-set'));
+    assert.throws(() => assertCapacityReportReady(report), /incomplete-variant-set/);
+    report.variants = readCapacityFixture().variants;
+    writeCapacityReport(report, path.join(root, 'report.json'));
+    validateCapacityReport(report, ROOT);
+    assert.doesNotThrow(() => assertCapacityReportReady(report));
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });

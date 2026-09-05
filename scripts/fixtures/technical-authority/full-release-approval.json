@@ -27,15 +27,15 @@
     },
     "buildDecision": {
       "path": "scripts/fixtures/technical-authority/full-release-build-decision.json",
-      "sha256": "4c8a829163d487ae396e77f29d3e8bba7fb0bf2281c48f4098c9a3c25e6c298c",
+      "sha256": "38ee4e59ff5d89539aeec66a3c171080c4a4dab9a288fed60a2265b0db2ffe71",
       "issue": 276,
       "sourceRevision": "36c7b31a93197cb05c026dee0f9111d2919fef13",
       "contractRevision": "a037fd114a6e52762253f9324065dffdca92599f",
-      "pathDecision": "increase-build-resources"
+      "pathDecision": "reuse-current-resources"
     },
     "productionSwitch": {
       "path": "scripts/fixtures/technical-authority/full-release-production-switch.json",
-      "sha256": "2a1548565898b6ddc66bb8dc554bd178512832324f237df1d5aa3dcd4dd66c25",
+      "sha256": "583063b4f876d61af40e0c950b6f54ae7affa7cdc2479da6e1c844bec8b5e2fd",
       "issue": 277,
       "sourceRevision": "38ef16c5eb87918873666a6f657c2017047dbb3e",
       "window": {

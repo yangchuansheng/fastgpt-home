@@ -1,76 +1,44 @@
 #!/usr/bin/env node
 
-/** Build and measure the frozen 4,007-page Technical Center projection in a disposable copy. */
+/** Measure the existing release build; verification and capacity share the same exported output. */
 
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
-
 const {
   VARIANTS,
   deriveCapacityBlockers,
   isCapacityReportReady,
-  patchCapacityPageCount,
   projectTechnicalContent,
   summarizeExport,
   validateCapacityReport
 } = require('./lib/technical-full-release-capacity');
-const { extractSourceRootArgs } = require('./lib/technical-full-release');
 const { sha256, stableJson } = require('./lib/technical-authority');
-const { variantEnvironment } = require('./lib/release-artifacts');
 
 const ROOT = path.resolve(__dirname, '..');
 const DEFAULT_REPORT = 'scripts/fixtures/technical-authority/full-release-capacity.json';
 
 function parseArgs(argv = process.argv.slice(2)) {
-  if (argv.includes('--check-report')) {
-    let report = path.join(ROOT, DEFAULT_REPORT);
-    for (let index = 0; index < argv.length; index += 1) {
-      const token = argv[index];
-      if (token === '--check-report') continue;
-      if (token === '--report') {
-        const value = argv[++index];
-        if (!value || value.startsWith('--')) throw new Error('--report requires a path');
-        report = path.resolve(ROOT, value);
-      } else {
-        throw new Error(`Unknown option: ${token}`);
-      }
-    }
-    return { mode: 'check', report };
-  }
-  const { options, remaining } = extractSourceRootArgs(argv);
-  options.mode = 'run';
-  options.report = path.join(ROOT, DEFAULT_REPORT);
-  for (let index = 0; index < remaining.length; index += 1) {
-    const token = remaining[index];
-    if (token === '--report' || token === '--work-root') {
-      const value = remaining[++index];
-      if (!value || value.startsWith('--')) throw new Error(`${token} requires a path`);
-      options[token === '--report' ? 'report' : 'workRoot'] = path.resolve(ROOT, value);
+  const options = {
+    mode: argv.includes('--check-report') ? 'check' : 'run',
+    report: path.join(
+      ROOT,
+      argv.includes('--check-report') ? DEFAULT_REPORT : '.release-artifacts/capacity-report.json'
+    )
+  };
+  for (let index = 0; index < argv.length; index += 1) {
+    const token = argv[index];
+    if (token === '--check-report') continue;
+    if (token === '--report') {
+      const value = argv[++index];
+      if (!value || value.startsWith('--')) throw new Error('--report requires a path');
+      options.report = path.resolve(ROOT, value);
     } else {
       throw new Error(`Unknown option: ${token}`);
     }
   }
   return options;
-}
-
-function copyRepository(target) {
-  fs.cpSync(ROOT, target, {
-    recursive: true,
-    preserveTimestamps: true,
-    filter(source) {
-      return !['.git', '.next', 'out', 'node_modules'].includes(path.basename(source));
-    }
-  });
-  const dependencies = spawnSync(
-    'cp',
-    ['-a', '-l', path.join(ROOT, 'node_modules'), path.join(target, 'node_modules')],
-    { encoding: 'utf8' }
-  );
-  if (dependencies.status !== 0) {
-    throw new Error(`Unable to hard-link dependencies: ${dependencies.stderr}`);
-  }
 }
 
 function descendantsRssKilobytes(rootPid) {
@@ -118,58 +86,114 @@ function runMeasured(command, args, { cwd, env, logPath }) {
   });
 }
 
-function runChecked(command, args, options) {
-  const result = spawnSync(command, args, { ...options, encoding: 'utf8' });
-  if (result.status !== 0) {
-    throw new Error(
-      `${command} ${args.join(' ')} failed:\n${result.stdout || ''}${result.stderr || ''}`
-    );
-  }
-  return result;
-}
-
-function runPostBuildCheck(command, args, options) {
-  const result = spawnSync(command, args, { ...options, encoding: 'utf8' });
-  const output = `${result.stdout || ''}${result.stderr || ''}`;
+function createCapacityReport(sourceRevision) {
+  const projection = projectTechnicalContent({ repoRoot: ROOT });
   return {
-    command: [command, ...args].join(' '),
-    status: result.status,
-    outputBytes: Buffer.byteLength(output),
-    outputSha256: sha256(output),
-    firstFailure: result.status === 0 ? null : output.split('\n').find(Boolean) || 'no output'
+    schemaVersion: 1,
+    issue: 275,
+    sourceRevision,
+    measuredAt: new Date().toISOString(),
+    command: 'npm run verify:release -- --capacity-report <REPORT_PATH>',
+    scope: 'repository-production-static-export',
+    environment: {
+      node: process.version,
+      platform: process.platform,
+      arch: process.arch,
+      logicalCpuCount: os.cpus().length,
+      physicalMemoryBytes: os.totalmem()
+    },
+    projection,
+    measurementBinding: {
+      measuredRecordsSha256: projection.recordsSha256,
+      currentRecordsSha256: projection.recordsSha256,
+      status: 'current',
+      rerunRequired: false
+    },
+    variants: [],
+    decision: { safeOneShotFullRelease: false, blockers: ['incomplete-variant-set'] }
   };
 }
 
-function cleanBuild(repoRoot) {
-  fs.rmSync(path.join(repoRoot, '.next'), { recursive: true, force: true });
-  fs.rmSync(path.join(repoRoot, 'out'), { recursive: true, force: true });
+function writeCapacityReport(report, reportPath) {
+  const blockers = deriveCapacityBlockers(report);
+  report.decision = { safeOneShotFullRelease: blockers.length === 0, blockers };
+  fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+  const temporaryPath = `${reportPath}.tmp-${process.pid}`;
+  fs.writeFileSync(temporaryPath, stableJson(report));
+  fs.renameSync(temporaryPath, reportPath);
 }
 
-function directorySummary(root) {
-  if (!fs.existsSync(root)) return { fileCount: 0, bytes: 0 };
-  const files = fs.readdirSync(root, { recursive: true, withFileTypes: true });
-  return files.reduce(
-    (summary, entry) => {
-      if (!entry.isFile()) return summary;
-      const filePath = path.join(entry.parentPath || entry.path, entry.name);
-      summary.fileCount += 1;
-      summary.bytes += fs.statSync(filePath).size;
-      return summary;
-    },
-    { fileCount: 0, bytes: 0 }
+async function measureBuild(variant, reportPath) {
+  if (!VARIANTS.includes(variant)) throw new Error(`Unknown variant: ${variant}`);
+  fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+  const logPath = `${reportPath}.log`;
+  const result = await runMeasured(
+    process.platform === 'win32' ? 'npm.cmd' : 'npm',
+    ['run', 'build'],
+    {
+      cwd: ROOT,
+      env: process.env,
+      logPath
+    }
   );
+  const output = fs.readFileSync(logPath, 'utf8');
+  process.stdout.write(output);
+  const succeeded = result.status === 0 && result.signal === null;
+  const measurement = {
+    variant,
+    ...result,
+    buildSucceeded: succeeded,
+    ...(succeeded
+      ? summarizeExport(ROOT, variant)
+      : {
+          failure:
+            output
+              .replaceAll(ROOT, '<repository>')
+              .split('\n')
+              .filter(Boolean)
+              .slice(-8)
+              .join('\n') || `build exited with ${result.status ?? result.signal}`,
+          staticFileCount: null,
+          exportBytes: null,
+          initialJavaScriptGzipBytes: null,
+          initialJavaScriptMaxGzipBytes: null,
+          initialJavaScriptWithinBudget: null
+        }),
+    postBuildVerified: succeeded,
+    postBuildChecks: succeeded
+      ? [
+          {
+            command: 'npm run build',
+            status: 0,
+            outputBytes: Buffer.byteLength(output),
+            outputSha256: sha256(output),
+            firstFailure: null
+          }
+        ]
+      : []
+  };
+  fs.writeFileSync(reportPath, stableJson(measurement));
+  return measurement;
 }
 
-function sanitizeFailure(output, repoRoot) {
-  const roots = [repoRoot];
-  try {
-    roots.push(fs.realpathSync(repoRoot));
-  } catch {}
-  return roots.reduce((sanitized, root) => sanitized.replaceAll(root, '<disposable-root>'), output);
-}
-
-function buildEnvironment(variant) {
-  return { ...variantEnvironment(variant), NEXT_TELEMETRY_DISABLED: '1' };
+function recordCapacityVariant(report, measurementPath, commands) {
+  const measurement = JSON.parse(fs.readFileSync(measurementPath, 'utf8'));
+  if (measurement.buildSucceeded) {
+    measurement.postBuildChecks.push(
+      ...commands
+        .filter((step) => step.variant === measurement.variant && step.id !== 'variant.build')
+        .map((step) => ({
+          command: step.command,
+          status: step.status === 'passed' ? 0 : 1,
+          outputBytes: Buffer.byteLength(step.output),
+          outputSha256: sha256(step.output),
+          firstFailure: step.status === 'passed' ? null : step.output
+        }))
+    );
+    measurement.postBuildVerified = measurement.postBuildChecks.every((step) => step.status === 0);
+    Object.assign(measurement, summarizeExport(ROOT, measurement.variant));
+  }
+  report.variants.push(measurement);
 }
 
 function assertCapacityReportReady(report) {
@@ -178,88 +202,17 @@ function assertCapacityReportReady(report) {
       `One-shot static export capacity failed: ${report.decision.blockers.join(', ')}`
     );
   }
-}
-
-async function measureVariant(repoRoot, variant, logRoot) {
-  cleanBuild(repoRoot);
-  try {
-    const env = buildEnvironment(variant);
-    const logPath = path.join(logRoot, `${variant}.log`);
-    runChecked(process.execPath, ['scripts/generate-robots.js'], { cwd: repoRoot, env });
-    runChecked(process.execPath, ['scripts/generate-llms.js'], { cwd: repoRoot, env });
-    const build = await runMeasured(
-      process.execPath,
-      ['node_modules/next/dist/bin/next', 'build'],
-      { cwd: repoRoot, env, logPath }
-    );
-    if (build.status !== 0) {
-      const output = sanitizeFailure(fs.readFileSync(logPath, 'utf8'), repoRoot);
-      return {
-        variant,
-        ...build,
-        buildSucceeded: false,
-        failure: output.split('\n').filter(Boolean).slice(-8).join('\n'),
-        partialNextBuild: directorySummary(path.join(repoRoot, '.next')),
-        staticFileCount: null,
-        exportBytes: null,
-        initialJavaScriptGzipBytes: null,
-        initialJavaScriptMaxGzipBytes: null,
-        initialJavaScriptWithinBudget: null,
-        postBuildVerified: false,
-        postBuildChecks: []
-      };
-    }
-    const postBuild = [
-      ['scripts/clean-locale-output.js'],
-      ['scripts/clean-faq-rsc.js'],
-      ['scripts/verify-technical-center.js'],
-      ['scripts/verify-customers-export.js'],
-      ['scripts/fix-html-lang.js'],
-      ['--test', 'scripts/verify-content-sidebar-cta.test.js'],
-      ['scripts/verify-technical-export.js'],
-      ['scripts/verify-content-hygiene.js', '--mode', 'html', '--root', 'out']
-    ];
-    const postBuildChecks = postBuild.map((args) =>
-      runPostBuildCheck(process.execPath, args, { cwd: repoRoot, env })
-    );
-    return {
-      variant,
-      ...build,
-      buildSucceeded: true,
-      ...summarizeExport(repoRoot, variant),
-      postBuildVerified: postBuildChecks.every((check) => check.status === 0),
-      postBuildChecks
-    };
-  } finally {
-    cleanBuild(repoRoot);
-  }
-}
-
-async function captureVariant(variant, measure) {
-  try {
-    return await measure();
-  } catch (error) {
-    return {
-      variant,
-      buildSucceeded: false,
-      status: null,
-      signal: null,
-      durationMilliseconds: null,
-      peakRssBytes: null,
-      failure: error.message,
-      partialNextBuild: null,
-      staticFileCount: null,
-      exportBytes: null,
-      initialJavaScriptGzipBytes: null,
-      initialJavaScriptMaxGzipBytes: null,
-      initialJavaScriptWithinBudget: null,
-      postBuildVerified: false,
-      postBuildChecks: []
-    };
-  }
+  validateCapacityReport(report, ROOT);
 }
 
 async function main(argv = process.argv.slice(2)) {
+  if (argv[0] === '--measure-build') {
+    if (argv.length !== 3)
+      throw new Error('--measure-build requires a variant and measurement path');
+    const result = await measureBuild(argv[1], path.resolve(argv[2]));
+    process.exitCode = result.status === 0 && result.signal === null ? 0 : 1;
+    return result;
+  }
   const options = parseArgs(argv);
   if (options.mode === 'check') {
     const report = validateCapacityReport(JSON.parse(fs.readFileSync(options.report)), ROOT);
@@ -268,68 +221,13 @@ async function main(argv = process.argv.slice(2)) {
     );
     return report;
   }
-  const disposableRoot =
-    options.workRoot || fs.mkdtempSync(path.join(os.tmpdir(), 'full-release-'));
-  const cleanup = !options.workRoot;
-  const repoRoot = path.join(disposableRoot, 'repo');
-  const logRoot = path.join(disposableRoot, 'logs');
-  try {
-    fs.mkdirSync(logRoot, { recursive: true });
-    copyRepository(repoRoot);
-    const projection = projectTechnicalContent({ repoRoot, ...options });
-    patchCapacityPageCount(repoRoot, projection.pages);
-    const report = {
-      schemaVersion: 1,
-      issue: 275,
-      sourceRevision: require('node:child_process')
-        .execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' })
-        .trim(),
-      measuredAt: new Date().toISOString(),
-      command: 'npm run verify:technical-full-release-capacity -- --report <REPORT_PATH>',
-      scope: 'disposable-4007-page-production-static-export',
-      environment: {
-        node: process.version,
-        platform: process.platform,
-        arch: process.arch,
-        logicalCpuCount: os.cpus().length,
-        physicalMemoryBytes: os.totalmem()
-      },
-      projection,
-      measurementBinding: {
-        measuredRecordsSha256: projection.recordsSha256,
-        currentRecordsSha256: projection.recordsSha256,
-        status: 'current',
-        rerunRequired: false
-      },
-      variants: [],
-      decision: null
-    };
-    const writeReport = () => {
-      fs.mkdirSync(path.dirname(options.report), { recursive: true });
-      const temporaryPath = `${options.report}.tmp-${process.pid}`;
-      fs.writeFileSync(temporaryPath, stableJson(report));
-      fs.renameSync(temporaryPath, options.report);
-    };
-    writeReport();
-    for (const variant of VARIANTS) {
-      console.log(`[verify-technical-full-release-capacity] building ${variant}`);
-      report.variants.push(
-        await captureVariant(variant, () => measureVariant(repoRoot, variant, logRoot))
-      );
-      writeReport();
-    }
-    const blockers = deriveCapacityBlockers(report, ROOT);
-    report.decision = {
-      safeOneShotFullRelease: blockers.length === 0,
-      blockers
-    };
-    writeReport();
-    console.log(`TECHNICAL_FULL_RELEASE_CAPACITY_RESULT=${JSON.stringify(report)}`);
-    assertCapacityReportReady(report);
-    return report;
-  } finally {
-    if (cleanup) fs.rmSync(disposableRoot, { recursive: true, force: true });
-  }
+  const result = spawnSync(
+    process.execPath,
+    ['scripts/verify-release.js', '--capacity-report', options.report],
+    { cwd: ROOT, stdio: 'inherit' }
+  );
+  if (result.error) throw result.error;
+  process.exitCode = result.status === 0 && result.signal === null ? 0 : 1;
 }
 
 if (require.main === module) {
@@ -341,9 +239,10 @@ if (require.main === module) {
 
 module.exports = {
   assertCapacityReportReady,
-  captureVariant,
-  descendantsRssKilobytes,
+  createCapacityReport,
   main,
   parseArgs,
-  sanitizeFailure
+  recordCapacityVariant,
+  runMeasured,
+  writeCapacityReport
 };

@@ -12,6 +12,12 @@ const path = require('node:path');
 const { execFileSync, spawnSync } = require('node:child_process');
 const { URL_ALIAS_CONTRACT } = require('./lib/url-alias-authority');
 const {
+  assertCapacityReportReady,
+  createCapacityReport,
+  recordCapacityVariant,
+  writeCapacityReport
+} = require('./verify-technical-full-release-capacity');
+const {
   verifyUrlAliasArtifactBundle,
   writeUrlAliasArtifactBundle
 } = require('./lib/url-alias-artifacts');
@@ -106,7 +112,12 @@ function parseArgs(argv) {
     const token = argv[index];
     if (token === '--source-only') options.sourceOnly = true;
     else if (token === '--keep-artifacts') options.keepArtifacts = true;
-    else if (token === '--allow-missing-solutions-evidence') {
+    else if (token === '--capacity-report') {
+      const reportPath = argv[++index];
+      if (!reportPath || reportPath.startsWith('--'))
+        throw new Error('--capacity-report requires a path');
+      options.capacityReport = path.resolve(ROOT, reportPath);
+    } else if (token === '--allow-missing-solutions-evidence') {
       options.allowMissingSolutionsEvidence = true;
     } else if (token === '--live') options.live = true;
     else if (token === '--retain-success-artifacts') {
@@ -157,6 +168,9 @@ function parseArgs(argv) {
   }
   if (options.variant && options.retainSuccessArtifacts) {
     throw new Error('--retain-success-artifacts requires the full cn, io, preview build');
+  }
+  if (options.capacityReport && (options.variant || options.sourceOnly)) {
+    throw new Error('--capacity-report requires the full cn, io, preview build');
   }
   return options;
 }
@@ -315,18 +329,29 @@ function getVariantExecutionOrder(variant) {
   ];
 }
 
-function runVariantChecks(failures, variant, env, record) {
+function runVariantChecks(failures, variant, env, record, measurementPath) {
   const commandStart = record?.commands.length || 0;
-  const buildPassed = npmStep(
-    failures,
-    'variant.build',
-    `build ${variant}`,
-    ['build'],
-    env,
-    variant,
-    undefined,
-    record
-  );
+  const buildPassed = measurementPath
+    ? nodeStep(
+        failures,
+        'variant.build',
+        `build ${variant}`,
+        'scripts/verify-technical-full-release-capacity.js',
+        ['--measure-build', variant, measurementPath],
+        env,
+        variant,
+        record
+      )
+    : npmStep(
+        failures,
+        'variant.build',
+        `build ${variant}`,
+        ['build'],
+        env,
+        variant,
+        undefined,
+        record
+      );
   if (!buildPassed) {
     recordVariantOutcome(record, variant, failures, commandStart);
     return false;
@@ -502,6 +527,8 @@ function main() {
   if (!options.keepArtifacts && !options.sourceOnly) {
     fs.rmSync(RETAIN_DIR, { recursive: true, force: true });
   }
+  const capacity = options.capacityReport ? createCapacityReport(readSourceRevision()) : undefined;
+  if (capacity) writeCapacityReport(capacity, options.capacityReport);
   loadSolutionsEvidence(record, options);
   addRollbackFile(
     record,
@@ -620,7 +647,14 @@ function main() {
       const env = variantEnvironment(variant);
       const beforeFailures = failures.length;
       runGuideSourceChecks(failures, env, variant, record);
-      runVariantChecks(failures, variant, env, record);
+      const measurementPath = capacity
+        ? path.join(RETAIN_DIR, 'capacity', `${variant}.json`)
+        : undefined;
+      runVariantChecks(failures, variant, env, record, measurementPath);
+      if (capacity) {
+        recordCapacityVariant(capacity, measurementPath, record.commands);
+        writeCapacityReport(capacity, options.capacityReport);
+      }
       recordVariantArtifactInventory(record, variant);
       appendP1HistoricalBaselineAdvisories(failures, beforeFailures, advisories);
       const variantFailed = failures.length > beforeFailures;
@@ -692,11 +726,26 @@ function main() {
       clearBuildArtifacts();
     }
 
+    if (capacity) {
+      try {
+        assertCapacityReportReady(capacity);
+        console.log('[verify-release] three-variant capacity evidence passed');
+      } catch (error) {
+        failures.push({
+          id: 'capacity.report',
+          label: 'three-variant capacity evidence',
+          command: 'in-process capacity report verification',
+          output: error.message
+        });
+      }
+    }
+
     if (options.retainSuccessArtifacts) {
       if (failures.length) {
         clearRetainedSuccessArtifacts(options.retainSuccessArtifacts, variants);
       } else {
         try {
+          restoreGeneratedPublicFiles(snapshot);
           verifySourceRevision(sourceRevision);
           const bundle = finalizeSuccessArtifactBundle(
             options.retainSuccessArtifacts,
