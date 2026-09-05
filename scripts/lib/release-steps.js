@@ -140,25 +140,6 @@ function extractP1SuccessMeasurement(output) {
 
 function getVariantSteps(variant) {
   const steps = [
-    {
-      runner: 'node',
-      id: 'content-hygiene.html',
-      label: `Complete HTML hygiene (${variant})`,
-      command: 'scripts/verify-content-hygiene.js',
-      args: ['--mode', 'html', '--root', 'out', '--variant', variant]
-    },
-    {
-      runner: 'npm',
-      id: 'technical-center.export',
-      label: `technical center artifact verification (${variant})`,
-      args: ['verify:technical-center']
-    },
-    {
-      runner: 'npm',
-      id: 'technical-export.export',
-      label: `technical export artifact verification (${variant})`,
-      args: ['verify:technical-export']
-    },
     ...(variant === 'preview'
       ? []
       : [

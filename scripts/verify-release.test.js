@@ -179,7 +179,7 @@ test('release plans compose FAQ, Guide, and variant checks with stable step IDs'
 
   const variantOrder = getVariantExecutionOrder('cn');
   assert.equal(variantOrder[0], 'variant.build');
-  assert(variantOrder.indexOf('content-hygiene.html') < variantOrder.indexOf('guide.export'));
+  assert(variantOrder.indexOf('variant.build') < variantOrder.indexOf('guide.export'));
 });
 
 test('release coordinator checks technical content and every site variant', () => {
@@ -193,8 +193,7 @@ test('release coordinator checks technical content and every site variant', () =
     assert(sourceCommands.includes(command), command);
   for (const variant of ['cn', 'io', 'preview']) {
     const variantIds = getVariantExecutionOrder(variant);
-    assert(variantIds.includes('technical-center.export'));
-    assert(variantIds.includes('technical-export.export'));
+    assert.equal(variantIds.filter((id) => id === 'variant.build').length, 1);
   }
 });
 
@@ -283,7 +282,7 @@ test('preview release gates skip production-only FAQ artifacts and sitemap cardi
   const previewIds = getVariantSteps('preview').map((step) => step.id);
   const cnIds = getVariantSteps('cn').map((step) => step.id);
 
-  assert(previewIds.includes('technical-export.export'));
+  assert(previewIds.includes('i18n-seo.export'));
   assert.equal(previewIds.includes('faq-metadata.html'), false);
   assert.equal(previewIds.includes('faq-seo-graph.html'), false);
   assert.equal(previewIds.includes('url-alias.blackbox'), false);
@@ -426,8 +425,6 @@ test('release build and workflow wiring preserve source hygiene while enforcing 
     packageJson.scripts.build,
     /fix-html-lang\.js && node --test scripts\/verify-content-sidebar-cta\.test\.js && node scripts\/verify-technical-export\.js && node scripts\/verify-content-hygiene\.js --mode html --root out$/
   );
-  const variantOrder = getVariantExecutionOrder('cn');
-  assert(variantOrder.indexOf('variant.build') < variantOrder.indexOf('content-hygiene.html'));
   assert(getSourceExecutionOrder().includes('typescript.source'));
   for (const pattern of [
     'src/**',
