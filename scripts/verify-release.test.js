@@ -23,6 +23,7 @@ const { recordStep, recordVariantOutcome } = require('./lib/release-record');
 const { variantEnvironment } = require('./lib/release-artifacts');
 const { buildOwnerExpectationSet, parseArgs } = require('./verify-faq-metadata');
 const { normalizeFaqMetadataPolicy } = require('./generate-faq-metadata');
+const { verifyNginxHeaderCoverage } = require('./verify-p0');
 
 const ROOT = path.resolve(__dirname, '..');
 const OUT_DIR = path.join(ROOT, 'out');
@@ -84,6 +85,20 @@ function failure(label, output, variant = 'io') {
   const id = label.startsWith('P1 ') ? 'p1.export' : 'test.failure';
   return { id, label, variant, command: 'npm run verify:p1', output };
 }
+
+test('Nginx security headers follow the active server and cache locations', () => {
+  const config = fs.readFileSync(path.join(ROOT, 'nginx.conf'), 'utf8');
+  verifyNginxHeaderCoverage(config);
+  for (const match of config.matchAll(/include \/etc\/nginx\/(?:embeddable-)?security-headers\.conf;/g)) {
+    const missingInclude = config.slice(0, match.index) + config.slice(match.index + match[0].length);
+    assert.throws(() => verifyNginxHeaderCoverage(missingInclude), /Security headers missing/);
+  }
+  verifyNginxHeaderCoverage(config.replace(/  location \/images\/ \{[\s\S]*?\n  \}/, ''));
+  assert.throws(
+    () => verifyNginxHeaderCoverage(config + '\nlocation /new/ {\nadd_header Cache-Control "public";\n}\n'),
+    /Security headers missing from location \/new\//
+  );
+});
 
 test('production deploys the built digest and restores the previous image on rollout failure', () => {
   const workflow = require('js-yaml').load(

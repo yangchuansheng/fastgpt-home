@@ -57,7 +57,7 @@ jobs:
           npm run verify:release -- --keep-artifacts
 
       - name: Upload release verification record and artifacts
-        if: ${{ always() && hashFiles('.release-artifacts/**') != '' }}
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: technical-content-release-evidence
