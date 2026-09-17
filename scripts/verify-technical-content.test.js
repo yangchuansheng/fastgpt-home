@@ -182,6 +182,88 @@ test('schema drift fails with an actionable error', () => {
   assert.throws(() => buildImportPlan({ repoRoot: root, sourcePath: tempRoot }), /wordCount/i);
 });
 
+test('localized delivery directories drive identity, keep interactive keys, and map guide pages', () => {
+  const tempSource = fs.mkdtempSync(path.join(os.tmpdir(), 'technical-content-localized-'));
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'technical-content-localized-repo-'));
+  const source =
+    'https://github.com/labring/FastGPT/blob/v4.16.2/packages/global/core/dataset/training/utils.ts';
+  const title = 'Chunk estimator';
+  const document = [
+    '---',
+    `title: ${title}`,
+    'slug: /zh/guide/chunk-estimator',
+    'page_type: 交互模块页',
+    `source: ${source}`,
+    'source_type: 开源仓库 v4.16.2',
+    'interactive_module: parameter-simulator',
+    'interactive_data: a2-chunk-index-settings.json',
+    '---',
+    '',
+    '# Chunk estimator',
+    '',
+    'Pick a chunk size and compare the effective values.'
+  ].join('\n');
+  const delivery = {
+    schemaVersion: 1,
+    accepted: [
+      {
+        file: 'zh/guide/chunk-estimator.md',
+        prefix: 'zh/guide',
+        slug: 'guide/chunk-estimator',
+        title,
+        pageType: '交互模块页',
+        wordCount: 9,
+        sourceCount: 0,
+        source
+      }
+    ],
+    denied: []
+  };
+  const writeDelivery = () =>
+    fs.writeFileSync(path.join(tempSource, 'delivery.json'), `${JSON.stringify(delivery, null, 2)}\n`);
+  try {
+    fs.mkdirSync(path.join(tempRoot, 'src/components/tech-center'), { recursive: true });
+    fs.writeFileSync(path.join(tempRoot, 'src/components/tech-center/entries.json'), '[\n]\n');
+    fs.mkdirSync(path.join(tempSource, 'zh/guide'), { recursive: true });
+    fs.writeFileSync(path.join(tempSource, 'zh/guide/chunk-estimator.md'), `${document}\n`);
+    writeDelivery();
+
+    const plan = buildImportPlan({ repoRoot: tempRoot, sourcePath: tempSource });
+    const [page] = plan.pages;
+    assert.deepEqual(page.identity, { locale: 'zh', canonicalPath: '/guide/chunk-estimator' });
+    assert.equal(page.operation, 'add');
+    // Interactive module pages render in the troubleshooting index, so guide files land there.
+    assert.equal(page.projection.category, 'troubleshoot');
+    assert.equal(page.projection.sourceType, '官方文档');
+    assert.equal(page.normalizedBodyPath, 'src/content/tech-center/guide/chunk-estimator.md');
+    assert.match(page.normalizedDocument, /interactive_module: parameter-simulator/);
+    assert.match(page.normalizedDocument, /interactive_data: a2-chunk-index-settings\.json/);
+    assert.doesNotMatch(page.normalizedDocument, /article_section/);
+
+    writeImportPlan(plan, tempRoot);
+    assert.equal(verifyTechnicalContent(tempRoot).length, 1);
+    assert.match(
+      fs.readFileSync(path.join(tempRoot, page.normalizedBodyPath), 'utf8'),
+      /slug: \/zh\/guide\/chunk-estimator/
+    );
+
+    fs.mkdirSync(path.join(tempSource, 'en/guide'), { recursive: true });
+    fs.renameSync(
+      path.join(tempSource, 'zh/guide/chunk-estimator.md'),
+      path.join(tempSource, 'en/guide/chunk-estimator.md')
+    );
+    delivery.accepted[0].file = 'en/guide/chunk-estimator.md';
+    writeDelivery();
+    assert.throws(
+      () => buildImportPlan({ repoRoot: tempRoot, sourcePath: tempSource }),
+      /locale prefix/i
+    );
+  } finally {
+    fs.rmSync(tempSource, { recursive: true, force: true });
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
+});
+
 test('delivery trust boundaries validate public sources, citation counts, and lowercase routes', () => {
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'technical-content-boundary-'));
   fs.cpSync(fixture, tempRoot, { recursive: true });

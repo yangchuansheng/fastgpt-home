@@ -10,7 +10,18 @@ const zlib = require('node:zlib');
 
 const REPOSITORY_ROOT = path.resolve(__dirname, '..');
 const TECHNICAL_CONTENT_POLICY = require('../src/lib/technical-content-policy.json');
-const FRONT_MATTER_KEYS = ['title', 'slug', 'page_type', 'source', 'source_type'];
+const REQUIRED_FRONT_MATTER_KEYS = ['title', 'slug', 'page_type', 'source', 'source_type'];
+// Presentation keys carried by interactive module pages; identity and discovery ignore them.
+const FRONT_MATTER_KEYS = [
+  ...REQUIRED_FRONT_MATTER_KEYS,
+  'article_section',
+  'is_part_of',
+  'meta_title',
+  'meta_description',
+  'keywords',
+  'interactive_module',
+  'interactive_data'
+];
 const SOURCE_TYPES = new Map(Object.entries(TECHNICAL_CONTENT_POLICY.sourceTypes));
 const CATEGORY_LABELS = TECHNICAL_CONTENT_POLICY.categories;
 const SECRET_PATTERN = /\b(?:sk-[A-Za-z0-9][A-Za-z0-9_-]{15,}|fastgpt-[A-Za-z0-9]{32,})\b/g;
@@ -51,12 +62,12 @@ function assertObject(value, label) {
   }
 }
 
-function assertExactKeys(value, expected, label) {
+function assertKeys(value, required, allowed, label) {
   assertObject(value, label);
-  const expectedSet = new Set(expected);
+  const allowedSet = new Set(allowed);
   const actual = Object.keys(value);
-  const missing = expected.filter((key) => !actual.includes(key));
-  const unexpected = actual.filter((key) => !expectedSet.has(key));
+  const missing = required.filter((key) => !actual.includes(key));
+  const unexpected = actual.filter((key) => !allowedSet.has(key));
   if (missing.length || unexpected.length) {
     const details = [
       missing.length ? `missing ${missing.join(', ')}` : '',
@@ -66,6 +77,10 @@ function assertExactKeys(value, expected, label) {
       .join('; ');
     throw new Error(`Schema drift in ${label}: ${details}`);
   }
+}
+
+function assertExactKeys(value, expected, label) {
+  assertKeys(value, expected, expected, label);
 }
 
 function requireText(value, label) {
@@ -187,7 +202,9 @@ function parseFrontMatter(source, sourcePath, strict = true) {
     }
     metadata[key] = line.slice(separator + 1).trim();
   }
-  if (strict) assertExactKeys(metadata, FRONT_MATTER_KEYS, `${sourcePath} front matter`);
+  if (strict) {
+    assertKeys(metadata, REQUIRED_FRONT_MATTER_KEYS, FRONT_MATTER_KEYS, `${sourcePath} front matter`);
+  }
   return {
     metadata,
     body: normalized
@@ -288,7 +305,9 @@ function normalizeDocument(metadata, locale, canonicalPath, body) {
     ...metadata,
     slug: `/${locale}${canonicalPath}`
   };
-  const header = FRONT_MATTER_KEYS.map((key) => `${key}: ${normalizedMetadata[key]}`).join('\n');
+  const header = FRONT_MATTER_KEYS.filter((key) => normalizedMetadata[key] !== undefined)
+    .map((key) => `${key}: ${normalizedMetadata[key]}`)
+    .join('\n');
   return {
     body: normalizedBody,
     document: `---\n${header}\n---\n\n${normalizedBody}\n`
@@ -320,7 +339,9 @@ function buildNormalizedTechnicalPage({ metadata, identity, body, wordCount, sou
     identity.canonicalPath,
     lineEndings
   );
-  const category = identity.canonicalPath.split('/')[1];
+  // `/guide/**` renders in the troubleshooting index, mirroring verifyTechnicalContent.
+  const section = identity.canonicalPath.split('/')[1];
+  const category = section === 'guide' ? 'troubleshoot' : section;
   const categoryLabel = CATEGORY_LABELS[category];
   if (!categoryLabel) {
     throw new Error(`Schema drift in ${label}: unsupported category ${category}`);
@@ -684,9 +705,19 @@ function buildImportPlan({ repoRoot = REPOSITORY_ROOT, sourcePath }) {
       throw new Error(`Schema drift in ${record.file}: source differs from delivery row`);
     const { locale } = parseIdentityFromSlug(metadata.slug, `${record.file} front matter slug`);
     if (!['zh', 'en'].includes(locale)) throw new Error(`Unsupported technical locale: ${locale}`);
+    // Interactive batches stage localized Markdown under a locale directory; the prefix must
+    // agree with the front matter slug, while category-rooted delivery paths stay unchanged.
+    const filePath = record.file.slice(0, -3);
+    const fileSegments = filePath.split('/');
+    const localePrefixed = ['zh', 'en'].includes(fileSegments[0]);
+    if (localePrefixed && fileSegments[0] !== locale)
+      throw new Error(
+        `Schema drift in ${record.file}: file locale prefix must match the front matter slug`
+      );
+    const canonicalPath = localePrefixed ? fileSegments.slice(1).join('/') : filePath;
     const identity = {
       locale,
-      canonicalPath: normalizeCanonicalPath(`/${record.file.slice(0, -3)}`, record.file)
+      canonicalPath: normalizeCanonicalPath(`/${canonicalPath}`, record.file)
     };
     const normalized = buildNormalizedTechnicalPage({
       metadata,
@@ -1081,8 +1112,8 @@ function main(argv = process.argv.slice(2)) {
   const options = parseArgs(argv);
   const plan = buildImportPlan({ repoRoot: REPOSITORY_ROOT, sourcePath: options.sourcePath });
   if (options.mode === 'check') {
-    verifyImportPlanNoDrift(plan);
     printCheck(plan);
+    verifyImportPlanNoDrift(plan);
     return;
   }
   verifyTechnicalContent();
